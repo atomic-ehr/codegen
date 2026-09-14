@@ -127,7 +127,7 @@ export class ConstrainedValuesServiceRequestProfile {
         return {
             errors: [
                 ...validateFixedValue(res, profileName, "doNotPerform", false),
-                ...validateFixedValue(res, profileName, "category", {"coding":[{"system":"http://example.test/category","code":"example"}]}),
+                ...validateFixedValue(res, profileName, "category", [{"coding":[{"system":"http://example.test/category","code":"example"}]}]),
                 ...validateRequired(res, profileName, "intent"),
                 ...validateFixedValue(res, profileName, "intent", "order"),
                 ...validateEnum(res, profileName, "intent", ["proposal","plan","directive","order","original-order","reflex-order","filler-order","instance-order","option"]),

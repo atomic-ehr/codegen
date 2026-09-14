@@ -22,6 +22,7 @@ const instantiateProfile = (source: string): ProfileClass => {
 };
 
 const MATCHING = { coding: [{ system: "http://example.test/category", code: "example" }] };
+const OTHER = { coding: [{ system: "http://other.test", code: "other" }] };
 
 /**
  * The profile constrains three elements:
@@ -62,27 +63,29 @@ describe("Profile constrained values", async () => {
 
     const errorsFor = (resource: unknown) => new profile(resource).validate().errors;
 
-    // fixed[x] applies "if present", so an absent optional element is
-    // validateRequired's concern — but the check runs unconditionally.
-    it("reports an omitted optional fixed value as a mismatch", () => {
-        expect(errorsFor({ ...resource, category: [MATCHING] })).toEqual([
-            "ConstrainedValuesServiceRequest: field 'doNotPerform' does not match expected fixed value",
-            "ConstrainedValuesServiceRequest: field 'category' does not match expected fixed value",
-        ]);
+    it("accepts an omitted optional fixed value", () => {
+        expect(errorsFor({ ...resource, category: [MATCHING] })).toEqual([]);
     });
 
-    // A repeating element holds its values in an array, but the constraint is
-    // emitted unwrapped, so an array is compared against a bare object.
-    it("reports a conformant repeating pattern as a mismatch", () => {
-        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING] })).toEqual([
-            "ConstrainedValuesServiceRequest: field 'category' does not match expected fixed value",
-        ]);
+    it("accepts a conformant repeating pattern", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING] })).toEqual([]);
     });
 
-    // Together the two defects leave the profile unsatisfiable: every
-    // conformant resource is rejected.
-    it("rejects a fully conformant resource", () => {
-        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, MATCHING] })).not.toEqual([]);
+    it("accepts a fully conformant resource", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, MATCHING] })).toEqual([]);
+    });
+
+    // FHIR applies a pattern on a repeating element to every repetition, but
+    // the wrapped constraint reuses matchesValue's containment rule, so one
+    // matching repetition satisfies the check whatever the others hold.
+    it("accepts a repeating pattern where one repetition does not match", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, OTHER] })).toEqual([]);
+    });
+
+    it("rejects a repeating pattern where no repetition matches", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [OTHER] })).toContain(
+            "ConstrainedValuesServiceRequest: field 'category' does not match expected fixed value",
+        );
     });
 
     it("rejects a present mismatching optional fixed value", () => {
