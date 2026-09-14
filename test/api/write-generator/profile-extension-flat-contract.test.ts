@@ -85,19 +85,49 @@ describe("Complex extension flat contract", async () => {
         expect(typecheck()).toEqual([]);
     });
 
-    // The parent's flat getter is typed with that same flat type while
-    // extraction only ever fills sub-extension values, so every member the type
-    // declares as required can be absent — now including the ordinary field.
-    it("returns a flat value missing the members its type declares as required", () => {
+    // The getter is typed as the extraction shape, so members it may not
+    // populate are optional and the ordinary field it never populates is gone.
+    it("types the flat getter as what extraction can actually produce", async () => {
+        const consumer = Path.join(output, "consumer.ts");
+        await writeFile(
+            consumer,
+            `import { NotedPatientProfile } from ${JSON.stringify(Path.join(output, patientPath))};
+import { NotedComplexExtensionProfile } from ${JSON.stringify(Path.join(output, extensionPath))};
+
+const patient = NotedPatientProfile.apply({ resourceType: "Patient" });
+const flat = patient.getNoted();
+// @ts-expect-error extraction never populates the ordinary field
+void flat?.id;
+// @ts-expect-error a member extraction may not populate is optional
+const _note: string = flat!.note;
+void flat?.note?.trim();
+// the factory input is unchanged and still requires both members
+NotedComplexExtensionProfile.createResource({ id: "n1", note: "hello" });
+patient.setNoted(NotedComplexExtensionProfile.createResource({ id: "n1", note: "hello" }));
+`,
+        );
+        const program = ts.createProgram([consumer], {
+            strict: true,
+            noEmit: true,
+            skipLibCheck: true,
+            target: ts.ScriptTarget.ESNext,
+            module: ts.ModuleKind.Preserve,
+            moduleResolution: ts.ModuleResolutionKind.Bundler,
+            allowImportingTsExtensions: true,
+            types: [],
+        });
+        expect(
+            ts.getPreEmitDiagnostics(program).map((d) => ts.flattenDiagnosticMessageText(d.messageText, " ")),
+        ).toEqual([]);
+    });
+
+    it("returns only the sub-extension values extraction could find", () => {
         const NotedPatient = instantiate(patientSource, "NotedPatientProfile");
         const patient = NotedPatient.apply({
             resourceType: "Patient",
             extension: [{ url: EXTENSION_URL, id: "note-1", extension: [{ url: "detail", valueString: "d" }] }],
         });
 
-        const flat = patient.getNoted();
-        expect(flat).toEqual({ detail: "d" });
-        expect(flat.note).toBeUndefined();
-        expect(flat.id).toBeUndefined();
+        expect(patient.getNoted()).toEqual({ detail: "d" });
     });
 });
