@@ -298,15 +298,26 @@ const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
         ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
         : false;
     const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Flat` : inputTypeName;
+    // The getter returns what extraction could find, not what the factory
+    // accepts: only sub-extension values are ever populated, and any of them may
+    // be absent. Narrowing the input type keeps the two contracts honest.
+    const subExtensionNames =
+        extProfileHasFlatInput && extProfileInfo
+            ? collectSubExtensionSlices(extProfileInfo.snapshot).map((sub) => JSON.stringify(sub.name))
+            : [];
+    const outputType =
+        subExtensionNames.length > 0
+            ? `Partial<Pick<${inputType}, ${subExtensionNames.join(" | ")}>>`
+            : `Partial<${inputType}>`;
 
-    generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, inputType, extProfileInfo, () => {
+    generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, outputType, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
             const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
             const isArray = sub.max === "*";
             return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
         });
         w.line(`const config = [${configItems.join(", ")}]`);
-        w.line(`return extractComplexExtension<${inputType}>(ext, config)`);
+        w.line(`return extractComplexExtension<${outputType}>(ext, config)`);
     });
 };
 
