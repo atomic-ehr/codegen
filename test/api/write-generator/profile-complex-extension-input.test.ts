@@ -216,6 +216,15 @@ inlineOptionalOnly.species?.text;
      * - element: Extension.id and Extension.extension:id normalized member id
      * - fixture_path: test/assets/profile-complex-extension-input/collision/collision-host.json
      * - selector: differential.element[Patient.extension:colliding].type[0].profile[0]
+     * - fixture_path: test/assets/profile-complex-extension-input/collision/normalized-name-collision-extension.json
+     * - selector: differential.element[Extension.extension:hyphenated-note|hyphenatedNote]
+     * - ig_canonical: http://example.test/StructureDefinition/normalized-name-collision-extension
+     * - element: Extension.extension slices normalized to hyphenatedNote
+     * - fixture_path: test/assets/profile-complex-extension-input/collision/reserved-extension-subextension.json
+     * - selector: differential.element[Extension.extension:extension]
+     * - ig_canonical: http://example.test/StructureDefinition/reserved-extension-subextension
+     * - element: Extension.extension slice normalized to reserved member extension
+     * - worked_example_pointer: atomic-ehr/codegen#224 review repair, "ambiguous and reserved sub-extension fallback"
      */
     it("falls back to raw-only factories when Flat members collide", async () => {
         const logger = mkCodegenLogger({ level: "SILENT" });
@@ -231,11 +240,20 @@ inlineOptionalOnly.species?.text;
         expect(result.errors).toEqual([]);
         expect(result.success).toBe(true);
         const collisionCanonical = "http://example.test/StructureDefinition/colliding-complex-extension";
-        const collisionDiagnostic = logger
-            .buffer()
-            .find((entry) => entry.level === "ERROR" && entry.message.includes(collisionCanonical))?.message;
-        expect(collisionDiagnostic).toContain(collisionCanonical);
-        expect(collisionDiagnostic).toMatch(/\bid\b/);
+        const normalizedCollisionCanonical =
+            "http://example.test/StructureDefinition/normalized-name-collision-extension";
+        const reservedCollisionCanonical = "http://example.test/StructureDefinition/reserved-extension-subextension";
+        for (const [canonical, member] of [
+            [collisionCanonical, "id"],
+            [normalizedCollisionCanonical, "hyphenatedNote"],
+            [reservedCollisionCanonical, "extension"],
+        ] as const) {
+            const diagnostic = logger
+                .buffer()
+                .find((entry) => entry.level === "ERROR" && entry.message.includes(canonical))?.message;
+            expect(diagnostic).toContain(canonical);
+            expect(diagnostic).toContain(`'${member}'`);
+        }
 
         const collisionFiles = result.filesGenerated.typescript ?? {};
         for (const [path, content] of Object.entries(collisionFiles)) {
@@ -249,13 +267,44 @@ inlineOptionalOnly.species?.text;
         const collisionHostPath = Object.keys(collisionFiles).find((path) =>
             path.endsWith("/Patient_CollisionHost.ts"),
         );
-        if (!collisionProfilePath || !collisionHostPath) throw new Error("Missing generated collision profiles");
+        const normalizedCollisionProfilePath = Object.keys(collisionFiles).find((path) =>
+            path.endsWith("/Extension_NormalizedNameCollisionExtension.ts"),
+        );
+        const reservedCollisionProfilePath = Object.keys(collisionFiles).find((path) =>
+            path.endsWith("/Extension_ReservedExtensionSubExtension.ts"),
+        );
+        if (
+            !collisionProfilePath ||
+            !collisionHostPath ||
+            !normalizedCollisionProfilePath ||
+            !reservedCollisionProfilePath
+        )
+            throw new Error("Missing generated collision profiles");
         const absoluteCollisionProfilePath = Path.join(collisionOutput, collisionProfilePath);
         const absoluteCollisionHostPath = Path.join(collisionOutput, collisionHostPath);
+        const absoluteNormalizedCollisionProfilePath = Path.join(collisionOutput, normalizedCollisionProfilePath);
+        const absoluteReservedCollisionProfilePath = Path.join(collisionOutput, reservedCollisionProfilePath);
         const collisionProfileSource = collisionFiles[collisionProfilePath] ?? "";
         const collisionHostSource = collisionFiles[collisionHostPath] ?? "";
+        const normalizedCollisionProfileSource = collisionFiles[normalizedCollisionProfilePath] ?? "";
+        const reservedCollisionProfileSource = collisionFiles[reservedCollisionProfilePath] ?? "";
         expect(collisionProfileSource).toContain("export type CollidingComplexExtensionProfileFlat = never");
+        expect(normalizedCollisionProfileSource).toContain(
+            "export type NormalizedNameCollisionExtensionProfileFlat = never",
+        );
+        expect(normalizedCollisionProfileSource).toContain("extension: Extension[]");
+        expect(normalizedCollisionProfileSource).not.toMatch(
+            /public (?:set|get)(?:HyphenatedNoteExtension|Hyphenated_note|ExtensionHyphenatedNote)\b/,
+        );
+        expect(normalizedCollisionProfileSource).toContain('"hyphenated-note"}, "hyphenated-note", 1, 1)');
+        expect(normalizedCollisionProfileSource).toContain('"hyphenatedNote"}, "hyphenatedNote", 0, 1)');
+        expect(reservedCollisionProfileSource).toContain(
+            "export type ReservedExtensionSubExtensionProfileFlat = never",
+        );
+        expect(reservedCollisionProfileSource).toContain("extension: Extension[]");
+        expect(reservedCollisionProfileSource).not.toMatch(/public (?:set|get)ExtensionExtension\b/);
         expect(collisionHostSource).not.toMatch(/export type \w*Collid\w*Flat/);
+        expect(collisionHostSource).not.toMatch(/export type \w*(?:NormalizedNames|ReservedExtension)\w*Flat/);
 
         const consumer = Path.join(collisionOutput, "collision-consumer.ts");
         await writeFile(
@@ -265,12 +314,22 @@ import {
     CollidingComplexExtensionProfile as Colliding,
     type CollidingComplexExtensionProfileFlat,
 } from ${JSON.stringify(absoluteCollisionProfilePath)};
+import {
+    NormalizedNameCollisionExtensionProfile as NormalizedNames,
+    type NormalizedNameCollisionExtensionProfileFlat,
+} from ${JSON.stringify(absoluteNormalizedCollisionProfilePath)};
+import {
+    ReservedExtensionSubExtensionProfile as ReservedExtension,
+    type ReservedExtensionSubExtensionProfileFlat,
+} from ${JSON.stringify(absoluteReservedCollisionProfilePath)};
 import { CollisionHostProfile as Host } from ${JSON.stringify(absoluteCollisionHostPath)};
 
 type Equal<Left, Right> =
     (<T>() => T extends Left ? 1 : 2) extends (<T>() => T extends Right ? 1 : 2) ? true : false;
 type Expect<T extends true> = T;
 type FlatIsUnusable = Expect<Equal<CollidingComplexExtensionProfileFlat, never>>;
+type NormalizedNamesFlatIsUnusable = Expect<Equal<NormalizedNameCollisionExtensionProfileFlat, never>>;
+type ReservedExtensionFlatIsUnusable = Expect<Equal<ReservedExtensionSubExtensionProfileFlat, never>>;
 
 const rawInput = { id: "ordinary", extension: [{ url: "id", valueInteger: 7 }] };
 Colliding.createResource(rawInput);
@@ -278,11 +337,44 @@ const collidingProfile = Colliding.create(rawInput);
 // @ts-expect-error A collision fallback requires the Raw extension discriminator.
 Colliding.createResource({ id: "ordinary" });
 
+const normalizedNamesRawInput = {
+    extension: [
+        { url: "hyphenated-note", valueString: "dash" },
+        { url: "hyphenatedNote", valueInteger: 8 },
+    ],
+};
+const normalizedNamesProfile = NormalizedNames.create(normalizedNamesRawInput);
+// @ts-expect-error A normalized-name collision requires the Raw extension discriminator.
+NormalizedNames.createResource();
+
+const reservedExtensionRawInput = { extension: [{ url: "extension", valueBoolean: true }] };
+const reservedExtensionProfile = ReservedExtension.create(reservedExtensionRawInput);
+// @ts-expect-error A reserved-name collision requires the Raw extension discriminator.
+ReservedExtension.createResource();
+
 const host = Host.create().setColliding(collidingProfile);
 const raw = host.getColliding("raw");
 if (raw) host.setColliding(raw);
 const profile = host.getColliding("profile");
 if (profile) host.setColliding(profile);
+
+host.setNormalizedNames(normalizedNamesProfile);
+const normalizedNamesRaw = host.getNormalizedNames("raw");
+if (normalizedNamesRaw) host.setNormalizedNames(normalizedNamesRaw);
+const normalizedNamesProfileOutput = host.getNormalizedNames("profile");
+if (normalizedNamesProfileOutput) host.setNormalizedNames(normalizedNamesProfileOutput);
+const normalizedNamesFlat = host.getNormalizedNames();
+// @ts-expect-error Ambiguous normalized sub-extension keys are omitted from the structural getter.
+normalizedNamesFlat?.hyphenatedNote;
+
+host.setReservedExtension(reservedExtensionProfile);
+const reservedExtensionRaw = host.getReservedExtension("raw");
+if (reservedExtensionRaw) host.setReservedExtension(reservedExtensionRaw);
+const reservedExtensionProfileOutput = host.getReservedExtension("profile");
+if (reservedExtensionProfileOutput) host.setReservedExtension(reservedExtensionProfileOutput);
+const reservedExtensionFlat = host.getReservedExtension();
+// @ts-expect-error Reserved sub-extension keys are omitted from the structural getter.
+reservedExtensionFlat?.extension;
 
 const flat = host.getColliding();
 type HonestAnonymousFlat = Expect<Equal<NonNullable<typeof flat>, Partial<{ id: number }>>>;
@@ -313,6 +405,12 @@ if (flat) {
         ).toBe("");
 
         const { CollidingComplexExtensionProfile: Colliding } = await import(absoluteCollisionProfilePath);
+        const { NormalizedNameCollisionExtensionProfile: NormalizedNames } = await import(
+            absoluteNormalizedCollisionProfilePath
+        );
+        const { ReservedExtensionSubExtensionProfile: ReservedExtension } = await import(
+            absoluteReservedCollisionProfilePath
+        );
         const { CollisionHostProfile: Host } = await import(absoluteCollisionHostPath);
         const rawInput = { id: "ordinary", extension: [{ url: "id", valueInteger: 7 }] };
         const expectedRaw = {
@@ -328,5 +426,32 @@ if (flat) {
         host.setColliding(host.getColliding("raw")!);
         expect(host.getColliding("raw")).toEqual(expectedRaw);
         expect(host.getColliding()).toEqual({ id: 7 });
+
+        const normalizedNamesRawInput = {
+            extension: [
+                { url: "hyphenated-note", valueString: "dash" },
+                { url: "hyphenatedNote", valueInteger: 8 },
+            ],
+        };
+        const expectedNormalizedNamesRaw = { url: normalizedCollisionCanonical, ...normalizedNamesRawInput };
+        expect(NormalizedNames.createResource({ extension: [] })).toEqual({
+            url: normalizedCollisionCanonical,
+            extension: [{ url: "hyphenated-note" }],
+        });
+        host.setNormalizedNames(NormalizedNames.create(normalizedNamesRawInput));
+        expect(host.getNormalizedNames("raw")).toEqual(expectedNormalizedNamesRaw);
+        host.setNormalizedNames(host.getNormalizedNames("profile")!);
+        expect(host.getNormalizedNames("raw")).toEqual(expectedNormalizedNamesRaw);
+        host.setNormalizedNames(host.getNormalizedNames("raw")!);
+        expect(host.getNormalizedNames("raw")).toEqual(expectedNormalizedNamesRaw);
+
+        const reservedExtensionRawInput = { extension: [{ url: "extension", valueBoolean: true }] };
+        const expectedReservedExtensionRaw = { url: reservedCollisionCanonical, ...reservedExtensionRawInput };
+        host.setReservedExtension(ReservedExtension.create(reservedExtensionRawInput));
+        expect(host.getReservedExtension("raw")).toEqual(expectedReservedExtensionRaw);
+        host.setReservedExtension(host.getReservedExtension("profile")!);
+        expect(host.getReservedExtension("raw")).toEqual(expectedReservedExtensionRaw);
+        host.setReservedExtension(host.getReservedExtension("raw")!);
+        expect(host.getReservedExtension("raw")).toEqual(expectedReservedExtensionRaw);
     });
 });

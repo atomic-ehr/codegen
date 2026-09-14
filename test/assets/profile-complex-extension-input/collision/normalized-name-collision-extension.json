@@ -1,0 +1,104 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "normalized-name-collision-extension",
+  "url": "http://example.test/StructureDefinition/normalized-name-collision-extension",
+  "version": "0.1.0",
+  "name": "NormalizedNameCollisionExtension",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [
+    {
+      "type": "element",
+      "expression": "Patient"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension"
+      },
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Extension.extension:hyphenated-note",
+        "path": "Extension.extension",
+        "sliceName": "hyphenated-note",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.extension",
+        "path": "Extension.extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.url",
+        "path": "Extension.extension.url",
+        "fixedUri": "hyphenated-note"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.value[x]",
+        "path": "Extension.extension.value[x]",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "Extension.extension:hyphenatedNote",
+        "path": "Extension.extension",
+        "sliceName": "hyphenatedNote",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "Extension.extension:hyphenatedNote.extension",
+        "path": "Extension.extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.extension:hyphenatedNote.url",
+        "path": "Extension.extension.url",
+        "fixedUri": "hyphenatedNote"
+      },
+      {
+        "id": "Extension.extension:hyphenatedNote.value[x]",
+        "path": "Extension.extension.value[x]",
+        "min": 1,
+        "type": [
+          {
+            "code": "integer"
+          }
+        ]
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://example.test/StructureDefinition/normalized-name-collision-extension"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "max": "0"
+      }
+    ]
+  }
+}

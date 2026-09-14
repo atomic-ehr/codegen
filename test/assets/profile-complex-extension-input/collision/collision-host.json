@@ -44,6 +44,36 @@
             ]
           }
         ]
+      },
+      {
+        "id": "Patient.extension:normalizedNames",
+        "path": "Patient.extension",
+        "sliceName": "normalizedNames",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.test/StructureDefinition/normalized-name-collision-extension"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Patient.extension:reservedExtension",
+        "path": "Patient.extension",
+        "sliceName": "reservedExtension",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.test/StructureDefinition/reserved-extension-subextension"
+            ]
+          }
+        ]
       }
     ]
   }
