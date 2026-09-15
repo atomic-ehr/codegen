@@ -281,6 +281,10 @@ patient.getRace("profile")   // USCoreRaceExtensionProfile instance
 patient.getRace("raw")       // raw FHIR Extension
 ```
 
+The flat getter returns a partial projection of the mapped sub-extension fields. It excludes ordinary `Extension` fields such as `id`, and fields required by the extension profile remain optional because an applied resource may be incomplete. Use the `raw` or `profile` getter mode when passing an existing extension back to the setter without first completing the flat input.
+
+If an ordinary extension field and a sub-extension normalize to the same flat member name, the generator reports the profile canonical and member as an error diagnostic, emits the profile's `Flat` input as `never`, and requires an explicit `extension` array on its `Raw` input. This preserves generation and the unambiguous raw/profile factory and accessor paths.
+
 ## TypeSchema Representation
 
 Profiles use `kind = "constraint"` in TypeSchema.

@@ -103,6 +103,29 @@ export const collectSubExtensionSlices = (extProfile: SnapshotProfileTypeSchema)
     return result;
 };
 
+export const collectFlatInputCollisionNames = (
+    extProfile: SnapshotProfileTypeSchema,
+    ordinaryFieldNames: string[],
+): string[] => {
+    const seen = new Set<string>(["extension"]);
+    const collisions = new Set<string>();
+    for (const name of [...ordinaryFieldNames, ...collectSubExtensionSlices(extProfile).map((sub) => sub.name)]) {
+        if (seen.has(name)) collisions.add(name);
+        seen.add(name);
+    }
+    return [...collisions].sort();
+};
+
+export const collectUnrepresentableSubExtensionNames = (extProfile: SnapshotProfileTypeSchema): string[] => {
+    const seen = new Set<string>(["extension"]);
+    const unrepresentable = new Set<string>();
+    for (const { name } of collectSubExtensionSlices(extProfile)) {
+        if (seen.has(name)) unrepresentable.add(name);
+        seen.add(name);
+    }
+    return [...unrepresentable].sort();
+};
+
 /**
  * Resolve extension URL → extension profile class info (if the extension has
  * its own generated profile class in the index).
@@ -180,22 +203,22 @@ const generateExtensionGetterOverloads = (
     ext: ProfileExtension,
     targetPath: string[],
     methodName: string,
-    inputType: string,
+    flatOutputType: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
-    generateInputBody: () => void,
+    generateFlatBody: () => void,
 ) => {
     const hasProfile = !!extProfileInfo;
     const defaultMode = effectiveGetterDefault(w, hasProfile);
     const modes: ("flat" | "profile" | "raw")[] = hasProfile ? ["flat", "profile", "raw"] : ["flat", "raw"];
 
     for (const mode of modes) {
-        const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className);
+        const rt = returnTypeForMode(mode, flatOutputType, extProfileInfo?.className);
         w.lineSM(`public ${methodName}(mode: '${mode}'): ${rt} | undefined`);
     }
-    const defaultReturn = returnTypeForMode(defaultMode, inputType, extProfileInfo?.className);
+    const defaultReturn = returnTypeForMode(defaultMode, flatOutputType, extProfileInfo?.className);
     w.lineSM(`public ${methodName}(): ${defaultReturn} | undefined`);
 
-    const allReturns = [...new Set(modes.map((m) => returnTypeForMode(m, inputType, extProfileInfo?.className)))];
+    const allReturns = [...new Set(modes.map((m) => returnTypeForMode(m, flatOutputType, extProfileInfo?.className)))];
     const modesUnion = modes.map((m) => `'${m}'`).join(" | ");
     w.curlyBlock(
         ["public", methodName, `(mode: ${modesUnion} = '${defaultMode}'): ${allReturns.join(" | ")} | undefined`],
@@ -206,7 +229,7 @@ const generateExtensionGetterOverloads = (
             if (hasProfile) {
                 w.line(`if (mode === 'profile') return ${extProfileInfo?.className}.apply(ext)`);
             }
-            generateInputBody();
+            generateFlatBody();
         },
     );
 };
@@ -218,6 +241,8 @@ type ExtensionMethodInfo = {
     getMethodName: string;
     targetPath: string[];
     extProfileInfo: ExtensionProfileInfo | undefined;
+    extProfileFlatInputCollisions: string[];
+    extProfileUnrepresentableSubExtensionNames: string[];
 };
 
 // Complex extension — has sub-extensions (e.g., Race with ombCategory, detailed, text)
@@ -291,22 +316,42 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
 };
 
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
-    const { ext, snapshot, getMethodName, targetPath, extProfileInfo } = info;
+    const {
+        ext,
+        snapshot,
+        getMethodName,
+        targetPath,
+        extProfileInfo,
+        extProfileFlatInputCollisions,
+        extProfileUnrepresentableSubExtensionNames,
+    } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
-    const extProfileHasFlatInput = extProfileInfo
-        ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
-        : false;
-    const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Flat` : inputTypeName;
+    const profileSubSlices = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot) : [];
+    const unrepresentableNames = new Set(extProfileUnrepresentableSubExtensionNames);
+    const outputSubSlices = profileSubSlices.filter((sub) => !unrepresentableNames.has(sub.name));
+    const extProfileHasFlatInput = profileSubSlices.length > 0;
+    const structuralOutputType = `{ ${outputSubSlices
+        .map((sub) => `${JSON.stringify(sub.name)}: ${sub.tsType}${sub.isArray ? "[]" : ""}`)
+        .join("; ")} }`;
+    let flatOutputType = `Partial<${inputTypeName}>`;
+    if (extProfileHasFlatInput && extProfileInfo) {
+        flatOutputType =
+            extProfileFlatInputCollisions.length > 0
+                ? `Partial<${structuralOutputType}>`
+                : `Partial<Pick<${extProfileInfo.className}Flat, ${profileSubSlices
+                      .map((sub) => JSON.stringify(sub.name))
+                      .join(" | ")}>>`;
+    }
 
-    generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, inputType, extProfileInfo, () => {
+    generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, flatOutputType, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
             const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
             const isArray = sub.max === "*";
             return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
         });
         w.line(`const config = [${configItems.join(", ")}]`);
-        w.line(`return extractComplexExtension<${inputType}>(ext, config)`);
+        w.line(`return extractComplexExtension<${flatOutputType}>(ext, config)`);
     });
 };
 
@@ -405,11 +450,31 @@ export const generateExtensionMethods = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
+    const unrepresentableOwnExtensionNames =
+        snapshot.base.name === "Extension" ? new Set(collectUnrepresentableSubExtensionNames(snapshot)) : undefined;
     for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
+        if (unrepresentableOwnExtensionNames?.has(tsCamelCase(ext.name) || ext.name)) continue;
         const baseName = ext.nameCandidates.recommended;
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
+        const extProfileFactoryInfo = extProfileInfo
+            ? collectProfileFactoryInfo(tsIndex, extProfileInfo.snapshot)
+            : undefined;
+        const extProfileFlatInputCollisions =
+            extProfileInfo && extProfileFactoryInfo
+                ? collectFlatInputCollisionNames(extProfileInfo.snapshot, [
+                      ...extProfileFactoryInfo.params
+                          .filter((field) => field.name !== "extension")
+                          .map((field) => field.name),
+                      ...extProfileFactoryInfo.sliceAutoFields
+                          .filter((field) => field.name !== "extension")
+                          .map((field) => field.name),
+                  ])
+                : [];
+        const extProfileUnrepresentableSubExtensionNames = extProfileInfo
+            ? collectUnrepresentableSubExtensionNames(extProfileInfo.snapshot)
+            : [];
         const info: ExtensionMethodInfo = {
             ext,
             snapshot,
@@ -417,6 +482,8 @@ export const generateExtensionMethods = (
             getMethodName: `get${baseName}`,
             targetPath,
             extProfileInfo,
+            extProfileFlatInputCollisions,
+            extProfileUnrepresentableSubExtensionNames,
         };
 
         if (ext.isComplex && ext.subExtensions) {
