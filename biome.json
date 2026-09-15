@@ -19,7 +19,12 @@
       "examples/*/*/*.ts",
       "examples/*.ts",
       "assets/api/writer-generator/**/*.ts",
-      ".zed/*.json"
+      ".zed/*.json",
+      "!**/node_modules",
+      "!**/.codegen-cache",
+      "!**/.typeschema-cache",
+      "!**/venv",
+      "!.claude"
     ]
   },
   "formatter": {
@@ -71,7 +76,7 @@
       "nursery": {
         "noFloatingPromises": "warn"
       },
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "javascript": {
