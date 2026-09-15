@@ -147,6 +147,30 @@ Example test files in `examples/` follow a two-tier structure:
 
 Reference example: `examples/typescript-r4-us-core/profile-r4-bodyweight.test.ts`
 
+### Testing Generated Code Through an Example
+
+When a change affects what generated code looks like or how it behaves for a consumer, prefer a test in `examples/` over an in-memory generator test in `test/`. Generation happens once, up front, as a build step — the test is then an ordinary consumer of the result.
+
+1. Drop the StructureDefinition into the example's `structure-definitions/` (naming it `<id>.structuredefinition.json`)
+2. Add its canonical URL as a tree-shake root in that example's `generate.ts`, in the existing local generation step — one type tree, no second output directory
+3. Write `examples/<example>/<topic>.test.ts` that imports the generated profiles with plain **static** imports
+4. Snapshot the generated modules by reading them from disk with `Bun.file(...).text()`, so a change to the emitted types shows up in the diff next to the behaviour change
+
+The example's Makefile target supplies the rest, in this order:
+
+```make
+test-<example>-example: typecheck
+	bun run examples/<example>/generate.ts
+	$(TYPECHECK) --project examples/<example>/tsconfig.json
+	bun test ./examples/<example>/
+```
+
+That order is what makes the test small: `tsc --project` covers the generated code *and* the test file, so `@ts-expect-error` in a test is a real assertion — a directive that stops erroring fails the build. The test never constructs an `APIBuilder`, writes a temp directory, or reaches for `ts.createProgram`/`Bun.Transpiler`.
+
+The one thing this cannot express is "generated code must not compile" — the project typecheck fails for everyone, whatever the test says. Record that kind of defect with an in-memory test under `test/api/write-generator/` instead, and move it into the example once the fix lands.
+
+Reference example: `examples/typescript-custom-packages/profile-complex-extension-flat.test.ts`
+
 ### Key Dependencies
 - `@atomic-ehr/fhir-canonical-manager`: FHIR package management
 - `@atomic-ehr/fhirschema`: FHIR schema definitions
