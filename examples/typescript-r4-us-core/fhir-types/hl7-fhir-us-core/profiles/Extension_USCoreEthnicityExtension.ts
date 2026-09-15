@@ -107,7 +107,7 @@ export class USCoreEthnicityExtensionProfile {
     }
 
     static createResource (args: USCoreEthnicityExtensionProfileRaw | USCoreEthnicityExtensionProfileFlat) : Extension {
-        const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
