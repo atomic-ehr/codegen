@@ -8,7 +8,7 @@
  * the existing `naming-utils.ts` stays focused on the core type writer.
  */
 
-import { PYTHON_KEYWORDS } from "@root/api/writer-generator/python/naming-utils";
+import { LEADING_DIGIT_RE, PYTHON_KEYWORDS } from "@root/api/writer-generator/python/naming-utils";
 import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type {
     ProfileExtension,
@@ -27,7 +27,7 @@ import type { SliceDef } from "./profile-slices";
 export const normalizePyName = (n: string): string => {
     let out = n.replace(/\[x\]/g, "_x_").replace(/[- :./]/g, "_");
     if (PYTHON_KEYWORDS.has(out)) out = `${out}_`;
-    if (/^\d/.test(out)) out = `_${out}`;
+    if (LEADING_DIGIT_RE.test(out)) out = `_${out}`;
     return out;
 };
 

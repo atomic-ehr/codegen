@@ -69,6 +69,8 @@ export const fixReservedWords = (name: string): string => {
     return PYTHON_KEYWORDS.has(name) ? `${name}_` : name;
 };
 
+export const LEADING_DIGIT_RE = /^\d/;
+
 export const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
     if (!canonical) return undefined;
     let localName = canonical.split("/").pop();
@@ -77,7 +79,7 @@ export const canonicalToName = (canonical: string | undefined, dropFragment = tr
         localName = localName.split("#")[0];
     }
     if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
+    if (LEADING_DIGIT_RE.test(localName)) {
         localName = `number_${localName}`;
     }
     return snakeCase(localName);

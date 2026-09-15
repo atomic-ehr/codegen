@@ -393,8 +393,9 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     const typedResources = [
         ...new Set(
             sliceDefs
-                .filter((s) => s.isTypeDiscriminated && s.typeDiscriminatorResource)
-                .map((s) => s.typeDiscriminatorResource!),
+                .filter((s) => s.isTypeDiscriminated)
+                .map((s) => s.typeDiscriminatorResource)
+                .filter((resource): resource is string => resource !== undefined),
         ),
     ];
     const annotatedBaseTypeName =
