@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
+import { type CanonicalUrl, enrichFHIRSchema, type Name, type PkgName } from "@root/typeschema/types";
 import {
     mergeFsElementProps,
     registerFromManager,
@@ -208,5 +208,67 @@ describe("package-agnostic canonical resolution", async () => {
 
     it("returns undefined when no package holds the canonical", () => {
         expect(reg.resolveAny("http://example.org/nothing-here" as CanonicalUrl)).toBeUndefined();
+    });
+});
+
+describe("resolution depth", () => {
+    // Both `a` and `far` are focused roots, and `far` is also reachable from `a` as
+    // a -> near -> far. Package indexes are memoized, so `far`'s index is the same object in
+    // every closure that includes it; scanned as a root it stamps its own entries at depth 0.
+    // Without re-stamping on splice it keeps depth 0 inside `a`'s closure and outranks `near`,
+    // which genuinely is closer — the shape behind hl7.terminology@5.1.0 -> hl7.fhir.r4.core
+    // handing R5 the R4 copy of a CodeSystem that both packages carry.
+    it("is relative to the package whose closure holds it", async () => {
+        const deps: Record<string, string[]> = { a: ["near"], near: ["far"], far: [] };
+        const shared = "http://example.org/CodeSystem/shared";
+        const manager = {
+            packages: async () => Object.keys(deps).map((name) => ({ name, version: "1.0.0" })),
+            packageJson: async (name: string) => ({
+                name,
+                version: "1.0.0",
+                dependencies: Object.fromEntries((deps[name] ?? []).map((d) => [d, "1.0.0"])),
+            }),
+            // Every package carries the same canonical, so ordering alone decides the winner.
+            search: async ({ package: pkg }: { package: { name: string } }) => [
+                { resourceType: "CodeSystem", url: shared, id: pkg.name, content: "complete", concept: [] },
+            ],
+        } as unknown as Parameters<typeof registerFromManager>[0];
+
+        const reg = await registerFromManager(manager, {
+            focusedPackages: [
+                { name: "far", version: "1.0.0" }, // scanned as a root first, at depth 0
+                { name: "a", version: "1.0.0" },
+            ],
+        });
+
+        const options = reg.resolver["a#1.0.0"]?.canonicalResolution[shared as CanonicalUrl];
+        expect(options?.map((o) => `${o.pkgId}@${o.deep}`)).toEqual(["a#1.0.0@0", "near#1.0.0@1", "far#1.0.0@2"]);
+    });
+
+    // `resolveRoot` reads this list head-first to root a shake in a package that reaches the
+    // canonical through a dependency, so a wrong order there picks the wrong provider.
+    it("orders a holder's dependencies nearest first when it lacks the canonical", async () => {
+        const deps: Record<string, string[]> = { a: ["near"], near: ["far"], far: [] };
+        const url = "http://example.org/StructureDefinition/X";
+        const manager = {
+            packages: async () => Object.keys(deps).map((name) => ({ name, version: "1.0.0" })),
+            packageJson: async (name: string) => ({
+                name,
+                version: "1.0.0",
+                dependencies: Object.fromEntries((deps[name] ?? []).map((d) => [d, "1.0.0"])),
+            }),
+            search: async ({ package: pkg }: { package: { name: string } }) =>
+                pkg.name === "a" ? [] : [{ resourceType: "StructureDefinition", url, id: pkg.name, kind: "resource" }],
+        } as unknown as Parameters<typeof registerFromManager>[0];
+
+        const reg = await registerFromManager(manager, {
+            focusedPackages: [
+                { name: "far", version: "1.0.0" },
+                { name: "a", version: "1.0.0" },
+            ],
+        });
+
+        const options = reg.resolutionTree()["a" as PkgName]?.[url as CanonicalUrl];
+        expect(options?.map((o) => `${o.pkg.name}@${o.deep}`)).toEqual(["near@1", "far@2"]);
     });
 });
