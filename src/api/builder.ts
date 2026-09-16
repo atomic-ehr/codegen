@@ -382,7 +382,7 @@ export class APIBuilder {
     typescript(userOpts: Partial<TypeScriptOptions>) {
         const defaultWriterOpts: WriterOptions = {
             logger: this.logger,
-            outputDir: Path.join(this.options.outputDir, "/types"),
+            outputDir: this.generatorOutputDir("/types"),
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
@@ -456,7 +456,7 @@ export class APIBuilder {
     csharp(userOptions: Partial<CSharpGeneratorOptions>): APIBuilder {
         const defaultWriterOpts: WriterOptions = {
             logger: this.logger,
-            outputDir: Path.join(this.options.outputDir, "/types"),
+            outputDir: this.generatorOutputDir("/types"),
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
@@ -478,12 +478,23 @@ export class APIBuilder {
         return this;
     }
 
+    /** Set by `outputTo`, to tell an explicit output directory from the default one. */
+    private explicitOutputDir?: string;
+
+    /** Output directory for a generator being configured now. `subdir` applies only when
+     *  `outputTo` never named one. */
+    private generatorOutputDir(subdir?: string): string {
+        if (this.explicitOutputDir !== undefined) return this.explicitOutputDir;
+        return subdir === undefined ? this.options.outputDir : Path.join(this.options.outputDir, subdir);
+    }
+
     /**
-     * Set the output directory for all generators
+     * Set the output directory for all generators, whenever they are configured
      */
     outputTo(directory: string): APIBuilder {
         this.logger.debug(`Setting output directory: ${directory}`);
         this.options.outputDir = directory;
+        this.explicitOutputDir = directory;
 
         // Update all configured generators
         for (const gen of this.generators) {
