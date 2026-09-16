@@ -21,6 +21,11 @@
 - `http://example.org/fhir/StructureDefinition/ExampleNotebook`
 - `http://example.org/fhir/StructureDefinition/ExampleTypedBundle`
 - `http://example.org/fhir/StructureDefinition/PatientMetaRequired`
+- `http://example.test/StructureDefinition/identified-complex-extension`
+- `http://example.test/StructureDefinition/noted-complex-extension`
+- `http://example.test/StructureDefinition/noted-patient`
+- `http://example.test/StructureDefinition/optional-complex-extension`
+- `http://example.test/StructureDefinition/required-complex-extension`
 
 ## Package: `hl7.fhir.r4.core`
 
