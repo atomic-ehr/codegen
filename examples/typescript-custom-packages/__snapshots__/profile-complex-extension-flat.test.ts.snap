@@ -441,6 +441,9 @@ import type { Patient } from "../../hl7-fhir-r5-core/Patient";
 
 import { NotedComplexExtensionProfile, type NotedComplexExtensionProfileFlat } from "./Extension_NotedComplexExtension";
 
+export type NotedPatient_NotedExtracted = Partial<Pick<NotedComplexExtensionProfileFlat, "note" | "detail">>;
+export type NotedPatient_NotedValidFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
+
 import {
     ensureProfile,
     extractComplexExtension,
@@ -524,17 +527,23 @@ export class NotedPatientProfile {
         return this
     }
 
-    public getNoted(mode: 'flat'): NotedComplexExtensionProfileFlat | undefined;
+    public getNoted(mode: 'flat'): NotedPatient_NotedExtracted | undefined;
+    public getNoted(mode: 'valid-flat'): NotedPatient_NotedValidFlat | undefined;
     public getNoted(mode: 'profile'): NotedComplexExtensionProfile | undefined;
     public getNoted(mode: 'raw'): Extension | undefined;
-    public getNoted(): NotedComplexExtensionProfileFlat | undefined;
-    public getNoted (mode: 'flat' | 'profile' | 'raw' = 'flat'): NotedComplexExtensionProfileFlat | NotedComplexExtensionProfile | Extension | undefined {
+    public getNoted(): NotedPatient_NotedExtracted | undefined;
+    public getNoted (mode: 'flat' | 'valid-flat' | 'profile' | 'raw' = 'flat'): NotedPatient_NotedExtracted | NotedPatient_NotedValidFlat | NotedComplexExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://example.test/StructureDefinition/noted-complex-extension")
         if (!ext) return undefined
         if (mode === 'raw') return ext
         if (mode === 'profile') return NotedComplexExtensionProfile.apply(ext)
         const config = [{ name: "note", valueField: "valueString", isArray: false }, { name: "detail", valueField: "valueString", isArray: false }]
-        return extractComplexExtension<NotedComplexExtensionProfileFlat>(ext, config)
+        if (mode === 'valid-flat') {
+            const { errors } = NotedComplexExtensionProfile.apply(ext).validate()
+            if (errors.length > 0) throw new Error(errors.join("; "))
+            return extractComplexExtension<NotedPatient_NotedValidFlat>(ext, config)
+        }
+        return extractComplexExtension<NotedPatient_NotedExtracted>(ext, config)
     }
 
     // Slices

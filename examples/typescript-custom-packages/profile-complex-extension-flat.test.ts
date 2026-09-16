@@ -28,8 +28,9 @@ describe("demo: carry a complex extension on a patient", () => {
         expect(resource).toMatchSnapshot();
     });
 
-    test("the getter returns a flat value missing a member its type declares as required", () => {
-        const patient = NotedPatientProfile.apply({
+    // An incomplete extension: `note` is required by the profile but was never written.
+    const incompletePatient = () =>
+        NotedPatientProfile.apply({
             resourceType: "Patient",
             extension: [
                 {
@@ -40,12 +41,31 @@ describe("demo: carry a complex extension on a patient", () => {
             ],
         });
 
-        // The getter is typed with the factory's flat type while extraction only ever
-        // fills sub-extension values — `note` is declared required but is absent.
-        const flat = patient.getNoted();
-        // @ts-expect-error the getter's type promises members extraction never fills
+    test("the default getter returns only the sub-extension values extraction could find", () => {
+        // Every member is optional: extraction fills what it finds, and the ordinary
+        // field the factory takes (`id`) is not a sub-extension, so it is never filled.
+        const flat = incompletePatient().getNoted();
+
         expect(flat).toEqual({ detail: "d" });
         expect(flat?.note).toBeUndefined();
+    });
+
+    test("the valid-flat getter validates first, so its members are guaranteed", () => {
+        const patient = NotedPatientProfile.create().setNoted({ id: "n1", note: "hello", detail: "d" });
+
+        // `note` is typed as string, not string | undefined — the check backs the type.
+        const note: string = patient.getNoted("valid-flat")!.note;
+
+        expect(note).toBe("hello");
+    });
+
+    test("the valid-flat getter throws on an extension the profile would reject", () => {
+        expect(() => incompletePatient().getNoted("valid-flat")).toThrow(
+            "NotedComplexExtension.extension: slice 'note' requires at least 1 item(s), found 0",
+        );
+
+        // The lenient arm still reads the same resource without complaint.
+        expect(incompletePatient().getNoted()).toEqual({ detail: "d" });
     });
 });
 
@@ -89,6 +109,21 @@ export const _flatContractTypes = () => {
     IdentifiedComplexExtensionProfile.createResource({ optionalValue: "present" });
     // @ts-expect-error The parent's setter inherits the extension's flat contract.
     NotedPatientProfile.create().setNoted({ note: "hello" });
+
+    // The default getter promises nothing extraction may fail to produce.
+    const flat = NotedPatientProfile.create().getNoted();
+    // @ts-expect-error extraction never populates the ordinary field
+    void flat?.id;
+    // @ts-expect-error a member extraction may not populate is optional
+    const _note: string = flat!.note;
+    void flat?.note?.trim();
+
+    // The valid-flat getter validated the extension, so the required member is guaranteed —
+    // while the ordinary field is still not part of what extraction produces.
+    const validFlat = NotedPatientProfile.create().getNoted("valid-flat");
+    const _validNote: string = validFlat!.note;
+    // @ts-expect-error extraction never populates the ordinary field, validated or not
+    void validFlat?.id;
 };
 
 describe("the generated modules", () => {
