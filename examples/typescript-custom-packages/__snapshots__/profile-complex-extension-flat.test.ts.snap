@@ -70,6 +70,7 @@ export type NotedComplexExtensionProfileRaw = {
 }
 
 export type NotedComplexExtensionProfileFlat = {
+    id: string;
     note: string;
     detail?: string;
 }
@@ -121,7 +122,7 @@ export class NotedComplexExtensionProfile {
     }
 
     static createResource (args: NotedComplexExtensionProfileRaw | NotedComplexExtensionProfileFlat) : Extension {
-        const resolvedExtensions = NotedComplexExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = NotedComplexExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: NotedComplexExtensionProfile.canonicalUrl,
@@ -292,6 +293,7 @@ export type IdentifiedComplexExtensionProfileRaw = {
 }
 
 export type IdentifiedComplexExtensionProfileFlat = {
+    id: string;
     optionalValue?: string;
 }
 
@@ -338,7 +340,7 @@ export class IdentifiedComplexExtensionProfile {
     }
 
     static createResource (args: IdentifiedComplexExtensionProfileRaw | IdentifiedComplexExtensionProfileFlat) : Extension {
-        const resolvedExtensions = IdentifiedComplexExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = IdentifiedComplexExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: IdentifiedComplexExtensionProfile.canonicalUrl,
