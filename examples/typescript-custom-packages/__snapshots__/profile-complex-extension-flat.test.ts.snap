@@ -441,9 +441,6 @@ import type { Patient } from "../../hl7-fhir-r5-core/Patient";
 
 import { NotedComplexExtensionProfile, type NotedComplexExtensionProfileFlat } from "./Extension_NotedComplexExtension";
 
-export type NotedPatient_NotedExtracted = Partial<Pick<NotedComplexExtensionProfileFlat, "note" | "detail">>;
-export type NotedPatient_NotedValidFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
-
 import {
     ensureProfile,
     extractComplexExtension,
@@ -462,6 +459,9 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type NotedPatient_NotedExtracted = Partial<Pick<NotedComplexExtensionProfileFlat, "note" | "detail">>;
+export type NotedPatient_NotedValidFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
 
 // CanonicalURL: http://example.test/StructureDefinition/noted-patient (pkg: example.folder.structures#0.0.1)
 export class NotedPatientProfile {

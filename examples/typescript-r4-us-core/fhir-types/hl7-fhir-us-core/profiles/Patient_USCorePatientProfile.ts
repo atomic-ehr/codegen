@@ -21,15 +21,6 @@ import {
     type USCoreTribalAffiliationExtensionProfileFlat,
 } from "./Extension_USCoreTribalAffiliationExtension";
 
-export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
-export type USCorePatientProfile_RaceValidFlat = Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
-
-export type USCorePatientProfile_EthnicityExtracted = Partial<Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
-export type USCorePatientProfile_EthnicityValidFlat = Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
-
-export type USCorePatientProfile_TribalAffiliationExtracted = Partial<Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">>;
-export type USCorePatientProfile_TribalAffiliationValidFlat = Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">;
-
 import {
     ensureProfile,
     extractComplexExtension,
@@ -48,6 +39,15 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
+export type USCorePatientProfile_RaceValidFlat = Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
+
+export type USCorePatientProfile_EthnicityExtracted = Partial<Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
+export type USCorePatientProfile_EthnicityValidFlat = Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
+
+export type USCorePatientProfile_TribalAffiliationExtracted = Partial<Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">>;
+export type USCorePatientProfile_TribalAffiliationValidFlat = Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">;
 
 export type USCorePatientProfileRaw = {
     identifier: Identifier[];
