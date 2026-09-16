@@ -53,7 +53,8 @@ export type Register = {
     /** Returns raw terminology resources grouped by their originating package. */
     allTerminology(): PackageTerminology[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
-    resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
+    /** Resolve any canonical as seen from `pkg`, falling back to a global search. */
+    resolveAny(pkg: PackageMeta, canonicalUrl: CanonicalUrl): any | undefined;
     resolveElementSnapshot(fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement;
     getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
     resolver: PackageAwareResolver;
@@ -601,7 +602,15 @@ export const registerFromManager = async (
                     packageMetaToNpm(left.packageMeta).localeCompare(packageMetaToNpm(right.packageMeta)),
                 ),
         resolveVs,
-        resolveAny: (canonicalUrl: CanonicalUrl) => packageAgnosticResolveCanonical(resolver, canonicalUrl, logger),
+        resolveAny: (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+            // Resolve through the asking package's own closure first — it is sorted by depth, so
+            // a release that bundles its own copy of a canonical wins over a dependency's. With
+            // several FHIR releases loaded at once a global-first search would hand every release
+            // whichever copy registered first, silently giving R5/R6 R4's terminology.
+            const resolution = resolver[packageMetaToFhir(pkg)]?.canonicalResolution[canonicalUrl]?.[0];
+            if (resolution) return resolution.resource;
+            return packageAgnosticResolveCanonical(resolver, canonicalUrl, logger);
+        },
         resolveElementSnapshot,
         getAllElementKeys,
         resolver,

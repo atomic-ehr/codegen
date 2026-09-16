@@ -63,7 +63,11 @@ function extractValueSetConcepts(
                 }
             } else if (include.system && !include.filter) {
                 try {
-                    const codeSystem = register.resolveAny(include.system as CanonicalUrl) as CodeSystem | undefined;
+                    // Resolve the CodeSystem from the package that defines this ValueSet, not
+                    // globally: the same THO canonical is bundled by several FHIR releases.
+                    const codeSystem = register.resolveAny(valueSet.package_meta, include.system as CanonicalUrl) as
+                        | CodeSystem
+                        | undefined;
                     if (codeSystem?.concept) {
                         const extractConcepts = (conceptList: CodeSystemConcept[], system: string) => {
                             for (const concept of conceptList) {
