@@ -1,0 +1,65 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "noted-complex-extension",
+  "url": "http://example.test/StructureDefinition/noted-complex-extension",
+  "version": "0.1.0",
+  "name": "NotedComplexExtension",
+  "status": "active",
+  "fhirVersion": "5.0.0",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [{ "type": "element", "expression": "Patient" }],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Extension", "path": "Extension" },
+      { "id": "Extension.id", "path": "Extension.id", "min": 1 },
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "slicing": {
+          "discriminator": [{ "type": "value", "path": "url" }],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Extension.extension:note",
+        "path": "Extension.extension",
+        "sliceName": "note",
+        "min": 1,
+        "max": "1"
+      },
+      { "id": "Extension.extension:note.extension", "path": "Extension.extension.extension", "max": "0" },
+      { "id": "Extension.extension:note.url", "path": "Extension.extension.url", "fixedUri": "note" },
+      {
+        "id": "Extension.extension:note.value[x]",
+        "path": "Extension.extension.value[x]",
+        "min": 1,
+        "type": [{ "code": "string" }]
+      },
+      {
+        "id": "Extension.extension:detail",
+        "path": "Extension.extension",
+        "sliceName": "detail",
+        "min": 0,
+        "max": "1"
+      },
+      { "id": "Extension.extension:detail.extension", "path": "Extension.extension.extension", "max": "0" },
+      { "id": "Extension.extension:detail.url", "path": "Extension.extension.url", "fixedUri": "detail" },
+      {
+        "id": "Extension.extension:detail.value[x]",
+        "path": "Extension.extension.value[x]",
+        "min": 1,
+        "type": [{ "code": "string" }]
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://example.test/StructureDefinition/noted-complex-extension"
+      },
+      { "id": "Extension.value[x]", "path": "Extension.value[x]", "max": "0" }
+    ]
+  }
+}

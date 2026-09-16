@@ -1,0 +1,39 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "noted-patient",
+  "url": "http://example.test/StructureDefinition/noted-patient",
+  "version": "0.1.0",
+  "name": "NotedPatient",
+  "status": "active",
+  "fhirVersion": "5.0.0",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": {
+          "discriminator": [{ "type": "value", "path": "url" }],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Patient.extension:noted",
+        "path": "Patient.extension",
+        "sliceName": "noted",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": ["http://example.test/StructureDefinition/noted-complex-extension"]
+          }
+        ]
+      }
+    ]
+  }
+}
