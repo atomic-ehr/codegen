@@ -734,9 +734,12 @@ const generateExtensionExtractedTypes = (
         if (!ext.url) continue;
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
         const { flat, validFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
-        w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, ext.name)} = ${flat}`);
+        // Name from the collision-resolved base name, the same source the getters use: two
+        // entries for one extension at two paths share `ext.name` and would declare twice.
+        const baseName = ext.nameCandidates.recommended;
+        w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, baseName)} = ${flat}`);
         if (validFlat) {
-            w.lineSM(`export type ${tsExtensionValidFlatTypeName(tsProfileName, ext.name)} = ${validFlat}`);
+            w.lineSM(`export type ${tsExtensionValidFlatTypeName(tsProfileName, baseName)} = ${validFlat}`);
         }
         w.line();
     }

@@ -331,11 +331,14 @@ export const extensionExtractedTypes = (
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, snapshot, getMethodName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
-    const extractedType = tsExtensionExtractedTypeName(tsProfileName, ext.name);
+    // Same collision-resolved base name the method names use, so a profile carrying one
+    // extension at two paths refers to two distinct declarations rather than one repeated.
+    const baseName = ext.nameCandidates.recommended;
+    const extractedType = tsExtensionExtractedTypeName(tsProfileName, baseName);
     // The valid-flat arm needs the extension profile's validate(), so it is emitted
     // only when the extension resolves to a profile class.
     const hasValidFlat = extensionExtractedTypes(tsProfileName, ext, extProfileInfo).validFlat !== undefined;
-    const validFlatType = hasValidFlat ? tsExtensionValidFlatTypeName(tsProfileName, ext.name) : undefined;
+    const validFlatType = hasValidFlat ? tsExtensionValidFlatTypeName(tsProfileName, baseName) : undefined;
 
     generateExtensionGetterOverloads(
         w,
