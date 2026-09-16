@@ -17,7 +17,9 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsCamelCase,
+    tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
+    tsExtensionValidFlatTypeName,
     tsFieldName,
     tsNameFromCanonical,
     tsProfileClassName,
@@ -31,6 +33,7 @@ import {
     collectSubExtensionSlices,
     collectTypesFromExtensions,
     collectTypesFromFlatInput,
+    extensionExtractedTypes,
     generateExtensionMethods,
     resolveExtensionProfile,
 } from "./profile-extensions";
@@ -717,6 +720,28 @@ const generateInlineExtensionInputTypes = (
     }
 };
 
+/** Name what the complex extension getters return, so the overloads, the implementation
+ *  signature and the extractComplexExtension calls refer to a type instead of repeating it —
+ *  and so a consumer has a name for the shape it receives. */
+const generateExtensionExtractedTypes = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+) => {
+    const tsProfileName = tsResourceName(snapshot.identifier);
+    const complexExtensions = (snapshot.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
+    for (const ext of complexExtensions) {
+        if (!ext.url) continue;
+        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
+        const { flat, validFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
+        w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, ext.name)} = ${flat}`);
+        if (validFlat) {
+            w.lineSM(`export type ${tsExtensionValidFlatTypeName(tsProfileName, ext.name)} = ${validFlat}`);
+        }
+        w.line();
+    }
+};
+
 /** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
 const valueToTypeLiteral = (value: unknown): string => {
     if (value === null || value === undefined) return "undefined";
@@ -850,6 +875,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
 
     generateInlineExtensionInputTypes(w, tsIndex, snapshot);
+    generateExtensionExtractedTypes(w, tsIndex, snapshot);
     generateSliceInputTypes(w, snapshot, sliceDefs);
 
     generateRawType(w, snapshot, factoryInfo);
