@@ -344,7 +344,8 @@ Detection uses `tsIndex.isFamilyType` which checks `schema.typeFamily.resources.
 - Configured via `builder.typeSchema({ treeShake: {...} })`
 - Specify which resources and fields to include
 - Automatically resolves dependencies; reference targets are not dependencies — opt in per rule with `followReferences: true` (non-transitive), or for all roots via `treeShakeDefaults: { followReferences: true }`
-- Reference format: `"hl7.fhir.r4.core#4.0.1"`
+- Package keys are names, optionally version-qualified: `"hl7.fhir.r4.core"` or `"hl7.fhir.r4.core#4.0.1"`. The version is an assertion, not a selector — it must match a loaded package. A root that the named package neither owns nor reaches through its dependencies throws; there is no fallback to another package
+- Sibling config fields use different conventions on purpose: `promoteLogical` keys are bare names, `resolveCollisions[url].package` is `name#version`, and `terminology.packages`/`packageVerification` are npm-style `name@version`
 
 ## Key File Locations
 
@@ -381,6 +382,7 @@ Detection uses `tsIndex.isFamilyType` which checks `schema.typeFamily.resources.
 3. **Choice Types**: Supported but representation differs by language
 4. **Circular References**: Handled but may affect tree shaking
 5. **Large Packages**: May require increased Node.js memory (`--max-old-space-size`)
+6. **Terminology in R5+**: `hl7.fhir.r4.core` bundles the HL7 terminology CodeSystems, but R5 and R6 core moved them out to `hl7.terminology`. Without that package loaded, bindings whose ValueSet composes a THO CodeSystem by `include.system` expand to nothing and the generated field degrades to a bare `CodeableConcept`/`string` instead of a code union
 
 ## Performance Optimization Tips
 

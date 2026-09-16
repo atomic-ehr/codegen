@@ -19,6 +19,7 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - `generate.ts` - Three releases loaded together, each tree-shaken to `Patient`, plus the terminology wiring that keeps their bindings apart
   - `patient-conversion.test.ts` - R4 → R5 → R6 converters plus `@ts-expect-error` assertions pinning the cross-release type breaks
   - Writes up what actually differs between the three generated `Patient` types
+  - `generated-output.test.ts` - Snapshots the emitted modules and the `maritalStatus` binding per release, since the generated tree is gitignored
 
 ### Python Generation
 
