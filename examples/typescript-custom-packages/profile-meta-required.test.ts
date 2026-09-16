@@ -7,7 +7,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { PatientMetaRequiredProfile } from "./fhir-types/example-folder-structures/profiles/Patient_PatientMetaRequired";
-import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import type { Patient } from "./fhir-types/hl7-fhir-r5-core/Patient";
 
 const canonicalUrl = "http://example.org/fhir/StructureDefinition/PatientMetaRequired";
 

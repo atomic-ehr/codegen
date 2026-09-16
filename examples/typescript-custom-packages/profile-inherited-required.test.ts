@@ -13,7 +13,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structures/profiles/Bundle_ExampleTypedBundle";
-import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import type { Patient } from "./fhir-types/hl7-fhir-r5-core/Patient";
 
 const patient: Patient = { resourceType: "Patient", name: [{ family: "Smith" }] };
 

@@ -9,7 +9,7 @@
   "date": "2024-01-01",
   "publisher": "Atomic Example Studio",
   "description": "A Bundle profile that slices entry[] by resource type — used to test type discriminator support.",
-  "fhirVersion": "4.0.1",
+  "fhirVersion": "5.0.0",
   "kind": "resource",
   "abstract": false,
   "type": "Bundle",

@@ -9,7 +9,7 @@
   "date": "2024-01-01",
   "publisher": "Atomic Example Studio",
   "description": "Logical resource showcasing a simple notebook record with fields used in examples.",
-  "fhirVersion": "4.0.1",
+  "fhirVersion": "5.0.0",
   "kind": "logical",
   "abstract": false,
   "type": "ExampleNotebook",

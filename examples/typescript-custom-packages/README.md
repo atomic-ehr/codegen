@@ -1,16 +1,16 @@
 # Package Sources Example
 
-Feeding the codegen pipeline from package sources **other than the NPM-style registry** (`.fromPackage()`). A single `generate.ts` runs two input mechanisms in sequence:
+Feeding the codegen pipeline from package sources **other than the NPM-style registry** (`.fromPackage()`). A single `generate.ts` combines two input mechanisms in one `APIBuilder`:
 
-- **Local StructureDefinitions from disk** — `.localStructureDefinitions()` → `./fhir-types`
-- **Remote `.tgz` package by URL** — `.fromPackageRef()` → `./sql-on-fhir-types`
+- **Local StructureDefinitions from disk** — `.localStructureDefinitions()`
+- **Remote `.tgz` package by URL** — `.fromPackageRef()`
 
-Both also show tree shaking and dependency resolution against published packages.
+Both resolve against `hl7.fhir.r5.core`, so one builder covers them and everything lands in a single type tree under `./fhir-types`. Both also show tree shaking and dependency resolution against published packages.
 
 ## Quick Start
 
 ```bash
-# Generate both: local StructureDefinitions + remote SQL-on-FHIR .tgz package
+# Generate the whole tree: local StructureDefinitions + remote SQL-on-FHIR .tgz package
 bun run examples/typescript-custom-packages/generate.ts
 
 # Run the local-package tests
@@ -22,7 +22,7 @@ bun test ./examples/typescript-custom-packages/
 ```
 typescript-custom-packages/
 ├── README.md                            # This file
-├── generate.ts                          # both inputs: .localStructureDefinitions() + .fromPackageRef()
+├── generate.ts                          # one builder, both inputs: .localStructureDefinitions() + .fromPackageRef()
 ├── structure-definitions/               # Custom StructureDefinitions for the local demo
 ├── profile-*.test.ts                    # Tests for the locally-generated profiles
 └── (generated output, gitignored)
@@ -36,21 +36,21 @@ Generate TypeScript types from custom FHIR StructureDefinitions stored on disk, 
 publishing them to a registry. Demonstrates:
 
 - Loading local StructureDefinition JSON files
-- Declaring a custom FHIR package and resolving dependencies against published packages (FHIR R4 core)
+- Declaring a custom FHIR package and resolving dependencies against published packages (FHIR R5 core)
 - Tree shaking to include only specific custom resources
 - Combining local and published packages
 
 ### Adding Your StructureDefinitions
 
-Place your FHIR StructureDefinition JSON files in `structure-definitions/`, then point
-the local-generation step of `generate.ts` at them:
+Place your FHIR StructureDefinition JSON files in `structure-definitions/`, then add them
+to the `.localStructureDefinitions()` call and the tree-shake rules in `generate.ts`:
 
 ```typescript
 await builder
     .localStructureDefinitions({
         package: { name: "example.folder.structures", version: "0.0.1" },
         path: Path.join(__dirname, "structure-definitions"),
-        dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
+        dependencies: [{ name: "hl7.fhir.r5.core", version: "5.0.0" }],
     })
     .typescript({ generateProfile: true })
     .typeSchema({
@@ -103,7 +103,6 @@ SQL-on-FHIR ViewDefinition specification as the example. Demonstrates:
 ```typescript
 .fromPackage("hl7.fhir.r5.core", "5.0.0") // IG reaches R5 core but doesn't declare the dep
 .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz")
-.typescript({ withDebugComment: false, generateProfile: false })
 .typeSchema({
     treeShake: {
         "org.sql-on-fhir.ig": {
@@ -111,8 +110,10 @@ SQL-on-FHIR ViewDefinition specification as the example. Demonstrates:
         },
     },
 })
-.outputTo("./examples/typescript-custom-packages/sql-on-fhir-types")
 ```
+
+The tree-shake rules for the IG sit alongside the local package's rules in the same
+`.typeSchema()` call, and `ViewDefinition` is emitted into `./fhir-types/org-sql-on-fhir-ig/`.
 
 Remote `.fromPackageRef()` is useful for packages not published to NPM, development/preview
 versions, and custom implementation guides.

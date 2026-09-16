@@ -6,7 +6,7 @@
   "name": "PatientMetaRequired",
   "title": "Patient Profile with required meta",
   "status": "draft",
-  "fhirVersion": "4.0.1",
+  "fhirVersion": "5.0.0",
   "kind": "resource",
   "abstract": false,
   "type": "Patient",

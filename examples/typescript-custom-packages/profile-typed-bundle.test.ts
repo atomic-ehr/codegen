@@ -11,8 +11,8 @@
 
 import { describe, expect, test } from "bun:test";
 import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structures/profiles/Bundle_ExampleTypedBundle";
-import type { Organization } from "./fhir-types/hl7-fhir-r4-core/Organization";
-import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import type { Organization } from "./fhir-types/hl7-fhir-r5-core/Organization";
+import type { Patient } from "./fhir-types/hl7-fhir-r5-core/Patient";
 
 const smithPatient: Patient = { resourceType: "Patient", name: [{ family: "Smith" }] };
 const activePatient: Patient = { resourceType: "Patient", active: true };
