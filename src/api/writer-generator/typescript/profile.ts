@@ -847,10 +847,10 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     const sliceDefs = collectSliceDefs(tsIndex, snapshot);
     const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
 
+    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
+
     generateInlineExtensionInputTypes(w, tsIndex, snapshot);
     generateSliceInputTypes(w, snapshot, sliceDefs);
-
-    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
 
     generateRawType(w, snapshot, factoryInfo);
     generateFlatInputType(w, snapshot, factoryInfo);
