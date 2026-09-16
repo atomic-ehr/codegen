@@ -661,9 +661,7 @@ const runBuilder = async (
         if (config.python) builder.python(config.python);
         if (config.csharp) builder.csharp(config.csharp);
 
-        // Applied after the generators on purpose: `outputTo` rewrites the output directory of
-        // every generator already configured, so each one writes straight into it instead of a
-        // generator-specific subdirectory. This is the order the repository's examples use.
+        // Sets the output directory of every generator, in whichever order they are configured.
         builder.outputTo(config.outputTo);
 
         if (config.cleanOutput !== undefined) builder.cleanOutput(config.cleanOutput);
