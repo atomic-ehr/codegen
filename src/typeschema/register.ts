@@ -371,7 +371,10 @@ const mkPackageAwareResolver = async (
         const url = rawUrl as CanonicalUrl;
         if (index.canonicalResolution[url])
             logger?.dryWarn("#duplicateCanonical", `Duplicate canonical URL: ${url} at ${pkgId}.`);
-        index.canonicalResolution[url] = [{ deep, pkg: pkg, pkgId, resource: resource as FocusedResource }];
+        // `deep` is relative to the index holding it, so a package's own resources are always at
+        // 0. Absolute depths would be wrong the moment a memoized index is reused at another
+        // point in the graph — see the re-stamp below.
+        index.canonicalResolution[url] = [{ deep: 0, pkg: pkg, pkgId, resource: resource as FocusedResource }];
     }
 
     const deps = await readPackageDependencies(manager, pkg);
@@ -379,7 +382,12 @@ const mkPackageAwareResolver = async (
         const { canonicalResolution } = await mkPackageAwareResolver(manager, depPkg, deep + 1, acc, logger);
         for (const [surl, resolutions] of Object.entries(canonicalResolution)) {
             const url = surl as CanonicalUrl;
-            index.canonicalResolution[url] = [...(index.canonicalResolution[url] || []), ...resolutions];
+            // Re-stamp rather than splice the dependency's own entries: `acc` memoizes each
+            // package index, so the same objects are shared by every package that depends on it.
+            // Sharing them let a package scanned as a root (deep 0) keep that depth inside an
+            // unrelated package's closure and outrank that package's nearer dependencies.
+            const deeper = resolutions.map((resolution) => ({ ...resolution, deep: resolution.deep + 1 }));
+            index.canonicalResolution[url] = [...(index.canonicalResolution[url] || []), ...deeper];
         }
     }
     for (const resolutionOptions of Object.values(index.canonicalResolution)) {
