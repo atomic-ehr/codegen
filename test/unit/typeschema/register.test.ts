@@ -191,33 +191,32 @@ describe("cyclic package dependencies", () => {
     });
 });
 
-describe("package-agnostic canonical resolution", async () => {
-    // R5 publishes StructureDefinition-Base; R4 does not and is registered first.
-    const reg = await registerFromPackageMetas(
-        [
-            { name: "hl7.fhir.r4.core", version: "4.0.1" },
-            { name: "hl7.fhir.r5.core", version: "5.0.0" },
-        ],
-        {},
-    );
+describe("canonical resolution across packages", async () => {
+    const r4 = { name: "hl7.fhir.r4.core", version: "4.0.1" };
+    const r5 = { name: "hl7.fhir.r5.core", version: "5.0.0" };
+    const reg = await registerFromPackageMetas([r4, r5], {});
+    const maritalStatus = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus" as CanonicalUrl;
 
+    // R5 publishes StructureDefinition-Base; R4 does not and is registered first.
     it("finds a canonical held only by a later package", () => {
-        const base = reg.resolveAny("http://hl7.org/fhir/StructureDefinition/Base" as CanonicalUrl);
+        const base = reg.resolveAny(r4, "http://hl7.org/fhir/StructureDefinition/Base" as CanonicalUrl);
         expect(base?.url).toBe("http://hl7.org/fhir/StructureDefinition/Base");
     });
 
     it("returns undefined when no package holds the canonical", () => {
-        expect(reg.resolveAny("http://example.org/nothing-here" as CanonicalUrl)).toBeUndefined();
+        expect(reg.resolveAny(r4, "http://example.org/nothing-here" as CanonicalUrl)).toBeUndefined();
+    });
+
+    // R4 bundles its own copy of the THO CodeSystems; asking as R4 must yield that copy.
+    it("prefers the asking package's own closure", () => {
+        const fromR4 = reg.resolveAny(r4, maritalStatus);
+        expect(fromR4?.concept?.some((c: { code?: string }) => c.code === "P")).toBe(true);
     });
 });
 
 describe("resolution depth", () => {
-    // Both `a` and `far` are focused roots, and `far` is also reachable from `a` as
-    // a -> near -> far. Package indexes are memoized, so `far`'s index is the same object in
-    // every closure that includes it; scanned as a root it stamps its own entries at depth 0.
-    // Without re-stamping on splice it keeps depth 0 inside `a`'s closure and outranks `near`,
-    // which genuinely is closer — the shape behind hl7.terminology@5.1.0 -> hl7.fhir.r4.core
-    // handing R5 the R4 copy of a CodeSystem that both packages carry.
+    // `far` is a focused root and also reachable as a -> near -> far. Indexes are memoized, so
+    // without re-stamping on splice `far` keeps depth 0 inside `a`'s closure and outranks `near`.
     it("is relative to the package whose closure holds it", async () => {
         const deps: Record<string, string[]> = { a: ["near"], near: ["far"], far: [] };
         const shared = "http://example.org/CodeSystem/shared";
@@ -243,6 +242,7 @@ describe("resolution depth", () => {
 
         const options = reg.resolver["a#1.0.0"]?.canonicalResolution[shared as CanonicalUrl];
         expect(options?.map((o) => `${o.pkgId}@${o.deep}`)).toEqual(["a#1.0.0@0", "near#1.0.0@1", "far#1.0.0@2"]);
+        expect(reg.resolveAny({ name: "a", version: "1.0.0" }, shared as CanonicalUrl)?.id).toBe("a");
     });
 
     // `resolveRoot` reads this list head-first to root a shake in a package that reaches the
