@@ -147,7 +147,12 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.valueConstraint && !field.valueConstraint.validateOnly) {
-            const value = JSON.stringify(field.valueConstraint.value);
+            // A fixed value equal to the profile's own canonical URL is already a static on the
+            // class, so reference it instead of repeating the literal.
+            const value =
+                field.valueConstraint.value === snapshot.identifier.url
+                    ? `${tsProfileClassName(snapshot)}.canonicalUrl`
+                    : JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             fixedFields.add(name);
             if (isNotChoiceDeclarationField(field) && field.type) {

@@ -2195,7 +2195,7 @@ export class USCoreRaceExtensionProfile {
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {
         resource.url = USCoreRaceExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
+        applyFixedValue(resource, "url", USCoreRaceExtensionProfile.canonicalUrl);
         return new USCoreRaceExtensionProfile(resource);
     }
 
@@ -2223,7 +2223,7 @@ export class USCoreRaceExtensionProfile {
         const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
 
         const resource: Extension = {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            url: USCoreRaceExtensionProfile.canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
