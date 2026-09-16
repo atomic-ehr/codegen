@@ -158,8 +158,7 @@ describe("Field Builder Core Logic", async () => {
         it("should handle fixed values", async () => {
             const element: FHIRSchemaElement = {
                 type: "code",
-                // @ts-expect-error
-                fixed: "fixed-value",
+                fixed: { type: "code", value: "fixed-value" },
             };
 
             const fhirSchema: PFS = {
@@ -178,8 +177,7 @@ describe("Field Builder Core Logic", async () => {
         it("should handle pattern constraints", async () => {
             const element: FHIRSchemaElement = {
                 type: "string",
-                // @ts-expect-error
-                pattern: "\\d{3}-\\d{3}-\\d{4}",
+                pattern: { type: "string", value: "\\d{3}-\\d{3}-\\d{4}" },
             };
 
             const fhirSchema: PFS = {
@@ -260,8 +258,6 @@ describe("Field Builder Core Logic", async () => {
             const element: FHIRSchemaElement = {
                 type: "string",
                 short: "Short description",
-                // @ts-expect-error
-                definition: "Detailed definition",
             };
 
             const fhirSchema: PFS = {
