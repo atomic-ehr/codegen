@@ -47,13 +47,13 @@ export class USCoreIndividualSexExtensionProfile {
 
     static apply (resource: Extension) : USCoreIndividualSexExtensionProfile {
         resource.url = USCoreIndividualSexExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex");
+        applyFixedValue(resource, "url", USCoreIndividualSexExtensionProfile.canonicalUrl);
         return new USCoreIndividualSexExtensionProfile(resource);
     }
 
     static createResource (args: USCoreIndividualSexExtensionProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+            url: USCoreIndividualSexExtensionProfile.canonicalUrl,
             valueCoding: args.valueCoding,
         }
         return resource;

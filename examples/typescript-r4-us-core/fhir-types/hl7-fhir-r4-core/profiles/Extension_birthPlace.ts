@@ -47,13 +47,13 @@ export class birthPlaceProfile {
 
     static apply (resource: Extension) : birthPlaceProfile {
         resource.url = birthPlaceProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace");
+        applyFixedValue(resource, "url", birthPlaceProfile.canonicalUrl);
         return new birthPlaceProfile(resource);
     }
 
     static createResource (args: birthPlaceProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            url: birthPlaceProfile.canonicalUrl,
             valueAddress: args.valueAddress,
         }
         return resource;

@@ -47,13 +47,13 @@ export class USCoreInterpreterNeededExtensionProfile {
 
     static apply (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
         resource.url = USCoreInterpreterNeededExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed");
+        applyFixedValue(resource, "url", USCoreInterpreterNeededExtensionProfile.canonicalUrl);
         return new USCoreInterpreterNeededExtensionProfile(resource);
     }
 
     static createResource (args: USCoreInterpreterNeededExtensionProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed",
+            url: USCoreInterpreterNeededExtensionProfile.canonicalUrl,
             valueCoding: args.valueCoding,
         }
         return resource;

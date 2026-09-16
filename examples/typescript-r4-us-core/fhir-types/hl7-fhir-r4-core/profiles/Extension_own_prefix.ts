@@ -46,13 +46,13 @@ export class own_prefixProfile {
 
     static apply (resource: Extension) : own_prefixProfile {
         resource.url = own_prefixProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix");
+        applyFixedValue(resource, "url", own_prefixProfile.canonicalUrl);
         return new own_prefixProfile(resource);
     }
 
     static createResource (args: own_prefixProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+            url: own_prefixProfile.canonicalUrl,
             valueString: args.valueString,
         }
         return resource;

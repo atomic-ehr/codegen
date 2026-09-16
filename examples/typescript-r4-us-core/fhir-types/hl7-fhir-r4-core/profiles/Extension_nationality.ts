@@ -58,7 +58,7 @@ export class nationalityProfile {
 
     static apply (resource: Extension) : nationalityProfile {
         resource.url = nationalityProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality");
+        applyFixedValue(resource, "url", nationalityProfile.canonicalUrl);
         return new nationalityProfile(resource);
     }
 
@@ -81,7 +81,7 @@ export class nationalityProfile {
         const resolvedExtensions = nationalityProfile.resolveInput(args ?? {});
 
         const resource: Extension = {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
+            url: nationalityProfile.canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;

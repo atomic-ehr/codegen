@@ -75,7 +75,7 @@ export class USCoreTribalAffiliationExtensionProfile {
 
     static apply (resource: Extension) : USCoreTribalAffiliationExtensionProfile {
         resource.url = USCoreTribalAffiliationExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation");
+        applyFixedValue(resource, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl);
         return new USCoreTribalAffiliationExtensionProfile(resource);
     }
 
@@ -98,7 +98,7 @@ export class USCoreTribalAffiliationExtensionProfile {
         const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args ?? {});
 
         const resource: Extension = {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation",
+            url: USCoreTribalAffiliationExtensionProfile.canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;

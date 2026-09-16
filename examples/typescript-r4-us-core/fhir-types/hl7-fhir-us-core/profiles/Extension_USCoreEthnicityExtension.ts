@@ -82,7 +82,7 @@ export class USCoreEthnicityExtensionProfile {
 
     static apply (resource: Extension) : USCoreEthnicityExtensionProfile {
         resource.url = USCoreEthnicityExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
+        applyFixedValue(resource, "url", USCoreEthnicityExtensionProfile.canonicalUrl);
         return new USCoreEthnicityExtensionProfile(resource);
     }
 
@@ -110,7 +110,7 @@ export class USCoreEthnicityExtensionProfile {
         const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args ?? {});
 
         const resource: Extension = {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            url: USCoreEthnicityExtensionProfile.canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;

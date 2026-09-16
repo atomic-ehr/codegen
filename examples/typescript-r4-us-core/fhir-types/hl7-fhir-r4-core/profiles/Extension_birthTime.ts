@@ -46,13 +46,13 @@ export class birthTimeProfile {
 
     static apply (resource: Extension) : birthTimeProfile {
         resource.url = birthTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime");
+        applyFixedValue(resource, "url", birthTimeProfile.canonicalUrl);
         return new birthTimeProfile(resource);
     }
 
     static createResource (args: birthTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+            url: birthTimeProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;

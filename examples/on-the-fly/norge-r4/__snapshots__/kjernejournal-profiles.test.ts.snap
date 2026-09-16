@@ -2818,13 +2818,13 @@ export class KjAbatementDateTimeProfile {
 
     static apply (resource: Extension) : KjAbatementDateTimeProfile {
         resource.url = KjAbatementDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjAbatementDateTime");
+        applyFixedValue(resource, "url", KjAbatementDateTimeProfile.canonicalUrl);
         return new KjAbatementDateTimeProfile(resource);
     }
 
     static createResource (args: KjAbatementDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjAbatementDateTime",
+            url: KjAbatementDateTimeProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -2924,13 +2924,13 @@ export class KjInactiveIngredientProfile {
 
     static apply (resource: Extension) : KjInactiveIngredientProfile {
         resource.url = KjInactiveIngredientProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjInactiveIngredient");
+        applyFixedValue(resource, "url", KjInactiveIngredientProfile.canonicalUrl);
         return new KjInactiveIngredientProfile(resource);
     }
 
     static createResource (args: KjInactiveIngredientProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjInactiveIngredient",
+            url: KjInactiveIngredientProfile.canonicalUrl,
             valueBoolean: args.valueBoolean,
         }
         return resource;
@@ -3030,13 +3030,13 @@ export class KjRecordedDateTimeProfile {
 
     static apply (resource: Extension) : KjRecordedDateTimeProfile {
         resource.url = KjRecordedDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjRecordedDateTime");
+        applyFixedValue(resource, "url", KjRecordedDateTimeProfile.canonicalUrl);
         return new KjRecordedDateTimeProfile(resource);
     }
 
     static createResource (args: KjRecordedDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjRecordedDateTime",
+            url: KjRecordedDateTimeProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3133,13 +3133,13 @@ export class KjSourceOfInformationProfile {
 
     static apply (resource: Extension) : KjSourceOfInformationProfile {
         resource.url = KjSourceOfInformationProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation");
+        applyFixedValue(resource, "url", KjSourceOfInformationProfile.canonicalUrl);
         return new KjSourceOfInformationProfile(resource);
     }
 
     static createResource () : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation",
+            url: KjSourceOfInformationProfile.canonicalUrl,
         }
         return resource;
     }
@@ -3237,13 +3237,13 @@ export class KjTextProfile {
 
     static apply (resource: Extension) : KjTextProfile {
         resource.url = KjTextProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjText");
+        applyFixedValue(resource, "url", KjTextProfile.canonicalUrl);
         return new KjTextProfile(resource);
     }
 
     static createResource (args: KjTextProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjText",
+            url: KjTextProfile.canonicalUrl,
             valueString: args.valueString,
         }
         return resource;
@@ -3343,13 +3343,13 @@ export class KjUpdatedDateTimeProfile {
 
     static apply (resource: Extension) : KjUpdatedDateTimeProfile {
         resource.url = KjUpdatedDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjUpdatedDateTime");
+        applyFixedValue(resource, "url", KjUpdatedDateTimeProfile.canonicalUrl);
         return new KjUpdatedDateTimeProfile(resource);
     }
 
     static createResource (args: KjUpdatedDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjUpdatedDateTime",
+            url: KjUpdatedDateTimeProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3450,13 +3450,13 @@ export class KjUpdaterProfile {
 
     static apply (resource: Extension) : KjUpdaterProfile {
         resource.url = KjUpdaterProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjUpdater");
+        applyFixedValue(resource, "url", KjUpdaterProfile.canonicalUrl);
         return new KjUpdaterProfile(resource);
     }
 
     static createResource (args: KjUpdaterProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjUpdater",
+            url: KjUpdaterProfile.canonicalUrl,
             valueReference: args.valueReference,
         }
         return resource;
@@ -3556,13 +3556,13 @@ export class KjValidUntilProfile {
 
     static apply (resource: Extension) : KjValidUntilProfile {
         resource.url = KjValidUntilProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjValidUntil");
+        applyFixedValue(resource, "url", KjValidUntilProfile.canonicalUrl);
         return new KjValidUntilProfile(resource);
     }
 
     static createResource (args: KjValidUntilProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjValidUntil",
+            url: KjValidUntilProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3662,13 +3662,13 @@ export class KjVerificationDateTimeProfile {
 
     static apply (resource: Extension) : KjVerificationDateTimeProfile {
         resource.url = KjVerificationDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjVerificationDateTime");
+        applyFixedValue(resource, "url", KjVerificationDateTimeProfile.canonicalUrl);
         return new KjVerificationDateTimeProfile(resource);
     }
 
     static createResource (args: KjVerificationDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjVerificationDateTime",
+            url: KjVerificationDateTimeProfile.canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3769,13 +3769,13 @@ export class KjVerifierProfile {
 
     static apply (resource: Extension) : KjVerifierProfile {
         resource.url = KjVerifierProfile.canonicalUrl;
-        applyFixedValue(resource, "url", "http://nhn.no/kj/fhir/StructureDefinition/KjVerifier");
+        applyFixedValue(resource, "url", KjVerifierProfile.canonicalUrl);
         return new KjVerifierProfile(resource);
     }
 
     static createResource (args: KjVerifierProfileRaw) : Extension {
         const resource: Extension = {
-            url: "http://nhn.no/kj/fhir/StructureDefinition/KjVerifier",
+            url: KjVerifierProfile.canonicalUrl,
             valueReference: args.valueReference,
         }
         return resource;
