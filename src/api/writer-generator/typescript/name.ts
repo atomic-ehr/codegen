@@ -100,6 +100,16 @@ export const tsExtensionFlatTypeName = (profileName: string, extensionName: stri
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Flat`;
 };
 
+/** The shape `extractComplexExtension` can produce from any resource: every member optional. */
+export const tsExtensionExtractedTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Extracted`;
+};
+
+/** The same shape once the extension validated: required sub-extensions are guaranteed. */
+export const tsExtensionVFlatTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}VFlat`;
+};
+
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
 
 export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;

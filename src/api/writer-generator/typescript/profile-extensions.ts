@@ -10,7 +10,9 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsCamelCase,
+    tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
+    tsExtensionVFlatTypeName,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -163,15 +165,23 @@ const generateExtLookup = (w: TypeScript, ext: ProfileExtension, targetPath: str
     }
 };
 
-const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): "flat" | "profile" | "raw" => {
+type GetterMode = "flat" | "vflat" | "profile" | "raw";
+
+const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): GetterMode => {
     const configured = w.opts.extensionGetterDefault ?? "flat";
     if (configured === "profile" && !hasProfile) return "flat";
     return configured;
 };
 
-const returnTypeForMode = (mode: "flat" | "profile" | "raw", inputType: string, profileClassName?: string): string => {
+const returnTypeForMode = (
+    mode: GetterMode,
+    inputType: string,
+    profileClassName?: string,
+    vFlatType?: string,
+): string => {
     if (mode === "profile" && profileClassName) return profileClassName;
     if (mode === "raw") return "Extension";
+    if (mode === "vflat" && vFlatType) return vFlatType;
     return inputType;
 };
 
@@ -183,19 +193,23 @@ const generateExtensionGetterOverloads = (
     inputType: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
     generateInputBody: () => void,
+    vFlatType?: string,
 ) => {
     const hasProfile = !!extProfileInfo;
     const defaultMode = effectiveGetterDefault(w, hasProfile);
-    const modes: ("flat" | "profile" | "raw")[] = hasProfile ? ["flat", "profile", "raw"] : ["flat", "raw"];
+    const modes: GetterMode[] = hasProfile ? ["flat", "profile", "raw"] : ["flat", "raw"];
+    if (vFlatType) modes.splice(1, 0, "vflat");
 
     for (const mode of modes) {
-        const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className);
+        const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className, vFlatType);
         w.lineSM(`public ${methodName}(mode: '${mode}'): ${rt} | undefined`);
     }
-    const defaultReturn = returnTypeForMode(defaultMode, inputType, extProfileInfo?.className);
+    const defaultReturn = returnTypeForMode(defaultMode, inputType, extProfileInfo?.className, vFlatType);
     w.lineSM(`public ${methodName}(): ${defaultReturn} | undefined`);
 
-    const allReturns = [...new Set(modes.map((m) => returnTypeForMode(m, inputType, extProfileInfo?.className)))];
+    const allReturns = [
+        ...new Set(modes.map((m) => returnTypeForMode(m, inputType, extProfileInfo?.className, vFlatType))),
+    ];
     const modesUnion = modes.map((m) => `'${m}'`).join(" | ");
     w.curlyBlock(
         ["public", methodName, `(mode: ${modesUnion} = '${defaultMode}'): ${allReturns.join(" | ")} | undefined`],
@@ -290,24 +304,67 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
     }
 };
 
+/** The members `extractComplexExtension` can populate: the sub-extension slices, never the
+ *  ordinary fields the factory input also carries. Returns undefined when the extension has
+ *  no resolvable profile class — the inline input type is then the whole shape. */
+const extractableMembers = (extProfileInfo: ExtensionProfileInfo | undefined): string | undefined => {
+    const slices = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot) : [];
+    if (slices.length === 0) return undefined;
+    return slices.map((sub) => JSON.stringify(sub.name)).join(" | ");
+};
+
+/** `flat` is what any resource can yield — every member optional, since extraction fills only
+ *  what it finds. `vFlat` is the same members once the extension has been validated, so the
+ *  ones the profile requires are guaranteed. */
+export const extensionExtractedTypes = (
+    tsProfileName: string,
+    ext: ProfileExtension,
+    extProfileInfo: ExtensionProfileInfo | undefined,
+): { flat: string; vFlat: string | undefined } => {
+    const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
+    const members = extractableMembers(extProfileInfo);
+    if (!members || !extProfileInfo) return { flat: `Partial<${inputTypeName}>`, vFlat: undefined };
+    const picked = `Pick<${extProfileInfo.className}Flat, ${members}>`;
+    return { flat: `Partial<${picked}>`, vFlat: picked };
+};
+
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, snapshot, getMethodName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
-    const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
-    const extProfileHasFlatInput = extProfileInfo
-        ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
-        : false;
-    const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Flat` : inputTypeName;
+    // Same collision-resolved base name the method names use, so a profile carrying one
+    // extension at two paths refers to two distinct declarations rather than one repeated.
+    const baseName = ext.nameCandidates.recommended;
+    const extractedType = tsExtensionExtractedTypeName(tsProfileName, baseName);
+    // The vflat arm needs the extension profile's validate(), so it is emitted
+    // only when the extension resolves to a profile class.
+    const hasVFlat = extensionExtractedTypes(tsProfileName, ext, extProfileInfo).vFlat !== undefined;
+    const vFlatType = hasVFlat ? tsExtensionVFlatTypeName(tsProfileName, baseName) : undefined;
 
-    generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, inputType, extProfileInfo, () => {
-        const configItems = (ext.subExtensions ?? []).map((sub) => {
-            const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
-            const isArray = sub.max === "*";
-            return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
-        });
-        w.line(`const config = [${configItems.join(", ")}]`);
-        w.line(`return extractComplexExtension<${inputType}>(ext, config)`);
-    });
+    generateExtensionGetterOverloads(
+        w,
+        ext,
+        targetPath,
+        getMethodName,
+        extractedType,
+        extProfileInfo,
+        () => {
+            const configItems = (ext.subExtensions ?? []).map((sub) => {
+                const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
+                const isArray = sub.max === "*";
+                return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
+            });
+            w.line(`const config = [${configItems.join(", ")}]`);
+            if (vFlatType && extProfileInfo) {
+                w.curlyBlock(["if", "(mode === 'vflat')"], () => {
+                    w.line(`const { errors } = ${extProfileInfo.className}.apply(ext).validate()`);
+                    w.line('if (errors.length > 0) throw new Error(errors.join("; "))');
+                    w.line(`return extractComplexExtension<${vFlatType}>(ext, config)`);
+                });
+            }
+            w.line(`return extractComplexExtension<${extractedType}>(ext, config)`);
+        },
+        vFlatType,
+    );
 };
 
 // Single-value extension — one known value type (e.g., birthSex with valueCode)

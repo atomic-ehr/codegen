@@ -40,6 +40,15 @@ import {
     validateMustSupport,
 } from "../../profile-helpers";
 
+export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
+export type USCorePatientProfile_RaceVFlat = Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
+
+export type USCorePatientProfile_EthnicityExtracted = Partial<Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
+export type USCorePatientProfile_EthnicityVFlat = Pick<USCoreEthnicityExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
+
+export type USCorePatientProfile_TribalAffiliationExtracted = Partial<Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">>;
+export type USCorePatientProfile_TribalAffiliationVFlat = Pick<USCoreTribalAffiliationExtensionProfileFlat, "tribalAffiliation" | "isEnrolled">;
+
 export type USCorePatientProfileRaw = {
     identifier: Identifier[];
     name: HumanName[];
@@ -129,17 +138,23 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getRace(mode: 'flat'): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace(mode: 'flat'): USCorePatientProfile_RaceExtracted | undefined;
+    public getRace(mode: 'vflat'): USCorePatientProfile_RaceVFlat | undefined;
     public getRace(mode: 'profile'): USCoreRaceExtensionProfile | undefined;
     public getRace(mode: 'raw'): Extension | undefined;
-    public getRace(): USCoreRaceExtensionProfileFlat | undefined;
-    public getRace (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension | undefined {
+    public getRace(): USCorePatientProfile_RaceExtracted | undefined;
+    public getRace (mode: 'flat' | 'vflat' | 'profile' | 'raw' = 'flat'): USCorePatientProfile_RaceExtracted | USCorePatientProfile_RaceVFlat | USCoreRaceExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
         if (!ext) return undefined
         if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreRaceExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension<USCoreRaceExtensionProfileFlat>(ext, config)
+        if (mode === 'vflat') {
+            const { errors } = USCoreRaceExtensionProfile.apply(ext).validate()
+            if (errors.length > 0) throw new Error(errors.join("; "))
+            return extractComplexExtension<USCorePatientProfile_RaceVFlat>(ext, config)
+        }
+        return extractComplexExtension<USCorePatientProfile_RaceExtracted>(ext, config)
     }
 
     public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
@@ -154,17 +169,23 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getEthnicity(mode: 'flat'): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity(mode: 'flat'): USCorePatientProfile_EthnicityExtracted | undefined;
+    public getEthnicity(mode: 'vflat'): USCorePatientProfile_EthnicityVFlat | undefined;
     public getEthnicity(mode: 'profile'): USCoreEthnicityExtensionProfile | undefined;
     public getEthnicity(mode: 'raw'): Extension | undefined;
-    public getEthnicity(): USCoreEthnicityExtensionProfileFlat | undefined;
-    public getEthnicity (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension | undefined {
+    public getEthnicity(): USCorePatientProfile_EthnicityExtracted | undefined;
+    public getEthnicity (mode: 'flat' | 'vflat' | 'profile' | 'raw' = 'flat'): USCorePatientProfile_EthnicityExtracted | USCorePatientProfile_EthnicityVFlat | USCoreEthnicityExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
         if (!ext) return undefined
         if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreEthnicityExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension<USCoreEthnicityExtensionProfileFlat>(ext, config)
+        if (mode === 'vflat') {
+            const { errors } = USCoreEthnicityExtensionProfile.apply(ext).validate()
+            if (errors.length > 0) throw new Error(errors.join("; "))
+            return extractComplexExtension<USCorePatientProfile_EthnicityVFlat>(ext, config)
+        }
+        return extractComplexExtension<USCorePatientProfile_EthnicityExtracted>(ext, config)
     }
 
     public setTribalAffiliation (input: USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension): this {
@@ -179,17 +200,23 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation(mode: 'flat'): USCorePatientProfile_TribalAffiliationExtracted | undefined;
+    public getTribalAffiliation(mode: 'vflat'): USCorePatientProfile_TribalAffiliationVFlat | undefined;
     public getTribalAffiliation(mode: 'profile'): USCoreTribalAffiliationExtensionProfile | undefined;
     public getTribalAffiliation(mode: 'raw'): Extension | undefined;
-    public getTribalAffiliation(): USCoreTribalAffiliationExtensionProfileFlat | undefined;
-    public getTribalAffiliation (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
+    public getTribalAffiliation(): USCorePatientProfile_TribalAffiliationExtracted | undefined;
+    public getTribalAffiliation (mode: 'flat' | 'vflat' | 'profile' | 'raw' = 'flat'): USCorePatientProfile_TribalAffiliationExtracted | USCorePatientProfile_TribalAffiliationVFlat | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
         if (!ext) return undefined
         if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreTribalAffiliationExtensionProfile.apply(ext)
         const config = [{ name: "tribalAffiliation", valueField: "valueCodeableConcept", isArray: false }, { name: "isEnrolled", valueField: "valueBoolean", isArray: false }]
-        return extractComplexExtension<USCoreTribalAffiliationExtensionProfileFlat>(ext, config)
+        if (mode === 'vflat') {
+            const { errors } = USCoreTribalAffiliationExtensionProfile.apply(ext).validate()
+            if (errors.length > 0) throw new Error(errors.join("; "))
+            return extractComplexExtension<USCorePatientProfile_TribalAffiliationVFlat>(ext, config)
+        }
+        return extractComplexExtension<USCorePatientProfile_TribalAffiliationExtracted>(ext, config)
     }
 
     public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
