@@ -37,12 +37,6 @@ import type { Bundle, BundleEntry } from "../../hl7-fhir-r4-core/Bundle";
 import type { Organization } from "../../hl7-fhir-r4-core/Organization";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
-export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
-export type ExampleTypedBundle_Entry_PatientEntrySliceFlatAll = ExampleTypedBundle_Entry_PatientEntrySliceFlat;
-
-export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
-export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll = ExampleTypedBundle_Entry_OrganizationEntrySliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -63,6 +57,12 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
+export type ExampleTypedBundle_Entry_PatientEntrySliceFlatAll = ExampleTypedBundle_Entry_PatientEntrySliceFlat;
+
+export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
+export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll = ExampleTypedBundle_Entry_OrganizationEntrySliceFlat;
 
 export type ExampleTypedBundleProfileRaw = {
     type: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection");

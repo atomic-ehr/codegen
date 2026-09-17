@@ -8,11 +8,6 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
-export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_bodyweight_Category_VSCatSliceFlat & {
-    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
-}
-
 import {
     ensureProfile,
     applyFixedValue,
@@ -32,6 +27,11 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_bodyweight_Category_VSCatSliceFlat & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
 
 export type observation_bodyweightProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");

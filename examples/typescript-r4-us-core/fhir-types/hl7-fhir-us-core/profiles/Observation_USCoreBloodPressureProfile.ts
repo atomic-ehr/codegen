@@ -11,17 +11,6 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Category_VSCatSliceFlatAll = USCoreBloodPressureProfile_Category_VSCatSliceFlat & {
-    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
-}
-
-export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type USCoreBloodPressureProfile_Component_SystolicSliceFlatAll = USCoreBloodPressureProfile_Component_SystolicSliceFlat;
-
-export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type USCoreBloodPressureProfile_Component_DiastolicSliceFlatAll = USCoreBloodPressureProfile_Component_DiastolicSliceFlat;
-
 import {
     ensureProfile,
     applyFixedValue,
@@ -43,6 +32,17 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlatAll = USCoreBloodPressureProfile_Category_VSCatSliceFlat & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
+
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlatAll = USCoreBloodPressureProfile_Component_SystolicSliceFlat;
+
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlatAll = USCoreBloodPressureProfile_Component_DiastolicSliceFlat;
 
 export type USCoreBloodPressureProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");

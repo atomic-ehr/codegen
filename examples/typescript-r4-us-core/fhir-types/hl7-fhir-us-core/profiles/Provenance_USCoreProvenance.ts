@@ -5,12 +5,6 @@
 import type { Provenance, ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlat = Omit<ProvenanceAgent, "type">;
-export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlatAll = USCoreProvenance_Agent_ProvenanceAuthorSliceFlat;
-
-export type USCoreProvenance_Agent_ProvenanceTransmitterSliceFlat = Omit<ProvenanceAgent, "type">;
-export type USCoreProvenance_Agent_ProvenanceTransmitterSliceFlatAll = USCoreProvenance_Agent_ProvenanceTransmitterSliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -31,6 +25,12 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlat = Omit<ProvenanceAgent, "type">;
+export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlatAll = USCoreProvenance_Agent_ProvenanceAuthorSliceFlat;
+
+export type USCoreProvenance_Agent_ProvenanceTransmitterSliceFlat = Omit<ProvenanceAgent, "type">;
+export type USCoreProvenance_Agent_ProvenanceTransmitterSliceFlatAll = USCoreProvenance_Agent_ProvenanceTransmitterSliceFlat;
 
 export type USCoreProvenanceProfileRaw = {
     target: Reference<string /* Resource */>[];
