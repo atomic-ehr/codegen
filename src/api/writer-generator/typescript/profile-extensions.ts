@@ -12,7 +12,7 @@ import {
     tsCamelCase,
     tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
-    tsExtensionValidFlatTypeName,
+    tsExtensionVFlatTypeName,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -165,7 +165,7 @@ const generateExtLookup = (w: TypeScript, ext: ProfileExtension, targetPath: str
     }
 };
 
-type GetterMode = "flat" | "valid-flat" | "profile" | "raw";
+type GetterMode = "flat" | "vflat" | "profile" | "raw";
 
 const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): GetterMode => {
     const configured = w.opts.extensionGetterDefault ?? "flat";
@@ -177,11 +177,11 @@ const returnTypeForMode = (
     mode: GetterMode,
     inputType: string,
     profileClassName?: string,
-    validFlatType?: string,
+    vFlatType?: string,
 ): string => {
     if (mode === "profile" && profileClassName) return profileClassName;
     if (mode === "raw") return "Extension";
-    if (mode === "valid-flat" && validFlatType) return validFlatType;
+    if (mode === "vflat" && vFlatType) return vFlatType;
     return inputType;
 };
 
@@ -193,22 +193,22 @@ const generateExtensionGetterOverloads = (
     inputType: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
     generateInputBody: () => void,
-    validFlatType?: string,
+    vFlatType?: string,
 ) => {
     const hasProfile = !!extProfileInfo;
     const defaultMode = effectiveGetterDefault(w, hasProfile);
     const modes: GetterMode[] = hasProfile ? ["flat", "profile", "raw"] : ["flat", "raw"];
-    if (validFlatType) modes.splice(1, 0, "valid-flat");
+    if (vFlatType) modes.splice(1, 0, "vflat");
 
     for (const mode of modes) {
-        const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className, validFlatType);
+        const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className, vFlatType);
         w.lineSM(`public ${methodName}(mode: '${mode}'): ${rt} | undefined`);
     }
-    const defaultReturn = returnTypeForMode(defaultMode, inputType, extProfileInfo?.className, validFlatType);
+    const defaultReturn = returnTypeForMode(defaultMode, inputType, extProfileInfo?.className, vFlatType);
     w.lineSM(`public ${methodName}(): ${defaultReturn} | undefined`);
 
     const allReturns = [
-        ...new Set(modes.map((m) => returnTypeForMode(m, inputType, extProfileInfo?.className, validFlatType))),
+        ...new Set(modes.map((m) => returnTypeForMode(m, inputType, extProfileInfo?.className, vFlatType))),
     ];
     const modesUnion = modes.map((m) => `'${m}'`).join(" | ");
     w.curlyBlock(
@@ -314,18 +314,18 @@ const extractableMembers = (extProfileInfo: ExtensionProfileInfo | undefined): s
 };
 
 /** `flat` is what any resource can yield — every member optional, since extraction fills only
- *  what it finds. `validFlat` is the same members once the extension has been validated, so the
+ *  what it finds. `vFlat` is the same members once the extension has been validated, so the
  *  ones the profile requires are guaranteed. */
 export const extensionExtractedTypes = (
     tsProfileName: string,
     ext: ProfileExtension,
     extProfileInfo: ExtensionProfileInfo | undefined,
-): { flat: string; validFlat: string | undefined } => {
+): { flat: string; vFlat: string | undefined } => {
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const members = extractableMembers(extProfileInfo);
-    if (!members || !extProfileInfo) return { flat: `Partial<${inputTypeName}>`, validFlat: undefined };
+    if (!members || !extProfileInfo) return { flat: `Partial<${inputTypeName}>`, vFlat: undefined };
     const picked = `Pick<${extProfileInfo.className}Flat, ${members}>`;
-    return { flat: `Partial<${picked}>`, validFlat: picked };
+    return { flat: `Partial<${picked}>`, vFlat: picked };
 };
 
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
@@ -335,10 +335,10 @@ const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
     // extension at two paths refers to two distinct declarations rather than one repeated.
     const baseName = ext.nameCandidates.recommended;
     const extractedType = tsExtensionExtractedTypeName(tsProfileName, baseName);
-    // The valid-flat arm needs the extension profile's validate(), so it is emitted
+    // The vflat arm needs the extension profile's validate(), so it is emitted
     // only when the extension resolves to a profile class.
-    const hasValidFlat = extensionExtractedTypes(tsProfileName, ext, extProfileInfo).validFlat !== undefined;
-    const validFlatType = hasValidFlat ? tsExtensionValidFlatTypeName(tsProfileName, baseName) : undefined;
+    const hasVFlat = extensionExtractedTypes(tsProfileName, ext, extProfileInfo).vFlat !== undefined;
+    const vFlatType = hasVFlat ? tsExtensionVFlatTypeName(tsProfileName, baseName) : undefined;
 
     generateExtensionGetterOverloads(
         w,
@@ -354,16 +354,16 @@ const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
                 return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
             });
             w.line(`const config = [${configItems.join(", ")}]`);
-            if (validFlatType && extProfileInfo) {
-                w.curlyBlock(["if", "(mode === 'valid-flat')"], () => {
+            if (vFlatType && extProfileInfo) {
+                w.curlyBlock(["if", "(mode === 'vflat')"], () => {
                     w.line(`const { errors } = ${extProfileInfo.className}.apply(ext).validate()`);
                     w.line('if (errors.length > 0) throw new Error(errors.join("; "))');
-                    w.line(`return extractComplexExtension<${validFlatType}>(ext, config)`);
+                    w.line(`return extractComplexExtension<${vFlatType}>(ext, config)`);
                 });
             }
             w.line(`return extractComplexExtension<${extractedType}>(ext, config)`);
         },
-        validFlatType,
+        vFlatType,
     );
 };
 

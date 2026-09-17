@@ -50,17 +50,17 @@ describe("demo: carry a complex extension on a patient", () => {
         expect(flat?.note).toBeUndefined();
     });
 
-    test("the valid-flat getter validates first, so its members are guaranteed", () => {
+    test("the vflat getter validates first, so its members are guaranteed", () => {
         const patient = NotedPatientProfile.create().setNoted({ id: "n1", note: "hello", detail: "d" });
 
         // `note` is typed as string, not string | undefined — the check backs the type.
-        const note: string = patient.getNoted("valid-flat")!.note;
+        const note: string = patient.getNoted("vflat")!.note;
 
         expect(note).toBe("hello");
     });
 
-    test("the valid-flat getter throws on an extension the profile would reject", () => {
-        expect(() => incompletePatient().getNoted("valid-flat")).toThrow(
+    test("the vflat getter throws on an extension the profile would reject", () => {
+        expect(() => incompletePatient().getNoted("vflat")).toThrow(
             "NotedComplexExtension.extension: slice 'note' requires at least 1 item(s), found 0",
         );
 
@@ -118,12 +118,12 @@ export const _flatContractTypes = () => {
     const _note: string = flat!.note;
     void flat?.note?.trim();
 
-    // The valid-flat getter validated the extension, so the required member is guaranteed —
+    // The vflat getter validated the extension, so the required member is guaranteed —
     // while the ordinary field is still not part of what extraction produces.
-    const validFlat = NotedPatientProfile.create().getNoted("valid-flat");
-    const _validNote: string = validFlat!.note;
+    const vFlat = NotedPatientProfile.create().getNoted("vflat");
+    const _validNote: string = vFlat!.note;
     // @ts-expect-error extraction never populates the ordinary field, validated or not
-    void validFlat?.id;
+    void vFlat?.id;
 };
 
 describe("the generated modules", () => {

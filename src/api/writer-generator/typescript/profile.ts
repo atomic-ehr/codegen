@@ -19,7 +19,7 @@ import {
     tsCamelCase,
     tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
-    tsExtensionValidFlatTypeName,
+    tsExtensionVFlatTypeName,
     tsFieldName,
     tsNameFromCanonical,
     tsProfileClassName,
@@ -733,13 +733,13 @@ const generateExtensionExtractedTypes = (
     for (const ext of complexExtensions) {
         if (!ext.url) continue;
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const { flat, validFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
+        const { flat, vFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
         // Name from the collision-resolved base name, the same source the getters use: two
         // entries for one extension at two paths share `ext.name` and would declare twice.
         const baseName = ext.nameCandidates.recommended;
         w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, baseName)} = ${flat}`);
-        if (validFlat) {
-            w.lineSM(`export type ${tsExtensionValidFlatTypeName(tsProfileName, baseName)} = ${validFlat}`);
+        if (vFlat) {
+            w.lineSM(`export type ${tsExtensionVFlatTypeName(tsProfileName, baseName)} = ${vFlat}`);
         }
         w.line();
     }

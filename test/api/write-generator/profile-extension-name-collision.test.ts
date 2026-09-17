@@ -82,21 +82,19 @@ describe("complex extension applied at two paths", async () => {
 
     it("names the getter return types from the resolved accessor name", () => {
         expect(declaredTypeNames).toContain("DualNotedPatient_NotedExtracted");
-        expect(declaredTypeNames).toContain("DualNotedPatient_NotedValidFlat");
+        expect(declaredTypeNames).toContain("DualNotedPatient_NotedVFlat");
         expect(declaredTypeNames).toContain("DualNotedPatient_ContactNotedExtracted");
-        expect(declaredTypeNames).toContain("DualNotedPatient_ContactNotedValidFlat");
+        expect(declaredTypeNames).toContain("DualNotedPatient_ContactNotedVFlat");
     });
 
     it("each getter returns the type named after it", () => {
         expect(generated).toContain("public getNoted(mode: 'flat'): DualNotedPatient_NotedExtracted | undefined;");
-        expect(generated).toContain(
-            "public getNoted(mode: 'valid-flat'): DualNotedPatient_NotedValidFlat | undefined;",
-        );
+        expect(generated).toContain("public getNoted(mode: 'vflat'): DualNotedPatient_NotedVFlat | undefined;");
         expect(generated).toContain(
             "public getContactNoted(mode: 'flat'): DualNotedPatient_ContactNotedExtracted | undefined;",
         );
         expect(generated).toContain(
-            "public getContactNoted(mode: 'valid-flat'): DualNotedPatient_ContactNotedValidFlat | undefined;",
+            "public getContactNoted(mode: 'vflat'): DualNotedPatient_ContactNotedVFlat | undefined;",
         );
     });
 });

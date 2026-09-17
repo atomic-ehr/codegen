@@ -106,8 +106,8 @@ export const tsExtensionExtractedTypeName = (profileName: string, extensionName:
 };
 
 /** The same shape once the extension validated: required sub-extensions are guaranteed. */
-export const tsExtensionValidFlatTypeName = (profileName: string, extensionName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}ValidFlat`;
+export const tsExtensionVFlatTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}VFlat`;
 };
 
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");

@@ -461,7 +461,7 @@ import {
 } from "../../profile-helpers";
 
 export type NotedPatient_NotedExtracted = Partial<Pick<NotedComplexExtensionProfileFlat, "note" | "detail">>;
-export type NotedPatient_NotedValidFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
+export type NotedPatient_NotedVFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
 
 // CanonicalURL: http://example.test/StructureDefinition/noted-patient (pkg: example.folder.structures#0.0.1)
 export class NotedPatientProfile {
@@ -528,20 +528,20 @@ export class NotedPatientProfile {
     }
 
     public getNoted(mode: 'flat'): NotedPatient_NotedExtracted | undefined;
-    public getNoted(mode: 'valid-flat'): NotedPatient_NotedValidFlat | undefined;
+    public getNoted(mode: 'vflat'): NotedPatient_NotedVFlat | undefined;
     public getNoted(mode: 'profile'): NotedComplexExtensionProfile | undefined;
     public getNoted(mode: 'raw'): Extension | undefined;
     public getNoted(): NotedPatient_NotedExtracted | undefined;
-    public getNoted (mode: 'flat' | 'valid-flat' | 'profile' | 'raw' = 'flat'): NotedPatient_NotedExtracted | NotedPatient_NotedValidFlat | NotedComplexExtensionProfile | Extension | undefined {
+    public getNoted (mode: 'flat' | 'vflat' | 'profile' | 'raw' = 'flat'): NotedPatient_NotedExtracted | NotedPatient_NotedVFlat | NotedComplexExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://example.test/StructureDefinition/noted-complex-extension")
         if (!ext) return undefined
         if (mode === 'raw') return ext
         if (mode === 'profile') return NotedComplexExtensionProfile.apply(ext)
         const config = [{ name: "note", valueField: "valueString", isArray: false }, { name: "detail", valueField: "valueString", isArray: false }]
-        if (mode === 'valid-flat') {
+        if (mode === 'vflat') {
             const { errors } = NotedComplexExtensionProfile.apply(ext).validate()
             if (errors.length > 0) throw new Error(errors.join("; "))
-            return extractComplexExtension<NotedPatient_NotedValidFlat>(ext, config)
+            return extractComplexExtension<NotedPatient_NotedVFlat>(ext, config)
         }
         return extractComplexExtension<NotedPatient_NotedExtracted>(ext, config)
     }
