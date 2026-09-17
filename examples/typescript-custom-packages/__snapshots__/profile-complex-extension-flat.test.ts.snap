@@ -30,16 +30,6 @@ exports[`the generated modules the complex extension the patient carries 1`] = `
 
 import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 
-export type NotedComplexExtension_Extension_NoteSliceFlat = Omit<Extension, "url">;
-export type NotedComplexExtension_Extension_NoteSliceFlatAll = NotedComplexExtension_Extension_NoteSliceFlat & {
-    readonly url: "note";
-}
-
-export type NotedComplexExtension_Extension_DetailSliceFlat = Omit<Extension, "url">;
-export type NotedComplexExtension_Extension_DetailSliceFlatAll = NotedComplexExtension_Extension_DetailSliceFlat & {
-    readonly url: "detail";
-}
-
 import {
     isRawExtensionInput,
     applyFixedValue,
@@ -63,6 +53,16 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type NotedComplexExtension_Extension_NoteSliceFlat = Omit<Extension, "url">;
+export type NotedComplexExtension_Extension_NoteSliceFlatAll = NotedComplexExtension_Extension_NoteSliceFlat & {
+    readonly url: "note";
+}
+
+export type NotedComplexExtension_Extension_DetailSliceFlat = Omit<Extension, "url">;
+export type NotedComplexExtension_Extension_DetailSliceFlatAll = NotedComplexExtension_Extension_DetailSliceFlat & {
+    readonly url: "detail";
+}
 
 export type NotedComplexExtensionProfileRaw = {
     id: string;
@@ -258,11 +258,6 @@ exports[`the generated modules the extension whose flat input keeps a required o
 
 import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 
-export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlat = Omit<Extension, "url">;
-export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlatAll = IdentifiedComplexExtension_Extension_OptionalValueSliceFlat & {
-    readonly url: "optionalValue";
-}
-
 import {
     isRawExtensionInput,
     applyFixedValue,
@@ -286,6 +281,11 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlat = Omit<Extension, "url">;
+export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlatAll = IdentifiedComplexExtension_Extension_OptionalValueSliceFlat & {
+    readonly url: "optionalValue";
+}
 
 export type IdentifiedComplexExtensionProfileRaw = {
     id: string;

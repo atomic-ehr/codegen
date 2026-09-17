@@ -8,17 +8,6 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
-export type Observation_bp_Category_VSCatSliceFlatAll = Observation_bp_Category_VSCatSliceFlat & {
-    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
-}
-
-export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type Observation_bp_Component_SystolicBPSliceFlatAll = Observation_bp_Component_SystolicBPSliceFlat;
-
-export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type Observation_bp_Component_DiastolicBPSliceFlatAll = Observation_bp_Component_DiastolicBPSliceFlat;
-
 import {
     ensureProfile,
     applyFixedValue,
@@ -40,6 +29,17 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bp_Category_VSCatSliceFlatAll = Observation_bp_Category_VSCatSliceFlat & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
+
+export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_SystolicBPSliceFlatAll = Observation_bp_Component_SystolicBPSliceFlat;
+
+export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_DiastolicBPSliceFlatAll = Observation_bp_Component_DiastolicBPSliceFlat;
 
 export type observation_bpProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");

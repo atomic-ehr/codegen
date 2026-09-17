@@ -156,9 +156,6 @@ exports[`TypeScript profile slice corrections colliding slice accessor: full pro
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 
-export type CollidingSliceObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
-export type CollidingSliceObservation_Component_CategorySliceFlatAll = CollidingSliceObservation_Component_CategorySliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -177,6 +174,9 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type CollidingSliceObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
+export type CollidingSliceObservation_Component_CategorySliceFlatAll = CollidingSliceObservation_Component_CategorySliceFlat;
 
 export type CollidingSliceObservationProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -329,9 +329,6 @@ exports[`TypeScript profile slice corrections inherited-field colliding slice ac
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 
-export type InheritedCollisionObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
-export type InheritedCollisionObservation_Component_CategorySliceFlatAll = InheritedCollisionObservation_Component_CategorySliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -350,6 +347,9 @@ import {
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
+
+export type InheritedCollisionObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
+export type InheritedCollisionObservation_Component_CategorySliceFlatAll = InheritedCollisionObservation_Component_CategorySliceFlat;
 
 export type InheritedCollisionObservationProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");

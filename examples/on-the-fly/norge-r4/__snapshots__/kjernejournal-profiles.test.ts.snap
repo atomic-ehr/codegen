@@ -474,9 +474,6 @@ import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
 
-export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat = Omit<ConditionEvidence, "code">;
-export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlatAll = KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -500,6 +497,9 @@ import {
     validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
+
+export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat = Omit<ConditionEvidence, "code">;
+export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlatAll = KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat;
 
 export type KjConditionComplicationsOfAnesthesiaProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -3844,9 +3844,6 @@ import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
 
-export type KjFlag_Category_KjCategorySliceFlat = Omit<CodeableConcept, "coding">;
-export type KjFlag_Category_KjCategorySliceFlatAll = KjFlag_Category_KjCategorySliceFlat;
-
 import {
     ensureProfile,
     applySliceMatch,
@@ -3870,6 +3867,9 @@ import {
     validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
+
+export type KjFlag_Category_KjCategorySliceFlat = Omit<CodeableConcept, "coding">;
+export type KjFlag_Category_KjCategorySliceFlatAll = KjFlag_Category_KjCategorySliceFlat;
 
 export type KjFlagProfileRaw = {
     status: ("active" | "inactive" | "entered-in-error");
