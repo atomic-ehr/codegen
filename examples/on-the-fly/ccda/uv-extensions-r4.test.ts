@@ -110,16 +110,26 @@ describe("generated modules", () => {
     });
 });
 
-describe("known defect: the flat create path writes the wrong _datatype url", () => {
-    it("writes the slice name where the profile fixes the canonical", () => {
-        // In the SD, `Extension.extension:_datatype.url` is fixed to the full canonical (unlike
-        // the `concept`/`reference` slices, whose urls are fixed to the short slice name), but
-        // `createResource`'s flat branch uses the slice name for every sub-extension — so
-        // `getDatatype()`, which looks the marker up by canonical, cannot find what it wrote.
-        // FIXME: emit the slice's fixed url; this test then flips to the canonical.
+describe("regression: the flat create path writes the url the profile fixes", () => {
+    it("uses the canonical for a slice pinned by a referenced extension profile", () => {
+        // `Extension.extension:_datatype.url` is fixed to the referenced profile's canonical
+        // (unlike the `concept`/`reference` slices, whose urls are fixed to the short slice name),
+        // and the flat factory has to write that — otherwise `getDatatype()`, which looks the
+        // marker up by canonical, cannot read back what `create()` wrote.
         const flat = WorkflowReasonProfile.create({ datatype: "CodeableReference" });
 
-        expect(flat.toResource().extension?.[0]?.url).toBe("_datatype");
-        expect(flat.getDatatype()).toBeUndefined();
+        expect(flat.toResource().extension?.[0]?.url).toBe("http://hl7.org/fhir/StructureDefinition/_datatype");
+        expect(flat.getDatatype()).toBe("CodeableReference");
+        expect(flat.validate().errors).toEqual([]);
+    });
+
+    it("keeps the short slice name where that is what the profile fixes", () => {
+        const flat = WorkflowReasonProfile.create({
+            datatype: "CodeableReference",
+            concept: { text: "Planned caesarean section" },
+        });
+
+        expect(flat.toResource().extension?.[1]?.url).toBe("concept");
+        expect(flat.getExtensionConcept()?.text).toBe("Planned caesarean section");
     });
 });

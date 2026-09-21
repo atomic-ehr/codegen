@@ -183,7 +183,7 @@ export class WorkflowReasonProfile {
         } else {
             const result: Extension[] = [];
             if (args.datatype !== undefined) {
-                result.push({ url: "_datatype", valueString: args.datatype } as Extension);
+                result.push({ url: "http://hl7.org/fhir/StructureDefinition/_datatype", valueString: args.datatype } as Extension);
             }
             if (args.concept !== undefined) {
                 result.push({ url: "concept", valueCodeableConcept: args.concept } as Extension);
@@ -430,7 +430,7 @@ export class ExtendedContactAvailabilityProfile {
         } else {
             const result: Extension[] = [];
             if (args.datatype !== undefined) {
-                result.push({ url: "_datatype", valueString: args.datatype } as Extension);
+                result.push({ url: "http://hl7.org/fhir/StructureDefinition/_datatype", valueString: args.datatype } as Extension);
             }
             return result;
         }

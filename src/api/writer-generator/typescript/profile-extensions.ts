@@ -79,6 +79,16 @@ export const valueFieldToTsType = (valueField: string): string => {
 };
 
 /**
+ * The url a sub-extension slice must be written with. Usually the profile fixes it to the slice
+ * name, but a slice typed by a referenced extension profile — the R5-in-R4 `_datatype` marker, for
+ * instance — is pinned to that profile's canonical instead, and only the profile's own `extensions`
+ * entry records it. Writing the slice name there produces a sub-extension the profile's own
+ * accessors cannot find.
+ */
+const subExtensionUrl = (extProfile: SnapshotProfileTypeSchema, sliceName: string): string =>
+    extProfile.extensions?.find((ext) => ext.name === sliceName && ext.path === "extension")?.url ?? sliceName;
+
+/**
  * Collect sub-extension "flat input" info from an extension profile's own
  * slice definitions on its `extension` field.
  */
@@ -95,7 +105,7 @@ export const collectSubExtensionSlices = (extProfile: SnapshotProfileTypeSchema)
         const isRequired = slice.min !== undefined && slice.min >= 1;
         result.push({
             name: tsCamelCase(sliceName) || sliceName,
-            url: sliceName,
+            url: subExtensionUrl(extProfile, sliceName),
             valueField,
             tsType,
             isArray,
