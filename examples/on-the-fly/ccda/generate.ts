@@ -2,7 +2,13 @@
 // bun run scripts/generate-fhir-types.ts
 
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { ensureCodes, inPackage, inResource, replaceText } from "@atomic-ehr/fhir-canonical-manager/patch";
+import {
+    ensureCodes,
+    ensureDependency,
+    inPackage,
+    inResource,
+    replaceText,
+} from "@atomic-ehr/fhir-canonical-manager/patch";
 import { registerFromManager } from "@root/typeschema/register";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
 import { builtinPatches } from "../../../src/api/builtin-patches";
@@ -14,6 +20,19 @@ if (require.main === module) {
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
         patches: {
+            packageJson: [
+                // Four packages here declare hl7.fhir.uv.extensions.r4, and all of them ask for a
+                // line whose R4 variants of eight extensions still reference R5-only datatypes
+                // (Availability, CodeableReference) — the lines the shipped input fixes exclude.
+                // 5.3.0 fixes them upstream, so redirect every declaration: dependencies are
+                // installed from the patched manifest, node_modules is flat, and the exclusions
+                // are version-scoped, so the eight generate for real against R4 types.
+                inPackage("hl7.fhir.us.core", [ensureDependency({ "hl7.fhir.uv.extensions.r4": "5.3.0" })]),
+                inPackage("hl7.fhir.uv.xver-r5.r4", [ensureDependency({ "hl7.fhir.uv.extensions.r4": "5.3.0" })]),
+                inPackage("hl7.terminology.r4", [ensureDependency({ "hl7.fhir.uv.extensions.r4": "5.3.0" })]),
+                // Pre-split THO name, reached via hl7.fhir.uv.smart-app-launch@2.2.0; asks for 1.0.0.
+                inPackage("hl7.terminology", [ensureDependency({ "hl7.fhir.uv.extensions.r4": "5.3.0" })]),
+            ],
             // The builder injects builtinPatches only into loaders it constructs itself.
             // This manager is built by hand (we need the register up front to select the
             // CDA logical models for promoteLogical), and CM patches are constructor-time

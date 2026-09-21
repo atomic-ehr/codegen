@@ -26,14 +26,22 @@ const R4_EXTENSIONS = [
     ["workflow-reason", codeableReferenceInR4],
 ] as const;
 
+/** The released `hl7.fhir.uv.extensions.r4` lines whose R4 variants of `R4_EXTENSIONS` still
+ *  carry the R5-only types; 5.3.0 fixed all eight upstream, so a closure on 5.3.0 or later needs
+ *  no exclusion. Prerelease lines (`5.1.0-ballot`, `5.2.0-ballot`, ...) are not enumerated — a
+ *  closure pinned to one of those hits the field-builder error, which points back here. */
+const R4_EXTENSIONS_BROKEN_VERSIONS = ["0.1.0", "1.0.0", "5.1.0", "5.2.0"] as const;
+
 export const builtinPatches: Partial<Patches> = {
     indexEntry: [
-        ...R4_EXTENSIONS.map(([name, reason]) =>
-            excludeCanonical({
-                package: "hl7.fhir.uv.extensions.r4",
-                url: `http://hl7.org/fhir/StructureDefinition/${name}`,
-                reason,
-            }),
+        ...R4_EXTENSIONS_BROKEN_VERSIONS.flatMap((version) =>
+            R4_EXTENSIONS.map(([name, reason]) =>
+                excludeCanonical({
+                    package: { name: "hl7.fhir.uv.extensions.r4", version },
+                    url: `http://hl7.org/fhir/StructureDefinition/${name}`,
+                    reason,
+                }),
+            ),
         ),
         excludeCanonical({
             package: { name: "hl7.fhir.r5.core", version: "5.0.0" },

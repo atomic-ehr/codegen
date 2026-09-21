@@ -47,7 +47,7 @@
   },
   "homepage": "https://github.com/atomic-ehr/codegen#readme",
   "dependencies": {
-    "@atomic-ehr/fhir-canonical-manager": "0.0.26",
+    "@atomic-ehr/fhir-canonical-manager": "0.0.27",
     "@atomic-ehr/fhirschema": "0.0.14",
     "brace-expansion": "^5.0.9",
     "mustache": "^4.2.0",
