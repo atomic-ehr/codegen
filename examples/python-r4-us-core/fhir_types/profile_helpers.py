@@ -407,26 +407,62 @@ def validate_excluded(res: object, profile_name: str, field: str) -> list[str]:
     )
 
 
-def validate_fixed_value(res: object, profile_name: str, field: str, expected: object) -> list[str]:
-    """Checks that ``field`` structurally contains the expected fixed value."""
-    actual = _get_field(res, field)
-    return (
-        []
-        if matches_value(actual, expected)
-        else [f"{profile_name}: field '{field}' does not match expected fixed value"]
-    )
+def _matches_constrained_value(value: object, expected: object, repeating: bool) -> bool:
+    """Arity-aware containment check for a ``fixed[x]`` / ``pattern[x]`` value.
+
+    - Across repetitions: a constraint declared on a repeating element applies
+      to all repetitions, so every one of them must match and the element must
+      actually be a list.
+    - Inside one value: lists nested in the constraint keep ``matches_value``'s
+      "each constraint entry matches at least one instance entry" rule.
+    """
+    if repeating:
+        return (
+            isinstance(value, list)
+            and len(value) > 0
+            and all(matches_value(item, expected) for item in value)
+        )
+    return not isinstance(value, list) and matches_value(value, expected)
 
 
-def validate_pattern_value(res: object, profile_name: str, field: str, expected: object) -> list[str]:
-    """Containment constraint for a field that may be absent: absence is
-    ``validate_required``'s concern, so an absent field passes; a present one
-    must structurally contain ``expected``."""
+def validate_fixed_value(
+    res: object,
+    profile_name: str,
+    field: str,
+    expected: object,
+    repeating: bool = False,
+) -> list[str]:
+    """Checks that a present ``field`` structurally contains the expected fixed
+    value. Absence passes — ``fixed[x]`` applies "if present", so a missing
+    element is ``validate_required``'s concern. Pass ``repeating`` for an
+    element with max > 1."""
     actual = _get_field(res, field)
     if actual is None:
         return []
     return (
         []
-        if matches_value(actual, expected)
+        if _matches_constrained_value(actual, expected, repeating)
+        else [f"{profile_name}: field '{field}' does not match expected fixed value"]
+    )
+
+
+def validate_pattern_value(
+    res: object,
+    profile_name: str,
+    field: str,
+    expected: object,
+    repeating: bool = False,
+) -> list[str]:
+    """Containment constraint for a field that may be absent: absence is
+    ``validate_required``'s concern, so an absent field passes; a present one
+    must structurally contain ``expected`` — every repetition, when
+    ``repeating``."""
+    actual = _get_field(res, field)
+    if actual is None:
+        return []
+    return (
+        []
+        if _matches_constrained_value(actual, expected, repeating)
         else [f"{profile_name}: field '{field}' does not match expected pattern"]
     )
 
