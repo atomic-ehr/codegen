@@ -578,3 +578,16 @@ def test_multi_variant_choice_group_without_a_variant_names_every_permitted_vari
     )
 
     assert errors == ["Demo.component[measuredFinding]: at least one of valueQuantity, valueString is required"]
+
+
+def test_profile_class_exposes_its_resource_type() -> None:
+    # Readable off the class, so a consumer can dispatch without instantiating
+    assert UscorePatientProfile.resource_type == "Patient"
+    assert UscorePatientProfile.canonical_url == (
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    )
+
+
+def test_extension_profile_class_exposes_no_resource_type() -> None:
+    # An extension profile bases on Extension, not on a resource
+    assert not hasattr(UscoreRaceExtension, "resource_type")
