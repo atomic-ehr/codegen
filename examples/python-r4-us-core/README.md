@@ -15,12 +15,13 @@ This example demonstrates how to generate Python/Pydantic models using the Atomi
 - Integration with Python type checking (mypy) and IDE support
 - A `fhirpy` `AsyncFHIRClient` demo (`demo.py`, exercised by `test_sdk.py`); the models carry FHIR camelCase aliases and the client serializes via the generated `serialize()` helper
 
-For a simpler `requests`-based client example, see [python-r4/](../python-r4/).
+This is the single Python example: it covers the generated models, the profile API and the client integration in one tree.
 
 ## Tests
 
 - `test_profile_*.py` — US Core profile API (offline: no server required)
 - `test_bundle.py` / `test_raw_extension.py` — generic Bundle and extension handling (offline)
+- `test_serialization.py` — the plain-model JSON contract every generated resource carries: `to_json` / `from_json` round trips, FHIR-shaped output, polymorphic `Bundle.entry.resource` parsing, and the validation `allowExtraFields: false` buys (offline)
 - `test_sdk.py` — live CRUD against a FHIR server via the fhirpy `AsyncFHIRClient` (requires Aidbox)
 
 ## Setup
@@ -211,6 +212,5 @@ pytest test_sdk.py -v
 
 ## Next Steps
 
-- See [python-r4/](../python-r4/) for a simpler `requests`-based client example
 - See [examples/](../) overview for other language examples
 - Check [../../CLAUDE.md](../../CLAUDE.md) for architecture details
