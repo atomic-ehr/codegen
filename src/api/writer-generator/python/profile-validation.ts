@@ -9,6 +9,7 @@ import {
     type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import { pyLiteral } from "./naming-utils";
 import { pyFieldName } from "./profile-naming";
 
 // ---------------------------------------------------------------------------
@@ -106,7 +107,7 @@ const collectRegularFieldValidation = (
     if (field.valueConstraint) {
         const fn = field.valueConstraint.validateOnly ? "validate_pattern_value" : "validate_fixed_value";
         helpers.add(fn);
-        const value = JSON.stringify(field.valueConstraint.value);
+        const value = pyLiteral(field.valueConstraint.value);
         errorLines.push(`errors.extend(${fn}(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}))`);
     }
     if (isNotChoiceDeclarationField(field)) {
@@ -188,13 +189,13 @@ const collectSliceValidation = (
             const max = slice.max ?? 0;
             helpers.add("validate_slice_cardinality");
             errorLines.push(
-                `errors.extend(validate_slice_cardinality(self._resource, profile_name, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}))`,
+                `errors.extend(validate_slice_cardinality(self._resource, profile_name, ${JSON.stringify(name)}, ${pyLiteral(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}))`,
             );
         }
         const { requiredFields, choiceGroups } = collectSliceRequirements(slice, match, field, tsIndex, formatName);
         if (requiredFields.length === 0 && choiceGroups.length === 0) continue;
         helpers.add("validate_slice_fields");
-        const args = [JSON.stringify(name), JSON.stringify(match), JSON.stringify(sliceName)];
+        const args = [JSON.stringify(name), pyLiteral(match), JSON.stringify(sliceName)];
         if (choiceGroups.length === 0) {
             pushListValidation(errorLines, "errors", "validate_slice_fields", args, requiredFields);
             continue;

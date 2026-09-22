@@ -11,7 +11,7 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
-import { pyTypeFromIdentifier } from "./naming-utils";
+import { pyLiteral, pyTypeFromIdentifier } from "./naming-utils";
 import { pyFieldName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
@@ -51,7 +51,7 @@ export const collectRequiredSliceNames = (
 export const generateStaticSliceFields = (w: Python, sliceDefs: SliceDef[]): void => {
     for (const sliceDef of sliceDefs) {
         const staticName = pySliceStaticName(sliceDef.sliceName);
-        w.line(`${staticName}: dict[str, Any] = ${JSON.stringify(sliceDef.match)}`);
+        w.line(`${staticName}: dict[str, Any] = ${pyLiteral(sliceDef.match)}`);
     }
     if (sliceDefs.length > 0) w.line();
 };

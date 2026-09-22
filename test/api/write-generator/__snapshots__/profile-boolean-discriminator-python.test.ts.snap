@@ -21,7 +21,7 @@ from fhir_types.profile_helpers import (
 class PreferredCommunicationPatientProfile:
     canonical_url: str = "http://example.test/StructureDefinition/preferred-communication-patient"
 
-    _primary_slice_match: dict[str, Any] = {"preferred":true}
+    _primary_slice_match: dict[str, Any] = {"preferred":True}
 
     def __init__(self, resource: Patient) -> None:
         self._resource = resource
@@ -93,7 +93,7 @@ class PreferredCommunicationPatientProfile:
         profile_name = "PreferredCommunicationPatientProfile"
         errors: list[str] = []
         warnings: list[str] = []
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "communication", {"preferred":true}, "primary", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "communication", {"preferred":True}, "primary", 1, 1))
         return {"errors": errors, "warnings": warnings}
 
 "

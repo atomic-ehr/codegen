@@ -10,7 +10,7 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { pyReferenceTypeParam, pyTypeFromIdentifier } from "./naming-utils";
+import { pyLiteral, pyReferenceTypeParam, pyTypeFromIdentifier } from "./naming-utils";
 import { pyFieldName, pySliceStaticName, pySnakeName } from "./profile-naming";
 import { collectRequiredSliceNames } from "./profile-slices";
 import type { Python } from "./writer";
@@ -164,7 +164,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.valueConstraint && !field.valueConstraint.validateOnly) {
-            const value = JSON.stringify(field.valueConstraint.value);
+            const value = pyLiteral(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             if (isNotChoiceDeclarationField(field) && field.type) {
                 const pyType = fieldPyType(field, resolveRef, tsIndex);

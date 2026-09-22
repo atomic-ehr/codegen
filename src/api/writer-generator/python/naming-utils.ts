@@ -118,6 +118,26 @@ export const pyPackage = (rootPackageName: string, identifier: TypeIdentifier): 
     return pyFhirPackage(rootPackageName, identifier);
 };
 
+/**
+ * Render a JSON-shaped value as a Python literal expression.
+ *
+ * `JSON.stringify` is almost right — Python spells dicts, lists, strings and
+ * numbers the same way JSON does — but its `true` / `false` / `null` are not
+ * Python names, so a boolean `fixed[x]` emitted through it raises `NameError`
+ * when the generated `validate()` runs. Object and array spelling matches
+ * `JSON.stringify` exactly so output without booleans or nulls is unchanged.
+ */
+export const pyLiteral = (value: unknown): string => {
+    if (value === null || value === undefined) return "None";
+    if (typeof value === "boolean") return value ? "True" : "False";
+    if (Array.isArray(value)) return `[${value.map(pyLiteral).join(",")}]`;
+    if (typeof value === "object")
+        return `{${Object.entries(value)
+            .map(([key, entry]) => `${JSON.stringify(key)}:${pyLiteral(entry)}`)
+            .join(",")}}`;
+    return JSON.stringify(value);
+};
+
 /** Map a TypeIdentifier to its Python type string. */
 export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
     if (isPrimitiveIdentifier(id)) return PRIMITIVE_TYPE_MAP[id.name] ?? "str";
