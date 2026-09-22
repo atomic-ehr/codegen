@@ -434,6 +434,7 @@ class ObservationBodyweightProfile:
     CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/bodyweight"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
@@ -635,6 +636,7 @@ class ObservationBpProfile:
     CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/bp"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
@@ -906,6 +908,7 @@ class UscorePatientProfile:
     CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
     """
 
+    resource_type: str = "Patient"
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
 
     def __init__(self, resource: Patient) -> None:
@@ -1172,6 +1175,7 @@ class UscoreBloodPressureProfile:
     CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
@@ -1621,6 +1625,7 @@ class UscoreBodyWeightProfile:
     CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}

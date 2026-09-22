@@ -448,6 +448,10 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
             w.line(`"""`);
             w.line();
         }
+        // The snapshot's base is the nearest non-profile schema in the hierarchy
+        // (see buildProfileSnapshot), so no further resolution is needed: an
+        // extension profile bases on Extension and gets no resource type.
+        if (isResourceBase) w.line(`resource_type: str = ${JSON.stringify(baseTypeName)}`);
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, sliceDefs);
