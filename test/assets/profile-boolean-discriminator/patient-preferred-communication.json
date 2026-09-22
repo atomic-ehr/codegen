@@ -1,0 +1,39 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "preferred-communication-patient",
+  "url": "http://example.test/StructureDefinition/preferred-communication-patient",
+  "version": "0.1.0",
+  "name": "PreferredCommunicationPatient",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.communication",
+        "path": "Patient.communication",
+        "slicing": {
+          "discriminator": [{ "type": "value", "path": "preferred" }],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Patient.communication:primary",
+        "path": "Patient.communication",
+        "sliceName": "primary",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Patient.communication:primary.preferred",
+        "path": "Patient.communication.preferred",
+        "min": 1,
+        "fixedBoolean": true
+      }
+    ]
+  }
+}
