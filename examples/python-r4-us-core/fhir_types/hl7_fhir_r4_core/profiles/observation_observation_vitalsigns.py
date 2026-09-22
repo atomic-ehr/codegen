@@ -21,6 +21,7 @@ class ObservationVitalsignsProfile:
     CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}

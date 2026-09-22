@@ -17,6 +17,7 @@ from fhir_types.profile_helpers import (
 
 
 class OptionalCategoryServiceRequestProfile:
+    resource_type: str = "ServiceRequest"
     canonical_url: str = "http://example.test/StructureDefinition/optional-category-service-request"
 
     def __init__(self, resource: ServiceRequest) -> None:

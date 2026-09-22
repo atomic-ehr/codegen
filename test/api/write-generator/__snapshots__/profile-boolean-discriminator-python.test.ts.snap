@@ -19,6 +19,7 @@ from fhir_types.profile_helpers import (
 
 
 class PreferredCommunicationPatientProfile:
+    resource_type: str = "Patient"
     canonical_url: str = "http://example.test/StructureDefinition/preferred-communication-patient"
 
     _primary_slice_match: dict[str, Any] = {"preferred":True}
