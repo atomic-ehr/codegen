@@ -108,7 +108,13 @@ const collectRegularFieldValidation = (
         const fn = field.valueConstraint.validateOnly ? "validate_pattern_value" : "validate_fixed_value";
         helpers.add(fn);
         const value = pyLiteral(field.valueConstraint.value);
-        errorLines.push(`errors.extend(${fn}(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}))`);
+        // A constraint on a repeating element applies to every repetition, so
+        // the helper needs the declared arity: the instance shape alone cannot
+        // tell an array-valued element from a wrong value on a single one.
+        const repeating = field.array ? ", True" : "";
+        errorLines.push(
+            `errors.extend(${fn}(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}${repeating}))`,
+        );
     }
     if (isNotChoiceDeclarationField(field)) {
         if (field.enum) {
