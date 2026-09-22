@@ -21,9 +21,9 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-on-the-fly-kbv-condition-diagnosis \
 	test-typescript-r4-us-core-example test-typescript-custom-packages-example \
 	test-mustache-java-r4-example \
-	test-csharp-sdk generate-python-r4-us-core-sdk generate-python-r4-sdk \
-	python-r4-us-core-test-setup python-r4-test-setup \
-	test-python-sdk test-python-r4-example test-python-r4-us-core-example
+	test-csharp-sdk generate-python-r4-us-core-sdk \
+	python-r4-us-core-test-setup \
+	test-python-sdk test-python-r4-us-core-example
 
 all: test test-multi-package test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
 
@@ -68,7 +68,6 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/typescript-custom-packages/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python-r4-us-core/generate.ts
-	bun run examples/python-r4/generate.ts
 	bun run examples/typescript-r4-us-core/generate.ts
 
 test-other-example-generation: test-on-the-fly-example
@@ -117,15 +116,10 @@ test-csharp-sdk: typecheck prepare-aidbox-runme
 
 PYTHON=python3.13
 PYTHON_R4_US_CORE_EXAMPLE=./examples/python-r4-us-core
-PYTHON_R4_EXAMPLE=./examples/python-r4
 
 generate-python-r4-us-core-sdk:
 	$(TYPECHECK) --project examples/python-r4-us-core/tsconfig.json
 	bun run examples/python-r4-us-core/generate.ts
-
-generate-python-r4-sdk:
-	$(TYPECHECK) --project examples/python-r4/tsconfig.json
-	bun run examples/python-r4/generate.ts
 
 python-r4-us-core-test-setup:
 	@if [ ! -d "$(PYTHON_R4_US_CORE_EXAMPLE)/venv" ]; then \
@@ -135,16 +129,7 @@ python-r4-us-core-test-setup:
 		pip install -r fhir_types/requirements.txt; \
 	fi
 
-python-r4-test-setup:
-	@if [ ! -d "$(PYTHON_R4_EXAMPLE)/venv" ]; then \
-		cd $(PYTHON_R4_EXAMPLE) && \
-		$(PYTHON) -m venv venv && \
-		. venv/bin/activate && \
-		pip install -r fhir_types/requirements.txt && \
-		pip install fhirpy; \
-	fi
-
-# Offline: mypy + profile/bundle/extension tests (no Aidbox required).
+# Offline: mypy + profile/bundle/extension/serialization tests (no Aidbox required).
 test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-r4-us-core-test-setup
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
@@ -154,13 +139,8 @@ test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-
 	     . venv/bin/activate && \
 	     python -m pytest --ignore=test_sdk.py -v
 
-# Live SDK client tests via client.py (require Aidbox).
+# Live SDK client tests via the fhirpy AsyncFHIRClient (require Aidbox).
 test-python-sdk: typecheck prepare-aidbox-runme generate-python-r4-us-core-sdk python-r4-us-core-test-setup
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
 	     python -m pytest test_sdk.py -v
-
-test-python-r4-example: typecheck prepare-aidbox-runme generate-python-r4-sdk python-r4-test-setup
-	cd $(PYTHON_R4_EXAMPLE) && \
-	   . venv/bin/activate && \
-	   mypy .
