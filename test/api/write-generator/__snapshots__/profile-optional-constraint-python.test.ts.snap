@@ -99,7 +99,7 @@ class OptionalCategoryServiceRequestProfile:
         errors: list[str] = []
         warnings: list[str] = []
         errors.extend(validate_fixed_value(self._resource, profile_name, "doNotPerform", False))
-        errors.extend(validate_fixed_value(self._resource, profile_name, "category", {"coding":[{"system":"http://example.test/category","code":"example"}]}))
+        errors.extend(validate_fixed_value(self._resource, profile_name, "category", {"coding":[{"system":"http://example.test/category","code":"example"}]}, True))
         errors.extend(validate_required(self._resource, profile_name, "intent"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "intent", "order"))
         errors.extend(

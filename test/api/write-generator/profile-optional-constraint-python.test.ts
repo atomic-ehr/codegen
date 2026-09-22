@@ -6,13 +6,14 @@ import { mkSilentLogger } from "@typeschema-test/utils";
 const FIXTURE_PATH = Path.join(__dirname, "../../assets/profile-optional-constraint");
 
 /**
- * The Python side of the fixture the TypeScript optional-constraint test uses,
- * pinning what the Python writer emits today — the defect included.
+ * Regression, the Python twin of the TypeScript optional/repeating constraint
+ * fixes: a `fixed[x]` / `pattern[x]` constraint has to carry the element's
+ * declared arity, because the instance shape alone cannot tell an array-valued
+ * element from a wrong value on a single one. Without it Python meant "some
+ * repetition conforms" where FHIR means "every one does".
  *
- * `ServiceRequest.category` is 0..* with a `patternCodeableConcept`, but the
- * emitted `validate_fixed_value` call carries no arity, so the helper falls back
- * to `matches_value`'s "some repetition conforms" reading where FHIR applies a
- * constraint declared on a repeating element to every one of them.
+ * The fixture is the StructureDefinition of the TypeScript test, so the fix has
+ * to hold for the same profile on both sides.
  */
 describe("Python optional and repeating profile constraints", async () => {
     const result = await new APIBuilder({ logger: mkSilentLogger() })
@@ -31,6 +32,17 @@ describe("Python optional and repeating profile constraints", async () => {
     it("should succeed", () => {
         expect(result.success).toBeTrue();
         expect(profileFile).toBeDefined();
+    });
+
+    it("flags a constraint on a repeating element as repeating", () => {
+        expect(profileFile).toContain(
+            'validate_fixed_value(self._resource, profile_name, "category", {"coding":[{"system":"http://example.test/category","code":"example"}]}, True)',
+        );
+    });
+
+    it("leaves a constraint on a single-valued element without an arity flag", () => {
+        expect(profileFile).toContain('validate_fixed_value(self._resource, profile_name, "doNotPerform", False)');
+        expect(profileFile).toContain('validate_fixed_value(self._resource, profile_name, "intent", "order")');
     });
 
     it("matches snapshot", () => {
