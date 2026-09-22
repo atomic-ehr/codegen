@@ -25,6 +25,7 @@ class UscoreBloodPressureProfile:
     CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure
     """
 
+    resource_type: str = "Observation"
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}

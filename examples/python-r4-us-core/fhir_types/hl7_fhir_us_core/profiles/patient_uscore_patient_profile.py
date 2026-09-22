@@ -26,6 +26,7 @@ class UscorePatientProfile:
     CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
     """
 
+    resource_type: str = "Patient"
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
 
     def __init__(self, resource: Patient) -> None:

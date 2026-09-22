@@ -23,6 +23,7 @@ class ExampleTypedBundleProfile:
     CanonicalURL: http://example.org/fhir/StructureDefinition/ExampleTypedBundle
     """
 
+    resource_type: str = "Bundle"
     canonical_url: str = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle"
 
     _patient_entry_slice_match: dict[str, Any] = {"resource":{"resourceType":"Patient"}}
