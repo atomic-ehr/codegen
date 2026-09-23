@@ -658,12 +658,12 @@ export const mkTypeSchemaIndex = (
         return (schema.typeFamily?.resources?.length ?? 0) > 0;
     };
 
-    /** Every resourceType a referent of this field may carry. `effectiveResource` already
-     *  holds it: profile targets contributed their base resource to `resource`, and any
-     *  abstract target among them has been expanded into its concrete members. */
-    const referenceAllowedTypes = (reference: FieldReference): Name[] => [
-        ...new Set(reference.effectiveResource.map((target) => target.name)),
-    ];
+    /** Every resourceType a referent of this field may carry. Falls back to expanding on
+     *  demand for a reference this index has not populated — one read from a file, say. */
+    const referenceAllowedTypes = (reference: FieldReference): Name[] => {
+        const targets = reference.effectiveResource ?? expandAbstractTargets(reference.resource, resolveType);
+        return [...new Set(targets.map((target) => target.name))];
+    };
 
     /** Resolve the permitted choice variants monotonically through the profile hierarchy.
      *  Each profile's constraints (restated declaration, declared instances, exclusions)

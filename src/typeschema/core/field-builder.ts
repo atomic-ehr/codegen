@@ -95,9 +95,8 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
 /** Resolve reference targets into two independent facts: `resource` — the base
  *  resource types a reference literal may point at (profiles resolve to their
  *  base specialization, deduped) — and `profiles` — the profile conformance
- *  expectations, preserved for profile-aware consumers. `effectiveResource` is
- *  seeded with `resource` and rewritten once the whole corpus is known; see
- *  `populateEffectiveReferences`. */
+ *  expectations, preserved for profile-aware consumers. `effectiveResource` is left
+ *  for `populateEffectiveReferences`, which needs the whole corpus to compute it. */
 const buildReferences = (
     register: Register,
     fhirSchema: RichFHIRSchema,
@@ -124,11 +123,7 @@ const buildReferences = (
             resource.push(resolved);
         }
     }
-    return {
-        resource,
-        effectiveResource: [...resource],
-        profiles: profiles.length > 0 ? profiles : undefined,
-    };
+    return { resource, profiles: profiles.length > 0 ? profiles : undefined };
 };
 
 const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded" | "elements"> => {

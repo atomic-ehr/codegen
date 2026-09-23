@@ -395,10 +395,11 @@ export type FieldReference = {
      *  A target naming a profile contributes to `profiles` only. */
     resource: TypeIdentifier[];
     /** The resourceTypes a referent may actually carry: every abstract entry of `resource`
-     *  replaced by its concrete descendants. Equal to `resource` when nothing was abstract,
-     *  and always present. Relative to the current corpus: tree shaking rebuilds the index,
+     *  replaced by its concrete descendants. Written by `populateEffectiveReferences` during
+     *  index construction — absent means not computed yet, never an answer — so every emitted
+     *  TypeSchema carries it. Relative to the current corpus: tree shaking rebuilds the index,
      *  so the expansion shrinks to the types that survived. */
-    effectiveResource: TypeIdentifier[];
+    effectiveResource?: TypeIdentifier[];
     profiles?: ProfileIdentifier[];
 };
 
