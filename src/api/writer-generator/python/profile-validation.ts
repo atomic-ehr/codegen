@@ -130,7 +130,9 @@ const collectRegularFieldValidation = (
             );
         }
         if (field.reference) {
-            const allowed = tsIndex.referenceAllowedTypes(field.reference);
+            // Profile targets carry no resource type of their own — resolve each to its base.
+            const targets = [...field.reference.resource, ...(field.reference.profiles ?? [])];
+            const allowed = [...new Set(targets.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref).name))];
             if (allowed.length > 0) {
                 helpers.add("validate_reference");
                 pushListValidation(errorLines, "errors", "validate_reference", [JSON.stringify(pyName)], allowed);
