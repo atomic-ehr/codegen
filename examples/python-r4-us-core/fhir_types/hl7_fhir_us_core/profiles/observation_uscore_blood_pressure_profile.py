@@ -410,11 +410,11 @@ class UscoreBloodPressureProfile:
         ]))
         errors.extend(
             validate_reference(self._resource, profile_name, "hasMember", [
-                "MolecularSequence","QuestionnaireResponse","Observation"
+                "MolecularSequence","Observation","QuestionnaireResponse"
         ]))
         errors.extend(
             validate_reference(self._resource, profile_name, "derivedFrom", [
-                "DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"
+                "DocumentReference","ImagingStudy","Media","MolecularSequence","Observation","QuestionnaireResponse"
         ]))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1))
         errors.extend(
@@ -428,7 +428,7 @@ class UscoreBloodPressureProfile:
         ]))
         errors.extend(
             validate_reference(self._resource, profile_name, "performer", [
-                "PractitionerRole","CareTeam","Organization","Patient","Practitioner","RelatedPerson"
+                "CareTeam","Organization","Patient","Practitioner","PractitionerRole","RelatedPerson"
         ]))
         warnings.extend(
             validate_enum(self._resource, profile_name, "category", [

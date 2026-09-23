@@ -21,6 +21,7 @@ from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationC
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
 )
+from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent, ProvenanceEntity
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 
 Address.model_rebuild()
@@ -66,6 +67,9 @@ PatientCommunication.model_rebuild()
 PatientContact.model_rebuild()
 PatientLink.model_rebuild()
 Period.model_rebuild()
+Provenance.model_rebuild()
+ProvenanceAgent.model_rebuild()
+ProvenanceEntity.model_rebuild()
 Quantity.model_rebuild()
 Range.model_rebuild()
 Ratio.model_rebuild()
