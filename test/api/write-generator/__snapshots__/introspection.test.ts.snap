@@ -2999,6 +2999,13 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "QuestionnaireResponse",
             "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Observation",
+            "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           }
         ],
         "effectiveResource": [
@@ -3008,6 +3015,13 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "MolecularSequence",
             "url": "http://hl7.org/fhir/StructureDefinition/MolecularSequence"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Observation",
+            "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           },
           {
             "kind": "resource",
@@ -3075,6 +3089,13 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "QuestionnaireResponse",
             "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Observation",
+            "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           }
         ],
         "effectiveResource": [
@@ -3105,6 +3126,13 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "MolecularSequence",
             "url": "http://hl7.org/fhir/StructureDefinition/MolecularSequence"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Observation",
+            "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           },
           {
             "kind": "resource",

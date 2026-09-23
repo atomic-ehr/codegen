@@ -14,10 +14,9 @@ describe("reference target resolution", async () => {
         kind: "resource",
     });
 
-    it("profile-only targetProfile yields the profile alone, with no resource type", async () => {
+    it("profile-only targetProfile yields both the base resource and the profile", async () => {
         // Base Observation.subject references Patient (among others); the profile
-        // restates it with ONLY a Patient profile as target. A profile carries no
-        // resource type of its own — consumers resolve it through the index.
+        // restates it with ONLY a Patient profile as target.
         const ts = (
             await registerFsAndMkTs(
                 r4,
@@ -39,13 +38,14 @@ describe("reference target resolution", async () => {
         )[0] as ProfileTypeSchema;
 
         const subject = ts.fields?.subject as RegularField;
-        expect(subject.reference?.resource).toEqual([]);
-        expect(subject.reference?.effectiveResource).toEqual([]);
+        expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(subject.reference?.resource[0]?.kind).toBe("resource");
+        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
         expect(subject.reference?.profiles?.[0]?.kind).toBe("profile");
     });
 
-    it("a profile alongside plain resource targets leaves the resource list untouched", async () => {
+    it("profile alongside its base resource dedupes the resource list", async () => {
         const ts = (
             await registerFsAndMkTs(
                 r4,

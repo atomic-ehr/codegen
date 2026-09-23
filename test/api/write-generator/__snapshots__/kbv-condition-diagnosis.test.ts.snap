@@ -3817,7 +3817,7 @@ import {
 
 export type KBV_PR_Base_Condition_DiagnosisProfileRaw = {
     code: CodeableConcept;
-    subject: Reference<"Group" | "Patient" /* https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient */>;
+    subject: Reference<"Group" | "Patient">;
 }
 
 // CanonicalURL: https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis (pkg: kbv.basis#1.9.0)
@@ -3882,11 +3882,11 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
         return this;
     }
 
-    getSubject () : Reference<"Group" | "Patient" /* https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient */> | undefined {
-        return this.resource.subject as Reference<"Group" | "Patient" /* https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient */> | undefined;
+    getSubject () : Reference<"Group" | "Patient"> | undefined {
+        return this.resource.subject as Reference<"Group" | "Patient"> | undefined;
     }
 
-    setSubject (value: Reference<"Group" | "Patient" /* https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient */>) : this {
+    setSubject (value: Reference<"Group" | "Patient">) : this {
         Object.assign(this.resource, { subject: value });
         return this;
     }

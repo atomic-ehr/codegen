@@ -50,7 +50,7 @@ describe("effectiveResource", async () => {
         expect(reference.effectiveResource.map((ref): string => ref.name)).toContain("Patient");
     });
 
-    it("feeds referenceAllowedTypes, which folds in profile targets", () => {
+    it("feeds referenceAllowedTypes with concrete types only", () => {
         const concrete: string[] = index.referenceAllowedTypes(referenceOf("Observation", "subject"));
         expect(concrete).toContain("Patient");
         expect(concrete).not.toContain("Resource");
@@ -59,5 +59,17 @@ describe("effectiveResource", async () => {
         expect(abstract).toContain("Patient");
         expect(abstract).not.toContain("Resource");
         expect(abstract).not.toContain("DomainResource");
+    });
+
+    it("covers a profile target through the base resource it resolved to", () => {
+        // Composition.author targets Practitioner among others; every target a profile
+        // resolved to is already in `resource`, so the expansion needs no profile lookup.
+        const reference = referenceOf("Composition", "author");
+
+        expect(reference.effectiveResource.map((ref): string => ref.name)).toEqual(
+            reference.resource.map((ref): string => ref.name),
+        );
+        const allowed: string[] = index.referenceAllowedTypes(reference);
+        expect(allowed).toContain("Practitioner");
     });
 });
