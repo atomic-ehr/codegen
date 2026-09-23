@@ -164,7 +164,6 @@
 - `http://hl7.org/fhir/StructureDefinition/Procedure`
 - `http://hl7.org/fhir/StructureDefinition/ProdCharacteristic`
 - `http://hl7.org/fhir/StructureDefinition/ProductShelfLife`
-- `http://hl7.org/fhir/StructureDefinition/Provenance`
 - `http://hl7.org/fhir/StructureDefinition/Questionnaire`
 - `http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse`
 - `http://hl7.org/fhir/StructureDefinition/RelatedPerson`
@@ -2077,7 +2076,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure#reasonCode_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure#status_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance#agent.type_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse`
@@ -2783,13 +2781,8 @@
 - `urn:fhir:binding:PropertyCharacteristic`
 - `urn:fhir:binding:PropertyRepresentation`
 - `urn:fhir:binding:PropertyType`
-- `urn:fhir:binding:ProvenanceActivity`
-- `urn:fhir:binding:ProvenanceAgentRole`
-- `urn:fhir:binding:ProvenanceAgentType`
-- `urn:fhir:binding:ProvenanceEntityRole`
 - `urn:fhir:binding:ProvenanceHistoryAgentType`
 - `urn:fhir:binding:ProvenanceHistoryRecordActivity`
-- `urn:fhir:binding:ProvenanceReason`
 - `urn:fhir:binding:ProviderQualification`
 - `urn:fhir:binding:PublicationStatus`
 - `urn:fhir:binding:PublishedInType`

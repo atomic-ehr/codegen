@@ -21,6 +21,7 @@ from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationC
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
 )
+from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent, ProvenanceEntity
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 
 __all__ = [
@@ -67,6 +68,9 @@ __all__ = [
     'PatientContact',
     'PatientLink',
     'Period',
+    'Provenance',
+    'ProvenanceAgent',
+    'ProvenanceEntity',
     'Quantity',
     'Range',
     'Ratio',
