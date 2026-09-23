@@ -95,7 +95,8 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
 /** Resolve reference targets into two independent facts: `resource` — the base
  *  resource types a reference literal may point at (profiles resolve to their
  *  base specialization, deduped) — and `profiles` — the profile conformance
- *  expectations, preserved for profile-aware consumers. */
+ *  expectations, preserved for profile-aware consumers. `effectiveResource` is left
+ *  for `populateEffectiveReferences`, which needs the whole corpus to compute it. */
 const buildReferences = (
     register: Register,
     fhirSchema: RichFHIRSchema,

@@ -368,6 +368,7 @@ export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] =>
 type SpecializationTypeSchemaBody = {
     base?: TypeIdentifier;
     description?: string;
+    abstractResource?: boolean;
     fields?: { [k: string]: Field };
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
@@ -390,7 +391,15 @@ export type LogicalTypeSchema = { identifier: LogicalIdentifier } & Specializati
 export type SpecializationTypeSchema = ResourceTypeSchema | ComplexTypeTypeSchema | LogicalTypeSchema;
 
 export type FieldReference = {
+    /** Targets that resolve to a specialization, as authored — abstract types kept as-is.
+     *  A target naming a profile contributes to `profiles` only. */
     resource: TypeIdentifier[];
+    /** The resourceTypes a referent may actually carry: every abstract entry of `resource`
+     *  replaced by its concrete descendants. Written by `populateEffectiveReferences` during
+     *  index construction — absent means not computed yet, never an answer — so every emitted
+     *  TypeSchema carries it. Relative to the current corpus: tree shaking rebuilds the index,
+     *  so the expansion shrinks to the types that survived. */
+    effectiveResource?: TypeIdentifier[];
     profiles?: ProfileIdentifier[];
 };
 

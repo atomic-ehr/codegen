@@ -532,6 +532,22 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
             "name": "Patient",
             "url": "http://hl7.org/fhir/StructureDefinition/Patient"
           }
+        ],
+        "effectiveResource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Group",
+            "url": "http://hl7.org/fhir/StructureDefinition/Group"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          }
         ]
       },
       "array": false
@@ -548,6 +564,15 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
       "excluded": false,
       "reference": {
         "resource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Encounter",
+            "url": "http://hl7.org/fhir/StructureDefinition/Encounter"
+          }
+        ],
+        "effectiveResource": [
           {
             "kind": "resource",
             "package": "hl7.fhir.r4.core",
@@ -765,6 +790,36 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
             "name": "RelatedPerson",
             "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
           }
+        ],
+        "effectiveResource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Practitioner",
+            "url": "http://hl7.org/fhir/StructureDefinition/Practitioner"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "PractitionerRole",
+            "url": "http://hl7.org/fhir/StructureDefinition/PractitionerRole"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RelatedPerson",
+            "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
+          }
         ]
       },
       "array": false
@@ -781,6 +836,36 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
       "excluded": false,
       "reference": {
         "resource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Practitioner",
+            "url": "http://hl7.org/fhir/StructureDefinition/Practitioner"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "PractitionerRole",
+            "url": "http://hl7.org/fhir/StructureDefinition/PractitionerRole"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RelatedPerson",
+            "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
+          }
+        ],
+        "effectiveResource": [
           {
             "kind": "resource",
             "package": "hl7.fhir.r4.core",
@@ -905,6 +990,15 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
                 "name": "Resource",
                 "url": "http://hl7.org/fhir/StructureDefinition/Resource"
               }
+            ],
+            "effectiveResource": [
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "Condition",
+                "url": "http://hl7.org/fhir/StructureDefinition/Condition"
+              }
             ]
           },
           "array": true
@@ -958,6 +1052,29 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
           "excluded": false,
           "reference": {
             "resource": [
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "ClinicalImpression",
+                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "DiagnosticReport",
+                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "Observation",
+                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
+              }
+            ],
+            "effectiveResource": [
               {
                 "kind": "resource",
                 "package": "hl7.fhir.r4.core",
@@ -2012,6 +2129,22 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "name": "KBV_PR_Base_Patient",
             "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
           }
+        ],
+        "effectiveResource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Group",
+            "url": "http://hl7.org/fhir/StructureDefinition/Group"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          }
         ]
       },
       "array": false
@@ -2196,6 +2329,36 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "name": "RelatedPerson",
             "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
           }
+        ],
+        "effectiveResource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Practitioner",
+            "url": "http://hl7.org/fhir/StructureDefinition/Practitioner"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "PractitionerRole",
+            "url": "http://hl7.org/fhir/StructureDefinition/PractitionerRole"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RelatedPerson",
+            "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
+          }
         ]
       },
       "array": false
@@ -2315,6 +2478,29 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
           "excluded": false,
           "reference": {
             "resource": [
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "ClinicalImpression",
+                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "DiagnosticReport",
+                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "Observation",
+                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
+              }
+            ],
+            "effectiveResource": [
               {
                 "kind": "resource",
                 "package": "hl7.fhir.r4.core",
@@ -2827,6 +3013,22 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "name": "KBV_PR_Base_Patient",
             "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
           }
+        ],
+        "effectiveResource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Group",
+            "url": "http://hl7.org/fhir/StructureDefinition/Group"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          }
         ]
       },
       "array": false
@@ -2983,6 +3185,36 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "excluded": false,
       "reference": {
         "resource": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Practitioner",
+            "url": "http://hl7.org/fhir/StructureDefinition/Practitioner"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "PractitionerRole",
+            "url": "http://hl7.org/fhir/StructureDefinition/PractitionerRole"
+          },
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RelatedPerson",
+            "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
+          }
+        ],
+        "effectiveResource": [
           {
             "kind": "resource",
             "package": "hl7.fhir.r4.core",
@@ -3401,6 +3633,29 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
           "excluded": false,
           "reference": {
             "resource": [
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "ClinicalImpression",
+                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "DiagnosticReport",
+                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
+              },
+              {
+                "kind": "resource",
+                "package": "hl7.fhir.r4.core",
+                "version": "4.0.1",
+                "name": "Observation",
+                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
+              }
+            ],
+            "effectiveResource": [
               {
                 "kind": "resource",
                 "package": "hl7.fhir.r4.core",

@@ -40,6 +40,8 @@ describe("reference target resolution", async () => {
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.resource[0]?.kind).toBe("resource");
+        // Populated during index construction, which needs the whole corpus.
+        expect(subject.reference?.effectiveResource).toBeUndefined();
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
         expect(subject.reference?.profiles?.[0]?.kind).toBe("profile");
     });
@@ -98,5 +100,35 @@ describe("reference target resolution", async () => {
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.profiles).toBeUndefined();
+    });
+
+    it("a versioned canonical names the same target as the bare resource name", async () => {
+        const ts = (
+            await registerFsAndMkTs(
+                r4,
+                {
+                    url: "http://example.org/StructureDefinition/TestCarePlan",
+                    name: "TestCarePlan",
+                    base: "http://hl7.org/fhir/StructureDefinition/CarePlan",
+                    derivation: "constraint",
+                    kind: "resource",
+                    elements: {
+                        subject: {
+                            type: "Reference",
+                            refers: [
+                                "http://hl7.org/fhir/StructureDefinition/Patient|4.0.1",
+                                "Patient",
+                                "http://example.org/StructureDefinition/TestPatient",
+                            ],
+                        },
+                    },
+                },
+                logger,
+            )
+        )[0] as ProfileTypeSchema;
+
+        const subject = ts.fields?.subject as RegularField;
+        expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
     });
 });

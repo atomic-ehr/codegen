@@ -6,7 +6,6 @@ import {
     isChoiceInstanceField,
     type RegularField,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { tsProfileClassName } from "./name";
@@ -52,7 +51,6 @@ export const collectRegularFieldValidation = (
     warnings: string[],
     name: string,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef: (ref: TypeIdentifier) => TypeIdentifier,
     canonicalUrlExpr?: { url: string; expr: string },
     tsIndex?: TypeSchemaIndex,
     fieldSlicing?: FieldSlicing,
@@ -87,24 +85,10 @@ export const collectRegularFieldValidation = (
     if (field.mustSupport && !field.required)
         warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
 
-    if (field.reference && field.reference.resource.length > 0) {
-        // An abstract family target (e.g. Resource) stands for its member
-        // resources, so expand it into them. Abstract members — the root and
-        // any family type among them — are left out: no instance carries such
-        // a resourceType, so a reference can never name one.
-        const allowed = field.reference.resource.flatMap((ref) => {
-            const resolved = resolveRef(ref);
-            const target = tsIndex?.resolveType(resolved);
-            const family = target && "typeFamily" in target ? (target.typeFamily?.resources ?? []) : [];
-            if (family.length === 0) return [resolved.name];
-            return family
-                .filter((member) => !tsIndex?.isFamilyType(member))
-                .map((member) => member.name)
-                .sort((a, b) => a.localeCompare(b));
-        });
-        errors.push(
-            `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify([...new Set(allowed)])})`,
-        );
+    if (field.reference) {
+        const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
+        if (allowed.length > 0)
+            errors.push(`...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`);
     }
 
     if (fieldSlicing?.slices) {
@@ -167,7 +151,6 @@ export const generateValidateMethod = (
                 warnings,
                 name,
                 field,
-                tsIndex.findLastSpecializationByIdentifier,
                 canonicalUrlExpr,
                 tsIndex,
                 snapshot.slicing?.[name],
