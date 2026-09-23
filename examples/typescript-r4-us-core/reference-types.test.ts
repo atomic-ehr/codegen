@@ -60,10 +60,45 @@ describe("a narrowed reference constrains the restated type", () => {
     });
 });
 
+describe("the absolute form carries the target too", () => {
+    test("an absolute URL to an allowed target passes", () => {
+        const subject: Subject = { reference: "http://ex.org/fhir/Patient/pt-1" };
+        expect(subject.reference).toContain("Patient");
+    });
+
+    test("a versioned absolute URL passes", () => {
+        const subject: Subject = { reference: "https://ex.org/fhir/Patient/pt-1/_history/2" };
+        expect(subject).toBeDefined();
+    });
+
+    test("an absolute URL to a target the element does not allow does not compile", () => {
+        // @ts-expect-error Practitioner is not among the declared targets
+        const subject: Subject = { reference: "http://ex.org/fhir/Practitioner/pr-1" };
+        expect(subject).toBeDefined();
+    });
+
+    test("a urn reference stays open — it names no resource type", () => {
+        const subject: Subject = { reference: "urn:uuid:3fdc72f4-a11d-4a9d-9260-a9f745779e1d" };
+        expect(subject).toBeDefined();
+    });
+
+    test("a contained reference stays open for the same reason", () => {
+        const subject: Subject = { reference: "#contained-1" };
+        expect(subject).toBeDefined();
+    });
+});
+
 describe("a family target stays open", () => {
     test("any resource may be referenced and restated", () => {
         const target: Target = { reference: "Practitioner/pr-1", type: "Practitioner" };
         expect(target.type).toBe("Practitioner");
+    });
+
+    // With T = string the absolute branch is `http://${string}/${string}/${string}`,
+    // so it still requires the `host/Type/id` shape a literal reference must have.
+    test("an absolute URL to any resource passes", () => {
+        const target: Target = { reference: "http://ex.org/fhir/Practitioner/pr-1" };
+        expect(target).toBeDefined();
     });
 
     test("a narrowed reference is assignable to the family-typed element", () => {
