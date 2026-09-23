@@ -175,19 +175,15 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
 ///////////////////////////////////////////////////////////
 // Effective Reference Targets
 
-/** Rewrite `reference.effectiveResource` on every field so abstract targets are replaced
- *  by the concrete resources that may actually carry the referent's resourceType.
- *  Runs after `populateTypeFamily`, which supplies the descendants, and mirrors its
- *  in-place mutation. Order is preserved — an expansion is spliced in at the position
- *  of the abstract target it replaces — and entries are deduped by url, so a concrete
- *  target that also appears inside an expanded family is kept once, where it was written. */
+/** Replace each abstract target by the concrete resources of its family, deduped by url
+ *  and sorted so generated code does not depend on the order schemas were loaded in. */
 const expandAbstractTargets = (
     resource: TypeIdentifier[],
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
 ): TypeIdentifier[] => {
     const isAbstract = (id: TypeIdentifier): boolean => {
         const schema = resolveType(id);
-        return !!schema && "abstract" in schema && schema.abstract === true;
+        return !!schema && "abstractResource" in schema && schema.abstractResource === true;
     };
 
     const result: TypeIdentifier[] = [];
@@ -208,11 +204,10 @@ const expandAbstractTargets = (
             if (!isAbstract(member)) push(member);
         }
     }
-    // Sorted by name so generated code does not depend on the order schemas were
-    // loaded in, nor on where an expansion happened to be spliced into the list.
     return result.sort((a, b) => a.name.localeCompare(b.name));
 };
 
+/** Runs after `populateTypeFamily`, which supplies the descendants, and mutates in place as it does. */
 const populateEffectiveReferences = (
     schemas: TypeSchema[],
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,

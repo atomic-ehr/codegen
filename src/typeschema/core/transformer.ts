@@ -198,7 +198,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         slicing,
         nested,
         description: fhirSchema.description,
-        ...(fhirSchema.abstract === true ? { abstract: true } : {}),
+        ...(fhirSchema.abstract === true ? { abstractResource: true } : {}),
         dependencies: extractDependencies(identifier, base, fields, nested),
         typeFamily: undefined,
     } as SpecializationTypeSchema;

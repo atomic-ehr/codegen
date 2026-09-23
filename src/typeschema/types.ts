@@ -368,9 +368,7 @@ export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] =>
 type SpecializationTypeSchemaBody = {
     base?: TypeIdentifier;
     description?: string;
-    /** From StructureDefinition.abstract — the type cannot be instantiated, so it can
-     *  never appear as a referent's resourceType. */
-    abstract?: boolean;
+    abstractResource?: boolean;
     fields?: { [k: string]: Field };
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
