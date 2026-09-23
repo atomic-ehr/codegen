@@ -24,6 +24,7 @@ them into a single errors / warnings list.
 from __future__ import annotations
 
 import copy
+import re
 from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence, Sequence, TypeVar
 
 from typing_extensions import TypeGuard
@@ -581,21 +582,37 @@ def validate_enum(res: object, profile_name: str, field: str, allowed: Sequence[
     return []
 
 
+_REFERENCE_TYPE_RE = re.compile(r"(?:^|/)([A-Za-z]+)/[A-Za-z0-9\-.]{1,64}(?:/_history/[A-Za-z0-9\-.]{1,64})?$")
+
+
+def referenced_resource_type(reference: str) -> str | None:
+    """The resource type a literal reference points at, or ``None`` when the
+    string carries none.
+
+    A literal reference is a relative or absolute URL ending in ``<Type>/<id>``,
+    optionally followed by ``/_history/<vid>`` — so the type is the segment
+    before the id, not the first segment. Reading it as the first segment makes
+    every absolute URL look like the scheme (``http:``).
+
+    A ``urn:uuid:`` / ``urn:oid:`` reference and a ``#contained`` one name no
+    type at all, and neither does a reference made only by ``identifier``; those
+    are not something to report, so they yield ``None`` and the check is skipped.
+    """
+    match = _REFERENCE_TYPE_RE.search(reference)
+    return match.group(1) if match else None
+
+
 def validate_reference(res: object, profile_name: str, field: str, allowed: Sequence[str]) -> list[str]:
     """Checks that a Reference field points to one of the ``allowed`` resource
-    types. Extracts the type from the ``reference`` string (the part before
-    the first ``/``)."""
+    types."""
     value = _get_field(res, field)
     if value is None:
         return []
     ref = _get_field(value, "reference")
     if not isinstance(ref, str):
         return []
-    slash = ref.find("/")
-    if slash == -1:
-        return []
-    ref_type = ref[:slash]
-    if ref_type in allowed:
+    ref_type = referenced_resource_type(ref)
+    if ref_type is None or ref_type in allowed:
         return []
     return [
         f"{profile_name}: field '{field}' references '{ref_type}' but only {', '.join(allowed)} are allowed"
