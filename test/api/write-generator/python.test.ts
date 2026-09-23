@@ -33,7 +33,7 @@ describe("Python Writer Generator", async () => {
         it("generates TypeVar import and declaration", () => {
             expect(basePy).toContain("from typing import Any, Generic, List as PyList, Literal");
             expect(basePy).toContain("from typing_extensions import TypeVar");
-            expect(basePy).toContain("T = TypeVar('T', bound=str, default=str)");
+            expect(basePy).toContain("T = TypeVar('T', bound=str, default=str, covariant=True)");
         });
     });
 
@@ -53,8 +53,8 @@ describe("Python Writer Generator", async () => {
             expect(bundlePy).toContain("entry: PyList[BundleEntry[T1, T2]] | None");
         });
         it("declares resource-constrained TypeVars", () => {
-            expect(bundlePy).toContain("T1 = TypeVar('T1', bound=Resource, default=Resource)");
-            expect(bundlePy).toContain("T2 = TypeVar('T2', bound=Resource, default=Resource)");
+            expect(bundlePy).toContain("T1 = TypeVar('T1', bound=Resource, default=Resource, covariant=True)");
+            expect(bundlePy).toContain("T2 = TypeVar('T2', bound=Resource, default=Resource, covariant=True)");
         });
         it("matches snapshot", () => {
             expect(bundlePy).toMatchSnapshot();
@@ -105,8 +105,8 @@ describe("Python Writer Generator", async () => {
     });
     it("declares resource-constrained TypeVars in bundle.py", async () => {
         const bundlePy = files["generated/hl7_fhir_r4_core/bundle.py"];
-        expect(bundlePy).toContain("T1 = TypeVar('T1', bound=Resource, default=Resource)");
-        expect(bundlePy).toContain("T2 = TypeVar('T2', bound=Resource, default=Resource)");
+        expect(bundlePy).toContain("T1 = TypeVar('T1', bound=Resource, default=Resource, covariant=True)");
+        expect(bundlePy).toContain("T2 = TypeVar('T2', bound=Resource, default=Resource, covariant=True)");
     });
 });
 

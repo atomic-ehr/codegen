@@ -259,7 +259,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.generateDefaultImports(hasGenericTypes);
             if (hasGenericTypes) {
                 this.line();
-                this.line("T = TypeVar('T', bound=str, default=str)");
+                // Covariant so a precisely-typed value flows into a wider slot:
+                // `Reference[Literal["Patient"]]` where a plain `Reference` is
+                // expected. Unsound for a mutable field in principle, and the
+                // same latitude TypeScript's structural typing takes here.
+                this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
             }
             this.line();
             this.generateComplexTypes(packageComplexTypes);
@@ -379,7 +383,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
                 this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
                 this.line();
                 for (const { typeVar, constraint } of typeVars) {
-                    this.line(`${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint})`);
+                    // Covariant for the same reason as the base `T`: a
+                    // `BundleEntry[Patient]` is usable as a `BundleEntry[Resource]`.
+                    this.line(
+                        `${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint}, covariant=True)`,
+                    );
                 }
             }
             this.line();
