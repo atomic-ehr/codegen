@@ -54,9 +54,14 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
 const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
     Coding: { code: () => "T" },
     Reference: {
+        // A literal reference is a relative or absolute URL ending in
+        // `<Type>/<id>`, so the absolute forms carry the target too — left as a
+        // bare `http://${string}` they were an escape hatch out of the whole
+        // allowed-target list. `urn:` and `#contained` references name no
+        // resource type at all and stay open.
         reference: () =>
             // biome-ignore lint/suspicious/noTemplateCurlyInString: emitted as a TS template literal type, the placeholders are intentional
-            "`${T}/${string}` | `http://${string}` | `https://${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`",
+            "`${T}/${string}` | `http://${string}/${T}/${string}` | `https://${string}/${T}/${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`",
         // `Reference.type` restates what the reference points at, so it is bound
         // by the same targets as the literal. Left as `string` it was the one
         // part of a narrowed Reference that accepted any value at all.
