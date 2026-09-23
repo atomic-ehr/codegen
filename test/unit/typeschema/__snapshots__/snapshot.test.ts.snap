@@ -1118,6 +1118,15 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
               "name": "TutorNotificationTemplate",
               "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
             }
+          ],
+          "effectiveResource": [
+            {
+              "kind": "resource",
+              "package": "mypackage",
+              "version": "0.0.0",
+              "name": "TutorNotificationTemplate",
+              "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+            }
           ]
         },
         "array": false
@@ -1158,6 +1167,15 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
         "excluded": false,
         "reference": {
           "resource": [
+            {
+              "kind": "resource",
+              "package": "hl7.fhir.r4.core",
+              "version": "4.0.1",
+              "name": "Patient",
+              "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+            }
+          ],
+          "effectiveResource": [
             {
               "kind": "resource",
               "package": "hl7.fhir.r4.core",

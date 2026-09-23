@@ -14,9 +14,10 @@ describe("reference target resolution", async () => {
         kind: "resource",
     });
 
-    it("profile-only targetProfile yields both the base resource and the profile", async () => {
+    it("profile-only targetProfile yields the profile alone, with no resource type", async () => {
         // Base Observation.subject references Patient (among others); the profile
-        // restates it with ONLY a Patient profile as target.
+        // restates it with ONLY a Patient profile as target. A profile carries no
+        // resource type of its own — consumers resolve it through the index.
         const ts = (
             await registerFsAndMkTs(
                 r4,
@@ -38,13 +39,13 @@ describe("reference target resolution", async () => {
         )[0] as ProfileTypeSchema;
 
         const subject = ts.fields?.subject as RegularField;
-        expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
-        expect(subject.reference?.resource[0]?.kind).toBe("resource");
+        expect(subject.reference?.resource).toEqual([]);
+        expect(subject.reference?.effectiveResource).toEqual([]);
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
         expect(subject.reference?.profiles?.[0]?.kind).toBe("profile");
     });
 
-    it("profile alongside its base resource dedupes the resource list", async () => {
+    it("a profile alongside plain resource targets leaves the resource list untouched", async () => {
         const ts = (
             await registerFsAndMkTs(
                 r4,
@@ -71,6 +72,7 @@ describe("reference target resolution", async () => {
 
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Group", "Patient"]);
+        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Group", "Patient"]);
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
     });
 
@@ -97,6 +99,33 @@ describe("reference target resolution", async () => {
 
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.profiles).toBeUndefined();
+    });
+
+    it("a versioned canonical names the same target as the bare resource name", async () => {
+        const ts = (
+            await registerFsAndMkTs(
+                r4,
+                {
+                    url: "http://example.org/StructureDefinition/TestCarePlan",
+                    name: "TestCarePlan",
+                    base: "http://hl7.org/fhir/StructureDefinition/CarePlan",
+                    derivation: "constraint",
+                    kind: "resource",
+                    elements: {
+                        subject: {
+                            type: "Reference",
+                            refers: ["http://hl7.org/fhir/StructureDefinition/Patient|4.0.1", "Patient"],
+                        },
+                    },
+                },
+                logger,
+            )
+        )[0] as ProfileTypeSchema;
+
+        const subject = ts.fields?.subject as RegularField;
+        expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
     });
 });
