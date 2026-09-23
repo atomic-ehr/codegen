@@ -2121,6 +2121,15 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "url": "http://hl7.org/fhir/StructureDefinition/Patient"
           }
         ],
+        "profiles": [
+          {
+            "kind": "profile",
+            "package": "kbv.basis",
+            "version": "1.9.0",
+            "name": "KBV_PR_Base_Patient",
+            "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
+          }
+        ],
         "effectiveResource": [
           {
             "kind": "resource",
@@ -2135,15 +2144,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "version": "4.0.1",
             "name": "Patient",
             "url": "http://hl7.org/fhir/StructureDefinition/Patient"
-          }
-        ],
-        "profiles": [
-          {
-            "kind": "profile",
-            "package": "kbv.basis",
-            "version": "1.9.0",
-            "name": "KBV_PR_Base_Patient",
-            "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
           }
         ]
       },
@@ -3005,6 +3005,15 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "url": "http://hl7.org/fhir/StructureDefinition/Patient"
           }
         ],
+        "profiles": [
+          {
+            "kind": "profile",
+            "package": "kbv.basis",
+            "version": "1.9.0",
+            "name": "KBV_PR_Base_Patient",
+            "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
+          }
+        ],
         "effectiveResource": [
           {
             "kind": "resource",
@@ -3019,15 +3028,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
             "version": "4.0.1",
             "name": "Patient",
             "url": "http://hl7.org/fhir/StructureDefinition/Patient"
-          }
-        ],
-        "profiles": [
-          {
-            "kind": "profile",
-            "package": "kbv.basis",
-            "version": "1.9.0",
-            "name": "KBV_PR_Base_Patient",
-            "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient"
           }
         ]
       },

@@ -40,7 +40,8 @@ describe("reference target resolution", async () => {
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.resource[0]?.kind).toBe("resource");
-        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        // Populated during index construction, which needs the whole corpus.
+        expect(subject.reference?.effectiveResource).toBeUndefined();
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
         expect(subject.reference?.profiles?.[0]?.kind).toBe("profile");
     });
@@ -72,7 +73,6 @@ describe("reference target resolution", async () => {
 
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Group", "Patient"]);
-        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Group", "Patient"]);
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
     });
 
@@ -99,7 +99,6 @@ describe("reference target resolution", async () => {
 
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
-        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.profiles).toBeUndefined();
     });
 
@@ -130,7 +129,6 @@ describe("reference target resolution", async () => {
 
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
-        expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
     });
 });

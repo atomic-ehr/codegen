@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { FieldReference, RegularField, ResourceTypeSchema } from "@typeschema/types";
+import type { FieldReference, RegularField, ResourceTypeSchema, TypeIdentifier } from "@typeschema/types";
 import { mkErrorLogger, mkIndex, mkR4Register, r4Package } from "@typeschema-test/utils";
 
 /** `Provenance.target` is `Reference(Any)` — the only R4 core field whose target
@@ -8,6 +8,12 @@ describe("effectiveResource", async () => {
     const r4 = await mkR4Register();
     const logger = mkErrorLogger();
     const index = await mkIndex(r4, logger);
+
+    /** Populated by the index for every schema it holds; absent would mean not computed. */
+    const effectiveOf = (reference: FieldReference): TypeIdentifier[] => {
+        if (!reference.effectiveResource) throw new Error("effectiveResource was not populated");
+        return reference.effectiveResource;
+    };
 
     const referenceOf = (resourceName: string, fieldName: string): FieldReference => {
         const schema = index.resolveByUrl(
@@ -23,20 +29,20 @@ describe("effectiveResource", async () => {
         const reference = referenceOf("Provenance", "target");
 
         expect(reference.resource.map((ref): string => ref.name)).toEqual(["Resource"]);
-        expect(reference.effectiveResource.length).toBeGreaterThan(100);
-        expect(reference.effectiveResource.map((ref): string => ref.name)).toContain("Patient");
-        expect(reference.effectiveResource.map((ref): string => ref.name)).toContain("Observation");
+        expect(effectiveOf(reference).length).toBeGreaterThan(100);
+        expect(effectiveOf(reference).map((ref): string => ref.name)).toContain("Patient");
+        expect(effectiveOf(reference).map((ref): string => ref.name)).toContain("Observation");
     });
 
     it("leaves out abstract members of the family, which no instance can carry", () => {
-        const names = referenceOf("Provenance", "target").effectiveResource.map((ref): string => ref.name);
+        const names = effectiveOf(referenceOf("Provenance", "target")).map((ref): string => ref.name);
 
         expect(names).not.toContain("Resource");
         expect(names).not.toContain("DomainResource");
     });
 
     it("orders the expansion independently of schema load order", () => {
-        const names = referenceOf("Provenance", "target").effectiveResource.map((ref): string => ref.name);
+        const names = effectiveOf(referenceOf("Provenance", "target")).map((ref): string => ref.name);
 
         expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
     });
@@ -44,10 +50,10 @@ describe("effectiveResource", async () => {
     it("copies a concrete target through untouched", () => {
         const reference = referenceOf("Observation", "subject");
 
-        expect(reference.effectiveResource.map((ref): string => ref.name)).toEqual(
+        expect(effectiveOf(reference).map((ref): string => ref.name)).toEqual(
             reference.resource.map((ref): string => ref.name),
         );
-        expect(reference.effectiveResource.map((ref): string => ref.name)).toContain("Patient");
+        expect(effectiveOf(reference).map((ref): string => ref.name)).toContain("Patient");
     });
 
     it("feeds referenceAllowedTypes with concrete types only", () => {
@@ -66,7 +72,7 @@ describe("effectiveResource", async () => {
         // resolved to is already in `resource`, so the expansion needs no profile lookup.
         const reference = referenceOf("Composition", "author");
 
-        expect(reference.effectiveResource.map((ref): string => ref.name)).toEqual(
+        expect(effectiveOf(reference).map((ref): string => ref.name)).toEqual(
             reference.resource.map((ref): string => ref.name),
         );
         const allowed: string[] = index.referenceAllowedTypes(reference);

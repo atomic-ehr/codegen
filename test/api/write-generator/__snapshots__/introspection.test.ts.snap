@@ -3008,6 +3008,15 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           }
         ],
+        "profiles": [
+          {
+            "kind": "profile",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "observation-vitalsigns",
+            "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+          }
+        ],
         "effectiveResource": [
           {
             "kind": "resource",
@@ -3029,15 +3038,6 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "QuestionnaireResponse",
             "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse"
-          }
-        ],
-        "profiles": [
-          {
-            "kind": "profile",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "observation-vitalsigns",
-            "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns"
           }
         ]
       },
@@ -3098,6 +3098,15 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "url": "http://hl7.org/fhir/StructureDefinition/Observation"
           }
         ],
+        "profiles": [
+          {
+            "kind": "profile",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "observation-vitalsigns",
+            "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+          }
+        ],
         "effectiveResource": [
           {
             "kind": "resource",
@@ -3140,15 +3149,6 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
             "version": "4.0.1",
             "name": "QuestionnaireResponse",
             "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse"
-          }
-        ],
-        "profiles": [
-          {
-            "kind": "profile",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "observation-vitalsigns",
-            "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns"
           }
         ]
       },
