@@ -6,15 +6,15 @@ import { mkSilentLogger } from "@typeschema-test/utils";
 const FIXTURE_PATH = Path.join(__dirname, "../../assets/profile-reference-target");
 
 /**
- * The Python side of the fixture the TypeScript reference-target test uses,
- * pinning what the Python writer emits today — the defect included.
+ * Regression, the Python half of #242: `Task.focus` is `Reference(Any)`, and the
+ * profile restates it with nothing but `mustSupport`. The emitted check used to
+ * list `Resource` as the only allowed type, which no instance can ever carry as
+ * its `resourceType`, so every conformant reference was rejected.
  *
- * `Task.focus` is `Reference(Any)`, and the profile restates it with nothing but
- * `mustSupport`. The emitted check lists `Resource` as the only allowed type,
- * which no instance can ever carry as its `resourceType`, so every conformant
- * reference is rejected and `from_resource()` raises. The TypeScript writer
- * reads `effectiveResource` off the field and gets the concrete types; Python
- * still resolves the targets itself.
+ * #242 recorded the expansion on the schema as `effectiveResource` and pointed
+ * the TypeScript writer at it; this reads the same answer from the same place.
+ * The fixture is the StructureDefinition of the TypeScript test, so the two
+ * writers are pinned against one profile.
  */
 describe("Python profile reference targets", async () => {
     const result = await new APIBuilder({ logger: mkSilentLogger() })
@@ -32,6 +32,23 @@ describe("Python profile reference targets", async () => {
     it("should succeed", () => {
         expect(result.success).toBeTrue();
         expect(profileFile).toBeDefined();
+    });
+
+    // Both names appear nowhere in the module before the expansion — unlike
+    // "Task", which is the profile's own resourceType and so proves nothing.
+    it("expands an abstract family target into its member resource types", () => {
+        expect(profileFile).toContain('"Organization"');
+        expect(profileFile).toContain('"ServiceRequest"');
+    });
+
+    it("leaves out the family root and any family type among the members", () => {
+        expect(profileFile).not.toContain('"Resource"');
+        expect(profileFile).not.toContain('"DomainResource"');
+    });
+
+    it("leaves an explicit target alone", () => {
+        expect(profileFile).toContain('validate_reference(self._resource, profile_name, "requester", [');
+        expect(profileFile).toContain('"Practitioner"');
     });
 
     it("matches snapshot", () => {
