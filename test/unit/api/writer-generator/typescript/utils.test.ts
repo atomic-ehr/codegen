@@ -23,17 +23,14 @@ const resolveRef = (ref: TypeIdentifier): TypeIdentifier => {
 
 describe("fieldTsType reference targets", () => {
     test("plain resource targets have no comment", () => {
-        const field: RegularField = {
-            type: referenceType,
-            reference: { resource: [patient, group], effectiveResource: [patient, group] },
-        };
+        const field: RegularField = { type: referenceType, reference: { resource: [patient, group] } };
         expect(fieldTsType(field, resolveRef)).toBe(`Reference<"Patient" | "Group">`);
     });
 
-    test("profile target resolves to its resource type and keeps the profile url as a comment", () => {
+    test("profile target replaced by its resource type keeps the profile url as a comment", () => {
         const field: RegularField = {
             type: referenceType,
-            reference: { resource: [], effectiveResource: [], profiles: [usCorePatient] },
+            reference: { resource: [patient], profiles: [usCorePatient] },
         };
         expect(fieldTsType(field, resolveRef)).toBe(
             `Reference<"Patient" /* http://example.org/StructureDefinition/USCorePatient */>`,
@@ -43,25 +40,10 @@ describe("fieldTsType reference targets", () => {
     test("multiple profiles of the same resource are listed in one comma-separated comment", () => {
         const field: RegularField = {
             type: referenceType,
-            reference: { resource: [group], effectiveResource: [group], profiles: [usCorePatient, testPatient] },
+            reference: { resource: [group, patient], profiles: [usCorePatient, testPatient] },
         };
         expect(fieldTsType(field, resolveRef)).toBe(
             `Reference<"Group" | "Patient" /* http://example.org/StructureDefinition/USCorePatient, http://example.org/StructureDefinition/TestPatient */>`,
         );
-    });
-
-    test("a resource target also named by a profile is emitted once", () => {
-        const field: RegularField = {
-            type: referenceType,
-            reference: { resource: [patient], effectiveResource: [patient], profiles: [usCorePatient] },
-        };
-        expect(fieldTsType(field, resolveRef)).toBe(
-            `Reference<"Patient" /* http://example.org/StructureDefinition/USCorePatient */>`,
-        );
-    });
-
-    test("a reference with no targets at all falls back to the bare type", () => {
-        const field: RegularField = { type: referenceType, reference: { resource: [], effectiveResource: [] } };
-        expect(fieldTsType(field, resolveRef)).toBe("Reference");
     });
 });

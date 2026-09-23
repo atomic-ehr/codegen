@@ -92,12 +92,12 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
     return new Set(requires).has(fieldName);
 }
 
-/** Resolve reference targets into two independent facts, keyed off the resolved
- *  schema's `derivation`: a target naming a specialization goes to `resource`
- *  (deduped, abstract types kept as authored), a target naming a profile goes to
- *  `profiles` alone — its base resource is derived on demand, not pre-baked here.
- *  `effectiveResource` is seeded with `resource` and rewritten once the whole
- *  corpus is known; see `populateEffectiveReferences`. */
+/** Resolve reference targets into two independent facts: `resource` — the base
+ *  resource types a reference literal may point at (profiles resolve to their
+ *  base specialization, deduped) — and `profiles` — the profile conformance
+ *  expectations, preserved for profile-aware consumers. `effectiveResource` is
+ *  seeded with `resource` and rewritten once the whole corpus is known; see
+ *  `populateEffectiveReferences`. */
 const buildReferences = (
     register: Register,
     fhirSchema: RichFHIRSchema,
@@ -112,13 +112,16 @@ const buildReferences = (
         const fs = register.resolveFs(fhirSchema.package_meta, curl);
         if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
         const id = mkIdentifier(fs);
+        let resolved: TypeIdentifier = id;
         if (isProfileIdentifier(id)) {
             profiles.push(id);
-            continue;
+            const baseFs = register.resolveFsSpecializations(fs.package_meta, fs.url)[0];
+            if (!baseFs) throw new Error(`Failed to resolve base specialization for ${curl}`);
+            resolved = mkIdentifier(baseFs);
         }
-        if (!seen.has(id.url)) {
-            seen.add(id.url);
-            resource.push(id);
+        if (!seen.has(resolved.url)) {
+            seen.add(resolved.url);
+            resource.push(resolved);
         }
     }
     return {

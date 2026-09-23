@@ -2,7 +2,6 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import type { CodegenLog } from "@root/utils/log";
 import * as YAML from "yaml";
-import { mkIdentifier } from "./core/identifier";
 import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
@@ -27,7 +26,6 @@ import {
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNestedTypeSchema,
-    isProfileIdentifier,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
@@ -649,22 +647,9 @@ export const mkTypeSchemaIndex = (
         return nonConstraintSchema;
     };
 
-    /** A profile target need not have a TypeSchema of its own — tree shaking and
-     *  selective generation routinely leave one out — but the package data behind it
-     *  is still there. Walk the register's genealogy so an unindexed profile resolves
-     *  to a resource type rather than leaking its own name as a resourceType. */
-    const specializationViaRegister = (id: TypeIdentifier): TypeIdentifier | undefined => {
-        if (!register || !isProfileIdentifier(id)) return undefined;
-        const pkg = { name: id.package, version: id.version };
-        const fs = register.resolveFs(pkg, id.url);
-        if (!fs) return undefined;
-        const baseFs = register.resolveFsSpecializations(fs.package_meta, fs.url)[0];
-        return baseFs ? mkIdentifier(baseFs) : undefined;
-    };
-
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const resolved = resolveType(id);
-        if (!resolved) return specializationViaRegister(id) ?? id;
+        if (!resolved) return id;
         if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
         return findLastSpecialization(resolved).identifier;
     };
@@ -678,15 +663,12 @@ export const mkTypeSchemaIndex = (
         return (schema.typeFamily?.resources?.length ?? 0) > 0;
     };
 
-    /** Every resourceType a referent of this field may carry: `effectiveResource` — where
-     *  abstract targets are already expanded — plus the base specialization of each profile
-     *  target, itself expanded when that base is abstract. Profiles hold no resource type of
-     *  their own, so this is the only place the two facts are brought back together. */
-    const referenceAllowedTypes = (reference: FieldReference): Name[] => {
-        const fromProfiles = (reference.profiles ?? []).map((profile) => findLastSpecializationByIdentifier(profile));
-        const targets = [...reference.effectiveResource, ...expandAbstractTargets(fromProfiles, resolveType)];
-        return [...new Set(targets.map((target) => target.name))];
-    };
+    /** Every resourceType a referent of this field may carry. `effectiveResource` already
+     *  holds it: profile targets contributed their base resource to `resource`, and any
+     *  abstract target among them has been expanded into its concrete members. */
+    const referenceAllowedTypes = (reference: FieldReference): Name[] => [
+        ...new Set(reference.effectiveResource.map((target) => target.name)),
+    ];
 
     /** Resolve the permitted choice variants monotonically through the profile hierarchy.
      *  Each profile's constraints (restated declaration, declared instances, exclusions)

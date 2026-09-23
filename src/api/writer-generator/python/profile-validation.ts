@@ -129,14 +129,10 @@ const collectRegularFieldValidation = (
                 `warnings.extend(validate_must_support(self._resource, profile_name, ${JSON.stringify(pyName)}))`,
             );
         }
-        if (field.reference) {
-            // Profile targets carry no resource type of their own — resolve each to its base.
-            const targets = [...field.reference.resource, ...(field.reference.profiles ?? [])];
-            const allowed = [...new Set(targets.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref).name))];
-            if (allowed.length > 0) {
-                helpers.add("validate_reference");
-                pushListValidation(errorLines, "errors", "validate_reference", [JSON.stringify(pyName)], allowed);
-            }
+        if (field.reference && field.reference.resource.length > 0) {
+            helpers.add("validate_reference");
+            const allowed = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref).name);
+            pushListValidation(errorLines, "errors", "validate_reference", [JSON.stringify(pyName)], allowed);
         }
         if (fieldSlicing?.slices) {
             collectSliceValidation(field, fieldSlicing, pyName, helpers, errorLines, tsIndex, formatName);

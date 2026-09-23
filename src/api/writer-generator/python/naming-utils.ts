@@ -154,11 +154,8 @@ export const pyReferenceTypeParam = (
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
-    if (!field.reference) return undefined;
-    // Profile targets carry no resource type of their own — resolve each to its base.
-    const targets = [...field.reference.resource, ...(field.reference.profiles ?? [])];
-    if (targets.length === 0) return undefined;
-    const resolved = targets.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
+    if (!field.reference || field.reference.resource.length === 0) return undefined;
+    const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
     if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
     return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;

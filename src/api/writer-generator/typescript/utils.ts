@@ -79,28 +79,17 @@ export const resolveFieldTsType = (
         if (field.type.name === "CodeableConcept") return `CodeableConcept<${tsEnumType(field.enum)}>`;
         return tsEnumType(field.enum);
     }
-    if (field.reference) {
-        // Profile targets carry no resource type of their own: resolve each to its base
-        // specialization here and keep the profile URLs as comments to make server-side
-        // validation errors traceable.
+    if (field.reference && field.reference.resource.length > 0) {
+        // Profile targets are replaced by their base resource type; keep the
+        // profile URLs as comments to make server-side validation errors traceable.
         const profilesByResource: Record<string, string[]> = {};
-        const fromProfiles: TypeIdentifier[] = [];
         if (resolveRef) {
             for (const profile of field.reference.profiles ?? []) {
-                const base = resolveRef(profile);
-                (profilesByResource[base.name] ??= []).push(profile.url);
-                fromProfiles.push(base);
+                const base = resolveRef(profile).name;
+                (profilesByResource[base] ??= []).push(profile.url);
             }
         }
-        const targets: TypeIdentifier[] = [];
-        const seen = new Set<string>();
-        for (const target of [...field.reference.resource, ...fromProfiles]) {
-            if (seen.has(target.url)) continue;
-            seen.add(target.url);
-            targets.push(target);
-        }
-        if (targets.length === 0) return field.type.name as string;
-        const references = targets
+        const references = field.reference.resource
             .map((original) => {
                 const ref = resolveRef ? resolveRef(original) : original;
                 if (isFamilyType?.(ref)) return `string /* ${ref.name} */`;
