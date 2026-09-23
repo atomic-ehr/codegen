@@ -206,12 +206,13 @@ const expandAbstractTargets = (
         }
         const schema = resolveType(target);
         const family = schema && "typeFamily" in schema ? (schema.typeFamily?.resources ?? []) : [];
-        // Sorted so the expansion does not depend on the order schemas were loaded in.
-        for (const member of [...family].sort((a, b) => a.name.localeCompare(b.name))) {
+        for (const member of family) {
             if (!isAbstract(member)) push(member);
         }
     }
-    return result;
+    // Sorted by name so generated code does not depend on the order schemas were
+    // loaded in, nor on where an expansion happened to be spliced into the list.
+    return result.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const populateEffectiveReferences = (
