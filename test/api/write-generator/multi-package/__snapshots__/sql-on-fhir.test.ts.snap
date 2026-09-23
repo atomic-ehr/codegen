@@ -190,7 +190,7 @@ from fhir_types.hl7_fhir_r5_core.base import Extension, Narrative
 from fhir_types.hl7_fhir_r5_core.resource import Resource
 from fhir_types.hl7_fhir_r5_core.resource_preprocessor import preprocess_resource_fields
 
-T = TypeVar('T', bound=Resource, default=Resource)
+T = TypeVar('T', bound=Resource, default=Resource, covariant=True)
 
 
 class DomainResource(Resource, Generic[T]):

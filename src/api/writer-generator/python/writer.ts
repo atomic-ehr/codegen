@@ -259,7 +259,14 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.generateDefaultImports(hasGenericTypes);
             if (hasGenericTypes) {
                 this.line();
-                this.line("T = TypeVar('T', bound=str, default=str)");
+                // Covariant: the parameter says what a value holds, and callers
+                // hand these models on to code that asks for the wider type.
+                // Invariant, a precisely-typed `Reference[Literal["Patient"]]`
+                // cannot be passed where a plain `Reference` is expected, which
+                // makes the narrower annotation a liability rather than a gain.
+                // Unsound in principle for a mutable attribute; accepted because
+                // the generated models are data carriers.
+                this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
             }
             this.line();
             this.generateComplexTypes(packageComplexTypes);
@@ -379,7 +386,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
                 this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
                 this.line();
                 for (const { typeVar, constraint } of typeVars) {
-                    this.line(`${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint})`);
+                    // Covariant for the same reason as the base `T`: a
+                    // `BundleEntry[Patient]` is usable as a `BundleEntry[Resource]`.
+                    this.line(
+                        `${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint}, covariant=True)`,
+                    );
                 }
             }
             this.line();

@@ -86,8 +86,8 @@ from fhir_types.fhirpy_base_model import FhirpyBaseModel
 from fhir_types.hl7_fhir_r5_core.base import Base
 from fhir_types.hl7_cda_uv_core.resource_preprocessor import preprocess_resource_fields
 
-T1 = TypeVar('T1', bound=Base, default=Base)
-T2 = TypeVar('T2', bound=ANY, default=ANY)
+T1 = TypeVar('T1', bound=Base, default=Base, covariant=True)
+T2 = TypeVar('T2', bound=ANY, default=ANY, covariant=True)
 
 
 class ClinicalDocument(ANY, Generic[T1, T2]):

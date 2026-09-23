@@ -13,9 +13,9 @@ from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.hl7_fhir_r4_core.base import Element
 from fhir_types.hl7_fhir_r4_core.resource_preprocessor import preprocess_resource_fields
 
-T = TypeVar('T', bound=Resource, default=Resource)
-T1 = TypeVar('T1', bound=Resource, default=Resource)
-T2 = TypeVar('T2', bound=Resource, default=Resource)
+T = TypeVar('T', bound=Resource, default=Resource, covariant=True)
+T1 = TypeVar('T1', bound=Resource, default=Resource, covariant=True)
+T2 = TypeVar('T2', bound=Resource, default=Resource, covariant=True)
 
 
 class BundleEntry(BackboneElement, Generic[T1, T2]):
