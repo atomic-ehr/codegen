@@ -57,6 +57,10 @@ const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
         reference: () =>
             // biome-ignore lint/suspicious/noTemplateCurlyInString: emitted as a TS template literal type, the placeholders are intentional
             "`${T}/${string}` | `http://${string}` | `https://${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`",
+        // `Reference.type` restates what the reference points at, so it is bound
+        // by the same targets as the literal. Left as `string` it was the one
+        // part of a narrowed Reference that accepted any value at all.
+        type: () => "T",
     },
     CodeableConcept: { coding: () => "Coding<T>" },
 };
