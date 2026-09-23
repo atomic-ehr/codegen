@@ -47,6 +47,15 @@ describe("TypeScript Writer Generator", async () => {
         expect(ccTs).toContain("coding?: Coding<T>[]");
         expect(ccTs).toMatchSnapshot();
     });
+    it("generates Reference with generic parameter", async () => {
+        const refTs = files["generated/types/hl7-fhir-r4-core/Reference.ts"];
+        expect(refTs).toContain("export interface Reference<T extends string = string>");
+        // The pointer is bound to the targets through its prefix; the restated
+        // type is not bound at all.
+        expect(refTs).toContain("reference?: `${T}/${string}`");
+        expect(refTs).toContain("type?: string");
+        expect(refTs).toMatchSnapshot();
+    });
     it("generates BundleEntry with generic type-family parameters", async () => {
         const bundleTs = files["generated/types/hl7-fhir-r4-core/Bundle.ts"];
         expect(bundleTs).toContain(
