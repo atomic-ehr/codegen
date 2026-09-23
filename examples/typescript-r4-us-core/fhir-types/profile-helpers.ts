@@ -544,14 +544,30 @@ export const validateEnum = (res: object, profileName: string, field: string, al
  * types.  Extracts the type from the `reference` string (the part before
  * the first `/`).  Skips validation when the field or reference is absent.
  */
+/**
+ * The resource type a literal reference points at, or undefined when the string
+ * carries none.
+ *
+ * A literal reference is a relative or absolute URL ending in `<Type>/<id>`,
+ * optionally followed by `/_history/<vid>` — so the type is the segment before
+ * the id, not the first segment. Reading it as the first segment makes every
+ * absolute URL look like the scheme (`http:`).
+ *
+ * A `urn:uuid:` / `urn:oid:` reference and a `#contained` one name no type at
+ * all, and neither does a reference made only by `identifier`; those are not
+ * something to report, so they yield undefined and the check is skipped.
+ */
+const REFERENCE_TYPE_RE = /(?:^|\/)([A-Za-z]+)\/[A-Za-z0-9\-.]{1,64}(?:\/_history\/[A-Za-z0-9\-.]{1,64})?$/;
+
+export const referencedResourceType = (reference: string): string | undefined => REFERENCE_TYPE_RE.exec(reference)?.[1];
+
 export const validateReference = (res: object, profileName: string, field: string, allowed: string[]): string[] => {
     const value = (res as Record<string, unknown>)[field];
     if (value === undefined || value === null) return [];
     const ref = (value as Record<string, unknown>).reference as string | undefined;
     if (!ref) return [];
-    const slashIdx = ref.indexOf("/");
-    if (slashIdx === -1) return [];
-    const refType = ref.slice(0, slashIdx);
+    const refType = referencedResourceType(ref);
+    if (refType === undefined) return [];
     return allowed.includes(refType)
         ? []
         : [`${profileName}: field '${field}' references '${refType}' but only ${allowed.join(", ")} are allowed`];

@@ -1,0 +1,20 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`validateReference over every reference form matches snapshot 1`] = `
+{
+  "#contained-1": "accepted",
+  "Banana/1": "P: field 'subject' references 'Banana' but only Patient, Organization are allowed",
+  "Organization/org-1": "accepted",
+  "Patient/123": "accepted",
+  "Patient/123/_history/2": "accepted",
+  "Practitioner/pr-1": "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  "http://ex.org/Patient/123": "accepted",
+  "http://ex.org/fhir/Patient/123": "accepted",
+  "http://ex.org/fhir/Practitioner/pr-1": "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  "https://ex.org/fhir/Banana/1": "P: field 'subject' references 'Banana' but only Patient, Organization are allowed",
+  "https://ex.org/fhir/Patient/123/_history/2": "accepted",
+  "no-slash": "accepted",
+  "urn:oid:1.2.3.4": "accepted",
+  "urn:uuid:3fdc72f4-a11d-4a9d-9260-a9f745779e1d": "accepted",
+}
+`;
