@@ -213,8 +213,8 @@ export class observation_bodyweightProfile {
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
                 ...validateChoiceProhibited(res, profileName, ["effectiveTiming","effectiveInstant"]),
-                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","Observation","QuestionnaireResponse"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","Observation","QuestionnaireResponse"]),
                 ...validateChoiceProhibited(res, profileName, ["valueCodeableConcept","valueString","valueBoolean","valueInteger","valueRange","valueRatio","valueSampledData","valueTime","valueDateTime","valuePeriod"]),
             ],
             warnings: [
