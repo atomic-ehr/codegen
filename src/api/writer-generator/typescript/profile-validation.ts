@@ -86,8 +86,6 @@ export const collectRegularFieldValidation = (
         warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
 
     if (field.reference) {
-        // `effectiveResource` already carries abstract targets expanded into their concrete
-        // members; the index folds in the base resource of each profile target on top.
         const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
         if (allowed.length > 0)
             errors.push(`...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`);
