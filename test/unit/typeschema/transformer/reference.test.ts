@@ -116,7 +116,11 @@ describe("reference target resolution", async () => {
                     elements: {
                         subject: {
                             type: "Reference",
-                            refers: ["http://hl7.org/fhir/StructureDefinition/Patient|4.0.1", "Patient"],
+                            refers: [
+                                "http://hl7.org/fhir/StructureDefinition/Patient|4.0.1",
+                                "Patient",
+                                "http://example.org/StructureDefinition/TestPatient",
+                            ],
                         },
                     },
                 },
@@ -127,5 +131,6 @@ describe("reference target resolution", async () => {
         const subject = ts.fields?.subject as RegularField;
         expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(subject.reference?.effectiveResource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(subject.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TestPatient"]);
     });
 });
