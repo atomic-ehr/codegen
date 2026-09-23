@@ -2,6 +2,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import type { CodegenLog } from "@root/utils/log";
 import * as YAML from "yaml";
+import { mkIdentifier } from "./core/identifier";
 import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
@@ -15,6 +16,7 @@ import {
     type ConstrainedChoiceInfo,
     concatIdentifiers,
     type Field,
+    type FieldReference,
     type FieldSlicing,
     type GenericParam,
     type Identifier,
@@ -25,6 +27,7 @@ import {
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNestedTypeSchema,
+    isProfileIdentifier,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
@@ -33,6 +36,7 @@ import {
     isSpecializationTypeSchema,
     type LogicalIdentifier,
     type LogicalTypeSchema,
+    type Name,
     type NestedIdentifier,
     type NestedTypeSchema,
     type PkgName,
@@ -167,6 +171,66 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         if (resources.length > 0) family.resources = resources;
         if (complexTypes.length > 0) family.complexTypes = complexTypes;
         if (Object.keys(family).length > 0) schema.typeFamily = family;
+    }
+};
+
+///////////////////////////////////////////////////////////
+// Effective Reference Targets
+
+/** Rewrite `reference.effectiveResource` on every field so abstract targets are replaced
+ *  by the concrete resources that may actually carry the referent's resourceType.
+ *  Runs after `populateTypeFamily`, which supplies the descendants, and mirrors its
+ *  in-place mutation. Order is preserved — an expansion is spliced in at the position
+ *  of the abstract target it replaces — and entries are deduped by url, so a concrete
+ *  target that also appears inside an expanded family is kept once, where it was written. */
+const expandAbstractTargets = (
+    resource: TypeIdentifier[],
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): TypeIdentifier[] => {
+    const isAbstract = (id: TypeIdentifier): boolean => {
+        const schema = resolveType(id);
+        return !!schema && "abstract" in schema && schema.abstract === true;
+    };
+
+    const result: TypeIdentifier[] = [];
+    const seen = new Set<string>();
+    const push = (id: TypeIdentifier): void => {
+        if (seen.has(id.url)) return;
+        seen.add(id.url);
+        result.push(id);
+    };
+    for (const target of resource) {
+        if (!isAbstract(target)) {
+            push(target);
+            continue;
+        }
+        const schema = resolveType(target);
+        const family = schema && "typeFamily" in schema ? (schema.typeFamily?.resources ?? []) : [];
+        // Sorted so the expansion does not depend on the order schemas were loaded in.
+        for (const member of [...family].sort((a, b) => a.name.localeCompare(b.name))) {
+            if (!isAbstract(member)) push(member);
+        }
+    }
+    return result;
+};
+
+const populateEffectiveReferences = (
+    schemas: TypeSchema[],
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): void => {
+    const populateFields = (fields: Record<string, Field> | undefined): void => {
+        for (const field of Object.values(fields ?? {})) {
+            if (isChoiceDeclarationField(field) || !field.reference) continue;
+            field.reference.effectiveResource = expandAbstractTargets(field.reference.resource, resolveType);
+        }
+    };
+
+    for (const schema of schemas) {
+        if (!("fields" in schema)) continue;
+        populateFields(schema.fields);
+        if ("nested" in schema) {
+            for (const nested of schema.nested ?? []) populateFields(nested.fields);
+        }
     }
 };
 
@@ -354,6 +418,7 @@ export type TypeSchemaIndex = {
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
     findLastSpecializationByIdentifier: (id: TypeIdentifier) => TypeIdentifier;
     isFamilyType: (id: TypeIdentifier) => boolean;
+    referenceAllowedTypes: (reference: FieldReference) => Name[];
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     constrainedChoice: (
         pkgName: PkgName,
@@ -512,6 +577,7 @@ export const mkTypeSchemaIndex = (
         return index[id.url]?.[id.package];
     }) as ResolveTypeFn;
 
+    populateEffectiveReferences(schemas, resolveType);
     populateGeneric(schemas, resolveType);
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
@@ -582,9 +648,22 @@ export const mkTypeSchemaIndex = (
         return nonConstraintSchema;
     };
 
+    /** A profile target need not have a TypeSchema of its own — tree shaking and
+     *  selective generation routinely leave one out — but the package data behind it
+     *  is still there. Walk the register's genealogy so an unindexed profile resolves
+     *  to a resource type rather than leaking its own name as a resourceType. */
+    const specializationViaRegister = (id: TypeIdentifier): TypeIdentifier | undefined => {
+        if (!register || !isProfileIdentifier(id)) return undefined;
+        const pkg = { name: id.package, version: id.version };
+        const fs = register.resolveFs(pkg, id.url);
+        if (!fs) return undefined;
+        const baseFs = register.resolveFsSpecializations(fs.package_meta, fs.url)[0];
+        return baseFs ? mkIdentifier(baseFs) : undefined;
+    };
+
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const resolved = resolveType(id);
-        if (!resolved) return id;
+        if (!resolved) return specializationViaRegister(id) ?? id;
         if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
         return findLastSpecialization(resolved).identifier;
     };
@@ -596,6 +675,16 @@ export const mkTypeSchemaIndex = (
         const schema = resolveType(id);
         if (!schema || !("typeFamily" in schema)) return false;
         return (schema.typeFamily?.resources?.length ?? 0) > 0;
+    };
+
+    /** Every resourceType a referent of this field may carry: `effectiveResource` — where
+     *  abstract targets are already expanded — plus the base specialization of each profile
+     *  target, itself expanded when that base is abstract. Profiles hold no resource type of
+     *  their own, so this is the only place the two facts are brought back together. */
+    const referenceAllowedTypes = (reference: FieldReference): Name[] => {
+        const fromProfiles = (reference.profiles ?? []).map((profile) => findLastSpecializationByIdentifier(profile));
+        const targets = [...reference.effectiveResource, ...expandAbstractTargets(fromProfiles, resolveType)];
+        return [...new Set(targets.map((target) => target.name))];
     };
 
     /** Resolve the permitted choice variants monotonically through the profile hierarchy.
@@ -870,6 +959,7 @@ export const mkTypeSchemaIndex = (
         findLastSpecialization,
         findLastSpecializationByIdentifier,
         isFamilyType,
+        referenceAllowedTypes,
         flatProfile,
         constrainedChoice,
         sliceChoiceVariants,
