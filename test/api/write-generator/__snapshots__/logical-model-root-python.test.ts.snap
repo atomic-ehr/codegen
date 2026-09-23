@@ -12,7 +12,7 @@ from typing_extensions import Self
 
 
 
-class Document():
+class Document(BaseModel):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resourceType: str = Field(
         default='Document',

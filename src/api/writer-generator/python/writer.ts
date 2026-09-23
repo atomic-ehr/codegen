@@ -420,6 +420,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const bases: string[] = [];
         if (schema.base) bases.push(schema.base.name);
         bases.push(...this.injectSuperClasses(schema.identifier.url));
+        // A schema with no base and no injected root still gets a pydantic body,
+        // so without a model root every Field(...) and the model_config would be
+        // inert class attributes. Reached by a logical model specializing a root
+        // the package does not ship — R4's virtual `Base`, say, which leaves the
+        // schema rootless — and by anything else that resolves to no parent.
+        if (bases.length === 0) bases.push(this.forFhirpyClient ? "FhirpyBaseModel" : "BaseModel");
         if (schema.identifier.name in GENERIC_FIELD_REWRITES) bases.push("Generic[T]");
         const params = schema.generic?.params ?? [];
         if (params.length > 0) {
