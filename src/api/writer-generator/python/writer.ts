@@ -259,10 +259,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.generateDefaultImports(hasGenericTypes);
             if (hasGenericTypes) {
                 this.line();
-                // Covariant so a precisely-typed value flows into a wider slot:
-                // `Reference[Literal["Patient"]]` where a plain `Reference` is
-                // expected. Unsound for a mutable field in principle, and the
-                // same latitude TypeScript's structural typing takes here.
+                // Covariant: the parameter says what a value holds, and callers
+                // hand these models on to code that asks for the wider type.
+                // Invariant, a precisely-typed `Reference[Literal["Patient"]]`
+                // cannot be passed where a plain `Reference` is expected, which
+                // makes the narrower annotation a liability rather than a gain.
+                // Unsound in principle for a mutable attribute; accepted because
+                // the generated models are data carriers.
                 this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
             }
             this.line();
