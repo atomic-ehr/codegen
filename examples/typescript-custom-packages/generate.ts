@@ -55,7 +55,6 @@ const report = await new APIBuilder({
             },
             "hl7.fhir.r5.core": {
                 "http://hl7.org/fhir/StructureDefinition/Patient": {},
-                "http://hl7.org/fhir/StructureDefinition/Organization": {},
             },
             "org.sql-on-fhir.ig": {
                 "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},

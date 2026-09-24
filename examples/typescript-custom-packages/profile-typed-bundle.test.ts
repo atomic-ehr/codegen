@@ -14,6 +14,8 @@ import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structure
 import type { Organization } from "./fhir-types/hl7-fhir-r5-core/Organization";
 import type { Patient } from "./fhir-types/hl7-fhir-r5-core/Patient";
 
+const profilesDir = `${import.meta.dir}/fhir-types/example-folder-structures/profiles`;
+
 const smithPatient: Patient = { resourceType: "Patient", name: [{ family: "Smith" }] };
 const activePatient: Patient = { resourceType: "Patient", active: true };
 const clinicOrg: Organization = { resourceType: "Organization", name: "Clinic" };
@@ -124,5 +126,14 @@ describe("fluent chaining across slice types", () => {
         expect(bundle.getPatientEntry()!.fullUrl).toBe("urn:uuid:patient-1");
         expect(bundle.getOrganizationEntry()![0]!.fullUrl).toBe("urn:uuid:org-1");
         expect(bundle.getOrganizationEntry()![1]!.fullUrl).toBe("urn:uuid:org-2");
+    });
+});
+
+describe("the generated module", () => {
+    // The slice types are generic over the sliced resource (BundleEntry<Organization>),
+    // so the module only compiles when tree shaking retains every resource a
+    // type-discriminated slice matches — not just the ones named as tree-shake roots.
+    test("the typed-bundle profile", async () => {
+        expect(await Bun.file(`${profilesDir}/Bundle_ExampleTypedBundle.ts`).text()).toMatchSnapshot();
     });
 });
