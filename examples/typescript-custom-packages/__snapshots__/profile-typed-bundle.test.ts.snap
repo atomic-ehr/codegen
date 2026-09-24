@@ -6,6 +6,7 @@ exports[`the generated module the typed-bundle profile 1`] = `
 // Any manual changes made to this file may be overwritten.
 
 import type { Bundle, BundleEntry } from "../../hl7-fhir-r5-core/Bundle";
+import type { Organization } from "../../hl7-fhir-r5-core/Organization";
 import type { Patient } from "../../hl7-fhir-r5-core/Patient";
 
 import {
