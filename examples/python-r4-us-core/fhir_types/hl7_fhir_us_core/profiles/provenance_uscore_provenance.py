@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.provenance import Provenance
-from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Reference
+from fhir_types.hl7_fhir_r4_core.base import Reference
 from fhir_types.hl7_fhir_r4_core.provenance import ProvenanceAgent
 from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, get_array_slice, matches_value, set_array_slice, strip_match_keys, \
@@ -48,7 +48,7 @@ class UscoreProvenanceProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, target: list[Reference], recorded: str, agent: list[BackboneElement]) -> Provenance:
+    def create_resource(cls, *, target: list[Reference], recorded: str, agent: list[ProvenanceAgent]) -> Provenance:
         return build_resource(
             Provenance,
             resourceType="Provenance",
@@ -59,7 +59,7 @@ class UscoreProvenanceProfile:
         )
 
     @classmethod
-    def create(cls, *, target: list[Reference], recorded: str, agent: list[BackboneElement]) -> "UscoreProvenanceProfile":
+    def create(cls, *, target: list[Reference], recorded: str, agent: list[ProvenanceAgent]) -> "UscoreProvenanceProfile":
         return cls.apply(cls.create_resource(target=target, recorded=recorded, agent=agent))
 
     def to_resource(self) -> Provenance:
@@ -79,10 +79,10 @@ class UscoreProvenanceProfile:
         setattr(self._resource, "recorded", value)
         return self
 
-    def get_agent(self) -> list[BackboneElement] | None:
-        return cast('list[BackboneElement] | None', getattr(self._resource, "agent", None))
+    def get_agent(self) -> list[ProvenanceAgent] | None:
+        return cast('list[ProvenanceAgent] | None', getattr(self._resource, "agent", None))
 
-    def set_agent(self, value: list[BackboneElement]) -> "UscoreProvenanceProfile":
+    def set_agent(self, value: list[ProvenanceAgent]) -> "UscoreProvenanceProfile":
         setattr(self._resource, "agent", value)
         return self
 

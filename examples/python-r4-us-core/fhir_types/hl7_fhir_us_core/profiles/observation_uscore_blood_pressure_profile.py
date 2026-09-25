@@ -8,7 +8,7 @@ from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
-    BackboneElement, CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
+    CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
 from fhir_types.profile_helpers import (
@@ -53,7 +53,7 @@ class UscoreBloodPressureProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference[Literal["Patient"]]) -> Observation:
+    def create_resource(cls, *, category: list[CodeableConcept] | None = None, component: list[ObservationComponent] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference[Literal["Patient"]]) -> Observation:
         category_with_defaults = ensure_slice_defaults(list(category or []), cls._vscat_slice_match)
         component_with_defaults = ensure_slice_defaults(
             list(component or []),
@@ -73,7 +73,7 @@ class UscoreBloodPressureProfile:
         )
 
     @classmethod
-    def create(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference[Literal["Patient"]]) -> "UscoreBloodPressureProfile":
+    def create(cls, *, category: list[CodeableConcept] | None = None, component: list[ObservationComponent] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference[Literal["Patient"]]) -> "UscoreBloodPressureProfile":
         return cls.apply(cls.create_resource(category=category, component=component, status=status, subject=subject))
 
     def to_resource(self) -> Observation:
@@ -107,10 +107,10 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "code", value)
         return self
 
-    def get_component(self) -> list[BackboneElement] | None:
-        return cast('list[BackboneElement] | None', getattr(self._resource, "component", None))
+    def get_component(self) -> list[ObservationComponent] | None:
+        return cast('list[ObservationComponent] | None', getattr(self._resource, "component", None))
 
-    def set_component(self, value: list[BackboneElement]) -> "UscoreBloodPressureProfile":
+    def set_component(self, value: list[ObservationComponent]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "component", value)
         return self
 
