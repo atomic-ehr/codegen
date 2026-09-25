@@ -11,18 +11,16 @@ set is this generation's closure rather than every R4 resource — a reference t
 conformant type the generation did not emit is reported as an error. The
 TypeScript generator behaves the same way.
 
-The check still never runs, though: `target` is `1..*`, and the helper reads
-`reference` from the list itself rather than from each entry. The TypeScript
-generator has the same hole, so this mirrors
+`target` is `1..*`, so the element holds a list of References; the check reads
+every entry. Mirrors
 `examples/typescript-r4-us-core/profile-us-core-provenance.test.ts`.
 """
 
 from pathlib import Path
-from typing import Any, cast
 
 import pytest
 from fhir_types.hl7_fhir_r4_core.base import Reference
-from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent
+from fhir_types.hl7_fhir_r4_core.provenance import ProvenanceAgent
 from fhir_types.hl7_fhir_us_core.profiles.provenance_uscore_provenance import (
     UscoreProvenanceProfile,
 )
@@ -63,12 +61,9 @@ def test_the_generated_validation_lists_the_member_resource_types() -> None:
     assert '"DomainResource"' not in GENERATED_SOURCE
 
 
-@pytest.mark.parametrize("reference", ["Patient/pt-1", "Practitioner/pr-1", "NotAResource/x"])
-def test_a_target_in_a_list_reports_no_error(reference: str) -> None:
-    # `target` is an array, so the emitted check cannot fail for any input — not
-    # even a reference to something that is not a FHIR resource at all.
+def test_an_allowed_target_passes() -> None:
     profile = UscoreProvenanceProfile.create(
-        target=[Reference(reference=reference)],
+        target=[Reference(reference="Patient/pt-1")],
         recorded=RECORDED,
         agent=_agent(),
     )
@@ -76,28 +71,39 @@ def test_a_target_in_a_list_reports_no_error(reference: str) -> None:
     assert profile.validate()["errors"] == []
 
 
-def _single_target(reference: str) -> Provenance:
-    # An invalid cardinality, used only to make the check execute.
-    resource: dict[str, Any] = {
-        "resourceType": "Provenance",
-        "recorded": RECORDED,
-        "agent": _agent(),
-        "target": {"reference": reference},
-    }
-    return cast(Provenance, resource)
+@pytest.mark.parametrize("reference", ["Practitioner/pr-1", "NotAResource/x"])
+def test_a_target_outside_the_allowed_set_is_reported(reference: str) -> None:
+    profile = UscoreProvenanceProfile.create(
+        target=[Reference(reference=reference)],
+        recorded=RECORDED,
+        agent=_agent(),
+    )
+
+    reported = reference.split("/")[0]
+    assert profile.validate()["errors"] == [
+        f"UscoreProvenanceProfile: field 'target' references '{reported}' but only {ALLOWED} are allowed"
+    ]
 
 
-def test_the_check_accepts_an_allowed_resource_once_it_executes() -> None:
-    profile = UscoreProvenanceProfile(_single_target("Patient/pt-1"))
-
-    assert profile.validate()["errors"] == []
-
-
-def test_the_check_rejects_a_type_outside_the_generated_closure_once_it_executes() -> None:
-    # Not "is this a FHIR resource" — the allowed set is this generation's
-    # closure, so a conformant Practitioner reference is reported here too.
-    profile = UscoreProvenanceProfile(_single_target("NotAResource/x"))
+def test_every_entry_of_the_list_is_checked() -> None:
+    profile = UscoreProvenanceProfile.create(
+        target=[Reference(reference="Patient/pt-1"), Reference(reference="NotAResource/x")],
+        recorded=RECORDED,
+        agent=_agent(),
+    )
 
     assert profile.validate()["errors"] == [
         f"UscoreProvenanceProfile: field 'target' references 'NotAResource' but only {ALLOWED} are allowed"
     ]
+
+
+def test_a_repeated_offending_type_is_reported_once() -> None:
+    # One error per offending type, so a long list does not bury the rest of
+    # validate()'s output.
+    profile = UscoreProvenanceProfile.create(
+        target=[Reference(reference="NotAResource/x"), Reference(reference="NotAResource/y")],
+        recorded=RECORDED,
+        agent=_agent(),
+    )
+
+    assert len(profile.validate()["errors"]) == 1
