@@ -7,15 +7,9 @@ const PACKAGE = "example.org";
 const DOCUMENT_URL = "http://example.org/StructureDefinition/BaseElementDocument" as CanonicalUrl;
 
 /**
- * A logical model whose elements are typed as the virtual R4 `Base`, in both shapes it occurs in:
- *
- * - `part` carries sub-elements, so it becomes a nested type. This is the shape published
- *   packages actually use — `EN.item`, `AD.item` and `AssignedEntity.sdtcPatient` in
- *   `hl7.cda.uv.core` are all of it.
- * - `extension` is a leaf, so there is nothing to derive a type from.
- *
- * R4 ships no `StructureDefinition-Base` (it is the virtual root; R5 publishes it as a real
- * abstract complex-type), so neither shape resolves against an R4-only closure.
+ * R4 ships no `StructureDefinition-Base`. `part` carries sub-elements — the shape published
+ * packages use (`EN.item`, `AD.item`, `AssignedEntity.sdtcPatient` in `hl7.cda.uv.core`);
+ * `extension` is a leaf, with nothing to derive a type from.
  */
 const document: PFS = {
     base: "http://hl7.org/fhir/StructureDefinition/Base|4.0.1",
@@ -37,7 +31,7 @@ const mkRegister = async () => {
     return register;
 };
 
-/** Generation outcome as one snapshottable string, so a run that fails is comparable to one that emits. */
+/** One snapshottable string either way, so a failing run stays comparable to one that emits. */
 const generatedTypeScript = async (file: string): Promise<string> => {
     try {
         const result = await new APIBuilder({ register: await mkRegister(), logger: mkSilentLogger() })
