@@ -496,6 +496,11 @@ const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: Sna
     });
 };
 
+/** Profile class names a package exports, deduped and sorted — the names its
+ *  `__init__.py` re-exports from `.profiles`. */
+export const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string[] =>
+    [...new Set(profiles.map(pyProfileClassName))].sort();
+
 /** Entry point called from `python/writer.ts` when `generateProfile` is true. */
 export const generateNewProfiles = (
     w: Python,

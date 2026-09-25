@@ -187,6 +187,16 @@ describe("Python US Core Example", async () => {
     it("generates US Core profiles index", () => {
         expect(files["generated/hl7_fhir_us_core/profiles/__init__.py"]).toMatchSnapshot();
     });
+
+    // TypeScript emits an index.ts for every package; the set below records which
+    // packages get the Python equivalent.
+    it("emits these package barrels", () => {
+        expect(
+            Object.keys(files)
+                .filter((key) => key.endsWith("__init__.py"))
+                .sort(),
+        ).toMatchSnapshot();
+    });
 });
 
 describe("Python client option", async () => {

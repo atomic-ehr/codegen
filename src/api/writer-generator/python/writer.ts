@@ -24,7 +24,7 @@ import {
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
 import { pyReferenceTypeParam } from "./naming-utils";
-import { generateNewProfiles } from "./profile";
+import { collectProfileClassNames, generateNewProfiles } from "./profile";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
 
@@ -169,14 +169,15 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
+                const packageProfiles = profilesByPackage[packageName] ?? [];
                 this.generateResourcePackageContent(
                     packageName,
                     packageResources,
                     groups.groupedComplexTypes[packageName] || [],
+                    collectProfileClassNames(packageProfiles),
                 );
 
-                const packageProfiles = profilesByPackage[packageName];
-                if (packageProfiles && packageProfiles.length > 0) {
+                if (packageProfiles.length > 0) {
                     generateNewProfiles(this, tsIndex, packageProfiles);
                 }
             });
@@ -190,6 +191,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             if (!packageProfiles || packageProfiles.length === 0) continue;
             this.cd(`/${snakeCase(packageName)}`, () => {
                 generateNewProfiles(this, tsIndex, packageProfiles);
+                this.generateProfileOnlyPackageInit(collectProfileClassNames(packageProfiles));
             });
         }
     }
@@ -198,10 +200,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         packageName: string,
         packageResources: SpecializationTypeSchema[],
         packageComplexTypes: SpecializationTypeSchema[],
+        profileNames: string[] = [],
     ): void {
         const pyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
 
-        this.generateResourcePackageInit(pyPackageName, packageResources, packageComplexTypes);
+        this.generateResourcePackageInit(pyPackageName, packageResources, packageComplexTypes, profileNames);
 
         const hasAnyResourceGenericParams = packageResources.some((s) => collectResourceGenericTypeVars(s).length > 0);
         if (hasAnyResourceGenericParams) {
@@ -286,13 +289,36 @@ export class Python extends Writer<PythonGeneratorOptions> {
         fullPyPackageName: string,
         packageResources: SpecializationTypeSchema[],
         packageComplexTypes?: SpecializationTypeSchema[],
+        profileNames: string[] = [],
     ): void {
         this.cat("__init__.py", () => {
             this.generateDisclaimer();
             this.importComplexTypes(fullPyPackageName, packageComplexTypes);
             const allResourceNames = this.importResources(fullPyPackageName, true, packageResources);
+            this.importPackageProfiles(profileNames);
             this.line();
-            this.generateExportsDeclaration(packageComplexTypes, allResourceNames);
+            this.generateExportsDeclaration(packageComplexTypes, [...allResourceNames, ...profileNames]);
+        });
+    }
+
+    /** Re-export a package's profile classes from its `__init__.py`, so they are
+     *  reachable as `<package>.<ProfileClass>` the way the TypeScript barrel makes
+     *  them. Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
+    private importPackageProfiles(profileNames: string[]): void {
+        if (profileNames.length === 0) return;
+        this.pyImportFrom(".profiles", ...profileNames);
+    }
+
+    /** A package that carries only profiles still needs its own barrel; the
+     *  resource-package path never runs for it. */
+    private generateProfileOnlyPackageInit(profileNames: string[]): void {
+        this.cat("__init__.py", () => {
+            this.generateDisclaimer();
+            this.importPackageProfiles(profileNames);
+            this.line();
+            this.squareBlock(["__all__", "="], () => {
+                for (const name of profileNames) this.line(`'${name}',`);
+            });
         });
     }
 
