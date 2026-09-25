@@ -401,7 +401,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     const annotatedBaseTypeName =
         typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Resource]` : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
-    const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs);
+    const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(flatProfile.fields));
     const errorLines: string[] = [];
     const warningLines: string[] = [];
     const validationHelpers = collectValidateBody(flatProfile, tsIndex, errorLines, warningLines, w.nameFormatFunction);

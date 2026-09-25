@@ -97,19 +97,48 @@ export type ResolvedProfileMethods = {
     allBaseNames: Set<string>;
 };
 
+/**
+ * Allocate one accessor base name, in snake case, avoiding names already taken.
+ *
+ * The shared resolver keeps candidates apart in Pascal space, where an
+ * extension's `AlleleDatabase` and a slice's `Allele_database` are distinct.
+ * `snakeCase` splits on both lower→Upper and `_`, so the two collapse onto one
+ * Python name and the module would declare it twice — Python keeps the last
+ * definition, silently shadowing the earlier accessor. Fall through the
+ * remaining candidates, which are field-qualified, to find a free one.
+ */
+const pyAccessorBaseName = (candidates: readonly string[], recommended: string, reserved: Set<string>): string => {
+    const preferred = snakeCase(recommended);
+    if (!reserved.has(preferred)) return preferred;
+    for (const candidate of candidates) {
+        const name = snakeCase(candidate);
+        if (!reserved.has(name)) return name;
+    }
+    return preferred;
+};
+
 export const resolveProfileMethodBaseNames = (
     extensions: ProfileExtension[],
     sliceDefs: SliceDef[],
+    fieldNames: readonly string[] = [],
 ): ResolvedProfileMethods => {
+    // Field accessors are emitted from the same class, so their names are taken
+    // before either extension or slice accessors get to pick.
+    const reserved = new Set(fieldNames.map((name) => snakeCase(name)));
+
     const extensionsRecord: Record<string, string> = {};
     for (const ext of extensions) {
         if (!ext.url) continue;
-        extensionsRecord[`${ext.url}:${ext.path}`] = snakeCase(ext.nameCandidates.recommended);
+        const name = pyAccessorBaseName(ext.nameCandidates.candidates, ext.nameCandidates.recommended, reserved);
+        reserved.add(name);
+        extensionsRecord[`${ext.url}:${ext.path}`] = name;
     }
 
     const slicesRecord: Record<string, string> = {};
     for (const s of sliceDefs) {
-        slicesRecord[`${s.fieldName}:${s.sliceName}`] = snakeCase(s.nameCandidates.recommended);
+        const name = pyAccessorBaseName(s.nameCandidates.candidates, s.nameCandidates.recommended, reserved);
+        reserved.add(name);
+        slicesRecord[`${s.fieldName}:${s.sliceName}`] = name;
     }
 
     const allBaseNames = new Set([...Object.values(extensionsRecord), ...Object.values(slicesRecord)]);
