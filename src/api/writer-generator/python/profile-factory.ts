@@ -3,6 +3,7 @@ import {
     type Field,
     isChoiceDeclarationField,
     isChoiceInstanceField,
+    isNestedIdentifier,
     isNotChoiceDeclarationField,
     isResourceIdentifier,
     type RegularField,
@@ -46,7 +47,11 @@ export const fieldPyType = (
     resolveRef?: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     tsIndex?: TypeSchemaIndex,
 ): string => {
-    const resolved = resolveRef ? resolveRef(field.type) : field.type;
+    // A nested backbone element is its own generated class (ObservationComponent,
+    // ProvenanceAgent), so it must not be resolved: the last specialization of a
+    // nested identifier is BackboneElement, which is what the model field is
+    // declared *against*, not what it accepts.
+    const resolved = resolveRef && !isNestedIdentifier(field.type) ? resolveRef(field.type) : field.type;
     let base = pyTypeFromIdentifier(resolved);
     if (base === "str" && field.enum && !field.enum.isOpen && field.enum.values.length > 0) {
         const literal = `Literal[${field.enum.values.map((v) => JSON.stringify(v)).join(", ")}]`;
