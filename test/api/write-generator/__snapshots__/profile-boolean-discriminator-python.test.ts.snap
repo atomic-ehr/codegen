@@ -10,7 +10,6 @@ from __future__ import annotations
 from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.patient import Patient
-from fhir_types.hl7_fhir_r4_core.base import BackboneElement
 from fhir_types.hl7_fhir_r4_core.patient import PatientCommunication
 from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
@@ -45,7 +44,7 @@ class PreferredCommunicationPatientProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, communication: list[BackboneElement] | None = None) -> Patient:
+    def create_resource(cls, *, communication: list[PatientCommunication] | None = None) -> Patient:
         communication_with_defaults = ensure_slice_defaults(list(communication or []), cls._primary_slice_match)
 
         return build_resource(
@@ -56,16 +55,16 @@ class PreferredCommunicationPatientProfile:
         )
 
     @classmethod
-    def create(cls, *, communication: list[BackboneElement] | None = None) -> "PreferredCommunicationPatientProfile":
+    def create(cls, *, communication: list[PatientCommunication] | None = None) -> "PreferredCommunicationPatientProfile":
         return cls.apply(cls.create_resource(communication=communication))
 
     def to_resource(self) -> Patient:
         return self._resource
 
-    def get_communication(self) -> list[BackboneElement] | None:
-        return cast('list[BackboneElement] | None', getattr(self._resource, "communication", None))
+    def get_communication(self) -> list[PatientCommunication] | None:
+        return cast('list[PatientCommunication] | None', getattr(self._resource, "communication", None))
 
-    def set_communication(self, value: list[BackboneElement]) -> "PreferredCommunicationPatientProfile":
+    def set_communication(self, value: list[PatientCommunication]) -> "PreferredCommunicationPatientProfile":
         setattr(self._resource, "communication", value)
         return self
 

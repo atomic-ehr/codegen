@@ -92,8 +92,13 @@ const addTypeImport = (
     typeId: TypeIdentifier,
 ): void => {
     const ids: TypeIdentifier[] = [typeId];
-    const resolved = resolveRef(typeId);
-    if (resolved !== typeId) ids.push(resolved);
+    // A nested backbone element is annotated as itself, not as its base, so the
+    // base would be an unused import. Everything else may be annotated either
+    // way (a reference target resolves to its base resource), so both are needed.
+    if (!isNestedIdentifier(typeId)) {
+        const resolved = resolveRef(typeId);
+        if (resolved !== typeId) ids.push(resolved);
+    }
     for (const id of ids) {
         if (isPrimitiveIdentifier(id) || PRIMITIVE_TYPE_MAP[id.name] !== undefined) continue;
         const name = deriveResourceName(id);
