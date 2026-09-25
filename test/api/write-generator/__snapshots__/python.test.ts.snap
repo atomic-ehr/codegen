@@ -2161,3 +2161,12 @@ __all__ = [
 ]
 "
 `;
+
+exports[`Python US Core Example emits these package barrels 1`] = `
+[
+  "generated/__init__.py",
+  "generated/hl7_fhir_r4_core/__init__.py",
+  "generated/hl7_fhir_r4_core/profiles/__init__.py",
+  "generated/hl7_fhir_us_core/profiles/__init__.py",
+]
+`;
