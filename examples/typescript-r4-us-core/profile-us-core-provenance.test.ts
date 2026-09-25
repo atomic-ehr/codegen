@@ -7,13 +7,12 @@
  * resources, so the emitted check lists the instantiable types a reference can
  * actually have — the abstract Resource and DomainResource are left out.
  *
- * The check still never runs, though: `target` is `1..*`, and the helper reads
- * `.reference` from the array itself rather than from each entry.
+ * `target` is `1..*`, so the element holds a list of References; the check reads
+ * every entry.
  */
 
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import type { Provenance } from "./fhir-types/hl7-fhir-r4-core/Provenance";
 import { USCoreProvenanceProfile } from "./fhir-types/hl7-fhir-us-core/profiles/Provenance_USCoreProvenance";
 
 const generatedSource = readFileSync(
@@ -38,38 +37,46 @@ describe("demo: record provenance for a resource", () => {
     });
 });
 
-describe("the generated reference check on target never runs", () => {
+describe("the generated reference check on target", () => {
     test("the generated validation lists the member resource types", () => {
         expect(generatedSource).toContain(
             'validateReference(res, profileName, "target", ["Bundle","CodeSystem","Observation","OperationOutcome","Patient","Provenance"])',
         );
     });
 
-    // `target` is an array, so the emitted check cannot fail for any input —
-    // not even a reference to something that is not a FHIR resource at all.
-    test.each(["Patient/pt-1", "Organization/org-1", "NotAResource/x"])(
-        "a target referencing %s reports no error",
-        (reference) => {
-            const profile = USCoreProvenanceProfile.create({ ...baseArgs, target: [{ reference }] });
+    test("an allowed target passes", () => {
+        const profile = USCoreProvenanceProfile.create({ ...baseArgs, target: [{ reference: "Patient/pt-1" }] });
 
-            expect(profile.validate().errors).toEqual([]);
-        },
-    );
-
-    // Reaching the same check with a single value instead of an array (an
-    // invalid cardinality, used here only to make the check execute) shows what
-    // it does when it runs: an allowed resource passes, a type that is not a
-    // resource does not.
-    const singleTarget = (reference: string) =>
-        ({ resourceType: "Provenance", ...baseArgs, target: { reference } }) as unknown as Provenance;
-
-    test("the check accepts an allowed resource once it executes", () => {
-        expect(new USCoreProvenanceProfile(singleTarget("Patient/pt-1")).validate().errors).toEqual([]);
+        expect(profile.validate().errors).toEqual([]);
     });
 
-    test("the check rejects a type that is not a resource once it executes", () => {
-        expect(new USCoreProvenanceProfile(singleTarget("NotAResource/x")).validate().errors).toEqual([
+    test.each(["Organization/org-1", "NotAResource/x"])("a target referencing %s is reported", (reference) => {
+        const profile = USCoreProvenanceProfile.create({ ...baseArgs, target: [{ reference }] });
+
+        expect(profile.validate().errors).toEqual([
+            `USCoreProvenance: field 'target' references '${reference.split("/")[0]}' but only Bundle, CodeSystem, Observation, OperationOutcome, Patient, Provenance are allowed`,
+        ]);
+    });
+
+    test("every entry of the list is checked, not just the first", () => {
+        const profile = USCoreProvenanceProfile.create({
+            ...baseArgs,
+            target: [{ reference: "Patient/pt-1" }, { reference: "NotAResource/x" }],
+        });
+
+        expect(profile.validate().errors).toEqual([
             "USCoreProvenance: field 'target' references 'NotAResource' but only Bundle, CodeSystem, Observation, OperationOutcome, Patient, Provenance are allowed",
         ]);
+    });
+
+    // One error per offending type, so a list of many wrong references of the
+    // same type does not bury the rest of validate()'s output.
+    test("a repeated offending type is reported once", () => {
+        const profile = USCoreProvenanceProfile.create({
+            ...baseArgs,
+            target: [{ reference: "NotAResource/x" }, { reference: "NotAResource/y" }],
+        });
+
+        expect(profile.validate().errors).toHaveLength(1);
     });
 });

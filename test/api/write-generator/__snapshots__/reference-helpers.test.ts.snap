@@ -18,3 +18,21 @@ exports[`validateReference over every reference form matches snapshot 1`] = `
   "urn:uuid:3fdc72f4-a11d-4a9d-9260-a9f745779e1d": "accepted",
 }
 `;
+
+exports[`validateReference over every reference form checks every entry of a repeating reference element 1`] = `
+{
+  "all allowed": [],
+  "empty list": [],
+  "entry with no reference": [],
+  "one disallowed": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  ],
+  "two disallowed, different types": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+    "P: field 'subject' references 'Banana' but only Patient, Organization are allowed",
+  ],
+  "two disallowed, same type": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  ],
+}
+`;

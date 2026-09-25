@@ -56,6 +56,40 @@ describe("validateReference over every reference form", () => {
         ]);
     });
 
+    // `Provenance.target`, `Observation.focus` and friends are 1..*, so the
+    // element is a list of References rather than one.
+    it("checks every entry of a repeating reference element", () => {
+        const outcomes = {
+            "all allowed": validateReference(
+                { subject: [{ reference: "Patient/1" }, { reference: "Organization/2" }] },
+                "P",
+                "subject",
+                ALLOWED,
+            ),
+            "one disallowed": validateReference(
+                { subject: [{ reference: "Patient/1" }, { reference: "Practitioner/2" }] },
+                "P",
+                "subject",
+                ALLOWED,
+            ),
+            "two disallowed, same type": validateReference(
+                { subject: [{ reference: "Practitioner/1" }, { reference: "Practitioner/2" }] },
+                "P",
+                "subject",
+                ALLOWED,
+            ),
+            "two disallowed, different types": validateReference(
+                { subject: [{ reference: "Practitioner/1" }, { reference: "Banana/2" }] },
+                "P",
+                "subject",
+                ALLOWED,
+            ),
+            "empty list": validateReference({ subject: [] }, "P", "subject", ALLOWED),
+            "entry with no reference": validateReference({ subject: [{ display: "x" }] }, "P", "subject", ALLOWED),
+        };
+        expect(outcomes).toMatchSnapshot();
+    });
+
     it("ignores a field that is absent", () => {
         expect(validateReference({}, "P", "subject", ALLOWED)).toEqual([]);
     });
