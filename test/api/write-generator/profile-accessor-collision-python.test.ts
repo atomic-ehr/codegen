@@ -59,9 +59,10 @@ const collidingObservation: PFS = {
  * `setAllele_database` are distinct methods.
  *
  * Python snake-cases them, and `snakeCase` splits on both lower→Upper and `_`,
- * so the two collapse onto one name and the module declares it twice. Python
- * keeps the last definition, so the extension accessor is shadowed by the slice
- * one.
+ * so the two used to collapse onto one name and the module declared it twice —
+ * Python keeps the last definition, so the extension accessor was shadowed by
+ * the slice one. The slice now falls through to its next candidate, which is
+ * field-qualified.
  *
  * Cannot be an example test: the colliding shape appears only in packages the
  * Python examples do not generate, and duplicate defs would fail the example's
@@ -82,6 +83,17 @@ describe("Python profile accessor name collisions", async () => {
     it("should succeed", () => {
         expect(result.success).toBeTrue();
         expect(profilePy).toBeDefined();
+    });
+
+    // Getters carry @overload signatures, so only setters are one `def` each.
+    it("declares every setter exactly once", () => {
+        const setters = [...(profilePy ?? "").matchAll(/^ {4}def (set_\w+)/gm)].map((m) => m[1] as string);
+        expect(setters).toEqual([...new Set(setters)]);
+    });
+
+    it("keeps the extension on the preferred name and bumps the slice", () => {
+        expect(profilePy).toContain("def set_allele_database(");
+        expect(profilePy).toContain("def set_component_allele_database(");
     });
 
     it("matches snapshot", () => {
