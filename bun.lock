@@ -5,7 +5,7 @@
     "": {
       "name": "@atomic-ehr/codegen",
       "dependencies": {
-        "@atomic-ehr/fhir-canonical-manager": "0.0.27",
+        "@atomic-ehr/fhir-canonical-manager": "0.0.28",
         "@atomic-ehr/fhirschema": "0.0.14",
         "brace-expansion": "^5.0.9",
         "mustache": "^4.2.0",
@@ -34,7 +34,7 @@
     "smol-toml": ">=1.7.1",
   },
   "packages": {
-    "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.27", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-nNZLI5X0dffKTfklDw0p0SIaCVZQ5rNvF/LzqHDYIoRTzzPqsb5gbxyKDHCdn82o6PQdfSu4/BZwgai1OO9dXQ=="],
+    "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.28", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-kWGhl/9kvp5Dpemc5FRSQu+dP8XCeOxwYfrWXIhY0YnqEfSLH46hMJpWgyeH3u2/VE6uDyE0Le1u+LLTTGP3ag=="],
 
     "@atomic-ehr/fhirschema": ["@atomic-ehr/fhirschema@0.0.14", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-RqSQI0y82d+2+Uti8OyurIA+DxyUT9P6GZ9b4HXbCsgurpBvf752ZckuISVOuhabqXWZpBjZfiRbrYNPZYuxKw=="],
 
