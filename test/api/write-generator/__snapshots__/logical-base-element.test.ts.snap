@@ -1,0 +1,19 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`a logical model with elements typed as the virtual R4 Base the transformed TypeSchema 1`] = `
+"THREW
+Could not resolve field type:
+  package: example.org#0.0.1
+  schema:  http://example.org/StructureDefinition/BaseElementDocument
+  field:   extension
+  type:    Base"
+`;
+
+exports[`a logical model with elements typed as the virtual R4 Base the generated TypeScript module 1`] = `
+"NOT GENERATED
+Could not resolve field type:
+  package: example.org#0.0.1
+  schema:  http://example.org/StructureDefinition/BaseElementDocument
+  field:   extension
+  type:    Base"
+`;
