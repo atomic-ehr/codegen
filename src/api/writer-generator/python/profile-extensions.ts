@@ -125,11 +125,19 @@ const emitGetterOverloads = (
     methodName: string,
     flatPyType: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
+    withVFlat = false,
 ): void => {
     const profileClass = extProfileInfo?.className;
+    // `vflat` validates through the extension's profile class before extracting,
+    // so it exists only where that class does.
+    const hasVFlat = withVFlat && profileClass !== undefined;
 
     w.line("@overload");
     w.line(`def ${methodName}(self) -> ${flatPyType} | None: ...`);
+    if (hasVFlat) {
+        w.line("@overload");
+        w.line(`def ${methodName}(self, mode: Literal["vflat"]) -> ${flatPyType} | None: ...`);
+    }
     w.line("@overload");
     w.line(`def ${methodName}(self, mode: Literal["raw"]) -> Extension | None: ...`);
     if (profileClass) {
@@ -137,7 +145,10 @@ const emitGetterOverloads = (
         w.line(`def ${methodName}(self, mode: Literal["profile"]) -> ${profileClass} | None: ...`);
     }
 
-    const modeType = profileClass ? `Literal["raw", "profile"] | None` : `Literal["raw"] | None`;
+    const modes = ['"raw"'];
+    if (hasVFlat) modes.unshift('"vflat"');
+    if (profileClass) modes.push('"profile"');
+    const modeType = `Literal[${modes.join(", ")}] | None`;
     const returnUnion = profileClass
         ? `${flatPyType} | Extension | ${profileClass} | None`
         : `${flatPyType} | Extension | None`;
@@ -208,8 +219,9 @@ const generateExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
     emitFlatReturn: () => void,
+    withVFlat = false,
 ): void => {
-    emitGetterOverloads(w, `get_${baseName}`, flatPyType, extProfileInfo);
+    emitGetterOverloads(w, `get_${baseName}`, flatPyType, extProfileInfo, withVFlat);
     w.indentBlock(() => {
         emitExtLookup(w, ext, targetPath);
         w.line("if ext is None:");
@@ -231,17 +243,38 @@ const generateComplexExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    generateExtensionGetter(w, ext, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
-        const configItems = (ext.subExtensions ?? []).map((sub) => {
-            const valueField = sub.valueFieldType
-                ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
-                : "value";
-            const isArray = sub.max === "*";
-            return `{"name": ${JSON.stringify(sub.url)}, "valueField": ${JSON.stringify(valueField)}, "isArray": ${isArray ? "True" : "False"}}`;
-        });
-        w.line(`config = [${configItems.join(", ")}]`);
-        w.line("return extract_complex_extension(ext, config)");
-    });
+    generateExtensionGetter(
+        w,
+        ext,
+        baseName,
+        "dict[str, Any]",
+        targetPath,
+        extProfileInfo,
+        () => {
+            const configItems = (ext.subExtensions ?? []).map((sub) => {
+                const valueField = sub.valueFieldType
+                    ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
+                    : "value";
+                const isArray = sub.max === "*";
+                return `{"name": ${JSON.stringify(sub.url)}, "valueField": ${JSON.stringify(valueField)}, "isArray": ${isArray ? "True" : "False"}}`;
+            });
+            w.line(`config = [${configItems.join(", ")}]`);
+            // `vflat` — a validated read. `extract_complex_extension` sets a key only
+            // for a sub-extension it finds, so a non-conformant extension otherwise
+            // comes back as a dict quietly missing its required members, and the
+            // caller meets a KeyError with no FHIR context.
+            if (extProfileInfo) {
+                w.line(`if mode == "vflat":`);
+                w.indentBlock(() => {
+                    w.line(`result = ${extProfileInfo.className}.apply(ext_obj).validate()`);
+                    w.line(`if result["errors"]:`);
+                    w.indentBlock(() => w.line(`raise ValueError("; ".join(result["errors"]))`));
+                });
+            }
+            w.line("return extract_complex_extension(ext, config)");
+        },
+        extProfileInfo !== undefined,
+    );
 };
 
 // ---------------------------------------------------------------------------
