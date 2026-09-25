@@ -21,7 +21,7 @@ export type SliceDef = {
     match: Record<string, unknown>;
     required: string[];
     array: boolean;
-    /** 0 = unbounded ("*"), mirrors TS SliceDef.max */
+    /** 0 = unbounded ("*"). */
     max: number;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     elementTypeName: string | undefined;
@@ -274,7 +274,7 @@ export const generateSliceSetters = (
             }
         } else {
             // Make input optional when there are no required fields (input can be empty / omitted),
-            // mirroring TS `inputOptional = sliceDef.required.length === 0`.
+            // A slice that requires nothing of its element accepts no input.
             const inputOptional = sliceDef.required.length === 0;
             const sig = inputOptional
                 ? `def set_${baseName}(self, value: dict[str, Any] | None = None) -> "${className}":`

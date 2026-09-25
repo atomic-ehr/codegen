@@ -67,7 +67,7 @@ class Observation(DomainResource):
     effectivePeriod: Period | None = Field(None, alias="effectivePeriod", serialization_alias="effectivePeriod")
     effectiveTiming: Timing | None = Field(None, alias="effectiveTiming", serialization_alias="effectiveTiming")
     encounter: Reference[Literal["Encounter"]] | None = Field(None, alias="encounter", serialization_alias="encounter")
-    focus: PyList[Reference] | None = Field(None, alias="focus", serialization_alias="focus")
+    focus: PyList[Reference] | None = Field(None, alias="focus", serialization_alias="focus")  # Resource
     hasMember: PyList[Reference[Literal["MolecularSequence", "Observation", "QuestionnaireResponse"]]] | None = Field(None, alias="hasMember", serialization_alias="hasMember")
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
     interpretation: PyList[CodeableConcept[Literal["_GeneticObservationInterpretation", "CAR", "Carrier", "_ObservationInterpretationChange", "B", "D", "U", "W", "_ObservationInterpretationExceptions", "<", ">", "AC", "IE", "QCF", "TOX", "_ObservationInterpretationNormality", "A", "AA", "HH", "LL", "H", "H>", "HU", "L", "L<", "LU", "N", "_ObservationInterpretationSusceptibility", "I", "MS", "NCL", "NS", "R", "SYN-R", "S", "SDD", "SYN-S", "VS", "EX", "HX", "LX", "HM", "ObservationInterpretationDetection", "IND", "E", "NEG", "ND", "POS", "DET", "ObservationInterpretationExpectation", "EXP", "UNE", "OBX", "ReactivityObservationInterpretation", "NR", "RR", "WR"] | str]] | None = Field(None, alias="interpretation", serialization_alias="interpretation")

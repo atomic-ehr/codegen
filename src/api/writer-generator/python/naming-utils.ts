@@ -146,10 +146,10 @@ export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
     return deriveResourceName(id);
 };
 
-/** `Literal[...]` type argument for a `Reference` field's targets, mirroring
- *  the TypeScript writer's `Reference<"Patient" | ...>`. Returns undefined
- *  when there are no targets or a target is a family type (e.g. `Resource`),
- *  where the bare `Reference` (defaulting to `str`) is the right annotation. */
+/** `Literal[...]` type argument naming a `Reference` field's permitted targets.
+ *  Returns undefined when there are no targets, or when one is a family type
+ *  (e.g. `Resource`) — a family admits any resource, so the bare `Reference`
+ *  (defaulting to `str`) is the honest annotation. */
 export const pyReferenceTypeParam = (
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
@@ -159,4 +159,19 @@ export const pyReferenceTypeParam = (
     if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
     return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
+};
+
+/** The family a reference's targets were widened to, when they were.
+ *
+ *  A family target such as `Resource` leaves the annotation a bare `Reference`,
+ *  which on its own does not say whether the element is unconstrained by design
+ *  or whether something was lost. The name goes at end of line, since Python
+ *  cannot carry a comment inside an annotation. */
+export const pyReferenceFamilyName = (
+    field: RegularField | ChoiceFieldInstance,
+    tsIndex: TypeSchemaIndex,
+): string | undefined => {
+    if (!field.reference || field.reference.resource.length === 0) return undefined;
+    const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
+    return resolved.find(tsIndex.isFamilyType)?.name;
 };

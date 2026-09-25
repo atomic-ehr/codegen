@@ -23,7 +23,7 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
-import { pyReferenceTypeParam } from "./naming-utils";
+import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
 import { collectProfileClassNames, generateNewProfiles } from "./profile";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
@@ -94,6 +94,8 @@ interface FieldInfo {
     name: string;
     type: string;
     defaultValue: string;
+    /** Trailing `# <Family>` when a family target widened the annotation away. */
+    comment?: string;
 }
 
 type TypeSchemaPackageGroups = {
@@ -302,8 +304,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     /** Re-export a package's profile classes from its `__init__.py`, so they are
-     *  reachable as `<package>.<ProfileClass>` the way the TypeScript barrel makes
-     *  them. Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
+     *  reachable as `<package>.<ProfileClass>` and not only by module path.
+     *  Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
     private importPackageProfiles(profileNames: string[]): void {
         if (profileNames.length === 0) return;
         this.pyImportFrom(".profiles", ...profileNames);
@@ -533,7 +535,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             if ("choices" in field && field.choices) continue;
 
             const fieldInfo = this.buildFieldInfo(fieldName, field, schema);
-            this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}`);
+            this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}${fieldInfo.comment ?? ""}`);
 
             if (withExtensions && "type" in field && isPrimitiveIdentifier(field.type)) {
                 this.addPrimitiveExtensionField(fieldName, field.array ?? false);
@@ -567,11 +569,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
         const fieldType = this.determineFieldType(field, fieldName, schema);
         const defaultValue = this.getFieldDefaultValue(field, fieldName);
+        const family = this.tsIndex && "reference" in field ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
 
         return {
             name: pyFieldName,
             type: fieldType,
             defaultValue: defaultValue,
+            comment: family ? `  # ${family}` : undefined,
         };
     }
 

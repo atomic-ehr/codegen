@@ -26,7 +26,7 @@ class ProvenanceEntity(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     agent: PyList[ProvenanceAgent] | None = Field(None, alias="agent", serialization_alias="agent")
     role: Literal["derivation", "revision", "quotation", "source", "removal"] = Field(alias="role", serialization_alias="role")
-    what: Reference = Field(alias="what", serialization_alias="what")
+    what: Reference = Field(alias="what", serialization_alias="what")  # Resource
 
 
 class Provenance(DomainResource):
@@ -50,7 +50,7 @@ class Provenance(DomainResource):
     recorded: str = Field(alias="recorded", serialization_alias="recorded")
     recordedExtension: Element | None = Field(None, alias="_recorded", serialization_alias="_recorded")
     signature: PyList[Signature] | None = Field(None, alias="signature", serialization_alias="signature")
-    target: PyList[Reference] = Field(alias="target", serialization_alias="target")
+    target: PyList[Reference] = Field(alias="target", serialization_alias="target")  # Resource
 
     def model_post_init(self, __context: Any) -> None:
         self.__pydantic_fields_set__.add("resourceType")
