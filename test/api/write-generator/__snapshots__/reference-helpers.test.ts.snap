@@ -18,3 +18,14 @@ exports[`validateReference over every reference form matches snapshot 1`] = `
   "urn:uuid:3fdc72f4-a11d-4a9d-9260-a9f745779e1d": "accepted",
 }
 `;
+
+exports[`validateReference over every reference form checks every entry of a repeating reference element 1`] = `
+{
+  "all allowed": [],
+  "empty list": [],
+  "entry with no reference": [],
+  "one disallowed": [],
+  "two disallowed, different types": [],
+  "two disallowed, same type": [],
+}
+`;
