@@ -83,10 +83,12 @@ class UscorePatientProfile:
     @overload
     def get_race(self) -> dict[str, Any] | None: ...
     @overload
+    def get_race(self, mode: Literal["vflat"]) -> dict[str, Any] | None: ...
+    @overload
     def get_race(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_race(self, mode: Literal["profile"]) -> UscoreRaceExtension | None: ...
-    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreRaceExtension | None:
+    def get_race(self, mode: Literal["vflat", "raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreRaceExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
@@ -97,6 +99,10 @@ class UscorePatientProfile:
         if mode == "profile":
             return UscoreRaceExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
+        if mode == "vflat":
+            result = UscoreRaceExtension.apply(ext_obj).validate()
+            if result["errors"]:
+                raise ValueError("; ".join(result["errors"]))
         return extract_complex_extension(ext, config)
 
     def set_race(self, value: "UscoreRaceExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -121,10 +127,12 @@ class UscorePatientProfile:
     @overload
     def get_ethnicity(self) -> dict[str, Any] | None: ...
     @overload
+    def get_ethnicity(self, mode: Literal["vflat"]) -> dict[str, Any] | None: ...
+    @overload
     def get_ethnicity(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_ethnicity(self, mode: Literal["profile"]) -> UscoreEthnicityExtension | None: ...
-    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreEthnicityExtension | None:
+    def get_ethnicity(self, mode: Literal["vflat", "raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreEthnicityExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
@@ -135,6 +143,10 @@ class UscorePatientProfile:
         if mode == "profile":
             return UscoreEthnicityExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
+        if mode == "vflat":
+            result = UscoreEthnicityExtension.apply(ext_obj).validate()
+            if result["errors"]:
+                raise ValueError("; ".join(result["errors"]))
         return extract_complex_extension(ext, config)
 
     def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -159,10 +171,12 @@ class UscorePatientProfile:
     @overload
     def get_tribal_affiliation(self) -> dict[str, Any] | None: ...
     @overload
+    def get_tribal_affiliation(self, mode: Literal["vflat"]) -> dict[str, Any] | None: ...
+    @overload
     def get_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["profile"]) -> UscoreTribalAffiliationExtension | None: ...
-    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreTribalAffiliationExtension | None:
+    def get_tribal_affiliation(self, mode: Literal["vflat", "raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreTribalAffiliationExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
@@ -173,6 +187,10 @@ class UscorePatientProfile:
         if mode == "profile":
             return UscoreTribalAffiliationExtension.apply(ext_obj)
         config = [{"name": "tribalAffiliation", "valueField": "valueCodeableConcept", "isArray": False}, {"name": "isEnrolled", "valueField": "valueBoolean", "isArray": False}]
+        if mode == "vflat":
+            result = UscoreTribalAffiliationExtension.apply(ext_obj).validate()
+            if result["errors"]:
+                raise ValueError("; ".join(result["errors"]))
         return extract_complex_extension(ext, config)
 
     def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
