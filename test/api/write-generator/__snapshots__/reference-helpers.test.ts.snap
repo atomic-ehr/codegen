@@ -24,8 +24,15 @@ exports[`validateReference over every reference form checks every entry of a rep
   "all allowed": [],
   "empty list": [],
   "entry with no reference": [],
-  "one disallowed": [],
-  "two disallowed, different types": [],
-  "two disallowed, same type": [],
+  "one disallowed": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  ],
+  "two disallowed, different types": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+    "P: field 'subject' references 'Banana' but only Patient, Organization are allowed",
+  ],
+  "two disallowed, same type": [
+    "P: field 'subject' references 'Practitioner' but only Patient, Organization are allowed",
+  ],
 }
 `;

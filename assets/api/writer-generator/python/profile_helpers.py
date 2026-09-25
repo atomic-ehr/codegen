@@ -603,17 +603,29 @@ def referenced_resource_type(reference: str) -> str | None:
 
 
 def validate_reference(res: object, profile_name: str, field: str, allowed: Sequence[str]) -> list[str]:
-    """Checks that a Reference field points to one of the ``allowed`` resource
-    types."""
+    """Checks that every reference present names one of the ``allowed`` resource
+    types.
+
+    A repeating element (``Provenance.target``, ``Observation.focus``) holds a
+    list of References where a single one holds an object, and a Reference is
+    never itself a list — so the shape tells the two apart with no help from the
+    caller. One error per offending type, not per entry, so a list of ten wrong
+    references of the same type reports once.
+    """
     value = _get_field(res, field)
     if value is None:
         return []
-    ref = _get_field(value, "reference")
-    if not isinstance(ref, str):
-        return []
-    ref_type = referenced_resource_type(ref)
-    if ref_type is None or ref_type in allowed:
-        return []
+    entries = value if isinstance(value, list) else [value]
+    offending: list[str] = []
+    for entry in entries:
+        ref = _get_field(entry, "reference")
+        if not isinstance(ref, str):
+            continue
+        ref_type = referenced_resource_type(ref)
+        if ref_type is None or ref_type in allowed or ref_type in offending:
+            continue
+        offending.append(ref_type)
     return [
         f"{profile_name}: field '{field}' references '{ref_type}' but only {', '.join(allowed)} are allowed"
+        for ref_type in offending
     ]

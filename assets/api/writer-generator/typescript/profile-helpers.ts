@@ -561,14 +561,29 @@ const REFERENCE_TYPE_RE = /(?:^|\/)([A-Za-z]+)\/[A-Za-z0-9\-.]{1,64}(?:\/_histor
 
 export const referencedResourceType = (reference: string): string | undefined => REFERENCE_TYPE_RE.exec(reference)?.[1];
 
+/**
+ * Checks that every reference present names one of the `allowed` resource types.
+ *
+ * A repeating element (`Provenance.target`, `Observation.focus`) holds a list of
+ * References where a single one holds an object, and a Reference is never itself
+ * an array — so the shape tells the two apart with no help from the caller. One
+ * error per offending type, not per entry, so a list of ten wrong references of
+ * the same type reports once.
+ */
 export const validateReference = (res: object, profileName: string, field: string, allowed: string[]): string[] => {
     const value = (res as Record<string, unknown>)[field];
     if (value === undefined || value === null) return [];
-    const ref = (value as Record<string, unknown>).reference as string | undefined;
-    if (!ref) return [];
-    const refType = referencedResourceType(ref);
-    if (refType === undefined) return [];
-    return allowed.includes(refType)
-        ? []
-        : [`${profileName}: field '${field}' references '${refType}' but only ${allowed.join(", ")} are allowed`];
+    const entries = Array.isArray(value) ? value : [value];
+    const offending: string[] = [];
+    for (const entry of entries) {
+        const ref = (entry as Record<string, unknown> | null)?.reference as string | undefined;
+        if (!ref) continue;
+        const refType = referencedResourceType(ref);
+        if (refType === undefined || allowed.includes(refType)) continue;
+        if (!offending.includes(refType)) offending.push(refType);
+    }
+    return offending.map(
+        (refType) =>
+            `${profileName}: field '${field}' references '${refType}' but only ${allowed.join(", ")} are allowed`,
+    );
 };
