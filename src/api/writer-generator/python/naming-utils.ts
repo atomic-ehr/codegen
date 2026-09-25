@@ -160,3 +160,18 @@ export const pyReferenceTypeParam = (
     const names = [...new Set(resolved.map((ref) => ref.name))];
     return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
 };
+
+/** The family a reference's targets were widened to, when they were.
+ *
+ *  A family target such as `Resource` leaves the annotation a bare `Reference`,
+ *  which on its own does not say whether the element is unconstrained by design
+ *  or whether something was lost. The TypeScript writer keeps the name inline;
+ *  Python cannot comment inside an annotation, so it goes at end of line. */
+export const pyReferenceFamilyName = (
+    field: RegularField | ChoiceFieldInstance,
+    tsIndex: TypeSchemaIndex,
+): string | undefined => {
+    if (!field.reference || field.reference.resource.length === 0) return undefined;
+    const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
+    return resolved.find(tsIndex.isFamilyType)?.name;
+};
