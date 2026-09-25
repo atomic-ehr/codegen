@@ -148,8 +148,6 @@ const collectRegularFieldValidation = (
  * satisfied by any one of its permitted typed variants — the choice base name
  * itself is not a FHIR element and can never be present on a conformant
  * resource, so it must never be emitted as a plain required field.
- *
- * Mirrors `collectSliceRequirements` in the TypeScript writer.
  */
 const collectSliceRequirements = (
     slice: FieldSlice,

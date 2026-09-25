@@ -304,8 +304,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     /** Re-export a package's profile classes from its `__init__.py`, so they are
-     *  reachable as `<package>.<ProfileClass>` the way the TypeScript barrel makes
-     *  them. Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
+     *  reachable as `<package>.<ProfileClass>` and not only by module path.
+     *  Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
     private importPackageProfiles(profileNames: string[]): void {
         if (profileNames.length === 0) return;
         this.pyImportFrom(".profiles", ...profileNames);
