@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
-from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Reference
+from fhir_types.hl7_fhir_r4_core.base import Reference
 from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent
 from fhir_types.hl7_fhir_us_core.profiles.provenance_uscore_provenance import (
     UscoreProvenanceProfile,
@@ -36,9 +36,7 @@ RECORDED = "2024-06-15T10:00:00Z"
 ALLOWED = "Bundle, Observation, OperationOutcome, Organization, Patient, Provenance"
 
 
-def _agent() -> list[BackboneElement]:
-    # The generated factory types `agent` as list[BackboneElement], but the model
-    # itself demands the nested ProvenanceAgent, whose `who` is required.
+def _agent() -> list[ProvenanceAgent]:
     return [ProvenanceAgent(who=Reference(reference="Practitioner/pr-1"))]
 
 
