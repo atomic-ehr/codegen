@@ -255,7 +255,7 @@ export type GenericInfo = {
 
 export interface NestedTypeSchema {
     identifier: NestedIdentifier;
-    base: TypeIdentifier;
+    base?: TypeIdentifier;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
