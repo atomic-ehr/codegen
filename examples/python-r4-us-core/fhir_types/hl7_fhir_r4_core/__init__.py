@@ -23,6 +23,10 @@ from fhir_types.hl7_fhir_r4_core.patient import (
 )
 from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent, ProvenanceEntity
 from fhir_types.hl7_fhir_r4_core.resource import Resource
+from .profiles import (
+    BirthPlaceExtension, BirthTimeExtension, NationalityExtension, ObservationBodyweightProfile, ObservationVitalsignsProfile, \
+    OwnPrefixExtension
+)
 
 __all__ = [
     'Address',
@@ -30,6 +34,8 @@ __all__ = [
     'Annotation',
     'Attachment',
     'BackboneElement',
+    'BirthPlaceExtension',
+    'BirthTimeExtension',
     'Bundle',
     'BundleEntry',
     'BundleEntryRequest',
@@ -55,13 +61,17 @@ __all__ = [
     'Meta',
     'Money',
     'Narrative',
+    'NationalityExtension',
     'Observation',
+    'ObservationBodyweightProfile',
     'ObservationComponent',
     'ObservationReferenceRange',
+    'ObservationVitalsignsProfile',
     'OperationOutcome',
     'OperationOutcomeIssue',
     'Organization',
     'OrganizationContact',
+    'OwnPrefixExtension',
     'ParameterDefinition',
     'Patient',
     'PatientCommunication',
