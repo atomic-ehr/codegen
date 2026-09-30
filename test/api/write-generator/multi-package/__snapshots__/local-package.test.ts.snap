@@ -43,19 +43,10 @@ import {
     matchesValue,
     setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
     setArraySliceAll,
     getArraySliceAll,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;

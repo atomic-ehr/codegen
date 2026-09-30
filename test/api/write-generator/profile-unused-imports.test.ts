@@ -40,28 +40,15 @@ describe("Profile module imports and validate() locals", async () => {
 
     it("imports for a profile with one required field, a flat-input complex extension and a generic extension", () => {
         expect(importBlock(patient)).toBe(
-            `import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+            `import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 import { ComplexFlatExtensionProfile, type ComplexFlatExtensionProfileFlat } from "./Extension_ComplexFlatExtension";
-import { GenericExtensionProfile } from "./Extension_GenericExtension";
 import {
     ensureProfile,
     extractComplexExtension,
     isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";`,
         );
     });
@@ -83,30 +70,14 @@ import {
 
     it("imports for a profile whose only extension slice has no url", () => {
         expect(importBlock(person)).toBe(
-            `import type { Extension } from "../../hl7-fhir-r4-core/Extension";
-import type { Person } from "../../hl7-fhir-r4-core/Person";
-import {
-    ensureProfile,
-    ensurePath,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";`,
+            `import type { Person } from "../../hl7-fhir-r4-core/Person";
+import { ensureProfile } from "../../profile-helpers";`,
         );
     });
 
     it("validate() for a profile whose only extension slice has no url", () => {
         expect(validateMethod(person)).toBe(
             `    validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "UrlLessExtensionPerson"
-        const res = this.resource
         return {
             errors: [],
             warnings: [],
@@ -116,28 +87,12 @@ import {
     });
 
     it("imports for a profile with nothing to validate", () => {
-        expect(importBlock(quantity)).toBe(
-            `import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
-import {
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";`,
-        );
+        expect(importBlock(quantity)).toBe(`import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";`);
     });
 
     it("validate() for a profile with nothing to validate", () => {
         expect(validateMethod(quantity)).toBe(
             `    validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "NothingToValidateQuantity"
-        const res = this.resource
         return {
             errors: [],
             warnings: [],
