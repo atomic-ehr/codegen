@@ -1,0 +1,31 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "generic-extension",
+  "url": "http://example.test/StructureDefinition/generic-extension",
+  "version": "0.1.0",
+  "name": "GenericExtension",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [{ "type": "element", "expression": "Patient" }],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Extension", "path": "Extension" },
+      { "id": "Extension.extension", "path": "Extension.extension", "max": "0" },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://example.test/StructureDefinition/generic-extension"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "type": [{ "code": "CodeableConcept" }, { "code": "string" }]
+      }
+    ]
+  }
+}
