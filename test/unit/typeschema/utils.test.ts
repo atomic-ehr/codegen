@@ -34,30 +34,6 @@ const booleanType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/boolean" as CanonicalUrl,
 };
 
-const _dateTimeType: TypeIdentifier = {
-    name: "dateTime" as Name,
-    package: "test",
-    kind: "primitive-type",
-    version: "1.0.0",
-    url: "http://example.org/StructureDefinition/dateTime" as CanonicalUrl,
-};
-
-const _periodType: TypeIdentifier = {
-    name: "Period" as Name,
-    package: "test",
-    kind: "complex-type",
-    version: "1.0.0",
-    url: "http://example.org/StructureDefinition/Period" as CanonicalUrl,
-};
-
-const _rangeType: TypeIdentifier = {
-    name: "Range" as Name,
-    package: "test",
-    kind: "complex-type",
-    version: "1.0.0",
-    url: "http://example.org/StructureDefinition/Range" as CanonicalUrl,
-};
-
 const ageType: TypeIdentifier = {
     name: "Age" as Name,
     package: "test",
