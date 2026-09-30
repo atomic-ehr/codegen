@@ -1,6 +1,7 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
+import { extractDependencies } from "@root/typeschema/core/transformer";
 import {
     type CodedTerminologyEntry,
     mkTerminologyEntries,
@@ -60,6 +61,18 @@ const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
 const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
 const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
+
+/** Constraints of a hardcoded generic's IR params, which generateType drops, that nothing else in its module names. */
+const droppedGenericConstraintUrls = (schema: SpecializationTypeSchema): Set<string> => {
+    if (!TS_HARDCODED_GENERIC_NAMES.has(schema.identifier.name)) return new Set();
+    const referenced = new Set(
+        [
+            ...(extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested) ?? []),
+            ...(schema.nested ?? []).flatMap((nested) => nested.generic?.params.map((p) => p.constraint) ?? []),
+        ].map((dep) => dep.url),
+    );
+    return new Set((schema.generic?.params ?? []).map((p) => p.constraint.url).filter((url) => !referenced.has(url)));
+};
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -277,8 +290,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (schema.dependencies) {
             const imports = [];
             const skipped = [];
+            const droppedConstraints = droppedGenericConstraintUrls(schema);
             for (const dep of schema.dependencies) {
-                if (["complex-type", "resource", "logical"].includes(dep.kind)) {
+                if (["complex-type", "resource", "logical"].includes(dep.kind) && !droppedConstraints.has(dep.url)) {
                     imports.push({
                         tsPackage: `${importPrefix}${this.modulePath(dep)}`,
                         name: tsResourceName(dep),
@@ -334,9 +348,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
         let name: string;
-        // Generic types: Reference, Coding, CodeableConcept
-        const genericTypes = ["Reference", "Coding", "CodeableConcept"];
-        const isHardcodedGeneric = genericTypes.includes(schema.identifier.name);
+        const isHardcodedGeneric = TS_HARDCODED_GENERIC_NAMES.has(schema.identifier.name);
         if (isHardcodedGeneric) {
             name = `${schema.identifier.name}<T extends string = string>`;
         } else {
