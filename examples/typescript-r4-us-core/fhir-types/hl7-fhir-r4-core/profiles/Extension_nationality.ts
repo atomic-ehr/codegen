@@ -9,20 +9,10 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import {
     isRawExtensionInput,
     applyFixedValue,
-    isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type nationalityProfileRaw = {
