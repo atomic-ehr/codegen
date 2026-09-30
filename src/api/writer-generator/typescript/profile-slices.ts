@@ -131,6 +131,9 @@ export type SliceDef = {
     max: number;
 };
 
+export const isUnboundedSlice = (sliceDef: SliceDef): boolean =>
+    sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
+
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] => {
     const reservedBaseNames = new Set<string>();
     return Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
@@ -188,9 +191,8 @@ export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], snaps
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
 
-        if (isUnbounded) {
+        if (isUnboundedSlice(sliceDef)) {
             // Unbounded slice: accept an array of items
             const unionType = `(${inputTypeName} | ${baseType})[]`;
             const paramSignature = `(input: ${unionType}): this`;
@@ -258,9 +260,8 @@ export const generateSliceGetters = (w: TypeScript, sliceDefs: SliceDef[], snaps
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
 
-        if (isUnbounded) {
+        if (isUnboundedSlice(sliceDef)) {
             // Unbounded slice: return an array or undefined
             const defaultReturn = defaultMode === "raw" ? `${baseType}[]` : `${flatTypeName}[]`;
 

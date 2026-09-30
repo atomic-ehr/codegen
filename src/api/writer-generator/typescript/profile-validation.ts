@@ -49,6 +49,7 @@ const collectSliceRequirements = (
 export const collectRegularFieldValidation = (
     errors: string[],
     warnings: string[],
+    helpers: Set<string>,
     name: string,
     field: RegularField | ChoiceFieldInstance,
     canonicalUrlExpr?: { url: string; expr: string },
@@ -57,11 +58,15 @@ export const collectRegularFieldValidation = (
     enumExprs?: ReadonlyMap<string, string>,
 ) => {
     if (field.excluded) {
+        helpers.add("validateExcluded");
         errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
         return;
     }
 
-    if (field.required) errors.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
+    if (field.required) {
+        helpers.add("validateRequired");
+        errors.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
+    }
 
     if (field.valueConstraint) {
         const constrainedValueExpr =
@@ -73,22 +78,28 @@ export const collectRegularFieldValidation = (
         // the helper needs the declared arity: the instance shape alone cannot
         // tell an array-valued element from a wrong value on a single one.
         const repeating = field.array ? ", true" : "";
+        helpers.add(fn);
         errors.push(`...${fn}(res, profileName, ${JSON.stringify(name)}, ${constrainedValueExpr}${repeating})`);
     }
 
     if (field.enum) {
         const target = field.enum.isOpen ? warnings : errors;
         const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
+        helpers.add("validateEnum");
         target.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${valuesExpr})`);
     }
 
-    if (field.mustSupport && !field.required)
+    if (field.mustSupport && !field.required) {
+        helpers.add("validateMustSupport");
         warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
+    }
 
     if (field.reference) {
         const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
-        if (allowed.length > 0)
+        if (allowed.length > 0) {
+            helpers.add("validateReference");
             errors.push(`...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`);
+        }
     }
 
     if (fieldSlicing?.slices) {
@@ -98,6 +109,7 @@ export const collectRegularFieldValidation = (
             if (slice.min !== undefined || slice.max !== undefined) {
                 const min = slice.min ?? 0;
                 const max = slice.max ?? 0;
+                helpers.add("validateSliceCardinality");
                 errors.push(
                     `...validateSliceCardinality(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
                 );
@@ -111,61 +123,76 @@ export const collectRegularFieldValidation = (
                     JSON.stringify(requiredFields),
                 ];
                 if (choiceGroups.length > 0) args.push(JSON.stringify(choiceGroups));
+                helpers.add("validateSliceFields");
                 errors.push(`...validateSliceFields(res, profileName, ${args.join(", ")})`);
             }
         }
     }
 };
 
-export const generateValidateMethod = (
-    w: TypeScript,
+export type ValidateBody = { errors: string[]; warnings: string[]; helpers: Set<string> };
+
+export const collectValidateBody = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
-) => {
-    const fields = snapshot.fields;
-    const profileName = snapshot.identifier.name;
+    enumExprs: ReadonlyMap<string, string>,
+): ValidateBody => {
     const canonicalUrl = snapshot.identifier.url;
     const canonicalUrlExpr = canonicalUrl
         ? { url: canonicalUrl, expr: `${tsProfileClassName(snapshot)}.canonicalUrl` }
         : undefined;
-    const enumLinks = w.enumTerminologyLinks(tsIndex, snapshot);
-    w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
-        w.line(`const profileName = "${profileName}"`);
-        w.line("const res = this.resource");
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const helpers = new Set<string>();
+    for (const [name, field] of Object.entries(snapshot.fields)) {
+        if (isChoiceInstanceField(field)) continue;
 
-        const errors: string[] = [];
-        const warnings: string[] = [];
-        for (const [name, field] of Object.entries(fields)) {
-            if (isChoiceInstanceField(field)) continue;
-
-            if (isChoiceDeclarationField(field)) {
-                if (field.required)
-                    errors.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
-                if (field.prohibited?.length)
-                    errors.push(`...validateChoiceProhibited(res, profileName, ${JSON.stringify(field.prohibited)})`);
-                continue;
+        if (isChoiceDeclarationField(field)) {
+            if (field.required) {
+                helpers.add("validateChoiceRequired");
+                errors.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
             }
-
-            collectRegularFieldValidation(
-                errors,
-                warnings,
-                name,
-                field,
-                canonicalUrlExpr,
-                tsIndex,
-                snapshot.slicing?.[name],
-                enumLinks.exprs,
-            );
+            if (field.prohibited?.length) {
+                helpers.add("validateChoiceProhibited");
+                errors.push(`...validateChoiceProhibited(res, profileName, ${JSON.stringify(field.prohibited)})`);
+            }
+            continue;
         }
 
-        // Base-resource required fields the profile chain did not re-state.
-        // Emitted here (not via the regular field loop) because they intentionally
-        // live outside `fields` to avoid pulling unrelated base metadata into the
-        // profile's getter/setter surface.
-        for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
-            errors.push(`...validateRequired(res, profileName, ${JSON.stringify(inheritedName)})`);
-        }
+        collectRegularFieldValidation(
+            errors,
+            warnings,
+            helpers,
+            name,
+            field,
+            canonicalUrlExpr,
+            tsIndex,
+            snapshot.slicing?.[name],
+            enumExprs,
+        );
+    }
 
+    // Base-resource required fields the profile chain did not re-state.
+    // Emitted here (not via the regular field loop) because they intentionally
+    // live outside `fields` to avoid pulling unrelated base metadata into the
+    // profile's getter/setter surface.
+    for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
+        helpers.add("validateRequired");
+        errors.push(`...validateRequired(res, profileName, ${JSON.stringify(inheritedName)})`);
+    }
+    return { errors, warnings, helpers };
+};
+
+export const generateValidateMethod = (
+    w: TypeScript,
+    snapshot: SnapshotProfileTypeSchema,
+    { errors, warnings }: ValidateBody,
+) => {
+    w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
+        if (errors.length + warnings.length > 0) {
+            w.line(`const profileName = "${snapshot.identifier.name}"`);
+            w.line("const res = this.resource");
+        }
         const emitArray = (label: string, exprs: string[]) => {
             if (exprs.length === 0) {
                 w.line(`${label}: [],`);
