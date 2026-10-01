@@ -171,16 +171,19 @@ describe("reference targets wider than the base", async () => {
         elements: { patient: { type: "Reference", refers: [fhir("Patient"), fhir("Person")] } },
     });
 
-    it("keeps a widened top-level target", async () => {
+    const widenedRelatedPersonWarning =
+        "Profile 'WidenedRelatedPerson' (http://example.org/StructureDefinition/WidenedRelatedPerson) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Person on 'patient' that an ancestor prohibits; they stay prohibited (allowed: Patient). Fix the package with canonicalManager.patches";
+
+    it("drops a top-level target the base does not allow", async () => {
         const logger = mkErrorLogger();
         const ts = (
             await resolveTs(r4, widenedRelatedPerson.package_meta, widenedRelatedPerson.url, logger)
         )[0] as ProfileTypeSchema;
 
         const patient = ts.fields?.patient as RegularField;
-        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient", "Person"]);
+        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(patient.reference?.profiles).toBeUndefined();
-        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([widenedRelatedPersonWarning]);
     });
 
     it("keeps a narrowing of a family base", async () => {
@@ -231,7 +234,7 @@ describe("reference targets wider than the base", async () => {
         expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
     });
 
-    it("keeps a widened choice variant", async () => {
+    it("drops a choice variant target the base does not allow", async () => {
         const logger = mkErrorLogger();
         const ts = (
             await registerFsAndMkTs(
@@ -256,15 +259,16 @@ describe("reference targets wider than the base", async () => {
 
         const reportedReference = ts.fields?.reportedReference as ChoiceFieldInstance;
         expect(reportedReference.reference?.resource.map((ref): string => ref.name)).toEqual([
-            "Device",
             "Patient",
             "Practitioner",
         ]);
         expect(reportedReference.reference?.profiles).toBeUndefined();
-        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([
+            "Profile 'WidenedMedicationRequest' (http://example.org/StructureDefinition/WidenedMedicationRequest) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Device on 'reportedReference' that an ancestor prohibits; they stay prohibited (allowed: Patient, Practitioner). Fix the package with canonicalManager.patches",
+        ]);
     });
 
-    it("keeps a widened nested element", async () => {
+    it("drops a nested element target the base does not allow", async () => {
         const logger = mkErrorLogger();
         const ts = (
             await registerFsAndMkTs(
@@ -292,12 +296,14 @@ describe("reference targets wider than the base", async () => {
 
         const participant = ts.nested?.find((nested) => nested.identifier.name === "participant");
         const individual = participant?.fields?.individual as RegularField;
-        expect(individual.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient", "Practitioner"]);
+        expect(individual.reference?.resource.map((ref): string => ref.name)).toEqual(["Practitioner"]);
         expect(individual.reference?.profiles).toBeUndefined();
-        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([
+            "Profile 'WidenedEncounter' (http://example.org/StructureDefinition/WidenedEncounter) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Patient on 'participant.individual' that an ancestor prohibits; they stay prohibited (allowed: Practitioner). Fix the package with canonicalManager.patches",
+        ]);
     });
 
-    it("keeps a grandchild target disjoint from the base", async () => {
+    it("keeps the parent's targets when a grandchild allows none of them", async () => {
         const logger = mkErrorLogger();
         const ts = (
             await registerFsAndMkTs(
@@ -315,12 +321,15 @@ describe("reference targets wider than the base", async () => {
         )[0] as ProfileTypeSchema;
 
         const patient = ts.fields?.patient as RegularField;
-        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Person"]);
+        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
         expect(patient.reference?.profiles).toBeUndefined();
-        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([
+            widenedRelatedPersonWarning,
+            "Profile 'PersonOnlyRelatedPerson' (http://example.org/StructureDefinition/PersonOnlyRelatedPerson) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Person on 'patient', none of which an ancestor allows; the ancestor's targets are kept (allowed: Patient). Fix the package with canonicalManager.patches",
+        ]);
     });
 
-    it("keeps profile targets of resources outside the base", async () => {
+    it("keeps profiles of allowed resources and drops the others", async () => {
         const logger = mkErrorLogger();
         const ts = (
             await registerFsAndMkTs(
@@ -347,8 +356,10 @@ describe("reference targets wider than the base", async () => {
         )[0] as ProfileTypeSchema;
 
         const patient = ts.fields?.patient as RegularField;
-        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient", "Person"]);
-        expect(patient.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TargetPatient", "TargetPerson"]);
-        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
+        expect(patient.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient"]);
+        expect(patient.reference?.profiles?.map((ref): string => ref.name)).toEqual(["TargetPatient"]);
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([
+            "Profile 'ProfiledRelatedPerson' (http://example.org/StructureDefinition/ProfiledRelatedPerson) declares reference target(s) http://example.org/StructureDefinition/TargetPerson on 'patient' that an ancestor prohibits; they stay prohibited (allowed: Patient). Fix the package with canonicalManager.patches",
+        ]);
     });
 });

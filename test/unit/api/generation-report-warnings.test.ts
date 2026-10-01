@@ -24,8 +24,11 @@ describe("generation report warnings", async () => {
         expect(report.success).toBe(true);
     });
 
-    it("leaves the widened reference target out of the report", () => {
-        expect(report.warnings).toEqual([]);
-        expect(prettyReport(report)).not.toContain("Warnings:");
+    const warning =
+        "Profile 'WidenedRelatedPerson' (http://example.test/StructureDefinition/widened-related-person) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Person on 'patient' that an ancestor prohibits; they stay prohibited (allowed: Patient). Fix the package with canonicalManager.patches";
+
+    it("reports the dropped reference target as a warning", () => {
+        expect(report.warnings).toEqual([warning]);
+        expect(prettyReport(report)).toContain(`Warnings: ${warning}`);
     });
 });
