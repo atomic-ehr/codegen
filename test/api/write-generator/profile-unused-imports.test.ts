@@ -30,12 +30,14 @@ describe("Profile module imports and validate() locals", async () => {
     const patient = profileFile("Patient_UnusedImportsPatient");
     const person = profileFile("Person_UrlLessExtensionPerson");
     const quantity = profileFile("Quantity_NothingToValidateQuantity");
+    const mustSupportQuantity = profileFile("Quantity_MustSupportQuantity");
 
     it("should succeed", () => {
         expect(result.success).toBeTrue();
         expect(patient).toBeDefined();
         expect(person).toBeDefined();
         expect(quantity).toBeDefined();
+        expect(mustSupportQuantity).toBeDefined();
     });
 
     it("imports for a profile with one required field, a flat-input complex extension and a generic extension", () => {
@@ -96,6 +98,28 @@ import { ensureProfile } from "../../profile-helpers";`,
         return {
             errors: [],
             warnings: [],
+        }
+    }`,
+        );
+    });
+
+    it("imports for a profile with only warnings to validate", () => {
+        expect(importBlock(mustSupportQuantity)).toBe(
+            `import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
+import { validateMustSupport } from "../../profile-helpers";`,
+        );
+    });
+
+    it("validate() for a profile with only warnings to validate", () => {
+        expect(validateMethod(mustSupportQuantity)).toBe(
+            `    validate(): { errors: string[]; warnings: string[] } {
+        const profileName = "MustSupportQuantity"
+        const res = this.resource
+        return {
+            errors: [],
+            warnings: [
+                ...validateMustSupport(res, profileName, "value"),
+            ],
         }
     }`,
         );
