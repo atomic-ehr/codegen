@@ -640,7 +640,9 @@ export class APIBuilder {
                     tsLogger
                         .buffer()
                         .filter(
-                            (entry) => entry.tag === "#nonMonotonicReference" || entry.tag === "#nonMonotonicChoice",
+                            (entry) =>
+                                !entry.suppressed &&
+                                (entry.tag === "#nonMonotonicReference" || entry.tag === "#nonMonotonicChoice"),
                         )
                         .map((entry) => entry.message),
                 ),
