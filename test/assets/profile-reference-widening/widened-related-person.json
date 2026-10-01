@@ -1,0 +1,35 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "widened-related-person",
+  "url": "http://example.test/StructureDefinition/widened-related-person",
+  "version": "0.1.0",
+  "name": "WidenedRelatedPerson",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "RelatedPerson",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "RelatedPerson",
+        "path": "RelatedPerson"
+      },
+      {
+        "id": "RelatedPerson.patient",
+        "path": "RelatedPerson.patient",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/Patient",
+              "http://hl7.org/fhir/StructureDefinition/Person"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
