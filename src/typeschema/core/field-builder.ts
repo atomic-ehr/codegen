@@ -5,7 +5,7 @@
  */
 
 import type { FHIRCoding, FHIRSchemaDiscriminator, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { isVirtualFhirBaseCanonical, type Register } from "@root/typeschema/register";
+import { isVirtualFhirBaseCanonical, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
 import { isProfileIdentifier, packageMetaToFhir } from "@typeschema/types";
 import type {
@@ -92,6 +92,75 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
     return new Set(requires).has(fieldName);
 }
 
+const resolveReferenceTarget = (register: Register, fhirSchema: RichFHIRSchema, ref: string): RichFHIRSchema => {
+    const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
+    const fs = register.resolveFs(fhirSchema.package_meta, curl);
+    if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
+    return fs;
+};
+
+type ReferenceTarget = { ref: string; specializations: RichFHIRSchema[] };
+
+const mkReferenceTargets = (register: Register, fhirSchema: RichFHIRSchema, refers: string[]): ReferenceTarget[] =>
+    refers.map((ref) => {
+        const fs = resolveReferenceTarget(register, fhirSchema, ref);
+        return { ref, specializations: register.resolveFsSpecializations(fs.package_meta, fs.url) };
+    });
+
+/** `target` lies within the base resource of `permitted`, so a family admits its descendants. */
+const isWithinTarget = (target: ReferenceTarget, permitted: ReferenceTarget): boolean =>
+    target.specializations.some((fs) => fs.url === permitted.specializations[0]?.url);
+
+const targetResourceNames = (targets: ReferenceTarget[]): string =>
+    [...new Set(targets.map((target) => target.specializations[0]?.name))].join(", ");
+
+/** Fold the reference targets restated along a profile's genealogy over the nearest
+ *  specialization's targets, base-to-leaf, so a profile keeps only what its ancestors
+ *  allow. An abstract target keeps the permitted targets inside its family; a level
+ *  that admits nothing keeps the previous targets. */
+const resolvePermittedRefers = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    element: FHIRSchemaElement,
+    logger?: CodegenLog,
+): string[] | undefined => {
+    if (fhirSchema.derivation !== "constraint" || !element.refers) return element.refers;
+    const levels = register
+        .resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url)
+        .reverse()
+        .flatMap((fs) => {
+            const refers = resolveFsElementGenealogy([fs], path)[0]?.refers;
+            return refers ? [{ fs, targets: mkReferenceTargets(register, fhirSchema, refers) }] : [];
+        });
+    const base = levels.findLast(({ fs }) => fs.derivation === "specialization");
+    if (!base) return element.refers;
+
+    let permitted = base.targets;
+    for (const { fs, targets } of levels.filter(({ fs }) => fs.derivation === "constraint")) {
+        const dropped = targets.filter((target) => !permitted.some((allowed) => isWithinTarget(target, allowed)));
+        const admitted = [
+            ...targets.filter((target) => !dropped.includes(target)),
+            ...permitted.filter((allowed) => dropped.some((target) => isWithinTarget(allowed, target))),
+        ];
+        const declared = `Profile '${fs.name}' (${fs.url}) declares reference target(s) ${dropped.map((target) => target.ref).join(", ")} on '${path.join(".")}'`;
+        if (admitted.length === 0) {
+            logger?.dryWarn(
+                "#nonMonotonicReference",
+                `${declared}, none of which an ancestor allows; the ancestor's targets are kept (allowed: ${targetResourceNames(permitted)}). Fix the package with canonicalManager.patches`,
+            );
+            continue;
+        }
+        if (dropped.length > 0)
+            logger?.dryWarn(
+                "#nonMonotonicReference",
+                `${declared} that an ancestor prohibits; they stay prohibited (allowed: ${targetResourceNames(admitted)}). Fix the package with canonicalManager.patches`,
+            );
+        permitted = admitted;
+    }
+    return [...new Set(permitted.map((target) => target.ref))];
+};
+
 /** Resolve reference targets into two independent facts: `resource` — the base
  *  resource types a reference literal may point at (profiles resolve to their
  *  base specialization, deduped) — and `profiles` — the profile conformance
@@ -100,22 +169,20 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
 const buildReferences = (
     register: Register,
     fhirSchema: RichFHIRSchema,
-    element: FHIRSchemaElement,
+    refers: string[] | undefined,
 ): FieldReference | undefined => {
-    if (!element.refers) return undefined;
+    if (!refers) return undefined;
     const resource: TypeIdentifier[] = [];
     const profiles: ProfileIdentifier[] = [];
     const seen = new Set<string>();
-    for (const ref of element.refers) {
-        const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
-        const fs = register.resolveFs(fhirSchema.package_meta, curl);
-        if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
+    for (const ref of refers) {
+        const fs = resolveReferenceTarget(register, fhirSchema, ref);
         const id = mkIdentifier(fs);
         let resolved: TypeIdentifier = id;
         if (isProfileIdentifier(id)) {
             profiles.push(id);
             const baseFs = register.resolveFsSpecializations(fs.package_meta, fs.url)[0];
-            if (!baseFs) throw new Error(`Failed to resolve base specialization for ${curl}`);
+            if (!baseFs) throw new Error(`Failed to resolve base specialization for ${fs.url}`);
             resolved = mkIdentifier(baseFs);
         }
         if (!seen.has(resolved.url)) {
@@ -447,7 +514,11 @@ export const mkField = (
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
-        reference: buildReferences(register, fhirSchema, element),
+        reference: buildReferences(
+            register,
+            fhirSchema,
+            resolvePermittedRefers(register, fhirSchema, path, element, logger),
+        ),
 
         array: element.array || false,
         min: element.min,
