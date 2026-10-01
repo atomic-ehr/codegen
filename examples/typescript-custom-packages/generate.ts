@@ -52,6 +52,7 @@ const report = await new APIBuilder({
                 "http://example.test/StructureDefinition/required-complex-extension": {},
                 "http://example.test/StructureDefinition/optional-complex-extension": {},
                 "http://example.test/StructureDefinition/identified-complex-extension": {},
+                "http://example.test/StructureDefinition/widened-related-person": {},
             },
             "hl7.fhir.r5.core": {
                 "http://hl7.org/fhir/StructureDefinition/Patient": {},
