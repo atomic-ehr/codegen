@@ -209,6 +209,31 @@ describe("reference targets wider than the base", async () => {
         expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([]);
     });
 
+    it("keeps the allowed targets inside an abstract target", async () => {
+        const logger = mkErrorLogger();
+        const ts = (
+            await registerFsAndMkTs(
+                r4,
+                {
+                    url: "http://example.org/StructureDefinition/ResourceSubjectCondition",
+                    name: "ResourceSubjectCondition",
+                    base: fhir("Condition"),
+                    derivation: "constraint",
+                    kind: "resource",
+                    elements: { subject: { type: "Reference", refers: [fhir("Resource"), fhir("Patient")] } },
+                },
+                logger,
+            )
+        )[0] as ProfileTypeSchema;
+
+        const subject = ts.fields?.subject as RegularField;
+        expect(subject.reference?.resource.map((ref): string => ref.name)).toEqual(["Patient", "Group"]);
+        expect(subject.reference?.profiles).toBeUndefined();
+        expect(taggedWarnings(logger, "#nonMonotonicReference")).toEqual([
+            "Profile 'ResourceSubjectCondition' (http://example.org/StructureDefinition/ResourceSubjectCondition) declares reference target(s) http://hl7.org/fhir/StructureDefinition/Resource on 'subject' that an ancestor prohibits; they stay prohibited (allowed: Patient, Group). Fix the package with canonicalManager.patches",
+        ]);
+    });
+
     it("keeps targets restated on an unconstrained base", async () => {
         const logger = mkErrorLogger();
         const ts = (
