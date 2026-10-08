@@ -391,35 +391,30 @@ const mkPackageAwareResolver = async (
 
 const enrichResolver = (resolver: PackageAwareResolver, logger?: CodegenLog) => {
     // A dependency's resource appears in the closure of every package that reaches it:
-    // translate it once and share the result instead of once per package.
-    const fhirSchemaByResource = new Map<FocusedResource, RichFHIRSchema>();
-    const valueSetByResource = new Map<FocusedResource, RichValueSet>();
+    // translate it once per owning package and share the result.
+    const fhirSchemas: Record<string, RichFHIRSchema> = {};
+    const valueSets: Record<string, RichValueSet> = {};
     for (const { pkg, canonicalResolution } of Object.values(resolver)) {
         const pkgId = packageMetaToFhir(pkg);
         if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
         let counter = 0;
         logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' begins...`);
-        for (const [_url, options] of Object.entries(canonicalResolution)) {
+        for (const [url, options] of Object.entries(canonicalResolution)) {
             const resolition = options[0];
             if (!resolition) throw new Error(`Resource not found`);
             const resource = resolition.resource;
             const resourcePkg = resolition.pkg;
+            const key = `${resolition.pkgId}|${url}`;
             if (isStructureDefinition(resource)) {
-                let rfs = fhirSchemaByResource.get(resource);
-                if (!rfs) {
-                    const fs = fhirschema.translate(resource as StructureDefinition) as FHIRSchema;
-                    rfs = enrichFHIRSchema(fs, resourcePkg);
-                    fhirSchemaByResource.set(resource, rfs);
-                }
+                const rfs = (fhirSchemas[key] ??= enrichFHIRSchema(
+                    fhirschema.translate(resource as StructureDefinition) as FHIRSchema,
+                    resourcePkg,
+                ));
                 counter++;
                 resolver[pkgId].fhirSchemas[rfs.url] = rfs;
             }
             if (isValueSet(resource)) {
-                let rvs = valueSetByResource.get(resource);
-                if (!rvs) {
-                    rvs = enrichValueSet(resource, resourcePkg);
-                    valueSetByResource.set(resource, rvs);
-                }
+                const rvs = (valueSets[key] ??= enrichValueSet(resource, resourcePkg));
                 resolver[pkgId].valueSets[rvs.url] = rvs;
             }
         }

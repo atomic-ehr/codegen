@@ -15,7 +15,7 @@ import { compareCollisionSources, compareCollisionVariants } from "./collision-o
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
-import type { CanonicalUrl, PkgName, RichFHIRSchema, RichValueSet } from "./types";
+import type { CanonicalUrl, PkgName } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
@@ -26,8 +26,9 @@ export interface GenerateTypeSchemasResult {
     collisions: TypeSchemaCollisions;
 }
 
-type SchemaWithSource = {
-    schema: TypeSchema;
+type HashedSchema = { schema: TypeSchema; hash: string };
+
+type SchemaWithSource = HashedSchema & {
     sourcePackage: PkgName;
     sourceCanonical: CanonicalUrl;
 };
@@ -39,12 +40,10 @@ const deduplicateSchemas = (
 ): GenerateTypeSchemasResult => {
     // key -> hash
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
-    const hashBySchema = new Map<TypeSchema, string>();
 
     for (const item of schemasWithSources) {
         const key = `${item.schema.identifier.url}|${item.schema.identifier.package}`;
-        const hash = hashBySchema.get(item.schema) ?? hashSchema(item.schema);
-        hashBySchema.set(item.schema, hash);
+        const { hash } = item;
 
         groups[key] ??= {};
         groups[key][hash] ??= { typeSchema: item.schema, sources: [] };
@@ -114,38 +113,40 @@ export const generateTypeSchemas = async (
     resolveCollisions?: ResolveCollisionsConf,
     logger?: CodegenLog,
 ): Promise<GenerateTypeSchemasResult> => {
-    const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
+    const schemasWithSources: SchemaWithSource[] = [];
+    const withHash = (schema: TypeSchema): HashedSchema => ({ schema, hash: hashSchema(schema) });
 
-    // allFs()/allVs() repeat a shared schema once per package whose closure reaches it. Every
-    // occurrence still counts as a collision source, but each schema is transformed only once.
-    const transformedFs = new Map<RichFHIRSchema, TypeSchema[]>();
+    // allFs()/allVs() list a dependency's schema once per package whose closure reaches it, and every
+    // listing counts as a collision source (the most-listed variant wins). Transform and hash it once.
+    const transformedFs: Record<string, HashedSchema[]> = {};
     for (const fhirSchema of register.allFs()) {
         const pkgId = packageMetaToFhir(fhirSchema.package_meta);
-        let schemas = transformedFs.get(fhirSchema);
-        if (!schemas) {
-            schemas = transformFhirSchema(register, fhirSchema, logger);
-            transformedFs.set(fhirSchema, schemas);
-        }
+        const transformed = (transformedFs[`${pkgId}|${fhirSchema.url}`] ??= transformFhirSchema(
+            register,
+            fhirSchema,
+            logger,
+        ).map(withHash));
 
-        for (const schema of schemas) {
+        for (const { schema, hash } of transformed) {
             schemasWithSources.push({
                 schema,
+                hash,
                 sourcePackage: pkgId,
                 sourceCanonical: fhirSchema.url,
             });
         }
     }
 
-    const transformedVs = new Map<RichValueSet, TypeSchema>();
+    const transformedVs: Record<string, HashedSchema> = {};
     for (const vsSchema of register.allVs()) {
-        let schema = transformedVs.get(vsSchema);
-        if (!schema) {
-            schema = await transformValueSet(register, vsSchema, logger);
-            transformedVs.set(vsSchema, schema);
-        }
+        const pkgId = packageMetaToFhir(vsSchema.package_meta);
+        const { schema, hash } = (transformedVs[`${pkgId}|${vsSchema.url}`] ??= withHash(
+            await transformValueSet(register, vsSchema, logger),
+        ));
         schemasWithSources.push({
             schema,
-            sourcePackage: packageMetaToFhir(vsSchema.package_meta),
+            hash,
+            sourcePackage: pkgId,
             sourceCanonical: vsSchema.url,
         });
     }
