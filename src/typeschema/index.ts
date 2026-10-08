@@ -15,7 +15,7 @@ import { compareCollisionSources, compareCollisionVariants } from "./collision-o
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
-import type { CanonicalUrl, PkgName } from "./types";
+import type { CanonicalUrl, PkgName, RichFHIRSchema, RichValueSet } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
@@ -39,10 +39,12 @@ const deduplicateSchemas = (
 ): GenerateTypeSchemasResult => {
     // key -> hash
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
+    const hashBySchema = new Map<TypeSchema, string>();
 
     for (const item of schemasWithSources) {
         const key = `${item.schema.identifier.url}|${item.schema.identifier.package}`;
-        const hash = hashSchema(item.schema);
+        const hash = hashBySchema.get(item.schema) ?? hashSchema(item.schema);
+        hashBySchema.set(item.schema, hash);
 
         groups[key] ??= {};
         groups[key][hash] ??= { typeSchema: item.schema, sources: [] };
@@ -114,10 +116,18 @@ export const generateTypeSchemas = async (
 ): Promise<GenerateTypeSchemasResult> => {
     const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
 
+    // allFs()/allVs() repeat a shared schema once per package whose closure reaches it. Every
+    // occurrence still counts as a collision source, but each schema is transformed only once.
+    const transformedFs = new Map<RichFHIRSchema, TypeSchema[]>();
     for (const fhirSchema of register.allFs()) {
         const pkgId = packageMetaToFhir(fhirSchema.package_meta);
+        let schemas = transformedFs.get(fhirSchema);
+        if (!schemas) {
+            schemas = transformFhirSchema(register, fhirSchema, logger);
+            transformedFs.set(fhirSchema, schemas);
+        }
 
-        for (const schema of transformFhirSchema(register, fhirSchema, logger)) {
+        for (const schema of schemas) {
             schemasWithSources.push({
                 schema,
                 sourcePackage: pkgId,
@@ -126,9 +136,15 @@ export const generateTypeSchemas = async (
         }
     }
 
+    const transformedVs = new Map<RichValueSet, TypeSchema>();
     for (const vsSchema of register.allVs()) {
+        let schema = transformedVs.get(vsSchema);
+        if (!schema) {
+            schema = await transformValueSet(register, vsSchema, logger);
+            transformedVs.set(vsSchema, schema);
+        }
         schemasWithSources.push({
-            schema: await transformValueSet(register, vsSchema, logger),
+            schema,
             sourcePackage: packageMetaToFhir(vsSchema.package_meta),
             sourceCanonical: vsSchema.url,
         });
