@@ -7,19 +7,7 @@ exports[`Reference target validation captures the generated profile module 1`] =
 
 import type { Task } from "../../hl7-fhir-r4-core/Task";
 
-import {
-    ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
+import { ensureProfile, validateRequired, validateReference, validateMustSupport } from "../../profile-helpers";
 
 export type ReferenceTargetTaskProfileRaw = {
     status: ("draft" | "requested" | "received" | "accepted" | "rejected" | "ready" | "cancelled" | "in-progress" | "on-hold" | "failed" | "completed" | "entered-in-error");

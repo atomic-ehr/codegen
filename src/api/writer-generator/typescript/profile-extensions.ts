@@ -125,6 +125,9 @@ export const resolveExtensionProfile = (
     return { className, modulePath, snapshot };
 };
 
+export const extensionProfileHasFlatInput = (extProfileInfo: ExtensionProfileInfo | undefined): boolean =>
+    extProfileInfo !== undefined && collectSubExtensionSlices(extProfileInfo.snapshot).length > 0;
+
 /** Generate the body of a raw Extension branch: validate url, then push/upsert. */
 const generateRawExtensionBody = (
     w: TypeScript,
@@ -225,8 +228,11 @@ const generateExtensionGetterOverloads = (
     );
 };
 
+type ExtensionKind = "complex" | "single-value" | "generic";
+
 type ExtensionMethodInfo = {
     ext: ProfileExtension;
+    kind: ExtensionKind;
     snapshot: SnapshotProfileTypeSchema;
     setMethodName: string;
     getMethodName: string;
@@ -234,18 +240,42 @@ type ExtensionMethodInfo = {
     extProfileInfo: ExtensionProfileInfo | undefined;
 };
 
+const extensionKind = (ext: ProfileExtension): ExtensionKind => {
+    if (ext.isComplex && ext.subExtensions) return "complex";
+    if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]) return "single-value";
+    return "generic";
+};
+
+/** The extensions that get accessor methods: one without a url has nothing to match on. */
+export const collectExtensionMethodInfos = (
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+): ExtensionMethodInfo[] =>
+    (snapshot.extensions ?? []).flatMap((ext) => {
+        if (!ext.url) return [];
+        const baseName = ext.nameCandidates.recommended;
+        return [
+            {
+                ext,
+                kind: extensionKind(ext),
+                snapshot,
+                setMethodName: `set${baseName}`,
+                getMethodName: `get${baseName}`,
+                targetPath: ext.path.split(".").filter((segment) => segment !== "extension"),
+                extProfileInfo: resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url),
+            },
+        ];
+    });
+
 // Complex extension — has sub-extensions (e.g., Race with ombCategory, detailed, text)
 
 const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, snapshot, setMethodName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
-    const extProfileHasFlatInput = extProfileInfo
-        ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
-        : false;
     const useUpsert = ext.max === "1";
 
-    if (extProfileInfo && extProfileHasFlatInput) {
+    if (extProfileInfo && extensionProfileHasFlatInput(extProfileInfo)) {
         const paramType = `${extProfileInfo.className}Flat | ${extProfileInfo.className} | Extension`;
         w.curlyBlock(["public", setMethodName, `(input: ${paramType}): this`], () => {
             w.ifElseChain(
@@ -462,25 +492,12 @@ export const generateExtensionMethods = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
-    for (const ext of snapshot.extensions ?? []) {
-        if (!ext.url) continue;
-        const baseName = ext.nameCandidates.recommended;
-        const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const info: ExtensionMethodInfo = {
-            ext,
-            snapshot,
-            setMethodName: `set${baseName}`,
-            getMethodName: `get${baseName}`,
-            targetPath,
-            extProfileInfo,
-        };
-
-        if (ext.isComplex && ext.subExtensions) {
+    for (const info of collectExtensionMethodInfos(tsIndex, snapshot)) {
+        if (info.kind === "complex") {
             generateComplexExtensionSetter(w, info);
             w.line();
             generateComplexExtensionGetter(w, info);
-        } else if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]) {
+        } else if (info.kind === "single-value") {
             generateSingleValueExtensionSetter(w, tsIndex, info);
             w.line();
             generateSingleValueExtensionGetter(w, info);
@@ -498,12 +515,12 @@ export const collectTypesFromExtensions = (
     snapshot: SnapshotProfileTypeSchema,
     addType: (typeId: TypeIdentifier) => void,
 ): boolean => {
-    let needsExtensionType = false;
+    const infos = collectExtensionMethodInfos(tsIndex, snapshot);
 
-    for (const ext of snapshot.extensions ?? []) {
-        if (ext.isComplex && ext.subExtensions) {
-            needsExtensionType = true;
-            for (const sub of ext.subExtensions) {
+    for (const { ext, kind, extProfileInfo } of infos) {
+        if (kind === "complex") {
+            if (extensionProfileHasFlatInput(extProfileInfo)) continue;
+            for (const sub of ext.subExtensions ?? []) {
                 if (!sub.valueFieldType) continue;
                 const resolvedType = tsIndex.resolveByUrl(
                     snapshot.identifier.package,
@@ -511,21 +528,16 @@ export const collectTypesFromExtensions = (
                 );
                 addType(resolvedType?.identifier ?? sub.valueFieldType);
             }
-        } else if (ext.valueFieldTypes && ext.valueFieldTypes.length === 1) {
-            needsExtensionType = true;
-            if (ext.valueFieldTypes[0]) {
-                const resolvedType = tsIndex.resolveByUrl(
-                    snapshot.identifier.package,
-                    ext.valueFieldTypes[0].url as CanonicalUrl,
-                );
-                addType(resolvedType?.identifier ?? ext.valueFieldTypes[0]);
-            }
-        } else {
-            needsExtensionType = true;
+        } else if (kind === "single-value" && ext.valueFieldTypes?.[0]) {
+            const resolvedType = tsIndex.resolveByUrl(
+                snapshot.identifier.package,
+                ext.valueFieldTypes[0].url as CanonicalUrl,
+            );
+            addType(resolvedType?.identifier ?? ext.valueFieldTypes[0]);
         }
     }
 
-    return needsExtensionType;
+    return infos.length > 0;
 };
 
 /** Collect types used in the FlatInput of extension profiles. */

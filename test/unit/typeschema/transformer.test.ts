@@ -7,11 +7,6 @@ describe("TypeSchema Transformer Core Logic", async () => {
     const r4 = await mkR4Register();
     const logger = mkTestLogger();
 
-    const _basePackageInfo: PackageMeta = {
-        name: "test.package",
-        version: "1.0.0",
-    };
-
     describe("transformFHIRSchema", () => {
         it("should transform a basic resource schema", async () => {
             const fhirSchema: PFS = {

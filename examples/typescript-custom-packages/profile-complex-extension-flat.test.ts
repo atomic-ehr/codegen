@@ -115,13 +115,13 @@ export const _flatContractTypes = () => {
     // @ts-expect-error extraction never populates the ordinary field
     void flat?.id;
     // @ts-expect-error a member extraction may not populate is optional
-    const _note: string = flat!.note;
+    void flat!.note.trim();
     void flat?.note?.trim();
 
     // The vflat getter validated the extension, so the required member is guaranteed —
     // while the ordinary field is still not part of what extraction produces.
     const vFlat = NotedPatientProfile.create().getNoted("vflat");
-    const _validNote: string = vFlat!.note;
+    void vFlat!.note.trim();
     // @ts-expect-error extraction never populates the ordinary field, validated or not
     void vFlat?.id;
 };

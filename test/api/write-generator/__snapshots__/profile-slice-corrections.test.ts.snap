@@ -23,20 +23,7 @@ exports[`TypeScript profile slice corrections system-only coding slices: full pr
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 
-import {
-    ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
+import { ensureProfile, validateRequired, validatePatternValue } from "../../profile-helpers";
 
 export type SystemOnlyCodingObservationProfileRaw = {
     bodySite: CodeableConcept;
@@ -164,15 +151,7 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type CollidingSliceObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
@@ -337,14 +316,8 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
 

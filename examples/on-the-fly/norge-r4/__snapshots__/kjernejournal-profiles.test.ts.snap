@@ -52,16 +52,10 @@ import {
     ensurePath,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
@@ -480,19 +474,13 @@ import {
     matchesValue,
     setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
@@ -871,16 +859,10 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
@@ -1227,18 +1209,11 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
 
@@ -1607,16 +1582,10 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
@@ -1988,18 +1957,10 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjConsentProfileRaw = {
@@ -2353,17 +2314,10 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
 
@@ -2662,14 +2616,8 @@ import type { Device } from "../../hl7-fhir-r4-core/Device";
 import {
     ensureProfile,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
@@ -2779,15 +2727,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjAbatementDateTimeProfileRaw = {
@@ -2885,15 +2827,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjInactiveIngredientProfileRaw = {
@@ -2991,15 +2927,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjRecordedDateTimeProfileRaw = {
@@ -3095,19 +3025,7 @@ exports[`norge-r4 kjernejournal generated profiles matches golden output for eve
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import {
-    applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
+import { applyFixedValue, validateRequired, validateFixedValue, validateChoiceProhibited } from "../../profile-helpers";
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjSourceOfInformationProfile {
@@ -3198,15 +3116,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjTextProfileRaw = {
@@ -3304,15 +3216,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjUpdatedDateTimeProfileRaw = {
@@ -3411,15 +3317,9 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjUpdaterProfileRaw = {
@@ -3517,15 +3417,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjValidUntilProfileRaw = {
@@ -3623,15 +3517,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjVerificationDateTimeProfileRaw = {
@@ -3730,15 +3618,9 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type KjVerifierProfileRaw = {
@@ -3853,17 +3735,11 @@ import {
     ensureSliceDefaults,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
@@ -4213,14 +4089,7 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import {
     ensureProfile,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
 } from "../../profile-helpers";
@@ -4366,16 +4235,10 @@ import {
     ensureProfile,
     isExtension,
     getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,

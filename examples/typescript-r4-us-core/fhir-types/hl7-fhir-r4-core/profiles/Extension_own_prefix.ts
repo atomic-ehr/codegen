@@ -7,15 +7,9 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import {
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
     validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type own_prefixProfileRaw = {

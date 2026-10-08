@@ -544,10 +544,8 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -780,7 +778,6 @@ import {
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
@@ -1082,7 +1079,6 @@ exports[`TypeScript US Core Example generates US Core Patient profile 1`] = `
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
@@ -1109,14 +1105,6 @@ import {
     pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
 
@@ -1394,7 +1382,6 @@ import {
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
@@ -1830,10 +1817,8 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -2176,25 +2161,17 @@ import {
     matchesValue,
     setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
     setArraySliceAll,
     getArraySliceAll,
     wrapSliceChoice,
     unwrapSliceChoice,
     isExtension,
-    getExtensionValue,
     pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreRaceExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;

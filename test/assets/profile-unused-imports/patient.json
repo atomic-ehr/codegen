@@ -1,0 +1,41 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "unused-imports-patient",
+  "url": "http://example.test/StructureDefinition/unused-imports-patient",
+  "version": "0.1.0",
+  "name": "UnusedImportsPatient",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Patient", "path": "Patient" },
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": { "discriminator": [{ "type": "value", "path": "url" }], "rules": "open" }
+      },
+      {
+        "id": "Patient.extension:complexFlat",
+        "path": "Patient.extension",
+        "sliceName": "complexFlat",
+        "min": 0,
+        "max": "1",
+        "type": [{ "code": "Extension", "profile": ["http://example.test/StructureDefinition/complex-flat-extension"] }]
+      },
+      {
+        "id": "Patient.extension:generic",
+        "path": "Patient.extension",
+        "sliceName": "generic",
+        "min": 0,
+        "max": "1",
+        "type": [{ "code": "Extension", "profile": ["http://example.test/StructureDefinition/generic-extension"] }]
+      },
+      { "id": "Patient.birthDate", "path": "Patient.birthDate", "min": 1 }
+    ]
+  }
+}

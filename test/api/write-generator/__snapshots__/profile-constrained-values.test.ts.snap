@@ -13,14 +13,8 @@ import {
     ensureProfile,
     applyFixedValue,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
 
