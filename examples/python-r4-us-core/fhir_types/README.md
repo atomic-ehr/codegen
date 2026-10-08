@@ -26,6 +26,7 @@
 - `http://example.test/StructureDefinition/noted-patient`
 - `http://example.test/StructureDefinition/optional-complex-extension`
 - `http://example.test/StructureDefinition/required-complex-extension`
+- `http://example.test/StructureDefinition/widened-related-person`
 
 ## Package: `hl7.fhir.r4.core`
 

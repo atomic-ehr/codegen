@@ -9,21 +9,10 @@ import {
     ensureProfile,
     applySliceMatch,
     matchesValue,
-    setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
     setArraySliceAll,
     getArraySliceAll,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlat = Omit<ProvenanceAgent, "type">;

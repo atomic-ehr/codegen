@@ -635,6 +635,18 @@ export class APIBuilder {
                 tsIndex = promoteLogical(tsIndex, this.options.typeSchema.promoteLogical);
 
             tsLogger.printTagSummary();
+            result.warnings.push(
+                ...new Set(
+                    tsLogger
+                        .buffer()
+                        .filter(
+                            (entry) =>
+                                !entry.suppressed &&
+                                (entry.tag === "#nonMonotonicReference" || entry.tag === "#nonMonotonicChoice"),
+                        )
+                        .map((entry) => entry.message),
+                ),
+            );
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 

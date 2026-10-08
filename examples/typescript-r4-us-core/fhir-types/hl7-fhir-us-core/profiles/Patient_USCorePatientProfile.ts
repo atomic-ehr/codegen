@@ -2,7 +2,6 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
@@ -29,14 +28,6 @@ import {
     pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
 } from "../../profile-helpers";
 

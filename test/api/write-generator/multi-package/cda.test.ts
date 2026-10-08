@@ -43,6 +43,14 @@ describe("CDA", async () => {
 
             expect(files.some((f) => f.includes("/AD.ts") || f.includes("/CD.ts"))).toBeTrue();
         });
+
+        it("should not import the constraint of the generic params Reference drops", () => {
+            const reference = result.filesGenerated.typescript!["generated/types/hl7-cda-uv-core/Reference.ts"];
+            expect(reference).toContain("export interface Reference<T extends string = string>");
+            expect(reference?.match(/^import .*$/gm)).not.toContain(
+                'import type { Base } from "../hl7-fhir-r5-core/Base";',
+            );
+        });
     });
 
     describe("Python Generation", async () => {

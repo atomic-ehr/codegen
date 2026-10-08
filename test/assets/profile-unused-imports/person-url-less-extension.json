@@ -1,0 +1,31 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "url-less-extension-person",
+  "url": "http://example.test/StructureDefinition/url-less-extension-person",
+  "version": "0.1.0",
+  "name": "UrlLessExtensionPerson",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Person",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Person",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Person", "path": "Person" },
+      {
+        "id": "Person.name.extension",
+        "path": "Person.name.extension",
+        "slicing": { "discriminator": [{ "type": "value", "path": "url" }], "rules": "open" }
+      },
+      {
+        "id": "Person.name.extension:middlename",
+        "path": "Person.name.extension",
+        "sliceName": "middlename",
+        "min": 0,
+        "max": "*"
+      }
+    ]
+  }
+}

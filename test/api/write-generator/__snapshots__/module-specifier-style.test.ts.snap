@@ -15,5 +15,5 @@ exports[`module specifier styles node-esm profile module imports pinned 1`] = `
 "import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept.js";
 import type { Provenance, ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance.js";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference.js";
-} from "../../profile-helpers.js";"
+import { ensureProfile, validateRequired, validateEnum } from "../../profile-helpers.js";"
 `;

@@ -22,7 +22,6 @@ import {
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,

@@ -37,21 +37,12 @@ import {
     matchesValue,
     setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
     isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type NotedComplexExtension_Extension_NoteSliceFlat = Omit<Extension, "url">;
@@ -265,21 +256,12 @@ import {
     matchesValue,
     setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
     isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
     validateRequired,
-    validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlat = Omit<Extension, "url">;
@@ -441,24 +423,7 @@ import type { Patient } from "../../hl7-fhir-r5-core/Patient";
 
 import { NotedComplexExtensionProfile, type NotedComplexExtensionProfileFlat } from "./Extension_NotedComplexExtension";
 
-import {
-    ensureProfile,
-    extractComplexExtension,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
+import { ensureProfile, extractComplexExtension, isExtension, upsertExtension } from "../../profile-helpers";
 
 export type NotedPatient_NotedExtracted = Partial<Pick<NotedComplexExtensionProfileFlat, "note" | "detail">>;
 export type NotedPatient_NotedVFlat = Pick<NotedComplexExtensionProfileFlat, "note" | "detail">;
@@ -549,8 +514,6 @@ export class NotedPatientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "NotedPatient"
-        const res = this.resource
         return {
             errors: [],
             warnings: [],

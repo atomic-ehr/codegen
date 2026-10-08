@@ -207,6 +207,12 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
         expect(result.success).toBeTrue();
     });
 
+    it("reports the prohibited choice variants as warnings", () => {
+        expect(result.warnings).toContain(
+            "Profile 'ProtectiveFactor' declares choice variant(s) valueCodeableReference of 'value' that an ancestor prohibits; they stay prohibited",
+        );
+    });
+
     it("without resourceType", async () => {
         expect(files["generated/types/hl7-cda-uv-core/CV.ts"]).toMatchSnapshot();
         expect(files["generated/types/hl7-cda-uv-core/index.ts"]).toMatchSnapshot();

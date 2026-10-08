@@ -30,10 +30,12 @@ import {
     tsSliceStaticName,
 } from "./name";
 import {
+    collectExtensionMethodInfos,
     collectSubExtensionSlices,
     collectTypesFromExtensions,
     collectTypesFromFlatInput,
     extensionExtractedTypes,
+    extensionProfileHasFlatInput,
     generateExtensionMethods,
     resolveExtensionProfile,
 } from "./profile-extensions";
@@ -43,9 +45,10 @@ import {
     collectTypesFromSlices,
     generateSliceGetters,
     generateSliceSetters,
+    isUnboundedSlice,
     type SliceDef,
 } from "./profile-slices";
-import { generateValidateMethod } from "./profile-validation";
+import { collectValidateBody, generateValidateMethod } from "./profile-validation";
 import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
@@ -253,56 +256,57 @@ export const generateProfileIndexFile = (
     });
 };
 
+const validateHelperOrder = [
+    "validateRequired",
+    "validateExcluded",
+    "validateFixedValue",
+    "validateSliceCardinality",
+    "validateSliceFields",
+    "validateEnum",
+    "validateReference",
+    "validateChoiceRequired",
+    "validateChoiceProhibited",
+    "validateMustSupport",
+    "validatePatternValue",
+];
+
 const generateProfileHelpersImport = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     sliceDefs: SliceDef[],
     factoryInfo: ProfileFactoryInfo,
+    validateHelpers: Set<string>,
 ) => {
-    const extensions = snapshot.extensions ?? [];
-    const hasMeta = tsIndex.isWithMetaField(snapshot);
-    const canonicalUrl = snapshot.identifier.url;
+    const extMethods = collectExtensionMethodInfos(tsIndex, snapshot);
 
     const imports: string[] = [];
-    if (snapshot.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(snapshot).length > 0)
+    if (snapshot.base.name === "Extension" && collectSubExtensionSlices(snapshot).length > 0)
         imports.push("isRawExtensionInput");
-    if (canonicalUrl && hasMeta) imports.push("ensureProfile");
+    if (tsIndex.isWithMetaField(snapshot)) imports.push("ensureProfile");
     if (factoryInfo.autoFields.some((f) => f.name !== "resourceType")) imports.push("applyFixedValue");
-    if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
-        imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
-    const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
-    if (hasUnboundedSlice) imports.push("setArraySliceAll", "getArraySliceAll");
-    if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
-    if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
+    if (sliceDefs.length > 0) imports.push("applySliceMatch", "matchesValue");
+    if (sliceDefs.some((s) => s.array && !isUnboundedSlice(s))) imports.push("setArraySlice", "getArraySlice");
+    if (factoryInfo.sliceAutoFields.length > 0) imports.push("ensureSliceDefaults");
+    if (sliceDefs.some(isUnboundedSlice)) imports.push("setArraySliceAll", "getArraySliceAll");
+    if (extMethods.some(({ targetPath }) => targetPath.length > 0)) imports.push("ensurePath");
+    if (extMethods.some(({ kind }) => kind === "complex")) imports.push("extractComplexExtension");
     if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
-    if (extensions.some((ext) => ext.url)) {
-        imports.push("isExtension", "getExtensionValue", "pushExtension");
-        if (extensions.some((ext) => ext.url && ext.max === "1")) imports.push("upsertExtension");
-    }
-    // validate() emits calls when the profile has its own fields OR when it
-    // inherits base-required fields it does not re-state (those produce
-    // validateRequired() calls with no entry in `fields`). Without the second
-    // clause, a profile whose only validation is an inherited required field
-    // (e.g. an Extension profile relying on the base Extension.url) would emit
-    // validateRequired() without importing it (TS2304).
-    if (Object.keys(snapshot.fields).length > 0 || (snapshot.inheritedRequiredFields?.length ?? 0) > 0)
-        imports.push(
-            "validateRequired",
-            "validateExcluded",
-            "validateFixedValue",
-            "validateSliceCardinality",
-            "validateSliceFields",
-            "validateEnum",
-            "validateReference",
-            "validateChoiceRequired",
-            "validateChoiceProhibited",
-            "validateMustSupport",
-        );
-    const hasPatternConstraint = Object.values(snapshot.fields).some(
-        (field) => "valueConstraint" in field && field.valueConstraint?.validateOnly === true,
+    if (
+        extMethods.some(
+            ({ kind, extProfileInfo }) =>
+                kind === "generic" ||
+                (kind === "single-value" && extProfileInfo !== undefined) ||
+                (kind === "complex" && extensionProfileHasFlatInput(extProfileInfo)),
+        )
+    )
+        imports.push("isExtension");
+    if (extMethods.some(({ kind }) => kind === "single-value")) imports.push("getExtensionValue");
+    if (extMethods.some(({ ext }) => ext.max !== "1")) imports.push("pushExtension");
+    if (extMethods.some(({ ext }) => ext.max === "1")) imports.push("upsertExtension");
+    imports.push(
+        ...[...validateHelpers].sort((a, b) => validateHelperOrder.indexOf(a) - validateHelperOrder.indexOf(b)),
     );
-    if (hasPatternConstraint) imports.push("validatePatternValue");
     if (imports.length > 0) {
         w.tsImport("../../profile-helpers", ...imports);
         w.line();
@@ -375,13 +379,11 @@ export const generateProfileImports = (
 
     // Import extension profile classes for delegation in setters
     const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
-    for (const ext of snapshot.extensions ?? []) {
-        if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        if (!info) continue;
-        if (!extProfileImports.has(info.className)) {
-            const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;
-            extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
+    for (const { kind, extProfileInfo } of collectExtensionMethodInfos(tsIndex, snapshot)) {
+        if (kind === "generic" || !extProfileInfo) continue;
+        if (!extProfileImports.has(extProfileInfo.className)) {
+            const hasFlatInput = kind === "complex" && extensionProfileHasFlatInput(extProfileInfo);
+            extProfileImports.set(extProfileInfo.className, { modulePath: extProfileInfo.modulePath, hasFlatInput });
         }
     }
     for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
@@ -705,8 +707,7 @@ const generateInlineExtensionInputTypes = (
     for (const ext of complexExtensions) {
         if (!ext.url) continue;
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0 : false;
-        if (hasFlatInput) continue;
+        if (extensionProfileHasFlatInput(extProfileInfo)) continue;
         const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
@@ -874,8 +875,9 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     const profileClassName = tsProfileClassName(snapshot);
     const sliceDefs = collectSliceDefs(tsIndex, snapshot);
     const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
+    const validateBody = collectValidateBody(tsIndex, snapshot, w.enumTerminologyLinks(tsIndex, snapshot).exprs);
 
-    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
+    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo, validateBody.helpers);
 
     generateInlineExtensionInputTypes(w, tsIndex, snapshot);
     generateExtensionExtractedTypes(w, tsIndex, snapshot);
@@ -912,7 +914,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
         generateSliceGetters(w, sliceDefs, snapshot);
 
         w.line("// Validation");
-        generateValidateMethod(w, tsIndex, snapshot);
+        generateValidateMethod(w, snapshot, validateBody);
     });
     w.line();
 };
