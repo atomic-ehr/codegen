@@ -19,6 +19,7 @@ import {
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
+    type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
@@ -131,13 +132,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
         };
-        const hasProfiles = (this.opts.generateProfile ?? false) && tsIndex.collectSnapshotProfiles().length > 0;
-        this.generateRootPackages(groups, hasProfiles);
-        this.generateSDKPackages(tsIndex, groups);
+        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectSnapshotProfiles()) : {};
+        this.generateRootPackages(groups, profilesByPackage);
+        this.generateSDKPackages(tsIndex, groups, profilesByPackage);
     }
 
-    private generateRootPackages(groups: TypeSchemaPackageGroups, hasProfiles: boolean): void {
-        this.generateRootInitFile(groups);
+    private generateRootPackages(
+        groups: TypeSchemaPackageGroups,
+        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
+    ): void {
+        this.generateRootInitFile(groups, profilesByPackage);
         if (this.forFhirpyClient) {
             if (this.fieldFormat === "camelCase") {
                 this.copyAssets(resolvePyAssets("fhirpy_base_model_camel_case.py"), "fhirpy_base_model.py");
@@ -147,15 +151,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
         // Shared profile runtime helpers live once at the root package and are
         // imported absolutely (e.g. `from fhir_types.profile_helpers import ...`).
-        if (hasProfiles) {
+        if (Object.keys(profilesByPackage).length > 0) {
             this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
         }
         this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
     }
 
-    private generateSDKPackages(tsIndex: TypeSchemaIndex, groups: TypeSchemaPackageGroups): void {
+    private generateSDKPackages(
+        tsIndex: TypeSchemaIndex,
+        groups: TypeSchemaPackageGroups,
+        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
+    ): void {
         this.generateComplexTypesPackages(groups.groupedComplexTypes);
-        this.generateResourcePackages(tsIndex, groups);
+        this.generateResourcePackages(tsIndex, groups, profilesByPackage);
     }
 
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, SpecializationTypeSchema[]>): void {
@@ -166,9 +174,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateResourcePackages(tsIndex: TypeSchemaIndex, groups: TypeSchemaPackageGroups): void {
-        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectSnapshotProfiles()) : {};
-
+    private generateResourcePackages(
+        tsIndex: TypeSchemaIndex,
+        groups: TypeSchemaPackageGroups,
+        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
+    ): void {
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
                 const packageProfiles = profilesByPackage[packageName] ?? [];
@@ -218,13 +228,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateRootInitFile(groups: TypeSchemaPackageGroups): void {
+    private generateRootInitFile(
+        groups: TypeSchemaPackageGroups,
+        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
+    ): void {
         this.cd("/", () => {
             this.cat("__init__.py", () => {
                 this.generateDisclaimer();
                 const pydanticModels: string[] = this.collectAndImportAllModels(groups);
                 this.generateModelRebuilds(pydanticModels);
-                this.importProfileRegistrations(groups);
+                this.importProfileRegistrations(profilesByPackage);
             });
         });
     }
@@ -248,10 +261,14 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private importProfileRegistrations(groups: TypeSchemaPackageGroups): void {
-        if (!this.opts.generateProfile) return;
+    private importProfileRegistrations(profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>): void {
+        // `profiles/` exists for exactly these packages: resource packages with
+        // profiles and profile-only packages, both written by
+        // generateResourcePackages from the same map.
+        const packageNames = Object.keys(profilesByPackage);
+        if (packageNames.length === 0) return;
         this.line();
-        for (const packageName of Object.keys(groups.groupedResources)) {
+        for (const packageName of packageNames) {
             const profilesPackage = `${pyFhirPackageByName(this.opts.rootPackageName, packageName)}.profiles`;
             this.line(`import ${profilesPackage}  # noqa: F401`);
         }
