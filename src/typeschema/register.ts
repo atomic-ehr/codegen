@@ -390,24 +390,31 @@ const mkPackageAwareResolver = async (
 };
 
 const enrichResolver = (resolver: PackageAwareResolver, logger?: CodegenLog) => {
+    // A dependency's resource appears in the closure of every package that reaches it:
+    // translate it once per owning package and share the result.
+    const fhirSchemas: Record<string, RichFHIRSchema> = {};
+    const valueSets: Record<string, RichValueSet> = {};
     for (const { pkg, canonicalResolution } of Object.values(resolver)) {
         const pkgId = packageMetaToFhir(pkg);
         if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
         let counter = 0;
         logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' begins...`);
-        for (const [_url, options] of Object.entries(canonicalResolution)) {
+        for (const [url, options] of Object.entries(canonicalResolution)) {
             const resolition = options[0];
             if (!resolition) throw new Error(`Resource not found`);
             const resource = resolition.resource;
             const resourcePkg = resolition.pkg;
+            const key = `${resolition.pkgId}|${url}`;
             if (isStructureDefinition(resource)) {
-                const fs = fhirschema.translate(resource as StructureDefinition) as FHIRSchema;
-                const rfs = enrichFHIRSchema(fs, resourcePkg);
+                const rfs = (fhirSchemas[key] ??= enrichFHIRSchema(
+                    fhirschema.translate(resource as StructureDefinition) as FHIRSchema,
+                    resourcePkg,
+                ));
                 counter++;
                 resolver[pkgId].fhirSchemas[rfs.url] = rfs;
             }
             if (isValueSet(resource)) {
-                const rvs = enrichValueSet(resource, resourcePkg);
+                const rvs = (valueSets[key] ??= enrichValueSet(resource, resourcePkg));
                 resolver[pkgId].valueSets[rvs.url] = rvs;
             }
         }
