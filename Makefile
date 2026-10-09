@@ -63,12 +63,10 @@ prepare-aidbox-runme:
 	fi
 	@docker compose -f examples/docker-compose.yaml up --wait
 
-test-all-example-generation: test-other-example-generation
+test-all-example-generation: test-other-example-generation test-typescript-r4-us-core-example test-typescript-custom-packages-example
 	bun run examples/csharp/generate.ts
-	bun run examples/typescript-custom-packages/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python-r4-us-core/generate.ts
-	bun run examples/typescript-r4-us-core/generate.ts
 
 test-other-example-generation: test-on-the-fly-example
 
