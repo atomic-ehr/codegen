@@ -5,13 +5,24 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
+
 import {
-    applyFixedValue,
-    getExtensionValue,
     isRawExtensionInput,
+    applyFixedValue,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
     upsertExtension,
-    validateFixedValue,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type nationalityProfileRaw = {

@@ -4,12 +4,19 @@
 
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+
 import {
     applyFixedValue,
-    validateChoiceProhibited,
-    validateChoiceRequired,
-    validateFixedValue,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreIndividualSexExtensionProfileRaw = {

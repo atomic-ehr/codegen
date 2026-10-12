@@ -10,20 +10,24 @@ import type { Range } from "../../hl7-fhir-r4-core/Range";
 import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
+
 import {
-    applySliceMatch,
     ensureProfile,
-    ensureSliceDefaults,
-    getArraySlice,
+    applySliceMatch,
     matchesValue,
     setArraySlice,
-    validateChoiceProhibited,
-    validateChoiceRequired,
-    validateEnum,
-    validateMustSupport,
-    validateReference,
+    getArraySlice,
+    ensureSliceDefaults,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

@@ -6,20 +6,24 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
+
 import {
-    applySliceMatch,
     ensureProfile,
-    ensureSliceDefaults,
-    getArraySlice,
+    applySliceMatch,
     matchesValue,
     setArraySlice,
-    validateChoiceProhibited,
-    validateChoiceRequired,
-    validateEnum,
-    validateMustSupport,
-    validateReference,
+    getArraySlice,
+    ensureSliceDefaults,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

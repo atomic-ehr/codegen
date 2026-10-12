@@ -8,16 +8,26 @@ exports[`the generated module the typed-bundle profile 1`] = `
 import type { Bundle, BundleEntry } from "../../hl7-fhir-r5-core/Bundle";
 import type { Organization } from "../../hl7-fhir-r5-core/Organization";
 import type { Patient } from "../../hl7-fhir-r5-core/Patient";
+
 import {
-    applySliceMatch,
     ensureProfile,
-    getArraySlice,
-    getArraySliceAll,
+    applySliceMatch,
     matchesValue,
     setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
     setArraySliceAll,
+    getArraySliceAll,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;

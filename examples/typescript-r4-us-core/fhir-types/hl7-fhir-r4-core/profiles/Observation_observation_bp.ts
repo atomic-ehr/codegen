@@ -7,25 +7,27 @@ import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/O
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
+
 import {
+    ensureProfile,
     applyFixedValue,
     applySliceMatch,
-    ensureProfile,
-    ensureSliceDefaults,
-    getArraySlice,
     matchesValue,
     setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    wrapSliceChoice,
     unwrapSliceChoice,
-    validateChoiceProhibited,
-    validateChoiceRequired,
-    validateEnum,
-    validateFixedValue,
-    validateMustSupport,
-    validateReference,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
-    wrapSliceChoice,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

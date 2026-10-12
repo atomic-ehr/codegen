@@ -10,22 +10,25 @@ import type { Range } from "../../hl7-fhir-r4-core/Range";
 import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
+
 import {
+    ensureProfile,
     applyFixedValue,
     applySliceMatch,
-    ensureProfile,
-    ensureSliceDefaults,
-    getArraySlice,
     matchesValue,
     setArraySlice,
-    validateChoiceProhibited,
-    validateChoiceRequired,
-    validateEnum,
-    validateFixedValue,
-    validateMustSupport,
-    validateReference,
+    getArraySlice,
+    ensureSliceDefaults,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

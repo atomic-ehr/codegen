@@ -4,21 +4,31 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+
 import {
+    isRawExtensionInput,
     applyFixedValue,
     applySliceMatch,
-    getArraySlice,
-    isExtension,
-    isRawExtensionInput,
     matchesValue,
     setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    wrapSliceChoice,
     unwrapSliceChoice,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
     upsertExtension,
-    validateFixedValue,
     validateRequired,
+    validateExcluded,
+    validateFixedValue,
     validateSliceCardinality,
     validateSliceFields,
-    wrapSliceChoice,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & CodeableConcept;

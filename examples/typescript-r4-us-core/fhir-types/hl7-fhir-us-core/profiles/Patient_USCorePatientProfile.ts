@@ -2,21 +2,13 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
 import type { Identifier } from "../../hl7-fhir-r4-core/Identifier";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
-import {
-    ensureProfile,
-    extractComplexExtension,
-    getExtensionValue,
-    isExtension,
-    pushExtension,
-    upsertExtension,
-    validateMustSupport,
-    validateRequired,
-} from "../../profile-helpers";
+
 import {
     USCoreEthnicityExtensionProfile,
     type USCoreEthnicityExtensionProfileFlat,
@@ -28,6 +20,25 @@ import {
     USCoreTribalAffiliationExtensionProfile,
     type USCoreTribalAffiliationExtensionProfileFlat,
 } from "./Extension_USCoreTribalAffiliationExtension";
+
+import {
+    ensureProfile,
+    extractComplexExtension,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
+    upsertExtension,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateSliceFields,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateChoiceProhibited,
+    validateMustSupport,
+} from "../../profile-helpers";
 
 export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
 export type USCorePatientProfile_RaceVFlat = Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
