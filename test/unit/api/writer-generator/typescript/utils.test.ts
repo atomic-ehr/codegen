@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { fieldTsType, type TsImports } from "@root/api/writer-generator/typescript/utils";
+import { fieldTsType } from "@root/api/writer-generator/typescript/utils";
 import type { CanonicalUrl, Name, ProfileIdentifier, RegularField, TypeIdentifier } from "@root/typeschema/types";
 
 const makeIdentifier = (kind: TypeIdentifier["kind"], name: string): TypeIdentifier => ({
@@ -21,16 +21,13 @@ const resolveRef = (ref: TypeIdentifier): TypeIdentifier => {
     return ref;
 };
 
-/** Writes every type by its plain name. */
-const imports: TsImports = { def: () => undefined, use: (key) => key.name };
-
 describe("fieldTsType reference targets", () => {
     test("plain resource targets have no comment", () => {
         const field: RegularField = {
             type: referenceType,
             reference: { resource: [patient, group], effectiveResource: [patient, group] },
         };
-        expect(fieldTsType(imports, field, resolveRef)).toBe(`Reference<"Patient" | "Group">`);
+        expect(fieldTsType(field, resolveRef)).toBe(`Reference<"Patient" | "Group">`);
     });
 
     test("profile target replaced by its resource type keeps the profile url as a comment", () => {
@@ -38,7 +35,7 @@ describe("fieldTsType reference targets", () => {
             type: referenceType,
             reference: { resource: [patient], effectiveResource: [patient], profiles: [usCorePatient] },
         };
-        expect(fieldTsType(imports, field, resolveRef)).toBe(
+        expect(fieldTsType(field, resolveRef)).toBe(
             `Reference<"Patient" /* http://example.org/StructureDefinition/USCorePatient */>`,
         );
     });
@@ -52,7 +49,7 @@ describe("fieldTsType reference targets", () => {
                 profiles: [usCorePatient, testPatient],
             },
         };
-        expect(fieldTsType(imports, field, resolveRef)).toBe(
+        expect(fieldTsType(field, resolveRef)).toBe(
             `Reference<"Group" | "Patient" /* http://example.org/StructureDefinition/USCorePatient, http://example.org/StructureDefinition/TestPatient */>`,
         );
     });
