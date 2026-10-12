@@ -9,7 +9,6 @@ import type { ANY } from "../hl7-cda-uv-core/ANY";
 import type { Authenticator } from "../hl7-cda-uv-core/Authenticator";
 import type { Author } from "../hl7-cda-uv-core/Author";
 import type { Authorization } from "../hl7-cda-uv-core/Authorization";
-import type { Base } from "../hl7-fhir-r5-core/Base";
 import type { CD } from "../hl7-cda-uv-core/CD";
 import type { CE } from "../hl7-cda-uv-core/CE";
 import type { Component } from "../hl7-cda-uv-core/Component";
@@ -18,7 +17,6 @@ import type { CS } from "../hl7-cda-uv-core/CS";
 import type { Custodian } from "../hl7-cda-uv-core/Custodian";
 import type { DataEnterer } from "../hl7-cda-uv-core/DataEnterer";
 import type { DocumentationOf } from "../hl7-cda-uv-core/DocumentationOf";
-import type { Element } from "../hl7-fhir-r5-core/Element";
 import type { II } from "../hl7-cda-uv-core/II";
 import type { Informant } from "../hl7-cda-uv-core/Informant";
 import type { InformationRecipient } from "../hl7-cda-uv-core/InformationRecipient";
@@ -30,6 +28,8 @@ import type { RecordTarget } from "../hl7-cda-uv-core/RecordTarget";
 import type { RelatedDocument } from "../hl7-cda-uv-core/RelatedDocument";
 import type { ST } from "../hl7-cda-uv-core/ST";
 import type { TS } from "../hl7-cda-uv-core/TS";
+import type { Base } from "../hl7-fhir-r5-core/Base";
+import type { Element } from "../hl7-fhir-r5-core/Element";
 
 export type { Base } from "../hl7-fhir-r5-core/Base";
 

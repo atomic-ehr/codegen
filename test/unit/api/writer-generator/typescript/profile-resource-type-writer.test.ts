@@ -87,7 +87,7 @@ const generateProfile = (
     const tsIndex = mkTypeSchemaIndex(schemas, { logger });
     w.cd("/", () => {
         w.cat(`${snapshot.identifier.name}Profile.ts`, () => {
-            generateProfileClass(w, tsIndex, snapshot);
+            generateProfileClass(w, tsIndex, snapshot, w.importSection("../../"));
         });
     });
     const generated = w.writtenFiles()[0]?.content ?? "";

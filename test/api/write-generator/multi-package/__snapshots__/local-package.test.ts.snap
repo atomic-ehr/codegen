@@ -36,26 +36,16 @@ exports[`Local Package Folder - Multi-Package Generation TypeScript Generation w
 import type { Bundle, BundleEntry } from "../../hl7-fhir-r4-core/Bundle";
 import type { Organization } from "../../hl7-fhir-r4-core/Organization";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
-
 import {
-    ensureProfile,
     applySliceMatch,
+    ensureProfile,
+    getArraySlice,
+    getArraySliceAll,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
     setArraySliceAll,
-    getArraySliceAll,
     validateRequired,
-    validateExcluded,
-    validateFixedValue,
     validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
 } from "../../profile-helpers";
 
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
