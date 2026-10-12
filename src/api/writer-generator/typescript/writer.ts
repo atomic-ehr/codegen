@@ -1,4 +1,4 @@
-import { SectionWriter } from "@root/api/writer-generator/section-writer";
+import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import type { WriterOptions } from "@root/api/writer-generator/writer";
 import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
@@ -277,10 +277,9 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    /** Places a type module's imports here and returns how the module names referenced types:
-     *  its own and nested types by name, other complex types, resources and logical models imported. */
-    typeModuleImports(schema: SpecializationTypeSchema): TypeNamer {
-        const imports = this.section<never, TypeIdentifier>({
+    /** Places a type module's imports here: one `import type` per type the module uses. */
+    typeModuleImports(): SectionHandle<never, TypeIdentifier> {
+        return this.section<never, TypeIdentifier>({
             name: tsResourceName,
             render: (_definitions, usages) => {
                 const sorted = [...usages].sort((a, b) => tsResourceName(a.key).localeCompare(tsResourceName(b.key)));
@@ -292,12 +291,6 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                 if (sorted.length > 0) this.line();
             },
         });
-        return (id) => {
-            if (isNestedIdentifier(id) || id.url === schema.identifier.url) return tsResourceName(id);
-            if (isComplexTypeIdentifier(id) || isResourceIdentifier(id) || isLogicalIdentifier(id))
-                return imports.use(id);
-            return id.name;
-        };
     }
 
     generateComplexTypeReexports(schema: SpecializationTypeSchema) {
@@ -489,7 +482,14 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const typeName = this.typeModuleImports(schema);
+                const imports = this.typeModuleImports();
+                // Own and nested types are local; other complex types, resources and logical models are imported.
+                const typeName: TypeNamer = (id) => {
+                    if (isNestedIdentifier(id) || id.url === schema.identifier.url) return tsResourceName(id);
+                    if (isComplexTypeIdentifier(id) || isResourceIdentifier(id) || isLogicalIdentifier(id))
+                        return imports.use(id);
+                    return id.name;
+                };
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema, isFamilyType, typeName);
                 this.comment(
