@@ -4,19 +4,12 @@
 
 import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
-
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type birthPlaceProfileRaw = {

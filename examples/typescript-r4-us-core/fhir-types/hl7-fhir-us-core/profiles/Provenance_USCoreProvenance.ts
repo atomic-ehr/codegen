@@ -4,26 +4,14 @@
 
 import type { Provenance, ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
-
 import {
-    ensureProfile,
     applySliceMatch,
-    matchesValue,
-    setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    setArraySliceAll,
+    ensureProfile,
     getArraySliceAll,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
+    matchesValue,
+    setArraySliceAll,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlat = Omit<ProvenanceAgent, "type">;

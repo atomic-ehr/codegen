@@ -101,34 +101,24 @@ exports[`generated modules pins the emitted workflow-reason module 1`] = `
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
-
-import { DatatypeProfile } from "./Extension_Datatype";
-
 import {
-    isRawExtensionInput,
     applyFixedValue,
     applySliceMatch,
+    getArraySlice,
+    getExtensionValue,
+    isExtension,
+    isRawExtensionInput,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    wrapSliceChoice,
     unwrapSliceChoice,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
     validateFixedValue,
+    validateRequired,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    wrapSliceChoice,
 } from "../../profile-helpers";
+import { DatatypeProfile } from "./Extension_Datatype";
 
 export type WorkflowReason_Extension_ConceptSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & CodeableConcept;
 export type WorkflowReason_Extension_ConceptSliceFlatAll = WorkflowReason_Extension_ConceptSliceFlat;
@@ -346,34 +336,21 @@ exports[`generated modules pins the emitted extended-contact-availability module
 // Any manual changes made to this file may be overwritten.
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
-
-import { DatatypeProfile } from "./Extension_Datatype";
-
 import {
-    isRawExtensionInput,
     applyFixedValue,
     applySliceMatch,
-    matchesValue,
-    setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    setArraySliceAll,
     getArraySliceAll,
-    isExtension,
     getExtensionValue,
+    isExtension,
+    isRawExtensionInput,
+    matchesValue,
     pushExtension,
+    setArraySliceAll,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
     validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    validateRequired,
 } from "../../profile-helpers";
+import { DatatypeProfile } from "./Extension_Datatype";
 
 export type ExtendedContactAvailability_Extension_AvailableTimeSliceFlat = Omit<Extension, "url">;
 export type ExtendedContactAvailability_Extension_AvailableTimeSliceFlatAll = ExtendedContactAvailability_Extension_AvailableTimeSliceFlat & {
