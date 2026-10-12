@@ -8,22 +8,19 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
-    ensureProfile,
     applySliceMatch,
+    ensureProfile,
+    ensureSliceDefaults,
+    getArraySlice,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateChoiceRequired,
+    validateEnum,
     validateMustSupport,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
 } from "../../profile-helpers";
 
 export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

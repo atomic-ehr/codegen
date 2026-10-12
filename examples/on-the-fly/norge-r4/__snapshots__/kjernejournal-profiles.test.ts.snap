@@ -39,6 +39,19 @@ import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensurePath,
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validateMustSupport,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjAbatementDateTimeProfile } from "./Extension_KjAbatementDateTime";
 import { KjInactiveIngredientProfile } from "./Extension_KjInactiveIngredient";
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
@@ -46,25 +59,6 @@ import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    ensurePath,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
 
 export type KjAllergyIntoleranceProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -468,35 +462,29 @@ import type { Condition, ConditionEvidence } from "../../hl7-fhir-r4-core/Condit
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    applySliceMatch,
+    ensureProfile,
+    getArraySlice,
+    getExtensionValue,
+    isExtension,
+    matchesValue,
+    setArraySlice,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validateMustSupport,
+    validatePatternValue,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
+} from "../../profile-helpers";
+
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    applySliceMatch,
-    matchesValue,
-    setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
 
 export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat = Omit<ConditionEvidence, "code">;
 export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlatAll = KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat;
@@ -861,29 +849,23 @@ import type { Condition } from "../../hl7-fhir-r4-core/Condition";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validateMustSupport,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
 
 export type KjConditionCriticalMedicalConditionProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1216,31 +1198,24 @@ import type { Condition } from "../../hl7-fhir-r4-core/Condition";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validatePatternValue,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjValidUntilProfile } from "./Extension_KjValidUntil";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
 
 export type KjConditionInfectionProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1596,31 +1571,25 @@ import type { Condition } from "../../hl7-fhir-r4-core/Condition";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validateMustSupport,
+    validatePatternValue,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjValidUntilProfile } from "./Extension_KjValidUntil";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
 
 export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1976,6 +1945,16 @@ import type { Consent } from "../../hl7-fhir-r4-core/Consent";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateEnum,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjAbatementDateTimeProfile } from "./Extension_KjAbatementDateTime";
 import { KjTextProfile } from "./Extension_KjText";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
@@ -1983,24 +1962,6 @@ import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjValidUntilProfile } from "./Extension_KjValidUntil";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
 
 export type KjConsentProfileRaw = {
     status: ("active" | "inactive" | "entered-in-error");
@@ -2342,30 +2303,23 @@ import type { DeviceUseStatement } from "../../hl7-fhir-r4-core/DeviceUseStateme
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateEnum,
+    validateMustSupport,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjAbatementDateTimeProfile } from "./Extension_KjAbatementDateTime";
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjValidUntilProfile } from "./Extension_KjValidUntil";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
 
 export type KjDeviceUseStatementProfileRaw = {
     status: ("active" | "completed" | "entered-in-error");
@@ -2661,17 +2615,11 @@ import type { Device } from "../../hl7-fhir-r4-core/Device";
 
 import {
     ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjDeviceProfileRaw = {
@@ -2778,16 +2726,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjAbatementDateTimeProfileRaw = {
@@ -2884,16 +2826,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjInactiveIngredientProfileRaw = {
@@ -2990,16 +2926,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjRecordedDateTimeProfileRaw = {
@@ -3095,19 +3025,7 @@ exports[`norge-r4 kjernejournal generated profiles matches golden output for eve
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import {
-    applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
+import { applyFixedValue, validateChoiceProhibited, validateFixedValue, validateRequired } from "../../profile-helpers";
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjSourceOfInformationProfile {
@@ -3197,16 +3115,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjTextProfileRaw = {
@@ -3303,16 +3215,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjUpdatedDateTimeProfileRaw = {
@@ -3410,16 +3316,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjUpdaterProfileRaw = {
@@ -3516,16 +3416,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjValidUntilProfileRaw = {
@@ -3622,16 +3516,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjVerificationDateTimeProfileRaw = {
@@ -3729,16 +3617,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjVerifierProfileRaw = {
@@ -3837,36 +3719,30 @@ import type { Flag } from "../../hl7-fhir-r4-core/Flag";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    applySliceMatch,
+    ensureProfile,
+    ensureSliceDefaults,
+    getArraySlice,
+    getExtensionValue,
+    isExtension,
+    matchesValue,
+    setArraySlice,
+    upsertExtension,
+    validateEnum,
+    validateMustSupport,
+    validatePatternValue,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
+} from "../../profile-helpers";
+
 import { KjAbatementDateTimeProfile } from "./Extension_KjAbatementDateTime";
 import { KjTextProfile } from "./Extension_KjText";
 import { KjUpdatedDateTimeProfile } from "./Extension_KjUpdatedDateTime";
 import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    applySliceMatch,
-    matchesValue,
-    setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
 
 export type KjFlag_Category_KjCategorySliceFlat = Omit<CodeableConcept, "coding">;
 export type KjFlag_Category_KjCategorySliceFlatAll = KjFlag_Category_KjCategorySliceFlat;
@@ -4212,17 +4088,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjPractitionerRoleProfileRaw = {
@@ -4353,6 +4222,19 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Procedure } from "../../hl7-fhir-r4-core/Procedure";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
+import {
+    ensureProfile,
+    getExtensionValue,
+    isExtension,
+    upsertExtension,
+    validateChoiceProhibited,
+    validateEnum,
+    validateMustSupport,
+    validatePatternValue,
+    validateReference,
+    validateRequired,
+} from "../../profile-helpers";
+
 import { KjAbatementDateTimeProfile } from "./Extension_KjAbatementDateTime";
 import { KjRecordedDateTimeProfile } from "./Extension_KjRecordedDateTime";
 import { KjSourceOfInformationProfile } from "./Extension_KjSourceOfInformation";
@@ -4361,25 +4243,6 @@ import { KjUpdaterProfile } from "./Extension_KjUpdater";
 import { KjValidUntilProfile } from "./Extension_KjValidUntil";
 import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTime";
 import { KjVerifierProfile } from "./Extension_KjVerifier";
-
-import {
-    ensureProfile,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
-    upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-    validatePatternValue,
-} from "../../profile-helpers";
 
 export type KjProcedureProfileRaw = {
     status: ("in-progress" | "entered-in-error" | "completed");
