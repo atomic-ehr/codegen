@@ -89,6 +89,15 @@ describe("section order", () => {
         expect(content).toBe([`import { T } from "./t";`, `let x: T;`, `f(x);`, ``].join("\n"));
     });
 
+    it("rejects a definition in a section without defRender", () => {
+        const run = () =>
+            generate((w) =>
+                w.section<ConstDef, string>({ name: (name) => name }).def("a", { type: "string", value: "1" }),
+            );
+
+        expect(run).toThrow("main.js: section #0 has no defRender");
+    });
+
     it("rejects a section used after it rendered", () => {
         const run = () =>
             generate((w) => {
@@ -110,8 +119,6 @@ export const typeChecks = (w: TestWriter) => {
     const consts = w.section<ConstDef, string>({ name: (name) => name, defRender: () => undefined });
     // @ts-expect-error a section names its symbols
     w.section<never, string>({});
-    // @ts-expect-error a section with definitions needs `defRender`
-    w.section<ConstDef, string>({ name: (name) => name });
     // @ts-expect-error the import section has no definitions
     imports.def({ module: "node:path", name: "join" }, {});
     // @ts-expect-error an import key is `{ module, name }`
