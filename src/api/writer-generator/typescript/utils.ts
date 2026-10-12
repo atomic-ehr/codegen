@@ -1,3 +1,4 @@
+import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
@@ -51,13 +52,9 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
-/** Names a referenced type in the module being written; type modules pass one that also imports it. */
-export type TypeNamer = (id: TypeIdentifier) => string;
-const plainTypeName: TypeNamer = (id) => id.name;
-
 const rewriteFieldTypeDefs: Record<
     string,
-    Record<string, (field: RegularField | ChoiceFieldInstance, typeName: TypeNamer) => string>
+    Record<string, (field: RegularField | ChoiceFieldInstance, typeRef: (id: TypeIdentifier) => string) => string>
 > = {
     Coding: { code: () => "T" },
     Reference: {
@@ -74,7 +71,7 @@ const rewriteFieldTypeDefs: Record<
         // part of a narrowed Reference that accepted any value at all.
         type: () => "T",
     },
-    CodeableConcept: { coding: (field, typeName) => `${typeName(field.type)}<T>` },
+    CodeableConcept: { coding: (field, typeRef) => `${typeRef(field.type)}<T>` },
 };
 
 export const resolveFieldTsType = (
@@ -84,16 +81,18 @@ export const resolveFieldTsType = (
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     genericFieldMap?: Record<string, string>,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
-    typeName: TypeNamer = plainTypeName,
+    imports?: SectionHandle<never, TypeIdentifier>,
 ): string => {
+    // Type modules import referenced types; other callers write them by name.
+    const typeRef = (id: TypeIdentifier) => imports?.use(id) ?? id.name;
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
-    if (rewriteFieldType) return rewriteFieldType(field, typeName);
+    if (rewriteFieldType) return rewriteFieldType(field, typeRef);
 
     if (field.enum) {
         if (field.type.name === "Coding" || field.type.name === "CodeableConcept")
-            return `${typeName(field.type)}<${tsEnumType(field.enum)}>`;
+            return `${typeRef(field.type)}<${tsEnumType(field.enum)}>`;
         return tsEnumType(field.enum);
     }
     if (field.reference && field.reference.resource.length > 0) {
@@ -115,11 +114,11 @@ export const resolveFieldTsType = (
                 return `"${ref.name}"`;
             })
             .join(" | ");
-        return `${typeName(field.type)}<${references}>`;
+        return `${typeRef(field.type)}<${references}>`;
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
     if (isNestedIdentifier(field.type)) return tsResourceName(field.type);
-    return typeName(field.type);
+    return typeRef(field.type);
 };
 
 export const fieldTsType = (
