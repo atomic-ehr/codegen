@@ -51,7 +51,14 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
-const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
+/** Names a referenced type in the module being written; type modules pass one that also imports it. */
+export type TypeNamer = (id: TypeIdentifier) => string;
+const plainTypeName: TypeNamer = (id) => (isNestedIdentifier(id) ? tsResourceName(id) : id.name);
+
+const rewriteFieldTypeDefs: Record<
+    string,
+    Record<string, (field: RegularField | ChoiceFieldInstance, typeName: TypeNamer) => string>
+> = {
     Coding: { code: () => "T" },
     Reference: {
         // A literal reference is a relative or absolute URL ending in
@@ -67,7 +74,7 @@ const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
         // part of a narrowed Reference that accepted any value at all.
         type: () => "T",
     },
-    CodeableConcept: { coding: () => "Coding<T>" },
+    CodeableConcept: { coding: (field, typeName) => `${typeName(field.type)}<T>` },
 };
 
 export const resolveFieldTsType = (
@@ -77,15 +84,16 @@ export const resolveFieldTsType = (
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     genericFieldMap?: Record<string, string>,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
+    typeName: TypeNamer = plainTypeName,
 ): string => {
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
-    if (rewriteFieldType) return rewriteFieldType();
+    if (rewriteFieldType) return rewriteFieldType(field, typeName);
 
     if (field.enum) {
-        if (field.type.name === "Coding") return `Coding<${tsEnumType(field.enum)}>`;
-        if (field.type.name === "CodeableConcept") return `CodeableConcept<${tsEnumType(field.enum)}>`;
+        if (field.type.name === "Coding" || field.type.name === "CodeableConcept")
+            return `${typeName(field.type)}<${tsEnumType(field.enum)}>`;
         return tsEnumType(field.enum);
     }
     if (field.reference && field.reference.resource.length > 0) {
@@ -107,11 +115,10 @@ export const resolveFieldTsType = (
                 return `"${ref.name}"`;
             })
             .join(" | ");
-        return `Reference<${references}>`;
+        return `${typeName(field.type)}<${references}>`;
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
-    if (isNestedIdentifier(field.type)) return tsResourceName(field.type);
-    return field.type.name as string;
+    return typeName(field.type);
 };
 
 export const fieldTsType = (
