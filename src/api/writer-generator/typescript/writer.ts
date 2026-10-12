@@ -1,4 +1,4 @@
-import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
+import { SectionWriter, type Usage } from "@root/api/writer-generator/section-writer";
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import type { WriterOptions } from "@root/api/writer-generator/writer";
 import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
@@ -16,6 +16,7 @@ import {
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
+    isNestedIdentifier,
     isNestedTypeSchema,
     isPrimitiveIdentifier,
     isResourceTypeSchema,
@@ -43,8 +44,8 @@ import {
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
-import { generateProfileClass, generateProfileImports, generateProfileIndexFile } from "./profile";
-import { resolveFieldTsType } from "./utils";
+import { generateProfileClass, generateProfileIndexFile } from "./profile";
+import { isFhirTypeImport, resolveFieldTsType, type TsImport, type TsImports } from "./utils";
 
 export const resolveTsAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "typescript", fn);
 
@@ -274,20 +275,40 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    /** Places a type module's imports here: one `import type` per type the module uses, except its own. */
-    typeModuleImports(schema: SpecializationTypeSchema): SectionHandle<never, TypeIdentifier> {
-        return this.section<never, TypeIdentifier>({
-            name: tsResourceName,
+    /** Places the module's imports here: one `import` per module, for exactly the names the module writes.
+     *  FHIR types are imported from `prefix` + their module; `isLocal` ones are declared in this module. */
+    importSection(prefix: string, isLocal: (id: TypeIdentifier) => boolean = () => false): TsImports {
+        const moduleOf = (key: TsImport): string => {
+            if (!isFhirTypeImport(key)) return key.module;
+            // A nested type is exported by its parent's module.
+            const parent = isNestedIdentifier(key) ? tsNameFromCanonical(key.url, true) : undefined;
+            return parent
+                ? `${prefix}${this.packageDir(key)}/${pascalCase(parent)}`
+                : `${prefix}${this.modulePath(key)}`;
+        };
+        const nameOf = (key: TsImport): string => (isFhirTypeImport(key) ? tsResourceName(key) : key.name);
+        const isType = (key: TsImport): boolean => isFhirTypeImport(key) || key.typeOnly === true;
+        return this.section<never, TsImport>({
+            name: nameOf,
             render: (_definitions, usages) => {
-                const sorted = usages
-                    .filter(({ key }) => key.url !== schema.identifier.url)
-                    .sort((a, b) => tsResourceName(a.key).localeCompare(tsResourceName(b.key)));
-                for (const { key, local } of sorted) {
-                    const name = tsResourceName(key);
-                    const imported = local === name ? name : `${name} as ${local}`;
-                    this.tsImport(`../${this.modulePath(key)}`, imported, { typeOnly: true });
+                const byModule: Record<string, Usage<TsImport>[]> = {};
+                for (const u of usages) {
+                    if (isFhirTypeImport(u.key) && isLocal(u.key)) continue;
+                    (byModule[moduleOf(u.key)] ??= []).push(u);
                 }
-                if (sorted.length > 0) this.line();
+                const modules = Object.keys(byModule).sort((a, b) => a.localeCompare(b));
+                for (const module of modules) {
+                    const imported = (byModule[module] ?? []).sort((a, b) =>
+                        nameOf(a.key).localeCompare(nameOf(b.key)),
+                    );
+                    const typeOnly = imported.every((u) => isType(u.key));
+                    const entities = imported.map(({ key, local }) => {
+                        const name = local === nameOf(key) ? local : `${nameOf(key)} as ${local}`;
+                        return typeOnly || !isType(key) ? name : `type ${name}`;
+                    });
+                    this.tsImport(module, ...entities, { typeOnly });
+                }
+                if (modules.length > 0) this.line();
             },
         });
     }
@@ -313,7 +334,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema | NestedTypeSchema,
         isFamilyType: ((ref: TypeIdentifier) => boolean) | undefined,
-        imports: SectionHandle<never, TypeIdentifier>,
+        imports: TsImports,
     ): void {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
@@ -397,13 +418,13 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
                 const tsName = tsFieldName(fieldName);
                 const tsType = resolveFieldTsType(
+                    imports,
                     schema.identifier.name,
                     tsName,
                     field,
                     undefined,
                     fieldMap,
                     isFamilyType,
-                    imports,
                 );
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
@@ -427,7 +448,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     private elementType(
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema | NestedTypeSchema,
-        imports: SectionHandle<never, TypeIdentifier>,
+        imports: TsImports,
     ): string {
         const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
         const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
@@ -459,7 +480,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema,
         isFamilyType: ((ref: TypeIdentifier) => boolean) | undefined,
-        imports: SectionHandle<never, TypeIdentifier>,
+        imports: TsImports,
     ): void {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {
@@ -473,15 +494,17 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             this.cd("profiles", () => {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
-                    generateProfileImports(this, tsIndex, schema);
-                    generateProfileClass(this, tsIndex, schema);
+                    generateProfileClass(this, tsIndex, schema, this.importSection("../../"));
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const imports = this.typeModuleImports(schema);
+                const imports = this.importSection(
+                    "../",
+                    (id) => isNestedIdentifier(id) || id.url === schema.identifier.url,
+                );
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema, isFamilyType, imports);
                 this.comment(
@@ -599,13 +622,10 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     /** Enum validations whose value lists are fully explained by emitted coded
      *  systems reference those systems' `codes` instead of inlining literals.
-     *  Returns the replacement expression per field and the value imports the
-     *  profile module needs. Only whole-system matches convert; anything else
-     *  stays an inline literal, so unlinked output is unchanged. */
-    private linkFieldEnum(
-        tsIndex: TypeSchemaIndex,
-        field: Field,
-    ): { expr: string; imports: Map<string, Set<string>> } | undefined {
+     *  Returns the replacement expression per field, which imports the systems
+     *  it spreads. Only whole-system matches convert; anything else stays an
+     *  inline literal, so unlinked output is unchanged. */
+    private linkFieldEnum(tsIndex: TypeSchemaIndex, imports: TsImports, field: Field): string | undefined {
         if (isChoiceDeclarationField(field)) return undefined;
         if (!field.enum || field.enum.values.length === 0 || !field.binding) return undefined;
         const binding = tsIndex.resolveByUrl(field.binding.package, field.binding.url);
@@ -645,40 +665,31 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         }
         const spreads: string[] = [];
         const covered = new Set<string>();
-        const imports = new Map<string, Set<string>>();
         for (const [system, codes] of bySystem) {
             const indexed = this.terminologyCodeIndex.get(system);
             if (!indexed) continue;
             if (codes.size !== indexed.codes.size || ![...codes].every((code) => indexed.codes.has(code))) continue;
-            spreads.push(`...${indexed.symbol}.codes`);
+            const symbol = imports.use({ module: `../../${indexed.moduleDir}/terminology`, name: indexed.symbol });
+            spreads.push(`...${symbol}.codes`);
             for (const code of codes) covered.add(code);
-            const symbols = imports.get(indexed.moduleDir) ?? new Set<string>();
-            symbols.add(indexed.symbol);
-            imports.set(indexed.moduleDir, symbols);
         }
         if (spreads.length === 0) return undefined;
         const literals = values.filter((value) => !covered.has(value)).map((value) => JSON.stringify(value));
-        return { expr: `[${[...spreads, ...literals].join(", ")}]`, imports };
+        return `[${[...spreads, ...literals].join(", ")}]`;
     }
 
     enumTerminologyLinks(
         tsIndex: TypeSchemaIndex,
+        imports: TsImports,
         snapshot: SnapshotProfileTypeSchema,
-    ): { exprs: Map<string, string>; imports: Map<string, Set<string>> } {
+    ): Map<string, string> {
         const exprs = new Map<string, string>();
-        const imports = new Map<string, Set<string>>();
-        if (this.terminologyCodeIndex.size === 0) return { exprs, imports };
+        if (this.terminologyCodeIndex.size === 0) return exprs;
         for (const [name, field] of Object.entries(snapshot.fields)) {
-            const link = this.linkFieldEnum(tsIndex, field);
-            if (!link) continue;
-            exprs.set(name, link.expr);
-            for (const [dir, symbols] of link.imports) {
-                const merged = imports.get(dir) ?? new Set<string>();
-                for (const symbol of symbols) merged.add(symbol);
-                imports.set(dir, merged);
-            }
+            const expr = this.linkFieldEnum(tsIndex, imports, field);
+            if (expr) exprs.set(name, expr);
         }
-        return { exprs, imports };
+        return exprs;
     }
 
     generateTerminologyModule(packageDir: string) {
