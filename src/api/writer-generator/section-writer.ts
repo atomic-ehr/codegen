@@ -18,27 +18,23 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 // Design: docs/design/writer-sections.md
 
 /** A used symbol: its key and the local name it got in the file. */
-export type Usage<S> = { key: S; local: string };
+export type Usage<Sym> = { key: Sym; local: string };
 /** A used definition: its key, local name, the code `defRender` wrote for it, and the user's value. */
-export type Definition<D, S> = { key: S; local: string; code: string; value: D };
-export type SectionRender<D, S> = (definitions: Definition<D, S>[], usages: Usage<S>[]) => void;
+export type Definition<Def, Sym> = { key: Sym; local: string; code: string; value: Def };
+export type SectionRender<Def, Sym> = (definitions: Definition<Def, Sym>[], usages: Usage<Sym>[]) => void;
 
-/** Typed access to a placed section. `D`: the user's definition type (`never`: the section has none);
- *  `S`: the key that identifies a symbol, taken by both `def` and `use`. */
-export type SectionHandle<D, S> = {
+/** Typed access to a placed section. `Def`: the user's definition type (`never`: the section has none);
+ *  `Sym`: the key that identifies a symbol, taken by both `def` and `use`. */
+export type SectionHandle<Def, Sym> = {
     /** File-local definition; `value` is the user's definition. */
-    def: (key: S, value: D) => void;
-    use: (key: S) => string;
+    def: (key: Sym, value: Def) => void;
+    use: (key: Sym) => string;
 };
 
-export type SectionSpec<D, S> = {
-    /** A symbol's preferred local name; the writer adds a `_N` suffix on a clash. */
-    name: (key: S) => string;
-    /** Default: write the used definitions' code. */
-    render?: SectionRender<D, S>;
-    /** Writes one definition's code with the regular Writer API; `name` is its local name.
-     *  Needed by a section that has definitions: `def` throws without it. */
-    defRender?: (name: string, value: D) => void;
+export type SectionSpec<Def, Sym> = {
+    name: (key: Sym) => string;
+    render?: SectionRender<Def, Sym>;
+    defRender?: (name: string, value: Def) => void;
 };
 
 /** A symbol of a section: its key, its definition if the file defines it, and its local name once named. */
@@ -156,10 +152,10 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
     }
 
     /** Place a section here; `render` writes its definitions and usages when the sections are rendered. */
-    section<D, S>(spec: SectionSpec<D, S>): SectionHandle<D, S> {
+    section<Def, Sym>(spec: SectionSpec<Def, Sym>): SectionHandle<Def, Sym> {
         const draft = this.openDraft();
         if (draft.out.for !== "file") throw new Error("A section must be placed at file level");
-        const render: SectionRender<D, S> =
+        const render: SectionRender<Def, Sym> =
             spec.render ??
             ((definitions) => {
                 for (const d of definitions) this.write(d.code);
