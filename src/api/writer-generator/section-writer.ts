@@ -31,18 +31,15 @@ export type SectionHandle<D, S> = {
     use: (key: S) => string;
 };
 
-/** `defRender` is required exactly when the section has definitions (`D` is not `never`). */
 export type SectionSpec<D, S> = {
     /** A symbol's preferred local name; the writer adds a `_N` suffix on a clash. */
     name: (key: S) => string;
     /** Default: write the used definitions' code. */
     render?: SectionRender<D, S>;
-} & ([D] extends [never]
-    ? { defRender?: undefined }
-    : {
-          /** Writes one definition's code with the regular Writer API; `name` is its local name. */
-          defRender: (name: string, value: D) => void;
-      });
+    /** Writes one definition's code with the regular Writer API; `name` is its local name.
+     *  Needed by a section that has definitions: `def` throws without it. */
+    defRender?: (name: string, value: D) => void;
+};
 
 /** A symbol of a section: its key, its definition if the file defines it, and its local name once named. */
 type SectionSymbol = {
@@ -184,7 +181,8 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
     }
 
     private define(section: DraftSection, key: unknown, value: unknown): void {
-        const defRender = must(section.defRender, `section #${section.index} has no defRender`);
+        const { defRender } = section;
+        if (!defRender) throw new Error(`${this.openDraft().path}: section #${section.index} has no defRender`);
         const symbol = this.symbolOf(section, key);
         if (symbol.def)
             throw new Error(`${this.openDraft().path}: '${nameOf(symbol)}' defined twice in section #${section.index}`);
