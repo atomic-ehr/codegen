@@ -276,8 +276,8 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     }
 
     /** Places the module's imports here: one `import` per module, for exactly the names the module writes.
-     *  FHIR types are imported from `prefix` + their module; `isLocal` ones are declared in this module. */
-    importSection(prefix: string, isLocal: (id: TypeIdentifier) => boolean = () => false): TsImports {
+     *  FHIR types are imported from `prefix` + their module. */
+    importSection(prefix: string): TsImports {
         const moduleOf = (key: TsImport): string => {
             if (!isFhirTypeImport(key)) return key.module;
             // A nested type is exported by its parent's module.
@@ -292,10 +292,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             name: nameOf,
             render: (_definitions, usages) => {
                 const byModule: Record<string, Usage<TsImport>[]> = {};
-                for (const u of usages) {
-                    if (isFhirTypeImport(u.key) && isLocal(u.key)) continue;
-                    (byModule[moduleOf(u.key)] ??= []).push(u);
-                }
+                for (const u of usages) (byModule[moduleOf(u.key)] ??= []).push(u);
                 const modules = Object.keys(byModule).sort((a, b) => a.localeCompare(b));
                 for (const module of modules) {
                     const imported = (byModule[module] ?? []).sort((a, b) =>
@@ -335,6 +332,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         schema: SpecializationTypeSchema | NestedTypeSchema,
         isFamilyType: ((ref: TypeIdentifier) => boolean) | undefined,
         imports: TsImports,
+        moduleType: TypeIdentifier,
     ): void {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
@@ -385,7 +383,10 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         }
 
         let extendsClause: string | undefined;
-        if (schema.base) extendsClause = `extends ${imports.use(schema.base)}`;
+        if (schema.base) {
+            const base = schema.base.url === moduleType.url ? tsResourceName(schema.base) : imports.use(schema.base);
+            extendsClause = `extends ${base}`;
+        }
 
         this.debugComment(schema.identifier);
         if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
@@ -417,15 +418,18 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
-                const tsType = resolveFieldTsType(
-                    imports,
-                    schema.identifier.name,
-                    tsName,
-                    field,
-                    undefined,
-                    fieldMap,
-                    isFamilyType,
-                );
+                // The module declares `moduleType` and its nested types: written by name, not imported.
+                const isDeclaredHere = isNestedIdentifier(field.type) || field.type.url === moduleType.url;
+                const tsType =
+                    resolveFieldTsType(
+                        imports,
+                        schema.identifier.name,
+                        tsName,
+                        field,
+                        undefined,
+                        fieldMap,
+                        isFamilyType,
+                    ) ?? (isDeclaredHere ? tsResourceName(field.type) : imports.use(field.type));
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
                 const nestedArgs = nestedArgsByField[tsName] ?? "";
@@ -436,7 +440,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                         this.addFieldExtension(
                             fieldName,
                             field.array ?? false,
-                            this.elementType(tsIndex, schema, imports),
+                            this.elementType(tsIndex, schema, imports, moduleType),
                         );
                     }
                 }
@@ -444,16 +448,17 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    /** The `Element` type for `_field` primitive extensions, as named in the module being written. */
+    /** The `Element` type for `_field` primitive extensions; not imported into `Element`'s own module. */
     private elementType(
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema | NestedTypeSchema,
         imports: TsImports,
+        moduleType: TypeIdentifier,
     ): string {
         const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
         const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
         if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
-        return imports.use(element.identifier);
+        return element.identifier.url === moduleType.url ? "Element" : imports.use(element.identifier);
     }
 
     withPrimitiveTypeExtension(schema: TypeSchema | NestedTypeSchema): boolean {
@@ -484,7 +489,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     ): void {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {
-            this.generateType(tsIndex, subtype, isFamilyType, imports);
+            this.generateType(tsIndex, subtype, isFamilyType, imports, schema.identifier);
             this.line();
         }
     }
@@ -501,10 +506,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const imports = this.importSection(
-                    "../",
-                    (id) => isNestedIdentifier(id) || id.url === schema.identifier.url,
-                );
+                const imports = this.importSection("../");
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema, isFamilyType, imports);
                 this.comment(
@@ -512,7 +514,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema, isFamilyType, imports);
+                this.generateType(tsIndex, schema, isFamilyType, imports, schema.identifier);
                 this.generateResourceTypePredicate(schema);
             });
         } else {

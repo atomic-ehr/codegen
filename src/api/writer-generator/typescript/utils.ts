@@ -50,7 +50,6 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
-/** What a generated module imports: a FHIR type, or another module's export (a value unless `typeOnly`). */
 export type TsImport = TypeIdentifier | { module: string; name: string; typeOnly?: boolean };
 export type TsImports = SectionHandle<never, TsImport>;
 export const isFhirTypeImport = (key: TsImport): key is TypeIdentifier => !("module" in key);
@@ -81,6 +80,7 @@ const rewriteFieldTypeDefs: Record<
     CodeableConcept: { coding: (field, imports) => `${imports.use(field.type)}<T>` },
 };
 
+/** The field's TS type, or `undefined` when it is a plain reference to `field.type`: the caller names that type. */
 export const resolveFieldTsType = (
     imports: TsImports,
     schemaName: string,
@@ -89,7 +89,7 @@ export const resolveFieldTsType = (
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     genericFieldMap?: Record<string, string>,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
-): string => {
+): string | undefined => {
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
@@ -122,7 +122,7 @@ export const resolveFieldTsType = (
         return `${imports.use(field.type)}<${references}>`;
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
-    return imports.use(field.type);
+    return undefined;
 };
 
 export const fieldTsType = (
@@ -131,7 +131,8 @@ export const fieldTsType = (
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): string =>
-    resolveFieldTsType(imports, "", "", field, resolveRef, undefined, isFamilyType) + (field.array ? "[]" : "");
+    (resolveFieldTsType(imports, "", "", field, resolveRef, undefined, isFamilyType) ?? imports.use(field.type)) +
+    (field.array ? "[]" : "");
 
 export const tsTypeFromIdentifier = (imports: TsImports, id: TypeIdentifier): string => {
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
