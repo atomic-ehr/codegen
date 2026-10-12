@@ -1,9 +1,7 @@
-import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
+import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
-    type CanonicalUrl,
     isChoiceDeclarationField,
     isChoiceInstanceField,
-    isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isProfileIdentifier,
@@ -21,7 +19,6 @@ import {
     tsExtensionFlatTypeName,
     tsExtensionVFlatTypeName,
     tsFieldName,
-    tsNameFromCanonical,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -31,22 +28,21 @@ import {
 } from "./name";
 import {
     collectSubExtensionSlices,
-    collectTypesFromExtensions,
-    collectTypesFromFlatInput,
     extensionExtractedTypes,
+    extensionTypeRef,
     generateExtensionMethods,
     resolveExtensionProfile,
+    subExtensionTsType,
 } from "./profile-extensions";
 import {
     collectRequiredSliceNames,
     collectSliceDefs,
-    collectTypesFromSlices,
     generateSliceGetters,
     generateSliceSetters,
     type SliceDef,
 } from "./profile-slices";
 import { generateValidateMethod } from "./profile-validation";
-import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
+import { fieldTsType, type ProfileImports, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
@@ -66,6 +62,7 @@ type ProfileFactoryInfo = {
 const choiceClearMethodName = (choiceOf: string): string => `clear${uppercaseFirstLetter(tsCamelCase(choiceOf))}`;
 
 const collectChoiceAccessors = (
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
     promotedChoices: Set<string>,
 ): Pick<ProfileFactoryInfo, "accessors" | "choiceClearMethods"> => {
@@ -85,7 +82,7 @@ const collectChoiceAccessors = (
         if (field.excluded) continue;
         if (!isChoiceInstanceField(field)) continue;
         if (promotedChoices.has(name)) continue;
-        const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+        const tsType = tsTypeFromIdentifier(imports.types, field.type) + (field.array ? "[]" : "");
         // value[x] variants are mutually exclusive — a single-variant group has
         // nothing to clear, so only multi-variant groups get a clear helper.
         const hasSiblings = (variantsByChoice[field.choiceOf]?.length ?? 0) > 1;
@@ -105,6 +102,7 @@ const collectChoiceAccessors = (
 
 /** Try to promote a required single-choice declaration to a direct param */
 const tryPromoteChoice = (
+    imports: ProfileImports,
     field: SnapshotProfileTypeSchema["fields"][string],
     fields: SnapshotProfileTypeSchema["fields"],
     params: ProfileFactoryInfo["params"],
@@ -117,13 +115,15 @@ const tryPromoteChoice = (
     if (!choiceName) return;
     const choiceField = fields[choiceName];
     if (!choiceField || !isChoiceInstanceField(choiceField)) return;
-    const tsType = fieldTsType(choiceField, resolveRef, isFamilyType);
+    const tsType = fieldTsType(imports.types, choiceField, resolveRef, isFamilyType);
     params.push({ name: choiceName, tsType, typeId: choiceField.type });
     promotedChoices.add(choiceName);
 };
 
+/** Field types in the result are written with `imports`: use them only in the module that owns it. */
 export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
 ): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
@@ -145,7 +145,7 @@ export const collectProfileFactoryInfo = (
         if (isChoiceInstanceField(field)) continue;
 
         if (isChoiceDeclarationField(field)) {
-            tryPromoteChoice(field, fields, params, promotedChoices, resolveRef, isFamilyType);
+            tryPromoteChoice(imports, field, fields, params, promotedChoices, resolveRef, isFamilyType);
             continue;
         }
 
@@ -159,7 +159,7 @@ export const collectProfileFactoryInfo = (
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             fixedFields.add(name);
             if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = fieldTsType(field, resolveRef, isFamilyType);
+                const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
                 autoAccessors.push({ name, tsType, typeId: field.type });
             }
             continue;
@@ -169,7 +169,7 @@ export const collectProfileFactoryInfo = (
             const sliceNames = collectRequiredSliceNames(field, snapshot.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
-                    const tsType = fieldTsType(field, resolveRef, isFamilyType);
+                    const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
                     sliceAutoFields.push({
                         name,
                         tsType,
@@ -183,13 +183,14 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.required) {
-            const tsType = fieldTsType(field, resolveRef, isFamilyType);
+            const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
             params.push({ name, tsType, typeId: field.type });
         }
     }
 
     collectBaseRequiredParams(
         tsIndex,
+        imports,
         snapshot,
         resolveRef,
         params,
@@ -202,7 +203,11 @@ export const collectProfileFactoryInfo = (
         isFamilyType,
     );
 
-    const { accessors: choiceAccessors, choiceClearMethods } = collectChoiceAccessors(snapshot, promotedChoices);
+    const { accessors: choiceAccessors, choiceClearMethods } = collectChoiceAccessors(
+        imports,
+        snapshot,
+        promotedChoices,
+    );
     const accessors = [...autoAccessors, ...choiceAccessors];
     return { autoFields, sliceAutoFields, params, accessors, choiceClearMethods, fixedFields };
 };
@@ -210,6 +215,7 @@ export const collectProfileFactoryInfo = (
 /** Include base-type required fields not already covered by profile constraints */
 const collectBaseRequiredParams = (
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     params: ProfileFactoryInfo["params"],
@@ -225,7 +231,7 @@ const collectBaseRequiredParams = (
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) continue;
         if (isNotChoiceDeclarationField(field) && field.type) {
-            const tsType = fieldTsType(field, resolveRef, isFamilyType);
+            const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
             params.push({ name, tsType, typeId: field.type });
         }
     }
@@ -253,146 +259,6 @@ export const generateProfileIndexFile = (
     });
 };
 
-const generateProfileHelpersImport = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-    sliceDefs: SliceDef[],
-    factoryInfo: ProfileFactoryInfo,
-) => {
-    const extensions = snapshot.extensions ?? [];
-    const hasMeta = tsIndex.isWithMetaField(snapshot);
-    const canonicalUrl = snapshot.identifier.url;
-
-    const imports: string[] = [];
-    if (snapshot.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(snapshot).length > 0)
-        imports.push("isRawExtensionInput");
-    if (canonicalUrl && hasMeta) imports.push("ensureProfile");
-    if (factoryInfo.autoFields.some((f) => f.name !== "resourceType")) imports.push("applyFixedValue");
-    if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
-        imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
-    const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
-    if (hasUnboundedSlice) imports.push("setArraySliceAll", "getArraySliceAll");
-    if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
-    if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
-    if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
-    if (extensions.some((ext) => ext.url)) {
-        imports.push("isExtension", "getExtensionValue", "pushExtension");
-        if (extensions.some((ext) => ext.url && ext.max === "1")) imports.push("upsertExtension");
-    }
-    // validate() emits calls when the profile has its own fields OR when it
-    // inherits base-required fields it does not re-state (those produce
-    // validateRequired() calls with no entry in `fields`). Without the second
-    // clause, a profile whose only validation is an inherited required field
-    // (e.g. an Extension profile relying on the base Extension.url) would emit
-    // validateRequired() without importing it (TS2304).
-    if (Object.keys(snapshot.fields).length > 0 || (snapshot.inheritedRequiredFields?.length ?? 0) > 0)
-        imports.push(
-            "validateRequired",
-            "validateExcluded",
-            "validateFixedValue",
-            "validateSliceCardinality",
-            "validateSliceFields",
-            "validateEnum",
-            "validateReference",
-            "validateChoiceRequired",
-            "validateChoiceProhibited",
-            "validateMustSupport",
-        );
-    const hasPatternConstraint = Object.values(snapshot.fields).some(
-        (field) => "valueConstraint" in field && field.valueConstraint?.validateOnly === true,
-    );
-    if (hasPatternConstraint) imports.push("validatePatternValue");
-    if (imports.length > 0) {
-        w.tsImport("../../profile-helpers", ...imports);
-        w.line();
-    }
-};
-
-export const generateProfileImports = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-) => {
-    const terminologyImports = w.enumTerminologyLinks(tsIndex, snapshot).imports;
-    const usedTypes = new Map<string, { importPath: string; tsName: string }>();
-
-    const getModulePath = (typeId: TypeIdentifier): string => {
-        if (isNestedIdentifier(typeId)) {
-            const path = tsNameFromCanonical(typeId.url, true);
-            if (path) return `../../${w.packageDir(typeId)}/${pascalCase(path)}`;
-        }
-        return `../../${w.modulePath(typeId)}`;
-    };
-
-    const addType = (typeId: TypeIdentifier) => {
-        if (typeId.kind === "primitive-type") return;
-        const tsName = tsResourceName(typeId);
-        if (!usedTypes.has(tsName)) {
-            usedTypes.set(tsName, { importPath: getModulePath(typeId), tsName });
-        }
-    };
-
-    addType(snapshot.base);
-    collectTypesFromSlices(tsIndex, snapshot, addType);
-    const needsExtensionType = collectTypesFromExtensions(tsIndex, snapshot, addType);
-    collectTypesFromFlatInput(tsIndex, snapshot, addType);
-
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
-    for (const param of factoryInfo.params) addType(param.typeId);
-    for (const f of factoryInfo.sliceAutoFields) addType(f.typeId);
-    for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
-
-    if (needsExtensionType) {
-        const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
-        const extensionSchema = tsIndex.resolveByUrl(snapshot.identifier.package, extensionUrl);
-        if (extensionSchema) addType(extensionSchema.identifier);
-    }
-
-    const grouped = new Map<string, string[]>();
-    for (const { importPath, tsName } of usedTypes.values()) {
-        let names = grouped.get(importPath);
-        if (!names) {
-            names = [];
-            grouped.set(importPath, names);
-        }
-        names.push(tsName);
-    }
-    const sortedModules = [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
-    for (const [importPath, names] of sortedModules) {
-        w.tsImport(importPath, ...names.sort(), { typeOnly: true });
-    }
-    if (sortedModules.length > 0) w.line();
-
-    // Value imports into emitted terminology modules: enum validations whose
-    // code lists are fully explained by emitted systems reference them instead
-    // of inlining literals.
-    const sortedTerminology = [...terminologyImports.entries()].sort(([left], [right]) => left.localeCompare(right));
-    for (const [moduleDir, symbols] of sortedTerminology) {
-        w.tsImport(`../../${moduleDir}/terminology`, ...[...symbols].sort());
-    }
-    if (sortedTerminology.length > 0) w.line();
-
-    // Import extension profile classes for delegation in setters
-    const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
-    for (const ext of snapshot.extensions ?? []) {
-        if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        if (!info) continue;
-        if (!extProfileImports.has(info.className)) {
-            const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;
-            extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
-        }
-    }
-    for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
-        a.localeCompare(b),
-    )) {
-        const imports = [className, ...(hasFlatInput ? [`type ${className}Flat`] : [])];
-        w.tsImport(modulePath, ...imports);
-    }
-    if (extProfileImports.size > 0) w.line();
-};
-
 const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
     for (const sliceDef of sliceDefs) {
         const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
@@ -414,11 +280,12 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
 const generateFactoryMethods = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
     factoryInfo: ProfileFactoryInfo,
 ) => {
     const profileClassName = tsProfileClassName(snapshot);
-    const tsBaseResourceName = tsTypeFromIdentifier(snapshot.base);
+    const tsBaseResourceName = tsTypeFromIdentifier(imports.types, snapshot.base);
     const hasMeta = tsIndex.isWithMetaField(snapshot);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
@@ -462,7 +329,7 @@ const generateFactoryMethods = (
     }
     w.curlyBlock(["static", "apply", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
-            w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);
+            w.lineSM(`${imports.helpers.use("ensureProfile")}(resource, ${profileClassName}.canonicalUrl)`);
         }
         if (snapshot.base.name === "Extension" && snapshot.identifier.url) {
             w.lineSM(`resource.url = ${profileClassName}.canonicalUrl`);
@@ -470,12 +337,12 @@ const generateFactoryMethods = (
         const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
         if (applyAutoFields.length > 0) {
             for (const f of applyAutoFields) {
-                w.lineSM(`applyFixedValue(resource, ${JSON.stringify(f.name)}, ${f.value})`);
+                w.lineSM(`${imports.helpers.use("applyFixedValue")}(resource, ${JSON.stringify(f.name)}, ${f.value})`);
             }
         }
         for (const f of factoryInfo.sliceAutoFields) {
             const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
-            w.line(`resource.${f.name} = ensureSliceDefaults(`);
+            w.line(`resource.${f.name} = ${imports.helpers.use("ensureSliceDefaults")}(`);
             w.indentBlock(() => {
                 w.line(`[...(resource.${f.name} ?? [])],`);
                 for (const ref of matchRefs) {
@@ -496,33 +363,39 @@ const generateFactoryMethods = (
     if (hasInputHelper) {
         const rawInputTypeName = `${profileClassName}Raw`;
         const inputTypeName = `${profileClassName}Flat`;
+        const extensionType = extensionTypeRef(tsIndex, imports, snapshot);
 
         // Private helper: converts Input to Extension[], passes through Raw.extension
         w.curlyBlock(
-            ["private static", "resolveInput", `(args: ${rawInputTypeName} | ${inputTypeName})`, ": Extension[]"],
+            [
+                "private static",
+                "resolveInput",
+                `(args: ${rawInputTypeName} | ${inputTypeName})`,
+                `: ${extensionType}[]`,
+            ],
             () => {
                 w.ifElseChain(
                     [
                         {
-                            cond: `isRawExtensionInput<${rawInputTypeName}>(args)`,
+                            cond: `${imports.helpers.use("isRawExtensionInput")}<${rawInputTypeName}>(args)`,
                             body: () => w.lineSM("return args.extension ?? []"),
                         },
                     ],
                     () => {
-                        w.lineSM("const result: Extension[] = []");
+                        w.lineSM(`const result: ${extensionType}[] = []`);
                         for (const sub of subSlicesForInput) {
                             if (sub.isArray) {
                                 w.curlyBlock(["if", `(args.${sub.name})`], () => {
                                     w.curlyBlock(["for", `(const item of args.${sub.name})`], () => {
                                         w.lineSM(
-                                            `result.push({ url: "${sub.url}", ${sub.valueField}: item } as Extension)`,
+                                            `result.push({ url: "${sub.url}", ${sub.valueField}: item } as ${extensionType})`,
                                         );
                                     });
                                 });
                             } else {
                                 w.curlyBlock(["if", `(args.${sub.name} !== undefined)`], () => {
                                     w.lineSM(
-                                        `result.push({ url: "${sub.url}", ${sub.valueField}: args.${sub.name} } as Extension)`,
+                                        `result.push({ url: "${sub.url}", ${sub.valueField}: args.${sub.name} } as ${extensionType})`,
                                     );
                                 });
                             }
@@ -546,7 +419,7 @@ const generateFactoryMethods = (
                 const matchRefs = field.sliceNames.map(
                     (sliceName) => `${profileClassName}.${tsSliceStaticName(sliceName)}SliceMatch`,
                 );
-                w.line(`const ${field.name}WithDefaults = ensureSliceDefaults(`);
+                w.line(`const ${field.name}WithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${field.name} ?? [])],`);
                     for (const ref of matchRefs) {
@@ -560,7 +433,7 @@ const generateFactoryMethods = (
                 const matchRefs = extSliceField.sliceNames.map(
                     (s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`,
                 );
-                w.line("const extensionWithDefaults = ensureSliceDefaults(");
+                w.line(`const extensionWithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line("resolvedExtensions,");
                     for (const ref of matchRefs) {
@@ -606,7 +479,7 @@ const generateFactoryMethods = (
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
             for (const f of factoryInfo.sliceAutoFields) {
                 const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
-                w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
+                w.line(`const ${f.name}WithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${f.name} ?? [])],`);
                     for (const ref of matchRefs) {
@@ -698,6 +571,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
 const generateInlineExtensionInputTypes = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
     const tsProfileName = tsResourceName(snapshot.identifier);
@@ -710,7 +584,7 @@ const generateInlineExtensionInputTypes = (
         const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
-                const tsType = sub.valueFieldType ? tsTypeFromIdentifier(sub.valueFieldType) : "unknown";
+                const tsType = sub.valueFieldType ? tsTypeFromIdentifier(imports.types, sub.valueFieldType) : "unknown";
                 const isArray = sub.max === "*";
                 const isRequired = sub.min !== undefined && sub.min > 0;
                 w.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
@@ -726,6 +600,7 @@ const generateInlineExtensionInputTypes = (
 const generateExtensionExtractedTypes = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
     const tsProfileName = tsResourceName(snapshot.identifier);
@@ -733,7 +608,7 @@ const generateExtensionExtractedTypes = (
     for (const ext of complexExtensions) {
         if (!ext.url) continue;
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const { flat, vFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
+        const { flat, vFlat } = extensionExtractedTypes(imports, tsProfileName, ext, extProfileInfo);
         // Name from the collision-resolved base name, the same source the getters use: two
         // entries for one extension at two paths share `ext.name` and would declare twice.
         const baseName = ext.nameCandidates.recommended;
@@ -760,7 +635,12 @@ const valueToTypeLiteral = (value: unknown): string => {
     return "unknown";
 };
 
-const generateSliceInputTypes = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, sliceDefs: SliceDef[]) => {
+const generateSliceInputTypes = (
+    w: TypeScript,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+) => {
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
@@ -786,7 +666,7 @@ const generateSliceInputTypes = (w: TypeScript, snapshot: SnapshotProfileTypeSch
             inputTypeExpr = `${inputTypeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
         }
         if (sliceDef.constrainedChoice) {
-            inputTypeExpr = `${inputTypeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
+            inputTypeExpr = `${inputTypeExpr} & ${tsTypeFromIdentifier(imports.types, sliceDef.constrainedChoice.variantType)}`;
         }
         // Input type — setter parameter, no discriminator fields
         w.lineSM(`export type ${inputTypeName} = ${inputTypeExpr}`);
@@ -813,7 +693,13 @@ const generateSliceInputTypes = (w: TypeScript, snapshot: SnapshotProfileTypeSch
     }
 };
 
-const generateRawType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+const generateRawType = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    factoryInfo: ProfileFactoryInfo,
+) => {
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const subSlices = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     if (!hasParams && subSlices.length === 0) return;
@@ -830,13 +716,19 @@ const generateRawType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, fac
             factoryInfo.params.some((p) => p.name === "extension") ||
             factoryInfo.sliceAutoFields.some((f) => f.name === "extension");
         if (subSlices.length > 0 && !extensionCovered) {
-            w.lineSM("extension?: Extension[]");
+            w.lineSM(`extension?: ${extensionTypeRef(tsIndex, imports, snapshot)}[]`);
         }
     });
     w.line();
 };
 
-const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+const generateFlatInputType = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    factoryInfo: ProfileFactoryInfo,
+) => {
     const subSlices = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     if (subSlices.length === 0) return;
 
@@ -851,7 +743,7 @@ const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchem
         ...subSlices.map((sub) => ({
             name: sub.name,
             optional: !sub.isRequired,
-            tsType: `${sub.tsType}${sub.isArray ? "[]" : ""}`,
+            tsType: `${subExtensionTsType(tsIndex, imports, snapshot, sub)}${sub.isArray ? "[]" : ""}`,
         })),
     ];
     const seen = new Set<string>();
@@ -869,20 +761,24 @@ const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchem
     w.line();
 };
 
-export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema) => {
-    const tsBaseResourceName = tsTypeFromIdentifier(snapshot.base);
+/** `imports` is the profile module's import section. */
+export const generateProfileClass = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+    imports: ProfileImports,
+) => {
+    const tsBaseResourceName = tsTypeFromIdentifier(imports.types, snapshot.base);
     const profileClassName = tsProfileClassName(snapshot);
-    const sliceDefs = collectSliceDefs(tsIndex, snapshot);
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
+    const sliceDefs = collectSliceDefs(tsIndex, imports, snapshot);
+    const factoryInfo = collectProfileFactoryInfo(tsIndex, imports, snapshot);
 
-    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
+    generateInlineExtensionInputTypes(w, tsIndex, imports, snapshot);
+    generateExtensionExtractedTypes(w, tsIndex, imports, snapshot);
+    generateSliceInputTypes(w, imports, snapshot, sliceDefs);
 
-    generateInlineExtensionInputTypes(w, tsIndex, snapshot);
-    generateExtensionExtractedTypes(w, tsIndex, snapshot);
-    generateSliceInputTypes(w, snapshot, sliceDefs);
-
-    generateRawType(w, snapshot, factoryInfo);
-    generateFlatInputType(w, snapshot, factoryInfo);
+    generateRawType(w, tsIndex, imports, snapshot, factoryInfo);
+    generateFlatInputType(w, tsIndex, imports, snapshot, factoryInfo);
 
     const canonicalUrl = snapshot.identifier.url;
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
@@ -901,18 +797,18 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
         generateStaticSliceFields(w, sliceDefs);
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
-        generateFactoryMethods(w, tsIndex, snapshot, factoryInfo);
+        generateFactoryMethods(w, tsIndex, imports, snapshot, factoryInfo);
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
-        generateExtensionMethods(w, tsIndex, snapshot);
+        generateExtensionMethods(w, tsIndex, imports, snapshot);
 
         w.line("// Slices");
-        generateSliceSetters(w, sliceDefs, snapshot);
-        generateSliceGetters(w, sliceDefs, snapshot);
+        generateSliceSetters(w, imports, sliceDefs, snapshot);
+        generateSliceGetters(w, imports, sliceDefs, snapshot);
 
         w.line("// Validation");
-        generateValidateMethod(w, tsIndex, snapshot);
+        generateValidateMethod(w, tsIndex, imports, snapshot);
     });
     w.line();
 };

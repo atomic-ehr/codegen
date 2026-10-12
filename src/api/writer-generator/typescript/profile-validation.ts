@@ -9,6 +9,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { tsProfileClassName } from "./name";
+import type { ProfileImports } from "./utils";
 import type { TypeScript } from "./writer";
 
 /**
@@ -47,6 +48,7 @@ const collectSliceRequirements = (
 };
 
 export const collectRegularFieldValidation = (
+    imports: ProfileImports,
     errors: string[],
     warnings: string[],
     name: string,
@@ -57,18 +59,21 @@ export const collectRegularFieldValidation = (
     enumExprs?: ReadonlyMap<string, string>,
 ) => {
     if (field.excluded) {
-        errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
+        errors.push(`...${imports.helpers.use("validateExcluded")}(res, profileName, ${JSON.stringify(name)})`);
         return;
     }
 
-    if (field.required) errors.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
+    if (field.required)
+        errors.push(`...${imports.helpers.use("validateRequired")}(res, profileName, ${JSON.stringify(name)})`);
 
     if (field.valueConstraint) {
         const constrainedValueExpr =
             canonicalUrlExpr && name === "url" && field.valueConstraint.value === canonicalUrlExpr.url
                 ? canonicalUrlExpr.expr
                 : JSON.stringify(field.valueConstraint.value);
-        const fn = field.valueConstraint.validateOnly ? "validatePatternValue" : "validateFixedValue";
+        const fn = imports.helpers.use(
+            field.valueConstraint.validateOnly ? "validatePatternValue" : "validateFixedValue",
+        );
         // A constraint on a repeating element applies to every repetition, so
         // the helper needs the declared arity: the instance shape alone cannot
         // tell an array-valued element from a wrong value on a single one.
@@ -79,16 +84,20 @@ export const collectRegularFieldValidation = (
     if (field.enum) {
         const target = field.enum.isOpen ? warnings : errors;
         const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
-        target.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${valuesExpr})`);
+        target.push(
+            `...${imports.helpers.use("validateEnum")}(res, profileName, ${JSON.stringify(name)}, ${valuesExpr})`,
+        );
     }
 
     if (field.mustSupport && !field.required)
-        warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
+        warnings.push(`...${imports.helpers.use("validateMustSupport")}(res, profileName, ${JSON.stringify(name)})`);
 
     if (field.reference) {
         const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
         if (allowed.length > 0)
-            errors.push(`...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`);
+            errors.push(
+                `...${imports.helpers.use("validateReference")}(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
+            );
     }
 
     if (fieldSlicing?.slices) {
@@ -99,7 +108,7 @@ export const collectRegularFieldValidation = (
                 const min = slice.min ?? 0;
                 const max = slice.max ?? 0;
                 errors.push(
-                    `...validateSliceCardinality(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
+                    `...${imports.helpers.use("validateSliceCardinality")}(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
                 );
             }
             const { requiredFields, choiceGroups } = collectSliceRequirements(slice, match, field, tsIndex);
@@ -111,7 +120,7 @@ export const collectRegularFieldValidation = (
                     JSON.stringify(requiredFields),
                 ];
                 if (choiceGroups.length > 0) args.push(JSON.stringify(choiceGroups));
-                errors.push(`...validateSliceFields(res, profileName, ${args.join(", ")})`);
+                errors.push(`...${imports.helpers.use("validateSliceFields")}(res, profileName, ${args.join(", ")})`);
             }
         }
     }
@@ -120,6 +129,7 @@ export const collectRegularFieldValidation = (
 export const generateValidateMethod = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
+    imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
     const fields = snapshot.fields;
@@ -128,7 +138,7 @@ export const generateValidateMethod = (
     const canonicalUrlExpr = canonicalUrl
         ? { url: canonicalUrl, expr: `${tsProfileClassName(snapshot)}.canonicalUrl` }
         : undefined;
-    const enumLinks = w.enumTerminologyLinks(tsIndex, snapshot);
+    const enumExprs = w.enumTerminologyLinks(tsIndex, imports, snapshot);
     w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
         w.line(`const profileName = "${profileName}"`);
         w.line("const res = this.resource");
@@ -140,13 +150,18 @@ export const generateValidateMethod = (
 
             if (isChoiceDeclarationField(field)) {
                 if (field.required)
-                    errors.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
+                    errors.push(
+                        `...${imports.helpers.use("validateChoiceRequired")}(res, profileName, ${JSON.stringify(field.choices)})`,
+                    );
                 if (field.prohibited?.length)
-                    errors.push(`...validateChoiceProhibited(res, profileName, ${JSON.stringify(field.prohibited)})`);
+                    errors.push(
+                        `...${imports.helpers.use("validateChoiceProhibited")}(res, profileName, ${JSON.stringify(field.prohibited)})`,
+                    );
                 continue;
             }
 
             collectRegularFieldValidation(
+                imports,
                 errors,
                 warnings,
                 name,
@@ -154,7 +169,7 @@ export const generateValidateMethod = (
                 canonicalUrlExpr,
                 tsIndex,
                 snapshot.slicing?.[name],
-                enumLinks.exprs,
+                enumExprs,
             );
         }
 
@@ -163,7 +178,9 @@ export const generateValidateMethod = (
         // live outside `fields` to avoid pulling unrelated base metadata into the
         // profile's getter/setter surface.
         for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
-            errors.push(`...validateRequired(res, profileName, ${JSON.stringify(inheritedName)})`);
+            errors.push(
+                `...${imports.helpers.use("validateRequired")}(res, profileName, ${JSON.stringify(inheritedName)})`,
+            );
         }
 
         const emitArray = (label: string, exprs: string[]) => {

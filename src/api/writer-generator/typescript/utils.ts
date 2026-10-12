@@ -2,12 +2,10 @@ import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
-    isNestedIdentifier,
     isPrimitiveIdentifier,
     type RegularField,
     type TypeIdentifier,
 } from "@root/typeschema/types";
-import { tsResourceName } from "./name";
 
 const primitiveType2tsType: Record<string, string> = {
     boolean: "boolean",
@@ -55,10 +53,14 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
 /** A module's FHIR type imports: `use(id)` names a type and imports it. */
 export type TypeImports = SectionHandle<never, TypeIdentifier>;
 
-/** Writes types by name without importing them; profile modules still collect their imports up front. */
-const plainTypeNames: TypeImports = {
-    def: () => undefined,
-    use: (id) => (isNestedIdentifier(id) ? tsResourceName(id) : id.name),
+/** An export of another module, imported by name: a value unless `typeOnly`. */
+export type ModuleImport = { module: string; name: string; typeOnly?: boolean };
+
+/** A profile module's import sections: FHIR types, `profile-helpers` runtime helpers, other modules' exports. */
+export type ProfileImports = {
+    types: TypeImports;
+    helpers: SectionHandle<never, string>;
+    modules: SectionHandle<never, ModuleImport>;
 };
 
 const rewriteFieldTypeDefs: Record<
@@ -129,18 +131,18 @@ export const resolveFieldTsType = (
 };
 
 export const fieldTsType = (
+    imports: TypeImports,
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): string =>
-    (resolveFieldTsType(plainTypeNames, "", "", field, resolveRef, undefined, isFamilyType) ??
-        plainTypeNames.use(field.type)) + (field.array ? "[]" : "");
+    (resolveFieldTsType(imports, "", "", field, resolveRef, undefined, isFamilyType) ?? imports.use(field.type)) +
+    (field.array ? "[]" : "");
 
-export const tsTypeFromIdentifier = (id: TypeIdentifier): string => {
-    if (isNestedIdentifier(id)) return tsResourceName(id);
+export const tsTypeFromIdentifier = (imports: TypeImports, id: TypeIdentifier): string => {
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set
     const primitiveType = primitiveType2tsType[id.name];
     if (primitiveType !== undefined) return primitiveType;
-    return id.name;
+    return imports.use(id);
 };
