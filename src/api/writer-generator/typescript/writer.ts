@@ -1,4 +1,5 @@
-import { SectionWriter, type Usage } from "@root/api/writer-generator/section-writer";
+import * as Path from "node:path";
+import { SectionWriter } from "@root/api/writer-generator/section-writer";
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import type { WriterOptions } from "@root/api/writer-generator/writer";
 import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
@@ -276,36 +277,50 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     }
 
     /** Places the module's imports here: one `import` per module, for exactly the names the module writes.
-     *  FHIR types are imported from `prefix` + their module. */
-    importSection(prefix: string): TsImports {
-        const moduleOf = (key: TsImport): string => {
-            if (!isFhirTypeImport(key)) return key.module;
+     *  FHIR types are imported from their module, relative to the output root; other imports name their module. */
+    importSection(): TsImports {
+        if (!this.currentDir) throw new Error("Should be in a directory (`cd`)");
+        const depth = Path.relative(this.opts.outputDir, this.currentDir).split(Path.sep).filter(Boolean).length;
+        const prefix = "../".repeat(depth);
+        const typeModule = (id: TypeIdentifier): string => {
             // A nested type is exported by its parent's module.
-            const parent = isNestedIdentifier(key) ? tsNameFromCanonical(key.url, true) : undefined;
-            return parent
-                ? `${prefix}${this.packageDir(key)}/${pascalCase(parent)}`
-                : `${prefix}${this.modulePath(key)}`;
+            const parent = isNestedIdentifier(id) ? tsNameFromCanonical(id.url, true) : undefined;
+            return parent ? `${prefix}${this.packageDir(id)}/${pascalCase(parent)}` : `${prefix}${this.modulePath(id)}`;
         };
-        const nameOf = (key: TsImport): string => (isFhirTypeImport(key) ? tsResourceName(key) : key.name);
-        const isType = (key: TsImport): boolean => isFhirTypeImport(key) || key.typeOnly === true;
+        const imported = (name: string, local: string) => (local === name ? name : `${name} as ${local}`);
+        const byModule = <T>(items: T[], moduleOf: (item: T) => string): [string, T[]][] => {
+            const grouped: Record<string, T[]> = {};
+            for (const item of items) (grouped[moduleOf(item)] ??= []).push(item);
+            return Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b));
+        };
         return this.section<never, TsImport>({
-            name: nameOf,
+            name: (key) => (isFhirTypeImport(key) ? tsResourceName(key) : key.name),
             render: (_definitions, usages) => {
-                const byModule: Record<string, Usage<TsImport>[]> = {};
-                for (const u of usages) (byModule[moduleOf(u.key)] ??= []).push(u);
-                const modules = Object.keys(byModule).sort((a, b) => a.localeCompare(b));
-                for (const module of modules) {
-                    const imported = (byModule[module] ?? []).sort((a, b) =>
-                        nameOf(a.key).localeCompare(nameOf(b.key)),
-                    );
-                    const typeOnly = imported.every((u) => isType(u.key));
-                    const entities = imported.map(({ key, local }) => {
-                        const name = local === nameOf(key) ? local : `${nameOf(key)} as ${local}`;
-                        return typeOnly || !isType(key) ? name : `type ${name}`;
-                    });
-                    this.tsImport(module, ...entities, { typeOnly });
+                const types: { id: TypeIdentifier; local: string }[] = [];
+                const others: { key: Exclude<TsImport, TypeIdentifier>; local: string }[] = [];
+                for (const { key, local } of usages) {
+                    if (isFhirTypeImport(key)) types.push({ id: key, local });
+                    else others.push({ key, local });
                 }
-                if (modules.length > 0) this.line();
+
+                for (const [module, items] of byModule(types, ({ id }) => typeModule(id))) {
+                    const names = items
+                        .map(({ id, local }) => imported(tsResourceName(id), local))
+                        .sort((a, b) => a.localeCompare(b));
+                    this.tsImport(module, ...names, { typeOnly: true });
+                }
+
+                for (const [module, items] of byModule(others, ({ key }) => key.module)) {
+                    items.sort((a, b) => a.key.name.localeCompare(b.key.name));
+                    const typeOnly = items.every(({ key }) => key.typeOnly);
+                    const names = items.map(({ key, local }) => {
+                        const name = imported(key.name, local);
+                        return key.typeOnly && !typeOnly ? `type ${name}` : name;
+                    });
+                    this.tsImport(module, ...names, { typeOnly });
+                }
+
+                if (usages.length > 0) this.line();
             },
         });
     }
@@ -499,14 +514,14 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             this.cd("profiles", () => {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
-                    generateProfileClass(this, tsIndex, schema, this.importSection("../../"));
+                    generateProfileClass(this, tsIndex, schema, this.importSection());
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const imports = this.importSection("../");
+                const imports = this.importSection();
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema, isFamilyType, imports);
                 this.comment(
