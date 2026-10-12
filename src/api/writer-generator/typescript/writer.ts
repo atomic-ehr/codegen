@@ -15,12 +15,9 @@ import {
     type Field,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
-    isLogicalIdentifier,
     isLogicalTypeSchema,
-    isNestedIdentifier,
     isNestedTypeSchema,
     isPrimitiveIdentifier,
-    isResourceIdentifier,
     isResourceTypeSchema,
     isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
@@ -277,12 +274,14 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    /** Places a type module's imports here: one `import type` per type the module uses. */
-    typeModuleImports(): SectionHandle<never, TypeIdentifier> {
+    /** Places a type module's imports here: one `import type` per type the module uses, except its own. */
+    typeModuleImports(schema: SpecializationTypeSchema): SectionHandle<never, TypeIdentifier> {
         return this.section<never, TypeIdentifier>({
             name: tsResourceName,
             render: (_definitions, usages) => {
-                const sorted = [...usages].sort((a, b) => tsResourceName(a.key).localeCompare(tsResourceName(b.key)));
+                const sorted = usages
+                    .filter(({ key }) => key.url !== schema.identifier.url)
+                    .sort((a, b) => tsResourceName(a.key).localeCompare(tsResourceName(b.key)));
                 for (const { key, local } of sorted) {
                     const name = tsResourceName(key);
                     const imported = local === name ? name : `${name} as ${local}`;
@@ -482,22 +481,15 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const imports = this.typeModuleImports();
-                // Own and nested types are local; other complex types, resources and logical models are imported.
-                const typeName: TypeNamer = (id) => {
-                    if (isNestedIdentifier(id) || id.url === schema.identifier.url) return tsResourceName(id);
-                    if (isComplexTypeIdentifier(id) || isResourceIdentifier(id) || isLogicalIdentifier(id))
-                        return imports.use(id);
-                    return id.name;
-                };
+                const imports = this.typeModuleImports(schema);
                 this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(tsIndex, schema, isFamilyType, typeName);
+                this.generateNestedTypes(tsIndex, schema, isFamilyType, imports.use);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema, isFamilyType, typeName);
+                this.generateType(tsIndex, schema, isFamilyType, imports.use);
                 this.generateResourceTypePredicate(schema);
             });
         } else {

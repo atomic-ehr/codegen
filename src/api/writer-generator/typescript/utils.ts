@@ -53,7 +53,7 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
 
 /** Names a referenced type in the module being written; type modules pass one that also imports it. */
 export type TypeNamer = (id: TypeIdentifier) => string;
-const plainTypeName: TypeNamer = (id) => (isNestedIdentifier(id) ? tsResourceName(id) : id.name);
+const plainTypeName: TypeNamer = (id) => id.name;
 
 const rewriteFieldTypeDefs: Record<
     string,
@@ -118,6 +118,7 @@ export const resolveFieldTsType = (
         return `${typeName(field.type)}<${references}>`;
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
+    if (isNestedIdentifier(field.type)) return tsResourceName(field.type);
     return typeName(field.type);
 };
 
