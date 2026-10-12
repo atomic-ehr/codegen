@@ -4,7 +4,6 @@ import {
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
-    isResourceIdentifier,
     isTypeDiscriminated,
     type RegularField,
     type SnapshotProfileTypeSchema,
@@ -20,7 +19,7 @@ import {
     tsSliceFlatTypeName,
     tsSliceStaticName,
 } from "./name";
-import { profileHelper, type TsImports, tsGet, tsTypeFromIdentifier } from "./utils";
+import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 export const sliceAccessorBaseName = (
@@ -132,17 +131,12 @@ export type SliceDef = {
     max: number;
 };
 
-/** Types in the result are written with `imports`: use them only in the module that owns it. */
-export const collectSliceDefs = (
-    tsIndex: TypeSchemaIndex,
-    imports: TsImports,
-    snapshot: SnapshotProfileTypeSchema,
-): SliceDef[] => {
+export const collectSliceDefs = (tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] => {
     const reservedBaseNames = new Set<string>();
     return Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
-        const baseType = tsTypeFromIdentifier(imports, field.type);
+        const baseType = tsTypeFromIdentifier(field.type);
         const pkgName = snapshot.identifier.package;
         const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
         const isTypeDisc = isTypeDiscriminated(fieldSlicing);
@@ -157,13 +151,7 @@ export const collectSliceDefs = (
                 // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
                 const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
                 const resourceType = isTypeDisc ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
-                const resourceId = resourceType
-                    ? tsIndex.schemas.find(
-                          (s) => s.identifier.name === resourceType && isResourceIdentifier(s.identifier),
-                      )?.identifier
-                    : undefined;
-                const resourceTypeName = resourceId ? imports.use(resourceId) : resourceType;
-                const typedBaseType = resourceTypeName ? `${baseType}<${resourceTypeName}>` : baseType;
+                const typedBaseType = resourceType ? `${baseType}<${resourceType}>` : baseType;
                 const baseName = sliceAccessorBaseName(
                     slice.nameCandidates.candidates,
                     slice.nameCandidates.recommended,
@@ -189,18 +177,8 @@ export const collectSliceDefs = (
     });
 };
 
-export const generateSliceSetters = (
-    w: TypeScript,
-    imports: TsImports,
-    sliceDefs: SliceDef[],
-    snapshot: SnapshotProfileTypeSchema,
-) => {
+export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], snapshot: SnapshotProfileTypeSchema) => {
     const profileClassName = tsProfileClassName(snapshot);
-    const matchesValue = profileHelper(imports, "matchesValue");
-    const applySliceMatch = profileHelper(imports, "applySliceMatch");
-    const wrapSliceChoice = profileHelper(imports, "wrapSliceChoice");
-    const setArraySlice = profileHelper(imports, "setArraySlice");
-    const setArraySliceAll = profileHelper(imports, "setArraySliceAll");
     const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
         const baseName = sliceDef.baseName;
@@ -222,14 +200,14 @@ export const generateSliceSetters = (
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
-                        `const values = input.map(item => ${matchesValue}(item, match) ? item as ${baseType} : ${applySliceMatch}<${baseType}>(${wrapSliceChoice}<${baseType}>(item, ${JSON.stringify(cc.variant)}), match))`,
+                        `const values = input.map(item => matchesValue(item, match) ? item as ${baseType} : applySliceMatch<${baseType}>(wrapSliceChoice<${baseType}>(item, ${JSON.stringify(cc.variant)}), match))`,
                     );
                 } else {
                     w.line(
-                        `const values = input.map(item => ${matchesValue}(item, match) ? item as ${baseType} : ${applySliceMatch}<${baseType}>(item, match))`,
+                        `const values = input.map(item => matchesValue(item, match) ? item as ${baseType} : applySliceMatch<${baseType}>(item, match))`,
                     );
                 }
-                w.line(`${setArraySliceAll}(arr, match, values)`);
+                w.line("setArraySliceAll(arr, match, values)");
                 w.line("return this");
             });
         } else {
@@ -239,9 +217,9 @@ export const generateSliceSetters = (
             const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
             w.curlyBlock(["public", methodName, paramSignature], () => {
                 w.line(`const match = ${matchRef}`);
-                w.curlyBlock(["if", `(input && ${matchesValue}(input, match))`], () => {
+                w.curlyBlock(["if", "(input && matchesValue(input, match))"], () => {
                     if (sliceDef.array) {
-                        w.line(`${setArraySlice}(${fieldAccess} ??= [], match, input as ${baseType})`);
+                        w.line(`setArraySlice(${fieldAccess} ??= [], match, input as ${baseType})`);
                     } else {
                         w.line(`${fieldAccess} = input as ${baseType}`);
                     }
@@ -250,15 +228,13 @@ export const generateSliceSetters = (
                 const inputExpr = inputOptional ? "input ?? {}" : "input";
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
-                    w.line(
-                        `const wrapped = ${wrapSliceChoice}<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
-                    );
-                    w.line(`const value = ${applySliceMatch}<${baseType}>(wrapped, match)`);
+                    w.line(`const wrapped = wrapSliceChoice<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`);
+                    w.line(`const value = applySliceMatch<${baseType}>(wrapped, match)`);
                 } else {
-                    w.line(`const value = ${applySliceMatch}<${baseType}>(${inputExpr}, match)`);
+                    w.line(`const value = applySliceMatch<${baseType}>(${inputExpr}, match)`);
                 }
                 if (sliceDef.array) {
-                    w.line(`${setArraySlice}(${fieldAccess} ??= [], match, value)`);
+                    w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
                 } else {
                     w.line(`${fieldAccess} = value`);
                 }
@@ -269,17 +245,8 @@ export const generateSliceSetters = (
     }
 };
 
-export const generateSliceGetters = (
-    w: TypeScript,
-    imports: TsImports,
-    sliceDefs: SliceDef[],
-    snapshot: SnapshotProfileTypeSchema,
-) => {
+export const generateSliceGetters = (w: TypeScript, sliceDefs: SliceDef[], snapshot: SnapshotProfileTypeSchema) => {
     const profileClassName = tsProfileClassName(snapshot);
-    const matchesValue = profileHelper(imports, "matchesValue");
-    const getArraySlice = profileHelper(imports, "getArraySlice");
-    const getArraySliceAll = profileHelper(imports, "getArraySliceAll");
-    const unwrapSliceChoice = profileHelper(imports, "unwrapSliceChoice");
     const tsProfileName = tsResourceName(snapshot.identifier);
     const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
@@ -311,7 +278,7 @@ export const generateSliceGetters = (
                 ],
                 () => {
                     w.line(`const match = ${matchRef}`);
-                    w.line(`const items = ${getArraySliceAll}(${fieldAccess}, match)`);
+                    w.line(`const items = getArraySliceAll(${fieldAccess}, match)`);
                     w.line("if (items.length === 0) return undefined");
                     if (sliceDef.typeDiscriminator) {
                         w.line(`if (mode === 'raw') return items as ${baseType}[]`);
@@ -321,7 +288,7 @@ export const generateSliceGetters = (
                     if (sliceDef.constrainedChoice) {
                         const cc = sliceDef.constrainedChoice;
                         w.line(
-                            `return items.map(item => ${unwrapSliceChoice}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
+                            `return items.map(item => unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
                         );
                     } else {
                         w.line(`return items as unknown as ${flatTypeName}[]`);
@@ -347,11 +314,11 @@ export const generateSliceGetters = (
                 () => {
                     w.line(`const match = ${matchRef}`);
                     if (sliceDef.array) {
-                        w.line(`const item = ${getArraySlice}(${fieldAccess}, match)`);
+                        w.line(`const item = getArraySlice(${fieldAccess}, match)`);
                         w.line("if (!item) return undefined");
                     } else {
                         w.line(`const item = ${fieldAccess}`);
-                        w.line(`if (!item || !${matchesValue}(item, match)) return undefined`);
+                        w.line("if (!item || !matchesValue(item, match)) return undefined");
                     }
                     if (sliceDef.typeDiscriminator) {
                         w.line(`if (mode === 'raw') return item as ${baseType}`);
@@ -361,7 +328,7 @@ export const generateSliceGetters = (
                     if (sliceDef.constrainedChoice) {
                         const cc = sliceDef.constrainedChoice;
                         w.line(
-                            `return ${unwrapSliceChoice}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                            `return unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
                         );
                     } else {
                         w.line(`return item as unknown as ${flatTypeName}`);

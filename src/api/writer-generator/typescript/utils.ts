@@ -2,10 +2,12 @@ import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
+    isNestedIdentifier,
     isPrimitiveIdentifier,
     type RegularField,
     type TypeIdentifier,
 } from "@root/typeschema/types";
+import { tsResourceName } from "./name";
 
 const primitiveType2tsType: Record<string, string> = {
     boolean: "boolean",
@@ -50,17 +52,18 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
-export type TsImport = TypeIdentifier | { module: string; name: string; typeOnly?: boolean };
-export type TsImports = SectionHandle<never, TsImport>;
-export const isFhirTypeImport = (key: TsImport): key is TypeIdentifier => !("module" in key);
+/** A module's FHIR type imports: `use(id)` names a type and imports it. */
+export type TypeImports = SectionHandle<never, TypeIdentifier>;
 
-/** A runtime helper from the generated `profile-helpers` module, as written in a profile module. */
-export const profileHelper = (imports: TsImports, name: string): string =>
-    imports.use({ module: "../../profile-helpers", name });
+/** Writes types by name without importing them; profile modules still collect their imports up front. */
+const plainTypeNames: TypeImports = {
+    def: () => undefined,
+    use: (id) => (isNestedIdentifier(id) ? tsResourceName(id) : id.name),
+};
 
 const rewriteFieldTypeDefs: Record<
     string,
-    Record<string, (field: RegularField | ChoiceFieldInstance, imports: TsImports) => string>
+    Record<string, (field: RegularField | ChoiceFieldInstance, imports: TypeImports) => string>
 > = {
     Coding: { code: () => "T" },
     Reference: {
@@ -82,7 +85,7 @@ const rewriteFieldTypeDefs: Record<
 
 /** The field's TS type, or `undefined` when it is a plain reference to `field.type`: the caller names that type. */
 export const resolveFieldTsType = (
-    imports: TsImports,
+    imports: TypeImports,
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
@@ -126,18 +129,18 @@ export const resolveFieldTsType = (
 };
 
 export const fieldTsType = (
-    imports: TsImports,
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): string =>
-    (resolveFieldTsType(imports, "", "", field, resolveRef, undefined, isFamilyType) ?? imports.use(field.type)) +
-    (field.array ? "[]" : "");
+    (resolveFieldTsType(plainTypeNames, "", "", field, resolveRef, undefined, isFamilyType) ??
+        plainTypeNames.use(field.type)) + (field.array ? "[]" : "");
 
-export const tsTypeFromIdentifier = (imports: TsImports, id: TypeIdentifier): string => {
+export const tsTypeFromIdentifier = (id: TypeIdentifier): string => {
+    if (isNestedIdentifier(id)) return tsResourceName(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set
     const primitiveType = primitiveType2tsType[id.name];
     if (primitiveType !== undefined) return primitiveType;
-    return imports.use(id);
+    return id.name;
 };
