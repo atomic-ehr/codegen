@@ -4,9 +4,9 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 // Writer that resolves each file before writing it: imports and file-local
 // definitions are emitted only when the code written into the file uses them.
 //
-// `section(spec)` reserves a place in the file and returns a typed handle:
-// Keys are whatever the section chooses (a string, a record, a FHIR identifier);
-// the spec's `name(key)` gives a symbol's preferred local name.
+// `section(spec)` reserves a place in the file and returns a typed handle.
+// Keys are whatever the section chooses (a string, a record, a FHIR identifier),
+// and the spec's `name(key)` gives a symbol's preferred local name:
 //   - `handle.def(key, value)`: file-local definition; the section's
 //     `defRender(name, value)` writes its code right away, `name` being its
 //     local name;
@@ -50,9 +50,11 @@ type SectionSymbol = {
     /** Index in `section.symbols`; with the section's index it forms the symbol's marker. */
     number: number;
     key: unknown;
-    def?: { value: unknown; out: Buffer };
+    def?: DefRecord;
     local?: string;
 };
+/** A symbol's definition: the user's value and the code `defRender` wrote for it. */
+type DefRecord = { symbol: SectionSymbol; value: unknown; out: Buffer };
 /** Where a section's rendered output goes in the file. */
 type SectionSlot = { kind: "section-slot"; section: DraftSection };
 /** A usage of a section's symbol, replaced by its local name. */
@@ -75,8 +77,6 @@ type DraftSection = {
     symbols: SectionSymbol[];
     /** Key id → symbol, so the same key is always the same symbol. */
     byKeyId: Record<string, SectionSymbol>;
-    /** Defined symbols, in definition order. */
-    defined: SectionSymbol[];
     /** The rendered tokens; set once the section has rendered. */
     output?: Token[];
 };
@@ -174,7 +174,6 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
             render: render as DraftSection["render"],
             symbols: [],
             byKeyId: {},
-            defined: [],
         };
         draft.sections.push(section);
         draft.out.tokens.push({ kind: "section-slot", section });
@@ -189,9 +188,8 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
         const symbol = this.symbolOf(section, key);
         if (symbol.def)
             throw new Error(`${this.openDraft().path}: '${nameOf(symbol)}' defined twice in section #${section.index}`);
-        const def = { value, out: newBuffer(symbol) };
+        const def: DefRecord = { symbol, value, out: newBuffer(symbol) };
         symbol.def = def;
-        section.defined.push(symbol);
         this.writingTo(def.out, () => defRender(marker(symbol), value), 0);
     }
 
@@ -264,26 +262,29 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
             for (const s of symbols) if (s.def) assign(s);
             for (const s of symbols) if (!s.def) assign(s);
 
-            // Order: a definition follows the definitions of this section it depends on; definition order breaks ties.
-            const ordered: SectionSymbol[] = [];
-            const visiting = new Set<SectionSymbol>();
-            const visit = (symbol: SectionSymbol) => {
-                if (ordered.includes(symbol)) return;
-                if (visiting.has(symbol)) throw new Error(`${draft.path}: cycle through '${nameOf(symbol)}'`);
-                visiting.add(symbol);
-                for (const dep of usesOf(must(symbol.def, "definition").out))
-                    if (dep.section === section && dep.def) visit(dep);
-                visiting.delete(symbol);
-                ordered.push(symbol);
+            // Order: a definition follows the definitions of this section it depends on; first-seen order breaks ties.
+            const ordered: DefRecord[] = [];
+            const done = new Set<DefRecord>();
+            const visiting = new Set<DefRecord>();
+            const visit = (def: DefRecord) => {
+                if (done.has(def)) return;
+                if (visiting.has(def)) throw new Error(`${draft.path}: cycle through '${nameOf(def.symbol)}'`);
+                visiting.add(def);
+                for (const dep of usesOf(def.out)) if (dep.section === section && dep.def) visit(dep.def);
+                visiting.delete(def);
+                done.add(def);
+                ordered.push(def);
             };
-            for (const s of section.defined) if (used.has(s)) visit(s);
+            for (const s of section.symbols) if (s.def && used.has(s)) visit(s.def);
 
             // Render into its own buffer; its usages of sections above become used.
             const local = (s: SectionSymbol) => must(s.local, `name for '${nameOf(s)}'`);
-            const definitions = ordered.map((s) => {
-                const def = must(s.def, "definition");
-                return { key: s.key, local: local(s), code: textOf(def.out), value: def.value };
-            });
+            const definitions = ordered.map((d) => ({
+                key: d.symbol.key,
+                local: local(d.symbol),
+                code: textOf(d.out),
+                value: d.value,
+            }));
             const usages = symbols.map((s) => ({ key: s.key, local: local(s) }));
             const out = newBuffer("render");
             this.writingTo(out, () => section.render(definitions, usages));
