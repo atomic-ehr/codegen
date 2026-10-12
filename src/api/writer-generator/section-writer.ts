@@ -5,6 +5,8 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 // definitions are emitted only when the code written into the file uses them.
 //
 // `section(spec)` reserves a place in the file and returns a typed handle:
+// Keys are whatever the section chooses (a string, a record, a FHIR identifier);
+// the spec's `name(key)` gives a symbol's preferred local name.
 //   - `handle.def(key, value)`: file-local definition; the section's
 //     `defRender(name, value)` writes its code right away, `name` being its
 //     local name;
@@ -15,165 +17,215 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 //
 // Design: docs/design/writer-sections.md
 
-/** Identifies a symbol in a section; `name` is the preferred local name. A string is shorthand for `{ name }`. */
-export type NamedKey = { name: string } & Record<string, string>;
-/** Tuple form, e.g. `[module, name]`; the last element is the preferred local name. */
-export type TupleKey = readonly [string, ...string[]];
-export type Key = NamedKey | TupleKey;
-export type Usage<K extends Key = Key> = K & { local: string };
+/** A used symbol: its key and the local name it got in the file. */
+export type Usage<S> = { key: S; local: string };
 /** A used definition: its key, local name, the code `defRender` wrote for it, and the user's value. */
-export type Definition<K extends Key = Key, D = unknown> = K & { local: string; code: string; value: D };
-export type Render<K extends Key = Key, D = never> = (definitions: Definition<K, D>[], usages: Usage<K>[]) => void;
+export type Definition<D, S> = { key: S; local: string; code: string; value: D };
+export type SectionRender<D, S> = (definitions: Definition<D, S>[], usages: Usage<S>[]) => void;
 
-/** A key, or its `name` alone when the key has no other fields. */
-export type KeyArg<K extends Key> = K | ({ name: string } extends K ? string : never);
-
-/** Typed access to a placed section; `def` and `use` take the same key type `K`. */
-export type SectionHandle<K extends Key, D> = {
-    /** File-local definition; `value` is the user's definition (`D = never`: the section has none). */
-    def: (key: KeyArg<K>, value: D) => void;
-    use: (key: KeyArg<K>) => string;
+/** Typed access to a placed section. `D`: the user's definition type (`never`: the section has none);
+ *  `S`: the key that identifies a symbol, taken by both `def` and `use`. */
+export type SectionHandle<D, S> = {
+    /** File-local definition; `value` is the user's definition. */
+    def: (key: S, value: D) => void;
+    use: (key: S) => string;
 };
 
 /** `defRender` is required exactly when the section has definitions (`D` is not `never`). */
-export type SectionSpec<K extends Key, D> = SectionHooks<K, D> &
-    ([D] extends [never]
-        ? { defRender?: undefined }
-        : {
-              /** Writes one definition's code with the regular Writer API; `name` is its local name. */
-              defRender: (name: string, value: D) => void;
-          });
-
-type SectionHooks<K extends Key, D> = {
+export type SectionSpec<D, S> = {
+    /** A symbol's preferred local name; the writer adds a `_N` suffix on a clash. */
+    name: (key: S) => string;
     /** Default: write the used definitions' code. */
-    render?: Render<K, D>;
-    /** Hook around `def`; call `record` to store the definition. */
-    onDef?: (key: KeyArg<K>, value: D, record: SectionHandle<K, D>["def"]) => void;
-    /** Hook around `use`; call `record` to store the usage and return its marker. */
-    onUse?: (key: KeyArg<K>, record: SectionHandle<K, D>["use"]) => string;
-};
+    render?: SectionRender<D, S>;
+} & ([D] extends [never]
+    ? { defRender?: undefined }
+    : {
+          /** Writes one definition's code with the regular Writer API; `name` is its local name. */
+          defRender: (name: string, value: D) => void;
+      });
 
-type Ref = { section: string; id: string };
-type Def = Ref & { key: Key; value: unknown; tokens: string[]; deps: Ref[] };
+/** A symbol of a section: its key, its definition if the file defines it, and its local name once named. */
+type SectionSymbol = {
+    section: DraftSection;
+    /** Index in `section.symbols`; with the section's index it forms the symbol's marker. */
+    number: number;
+    key: unknown;
+    def?: { value: unknown; out: Buffer };
+    local?: string;
+};
+/** Where a section's rendered output goes in the file. */
+type SectionSlot = { kind: "section-slot"; section: DraftSection };
+/** A usage of a section's symbol, replaced by its local name. */
+type SymbolRef = { kind: "ref"; symbol: SectionSymbol };
+type Token = string | SectionSlot | SymbolRef;
+/** Text written so far, with its section slots and symbol references, and what it is written for. */
+type Buffer = {
+    tokens: Token[];
+    /** `"file"`: the file body; a symbol: its definition's code, whose own name is not its dependency;
+     *  `"render"`: a section's rendered text. */
+    for: "file" | "render" | SectionSymbol;
+};
 type DraftSection = {
-    defRender?: (name: string, value: any) => void;
-    render: Render<any, any>;
-    keys: Record<string, Key>;
-    defs: Record<string, Def>;
-    rendered: boolean;
+    /** Position in the file; a section's id. */
+    index: number;
+    name: (key: unknown) => string;
+    defRender?: (name: string, value: unknown) => void;
+    render: SectionRender<unknown, unknown>;
+    /** In first-seen order; a symbol's number is its index. */
+    symbols: SectionSymbol[];
+    /** Key id → symbol, so the same key is always the same symbol. */
+    byKeyId: Record<string, SectionSymbol>;
+    /** Defined symbols, in definition order. */
+    defined: SectionSymbol[];
+    /** The rendered tokens; set once the section has rendered. */
+    output?: Token[];
 };
 /** The file being generated: buffered until its sections are rendered. */
 type Draft = {
     /** Output-relative path, for error messages. */
     path: string;
-    tokens: string[];
-    uses: Ref[];
-    sections: Record<string, DraftSection>;
-    /** Section ids in placement order. */
-    order: string[];
+    /** Where `write()` goes now: the file body, or a definition's or section's buffer. */
+    out: Buffer;
+    /** In placement order. */
+    sections: DraftSection[];
 };
 
+// A symbol reference travels as text only between `use()` and `write()`:
+// `NUL:<section>:<symbol>NUL`. `write()` turns it into a `SymbolRef` token.
 const MARK = "\u0000";
-const markerRe = new RegExp(`${MARK}(ref|slot):([^:${MARK}]*):?([^${MARK}]*)${MARK}`, "g");
-const refKey = (r: Ref) => `${r.section}:${r.id}`;
+const markerRe = new RegExp(`${MARK}:(\\d+):(\\d+)${MARK}`, "g");
+const marker = (symbol: SectionSymbol) => `${MARK}:${symbol.section.index}:${symbol.number}${MARK}`;
+const newBuffer = (target: Buffer["for"]): Buffer => ({ tokens: [], for: target });
+/** The symbols a buffer refers to; a definition's own name is not one of them. */
+const usesOf = (buffer: Buffer): SectionSymbol[] =>
+    buffer.tokens.flatMap((t) =>
+        typeof t === "object" && t.kind === "ref" && t.symbol !== buffer.for ? [t.symbol] : [],
+    );
+/** The buffer as text, references kept as markers so writing it elsewhere keeps them. */
+const textOf = (buffer: Buffer): string =>
+    buffer.tokens
+        .map((t) => {
+            if (typeof t === "string") return t;
+            if (t.kind === "ref") return marker(t.symbol);
+            throw new Error("Internal section error: a section slot outside the file body");
+        })
+        .join("");
 /** A lookup the writer's own bookkeeping guarantees; a miss is an internal error. */
 const must = <T>(value: T | undefined, what: string): T => {
     if (value === undefined) throw new Error(`Internal section error: ${what}`);
     return value;
 };
-const isTuple = (key: Key): key is TupleKey => Array.isArray(key);
-const toKey = (key: string | Key): Key => (typeof key === "string" ? { name: key } : key);
-const nameOf = (key: Key): string => (isTuple(key) ? must(key.at(-1), "empty tuple key") : key.name);
-const idOf = (key: Key) =>
-    JSON.stringify(isTuple(key) ? key : Object.entries(key).sort(([a], [b]) => a.localeCompare(b)));
-/** The key's own fields plus `extra`; a tuple stays a tuple. */
-const withFields = <E extends object>(key: Key, extra: E) =>
-    isTuple(key) ? Object.assign([...key], extra) : { ...key, ...extra };
+/** A key's identity: JSON with object fields sorted, so equal keys are the same symbol whatever their field order. */
+const keyId = (key: unknown): string =>
+    JSON.stringify(key, (_, value) =>
+        value && typeof value === "object" && !Array.isArray(value)
+            ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)))
+            : value,
+    );
+const nameOf = (symbol: SectionSymbol): string => symbol.section.name(symbol.key);
 
 export abstract class SectionWriter<T extends WriterOptions = WriterOptions> extends Writer<T> {
     private draft?: Draft;
-    /** Where writes go while a definition or a section is being generated; `self` is the definition being written. */
-    private capture?: { tokens: string[]; deps: Ref[]; self?: Ref };
 
     /** The body is buffered; when it returns, the sections are rendered and the file is written once. */
     override cat(fn: string, gen: () => void) {
         if (!this.currentDir) throw new Error("Should be in a directory (`cd`)");
         const relPath = Path.normalize(`${this.currentDir}/${fn}`);
-        const draft: Draft = {
-            path: Path.relative(this.opts.outputDir, relPath),
-            tokens: [],
-            uses: [],
-            sections: {},
-            order: [],
-        };
+        const body = newBuffer("file");
+        const draft: Draft = { path: Path.relative(this.opts.outputDir, relPath), out: body, sections: [] };
         this.draft = draft;
         try {
             super.cat(fn, () => {
                 gen();
-                super.write(this.renderSections(draft));
+                super.write(this.renderSections(draft, body));
             });
         } finally {
             this.draft = undefined;
         }
     }
 
+    /** Splits the text into plain pieces and symbol references. */
     override write(str: string) {
         const draft = this.openDraft();
-        const sink = this.capture?.deps ?? draft.uses;
-        const self = this.capture?.self;
-        for (const [, kind, section = "", id = ""] of str.matchAll(markerRe))
-            if (kind === "ref" && !(self && self.section === section && self.id === id)) sink.push({ section, id });
-        (this.capture?.tokens ?? draft.tokens).push(str);
+        const { tokens } = draft.out;
+        let last = 0;
+        for (const match of str.matchAll(markerRe)) {
+            if (match.index > last) tokens.push(str.slice(last, match.index));
+            const section = must(draft.sections[Number(match[1])], `section #${match[1]}`);
+            tokens.push({ kind: "ref", symbol: must(section.symbols[Number(match[2])], `symbol ${match[0]}`) });
+            last = match.index + match[0].length;
+        }
+        if (last < str.length) tokens.push(str.slice(last));
     }
 
     /** Place a section here; `render` writes its definitions and usages when the sections are rendered. */
-    section<K extends Key = Key, D = never>(spec: SectionSpec<K, D>): SectionHandle<K, D> {
+    section<D, S>(spec: SectionSpec<D, S>): SectionHandle<D, S> {
         const draft = this.openDraft();
-        if (this.capture) throw new Error("A section must be placed at file level");
-        const id = String(draft.order.length);
-        const render: Render<K, D> =
+        if (draft.out.for !== "file") throw new Error("A section must be placed at file level");
+        const render: SectionRender<D, S> =
             spec.render ??
             ((definitions) => {
                 for (const d of definitions) this.write(d.code);
             });
-        draft.sections[id] = { defRender: spec.defRender, render, keys: {}, defs: {}, rendered: false };
-        draft.order.push(id);
-        this.write(`${MARK}slot:${id}${MARK}`);
-        const recordDef: SectionHandle<K, D>["def"] = (key, value) => this.defIn(id, key as string | Key, value);
-        const recordUse: SectionHandle<K, D>["use"] = (key) => this.useIn(id, key as string | Key);
-        const { onDef, onUse } = spec;
+        const section: DraftSection = {
+            index: draft.sections.length,
+            name: spec.name as DraftSection["name"],
+            defRender: spec.defRender as DraftSection["defRender"],
+            render: render as DraftSection["render"],
+            symbols: [],
+            byKeyId: {},
+            defined: [],
+        };
+        draft.sections.push(section);
+        draft.out.tokens.push({ kind: "section-slot", section });
         return {
-            def: onDef ? (key, value) => onDef(key, value, recordDef) : recordDef,
-            use: onUse ? (key) => onUse(key, recordUse) : recordUse,
+            def: (key, value) => this.define(section, key, value),
+            use: (key) => marker(this.symbolOf(section, key)),
         };
     }
 
-    private defIn(sectionId: string, key: string | Key, value: unknown): void {
-        const section = this.draftSection(sectionId);
-        const defRender = must(section.defRender, `section #${sectionId} has no defRender`);
-        const k = toKey(key);
-        const id = idOf(k);
-        if (section.defs[id])
-            throw new Error(`${this.openDraft().path}: '${nameOf(k)}' defined twice in section #${sectionId}`);
-        const def: Def = { section: sectionId, id, key: k, value, tokens: [], deps: [] };
-        section.defs[id] = def;
-        section.keys[id] = k;
-        const [prevCapture, prevIndent] = [this.capture, this.currentIndent];
-        this.capture = { tokens: def.tokens, deps: def.deps, self: { section: sectionId, id } };
-        this.currentIndent = 0;
-        try {
-            defRender(this.useIn(sectionId, k), value);
-        } finally {
-            this.capture = prevCapture;
-            this.currentIndent = prevIndent;
-        }
+    private define(section: DraftSection, key: unknown, value: unknown): void {
+        const defRender = must(section.defRender, `section #${section.index} has no defRender`);
+        const symbol = this.symbolOf(section, key);
+        if (symbol.def)
+            throw new Error(`${this.openDraft().path}: '${nameOf(symbol)}' defined twice in section #${section.index}`);
+        const def = { value, out: newBuffer(symbol) };
+        symbol.def = def;
+        section.defined.push(symbol);
+        this.writingTo(def.out, () => defRender(marker(symbol), value), 0);
     }
 
-    private useIn(sectionId: string, key: string | Key): string {
-        const k = toKey(key);
-        const id = idOf(k);
-        this.draftSection(sectionId).keys[id] = k;
-        return `${MARK}ref:${sectionId}:${id}${MARK}`;
+    /** The key's symbol in the section, created on first sight. */
+    private symbolOf(section: DraftSection, key: unknown): SectionSymbol {
+        const draft = this.openDraft();
+        if (draft.sections[section.index] !== section)
+            throw new Error(`${draft.path}: section #${section.index} belongs to another file`);
+        if (section.output)
+            throw new Error(
+                `${draft.path}: section #${section.index} is already rendered; only sections above it can still be used`,
+            );
+        const id = keyId(key);
+        let symbol = section.byKeyId[id];
+        if (!symbol) {
+            symbol = { section, number: section.symbols.length, key };
+            section.symbols.push(symbol);
+            section.byKeyId[id] = symbol;
+        }
+        return symbol;
+    }
+
+    /** Run `gen` with writes going to `buffer`, then restore the previous target (and indent). */
+    private writingTo(buffer: Buffer, gen: () => void, indent?: number): void {
+        const draft = this.openDraft();
+        const [prevOut, prevIndent] = [draft.out, this.currentIndent];
+        draft.out = buffer;
+        if (indent !== undefined) this.currentIndent = indent;
+        try {
+            gen();
+        } finally {
+            draft.out = prevOut;
+            this.currentIndent = prevIndent;
+        }
     }
 
     private openDraft(): Draft {
@@ -181,89 +233,72 @@ export abstract class SectionWriter<T extends WriterOptions = WriterOptions> ext
         return this.draft;
     }
 
-    private draftSection(id: string): DraftSection {
-        const draft = this.openDraft();
-        const section = draft.sections[id];
-        if (!section) throw new Error(`${draft.path}: section #${id} belongs to another file`);
-        if (section.rendered)
-            throw new Error(
-                `${draft.path}: section #${id} is already rendered; only sections above it can still be used`,
-            );
-        return section;
-    }
-
-    /** Renders every section with what the file uses and returns the final text, markers replaced by names.
+    /** Renders every section with what the file uses and returns the final text, references replaced by names.
      *  Bottom-up: a section's entries are final once every section below it has rendered.
      */
-    private renderSections(draft: Draft): string {
-        const sectionOf = (id: string) => must(draft.sections[id], `section #${id}`);
-        const defOf = (r: Ref) => sectionOf(r.section).defs[r.id];
-        const keyOf = (r: Ref) => must(sectionOf(r.section).keys[r.id], `key ${r.id}`);
-        const nameFor = (r: Ref) => must(localName[refKey(r)], `name for ${r.id}`);
-        const roots: Ref[] = [...draft.uses];
-        const localName: Record<string, string> = {};
+    private renderSections(draft: Draft, body: Buffer): string {
+        // Used: reachable from the body, through definitions, and from what rendered sections write.
+        const used = new Set<SectionSymbol>();
+        const markUsed = (symbol: SectionSymbol): void => {
+            if (used.has(symbol)) return;
+            used.add(symbol);
+            if (symbol.def) for (const dep of usesOf(symbol.def.out)) markUsed(dep);
+        };
+        for (const symbol of usesOf(body)) markUsed(symbol);
         const taken = new Set<string>();
-        const slots: Record<string, string> = {};
 
-        for (const sectionId of [...draft.order].reverse()) {
-            const section = sectionOf(sectionId);
+        for (const section of [...draft.sections].reverse()) {
+            // Ordered by key, so names and render order do not depend on the order symbols were first seen.
+            const symbols = section.symbols
+                .filter((s) => used.has(s))
+                .sort((a, b) => keyId(a.key).localeCompare(keyId(b.key)));
 
-            const used: Record<string, Ref> = {};
-            const stack = [...roots];
-            for (let ref = stack.pop(); ref; ref = stack.pop()) {
-                if (used[refKey(ref)]) continue;
-                used[refKey(ref)] = ref;
-                stack.push(...(defOf(ref)?.deps ?? []));
-            }
-            const refs = Object.values(used)
-                .filter((r) => r.section === sectionId)
-                .sort((a, b) => refKey(a).localeCompare(refKey(b)));
-
-            const assign = (ref: Ref) => {
-                const preferred = nameOf(keyOf(ref));
+            // Naming: this section's definitions first, then its other usages; lower sections already took theirs.
+            const assign = (symbol: SectionSymbol) => {
+                const preferred = nameOf(symbol);
                 let name = preferred;
                 for (let i = 1; taken.has(name); i++) name = `${preferred}_${i}`;
                 taken.add(name);
-                localName[refKey(ref)] = name;
+                symbol.local = name;
             };
-            for (const ref of refs) if (defOf(ref)) assign(ref);
-            for (const ref of refs) if (!defOf(ref)) assign(ref);
+            for (const s of symbols) if (s.def) assign(s);
+            for (const s of symbols) if (!s.def) assign(s);
 
-            const ordered: Def[] = [];
-            const state: Record<string, "visiting" | "done"> = {};
-            const visit = (def: Def) => {
-                if (state[def.id] === "done") return;
-                if (state[def.id] === "visiting") throw new Error(`${draft.path}: cycle through '${nameOf(def.key)}'`);
-                state[def.id] = "visiting";
-                for (const dep of def.deps)
-                    if (dep.section === sectionId) visit(must(section.defs[dep.id], `definition ${dep.id}`));
-                state[def.id] = "done";
-                ordered.push(def);
+            // Order: a definition follows the definitions of this section it depends on; definition order breaks ties.
+            const ordered: SectionSymbol[] = [];
+            const visiting = new Set<SectionSymbol>();
+            const visit = (symbol: SectionSymbol) => {
+                if (ordered.includes(symbol)) return;
+                if (visiting.has(symbol)) throw new Error(`${draft.path}: cycle through '${nameOf(symbol)}'`);
+                visiting.add(symbol);
+                for (const dep of usesOf(must(symbol.def, "definition").out))
+                    if (dep.section === section && dep.def) visit(dep);
+                visiting.delete(symbol);
+                ordered.push(symbol);
             };
-            for (const def of Object.values(section.defs)) if (used[refKey(def)]) visit(def);
+            for (const s of section.defined) if (used.has(s)) visit(s);
 
-            const definitions = ordered.map((d) =>
-                withFields(d.key, { local: nameFor(d), code: d.tokens.join(""), value: d.value }),
-            );
-            const usages = refs.map((r) => withFields(keyOf(r), { local: nameFor(r) }));
-            // Rendered into its own buffer; its usages of sections above become roots for them.
-            const prev = this.capture;
-            const out = { tokens: [] as string[], deps: [] as Ref[] };
-            this.capture = out;
-            try {
-                section.render(definitions, usages);
-            } finally {
-                this.capture = prev;
-            }
-            section.rendered = true;
-            slots[sectionId] = out.tokens.join("");
-            roots.push(...out.deps);
+            // Render into its own buffer; its usages of sections above become used.
+            const local = (s: SectionSymbol) => must(s.local, `name for '${nameOf(s)}'`);
+            const definitions = ordered.map((s) => {
+                const def = must(s.def, "definition");
+                return { key: s.key, local: local(s), code: textOf(def.out), value: def.value };
+            });
+            const usages = symbols.map((s) => ({ key: s.key, local: local(s) }));
+            const out = newBuffer("render");
+            this.writingTo(out, () => section.render(definitions, usages));
+            section.output = out.tokens;
+            for (const symbol of usesOf(out)) markUsed(symbol);
         }
 
-        const resolve = (s: string): string =>
-            s.replace(markerRe, (_, kind: string, section: string, id: string) =>
-                kind === "slot" ? resolve(slots[section] ?? "") : nameFor({ section, id }),
-            );
-        return resolve(draft.tokens.join(""));
+        const assemble = (tokens: Token[]): string =>
+            tokens
+                .map((t) => {
+                    if (typeof t === "string") return t;
+                    if (t.kind === "ref") return must(t.symbol.local, `name for '${nameOf(t.symbol)}'`);
+                    return assemble(must(t.section.output, `section #${t.section.index} output`));
+                })
+                .join("");
+        return assemble(body.tokens);
     }
 }
