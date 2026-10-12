@@ -21,39 +21,41 @@ Exported symbols are not managed: they are the file's contract with its consumer
 ## API
 
 ```ts
-type Import = [module: string, name: string];
-type Const = { name: string };
+type Import = { module: string; name: string };
 type ConstDef = { type: string; value: string };
 
-const imports = this.section<Import>({ render: (_definitions, usages) => { /* import lines */ } });
-const consts = this.section<Const, ConstDef>({
+const imports = this.section<never, Import>({
+    name: (i) => i.name,
+    render: (_definitions, usages) => { /* import lines from u.key.module, u.key.name, u.local */ },
+});
+const consts = this.section<ConstDef, string>({
+    name: (name) => name,
     defRender: (name, def) => this.lineSM(`const ${name}: ${def.type} = ${def.value}`),
 });
 
 consts.def("a", { type: "string", value: `"foo"` });
-this.lineSM(`export const x = ${imports.use(["node:path", "join"])}(${consts.use("a")})`);
+this.lineSM(`export const x = ${imports.use({ module: "node:path", name: "join" })}(${consts.use("a")})`);
 ```
 
-- `section<K, D>(spec)` places a section at the current position and returns a typed handle.
-  - `K` is the key type, shared by `def` and `use`: `{ name, … }` (a plain string is shorthand for `{ name }`) or a tuple whose last element is the name.
-  - `D` is the user's definition type. It defaults to `never`: the section has no definitions, and `def` does not compile. When `D` is not `never`, the spec must provide `defRender`.
+- `section<D, S>(spec)` places a section at the current position and returns a typed handle. Both type arguments are always given.
+  - `D` is the user's definition type. `never` means the section has no definitions: `def` does not compile and `defRender` is not allowed. Otherwise the spec must provide `defRender`.
+  - `S` is the key that identifies a symbol, shared by `def` and `use`, and chosen by the section: a string, a record such as `{ module, name }`, or a FHIR type identifier. Two keys are the same symbol when they are equal as JSON (object fields compared in sorted order). The spec's `name(key)` gives a symbol's preferred local name.
 - `handle.def(key, value)` records a definition. The section's `defRender(name, value)` runs immediately and writes the declaration; what it writes is captured as the definition's code, and every `use()` inside it is recorded as a dependency. `name` is the definition's own local name.
-- `handle.use(key)` returns a marker string that fits into any Writer call or template string; it is resolved to the symbol's final local name when the sections are rendered.
+- `handle.use(key)` returns a short marker string, `NUL:<section>:<symbol>NUL`, that fits into any Writer call or template string. The key is kept in the section's symbol table, numbered on first sight, so the same key always gives the same marker; it is resolved to the symbol's final local name when the sections are rendered.
 
 Spec fields:
 
 | Field | Purpose | Default |
 |---|---|---|
+| `name(key)` | a symbol's preferred local name; a clash gets a `_N` suffix | required |
 | `defRender(name, value)` | writes one definition's code | required when the section has definitions |
 | `render(definitions, usages)` | writes the whole section | writes the used definitions' code |
-| `onDef(key, value, record)` | hook around `def`: validate, transform, or drop | records the definition |
-| `onUse(key, record)` | hook around `use` | records the usage |
 
-`render` receives `definitions` — the used ones in dependency order, as `{ …key, local, code, value }` — and `usages`, every distinct usage as `{ …key, local }`. Policies such as "every usage must be defined" belong to the section (in `render` or the hooks), not to the core.
+`render` receives `definitions` — the used ones in dependency order, as `{ key, local, code, value }` — and `usages`, every distinct usage as `{ key, local }`. Policies such as "every usage must be defined" belong to the section's `render`, not to the core.
 
 ## How it works
 
-**Capture.** `SectionWriter` overrides `write()`, so it sees every token written through `line`, `lineSM`, `curlyBlock` and friends. Each token is scanned for usage markers, which are recorded against the definition being written (inside `defRender`) or the file body, and is buffered in memory. A usage is recorded when its marker is written, not when `use()` is called, so a marker that is never written adds nothing.
+**Capture.** `SectionWriter` overrides `write()`, so it sees every token written through `line`, `lineSM`, `curlyBlock` and friends. The file being generated is a draft whose current output is a buffer — the file body, or, while `defRender` or a section's `render` runs, that definition's or section's own buffer. `write()` splits each string into plain text and symbol references, and `section()` adds a section slot — the place its rendered output goes — so a buffer is a list of typed tokens, and its usages are the references in it. A usage is recorded when its marker is written, not when `use()` is called, so a marker that is never written adds nothing.
 
 **Rendering sections.** When the `cat` body returns, while the file is still open:
 
@@ -62,7 +64,7 @@ Spec fields:
 3. **Naming.** Names are shared by the whole file. Within a section, its definitions take their preferred names first, then its other usages; lower sections have already chosen theirs. A clash gets a `_1`, `_2`, … suffix.
 4. **Order.** Within a section a definition follows the definitions it depends on; definition order breaks ties, and a cycle throws.
 5. **Render.** The renderer writes through the regular Writer API. Usages it creates become roots for the sections above it. A rendered section is closed: using it or defining into it throws.
-6. **Resolve and write.** Section placeholders and usage markers are replaced with the rendered sections and local names, and the file is written once.
+6. **Assemble and write.** The body's tokens are joined: text as is, each symbol reference as its local name, each section slot as that section's rendered tokens; the file is written once.
 
 ## Guarantees
 
@@ -77,7 +79,6 @@ Spec fields:
 - Order across sections is not checked: a definition depending on one in a later section can come out in the wrong order.
 - `defRender` output is captured at indent 0, which is right at file level only.
 - Markers are opaque until the sections are rendered: code that measures strings (line-width checks, `.length`) sees the marker, not the final name.
-- `local`, `code` and `value` are reserved: they overwrite key fields of the same name in render entries.
 - A section's position decides naming priority, so moving sections can change which symbol is aliased.
 
 ## Next steps
