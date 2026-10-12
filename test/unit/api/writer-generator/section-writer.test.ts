@@ -113,6 +113,128 @@ describe("section order", () => {
     });
 });
 
+describe("definitions and names", () => {
+    it.each([undefined, null, false, 0, ""])("emits a definition with value %j", (value) => {
+        const content = generate((w) => {
+            const helpers = w.section<unknown, string>({
+                name: (name) => name,
+                defRender: (name, def) => w.lineSM(`const ${name} = ${JSON.stringify(def)}`),
+            });
+            helpers.def("helper", value);
+            w.lineSM(`f(${helpers.use("helper")})`);
+        });
+
+        expect(content).toBe([`const helper = ${JSON.stringify(value)};`, `f(helper);`, ``].join("\n"));
+    });
+
+    it("renders only reachable definitions and discovers dependencies created by defRender", () => {
+        const content = generate((w) => {
+            const imports = importSection(w);
+            const helpers = w.section<string, string>({
+                name: (name) => name,
+                defRender: (name, value) => {
+                    if (value === "unused") throw new Error("Unused definitions must not render");
+                    w.lineSM(`const ${name} = ${imports.use({ module: "./used", name: value })}`);
+                },
+            });
+            helpers.def("unused", "unused");
+            helpers.def("helper", "used");
+            w.lineSM(`f(${helpers.use("helper")})`);
+        });
+
+        expect(content).toBe([`import { used } from "./used";`, `const helper = used;`, `f(helper);`, ``].join("\n"));
+    });
+
+    it("passes values and final names to a custom definition renderer", () => {
+        const content = generate((w) => {
+            const helpers = w.section<string, string>({
+                name: () => "helper",
+                defRender: (name, value) => w.lineSM(`const ${name} = ${value}`),
+                render: (definitions) => {
+                    for (const d of definitions) w.lineSM(`export const ${d.local} = ${d.value}`);
+                },
+            });
+            helpers.def("a", "1");
+            helpers.def("b", "2");
+            w.lineSM(`f(${helpers.use("b")}, ${helpers.use("a")})`);
+        });
+
+        expect(content).toBe(
+            [`export const helper = 1;`, `export const helper_1 = 2;`, `f(helper_1, helper);`, ``].join("\n"),
+        );
+    });
+
+    it("keeps dependencies of used definitions and drops unused ones", () => {
+        const content = generate((w) => {
+            const imports = importSection(w);
+            const helpers = w.section<string, string>({
+                name: (name) => name,
+                defRender: (name, value) => w.lineSM(`const ${name} = ${value}`),
+            });
+            helpers.def("unused", imports.use({ module: "./unused", name: "unused" }));
+            helpers.def("helper", imports.use({ module: "./used", name: "used" }));
+            imports.use({ module: "./ignored", name: "ignored" });
+            w.lineSM(`export const result = ${helpers.use("helper")}`);
+        });
+
+        expect(content).toBe(
+            [`import { used } from "./used";`, `const helper = used;`, `export const result = helper;`, ``].join("\n"),
+        );
+    });
+
+    it("deduplicates object keys and assigns names in key order", () => {
+        const content = generate((w) => {
+            const imports = importSection(w);
+            w.lineSM(`f(${imports.use({ module: "./b", name: "T" })})`);
+            w.lineSM(`f(${imports.use({ name: "T", module: "./a" })})`);
+            w.lineSM(`f(${imports.use({ module: "./a", name: "T" })})`);
+        });
+
+        expect(content).toBe(
+            [`import { T } from "./a";`, `import { T as T_1 } from "./b";`, `f(T_1);`, `f(T);`, `f(T);`, ``].join("\n"),
+        );
+    });
+
+    it("allows a definition to refer to itself", () => {
+        const content = generate((w) => {
+            const helpers = w.section<undefined, string>({
+                name: (name) => name,
+                defRender: (name) => w.lineSM(`const ${name} = () => ${helpers.use("recursive")}()`),
+            });
+            helpers.def("recursive", undefined);
+            w.lineSM(`f(${helpers.use("recursive")})`);
+        });
+
+        expect(content).toBe([`const recursive = () => recursive();`, `f(recursive);`, ``].join("\n"));
+    });
+
+    it("rejects cycles between used definitions", () => {
+        const run = () =>
+            generate((w) => {
+                const helpers = w.section<string, string>({
+                    name: (name) => name,
+                    defRender: (name, value) => w.lineSM(`const ${name} = ${value}`),
+                });
+                helpers.def("a", helpers.use("b"));
+                helpers.def("b", helpers.use("a"));
+                w.lineSM(`f(${helpers.use("a")})`);
+            });
+
+        expect(run).toThrow("main.js: cycle through");
+    });
+
+    it("rejects duplicate definitions", () => {
+        const run = () =>
+            generate((w) => {
+                const helpers = w.section<undefined, string>({ name: (name) => name, defRender: () => undefined });
+                helpers.def("a", undefined);
+                helpers.def("a", undefined);
+            });
+
+        expect(run).toThrow("main.js: 'a' defined twice in section #0");
+    });
+});
+
 /** Mistakes the handle types reject; checked by the project typecheck, never run. */
 export const typeChecks = (w: TestWriter) => {
     const imports = importSection(w);
