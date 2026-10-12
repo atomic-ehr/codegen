@@ -37,9 +37,9 @@ consts.def("a", { type: "string", value: `"foo"` });
 this.lineSM(`export const x = ${imports.use({ module: "node:path", name: "join" })}(${consts.use("a")})`);
 ```
 
-- `section<D, S>(spec)` places a section at the current position and returns a typed handle. Both type arguments are always given.
-  - `D` is the user's definition type. `never` means the section has no definitions, and `def` does not compile. A section with definitions provides `defRender`; without it, `def` throws.
-  - `S` is the key that identifies a symbol, shared by `def` and `use`, and chosen by the section: a string, a record such as `{ module, name }`, or a FHIR type identifier. Two keys are the same symbol when they are equal as JSON (object fields compared in sorted order). The spec's `name(key)` gives a symbol's preferred local name.
+- `section<Def, Sym>(spec)` places a section at the current position and returns a typed handle. Both type arguments are always given.
+  - `Def` is the user's definition type. `never` means the section has no definitions, and `def` does not compile. A section with definitions provides `defRender`; without it, `def` throws.
+  - `Sym` is the key that identifies a symbol, shared by `def` and `use`, and chosen by the section: a string, a record such as `{ module, name }`, or a FHIR type identifier. Two keys are the same symbol when they are equal as JSON (object fields compared in sorted order). The spec's `name(key)` gives a symbol's preferred local name.
 - `handle.def(key, value)` records a definition. The section's `defRender(name, value)` runs immediately and writes the declaration; what it writes is captured as the definition's code, and every `use()` inside it is recorded as a dependency. `name` is the definition's own local name.
 - `handle.use(key)` returns a short marker string, `NUL:<section>:<symbol>NUL`, that fits into any Writer call or template string. The key is kept in the section's symbol table, numbered on first sight, so the same key always gives the same marker; it is resolved to the symbol's final local name when the sections are rendered.
 
