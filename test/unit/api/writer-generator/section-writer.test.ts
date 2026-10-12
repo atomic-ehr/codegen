@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { SectionWriter, type Usage } from "@root/api/writer-generator/section-writer";
 
-type Import = [module: string, name: string];
-type Const = { name: string };
+type Import = { module: string; name: string };
 type ConstDef = { type: string; value: string };
 
 class TestWriter extends SectionWriter {
@@ -26,12 +25,13 @@ const generate = (generatorBody: (w: TestWriter) => void): string => {
 };
 
 const importSection = (w: TestWriter) =>
-    w.section<Import>({
+    w.section<never, Import>({
+        name: (i) => i.name,
         render: (_definitions, usages) => {
             const byModule: Record<string, Usage<Import>[]> = {};
-            for (const u of usages) (byModule[u[0]] ??= []).push(u);
+            for (const u of usages) (byModule[u.key.module] ??= []).push(u);
             for (const [from, names] of Object.entries(byModule)) {
-                const list = names.map((u) => (u.local === u[1] ? u[1] : `${u[1]} as ${u.local}`));
+                const list = names.map((u) => (u.local === u.key.name ? u.local : `${u.key.name} as ${u.local}`));
                 w.lineSM(`import { ${list.join(", ")} } from "${from}"`);
             }
         },
@@ -41,7 +41,8 @@ describe("demo: imports and file-local constants", () => {
     it("emits only what the file uses", () => {
         const content = generate((w) => {
             const imports = importSection(w);
-            const consts = w.section<Const, ConstDef>({
+            const consts = w.section<ConstDef, string>({
+                name: (name) => name,
                 defRender: (name, def) => w.lineSM(`const ${name}: ${def.type} = ${def.value}`),
             });
             // Defined before `a`; the writer orders it after `a` because it depends on it.
@@ -53,9 +54,9 @@ describe("demo: imports and file-local constants", () => {
             consts.def("basename", { type: "string", value: `"main"` });
 
             // Exports are the file's contract: written directly, always present.
-            const join = imports.use(["node:path", "join"]);
+            const join = imports.use({ module: "node:path", name: "join" });
             w.lineSM(`export const path = ${join}(${consts.use("basename")}, ${consts.use("b")}())`);
-            w.lineSM(`export const file = ${imports.use(["node:path", "basename"])}(path)`);
+            w.lineSM(`export const file = ${imports.use({ module: "node:path", name: "basename" })}(path)`);
         });
 
         expect(content).toBe(
@@ -76,9 +77,10 @@ describe("section order", () => {
     it("lets a renderer use a section placed above it", () => {
         const content = generate((w) => {
             const imports = importSection(w);
-            const lets = w.section({
+            const lets = w.section<never, string>({
+                name: (name) => name,
                 render: (_, usages) => {
-                    for (const u of usages) w.lineSM(`let ${u.local}: ${imports.use(["./t", "T"])}`);
+                    for (const u of usages) w.lineSM(`let ${u.local}: ${imports.use({ module: "./t", name: "T" })}`);
                 },
             });
             w.lineSM(`f(${lets.use("x")})`);
@@ -90,7 +92,10 @@ describe("section order", () => {
     it("rejects a section used after it rendered", () => {
         const run = () =>
             generate((w) => {
-                const lets = w.section({ render: () => imports.use(["./t", "T"]) });
+                const lets = w.section<never, string>({
+                    name: (name) => name,
+                    render: () => imports.use({ module: "./t", name: "T" }),
+                });
                 const imports = importSection(w);
                 w.lineSM(`f(${lets.use("x")})`);
             });
@@ -102,12 +107,14 @@ describe("section order", () => {
 /** Mistakes the handle types reject; checked by the project typecheck, never run. */
 export const typeChecks = (w: TestWriter) => {
     const imports = importSection(w);
-    const consts = w.section<Const, ConstDef>({ defRender: () => undefined });
+    const consts = w.section<ConstDef, string>({ name: (name) => name, defRender: () => undefined });
+    // @ts-expect-error a section names its symbols
+    w.section<never, string>({});
     // @ts-expect-error a section with definitions needs `defRender`
-    w.section<Const, ConstDef>({});
+    w.section<ConstDef, string>({ name: (name) => name });
     // @ts-expect-error the import section has no definitions
-    imports.def(["node:path", "join"], {});
-    // @ts-expect-error an import key is `[module, name]`
+    imports.def({ module: "node:path", name: "join" }, {});
+    // @ts-expect-error an import key is `{ module, name }`
     imports.use("join");
     // @ts-expect-error a definition must match the section's definition type
     consts.def("a", { code: "foo" });
