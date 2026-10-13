@@ -34,28 +34,24 @@ const pushListValidation = (lines: string[], target: string, fn: string, args: s
     );
 };
 
-/** Walk fields once and emit validate() body lines into `out`, returning the
- *  set of helper function names referenced. Pure: no writer side effects. */
+/** Walk fields once and emit validate() body lines into `out`. */
 export const collectValidateBody = (
     flatProfile: SnapshotProfileTypeSchema,
     tsIndex: TypeSchemaIndex,
     errorLines: string[],
     warningLines: string[],
     formatName: (s: string) => string,
-): Set<string> => {
-    const helpers = new Set<string>();
+): void => {
     const fields = flatProfile.fields;
     for (const [name, field] of Object.entries(fields)) {
         const pyName = pyFieldName(name, formatName);
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) {
             if (field.required) {
-                helpers.add("validate_choice_required");
                 const pyChoices = field.choices.map((c) => pyFieldName(c, formatName));
                 pushListValidation(errorLines, "errors", "validate_choice_required", [], pyChoices);
             }
             if (field.prohibited?.length) {
-                helpers.add("validate_choice_prohibited");
                 const pyProhibited = field.prohibited.map((c) => pyFieldName(c, formatName));
                 pushListValidation(errorLines, "errors", "validate_choice_prohibited", [], pyProhibited);
             }
@@ -65,7 +61,6 @@ export const collectValidateBody = (
             field,
             flatProfile.slicing?.[name],
             pyName,
-            helpers,
             errorLines,
             warningLines,
             tsIndex,
@@ -77,36 +72,30 @@ export const collectValidateBody = (
     // live outside `fields` to avoid pulling unrelated base metadata into the
     // profile's getter/setter surface.
     for (const inheritedName of flatProfile.inheritedRequiredFields ?? []) {
-        helpers.add("validate_required");
         errorLines.push(
             `errors.extend(validate_required(self._resource, profile_name, ${JSON.stringify(pyFieldName(inheritedName, formatName))}))`,
         );
     }
-    return helpers;
 };
 
 const collectRegularFieldValidation = (
     field: RegularField | ChoiceFieldInstance,
     fieldSlicing: FieldSlicing | undefined,
     pyName: string,
-    helpers: Set<string>,
     errorLines: string[],
     warningLines: string[],
     tsIndex: TypeSchemaIndex,
     formatName: (s: string) => string,
 ): void => {
     if (field.excluded) {
-        helpers.add("validate_excluded");
         errorLines.push(`errors.extend(validate_excluded(self._resource, profile_name, ${JSON.stringify(pyName)}))`);
         return;
     }
     if (field.required) {
-        helpers.add("validate_required");
         errorLines.push(`errors.extend(validate_required(self._resource, profile_name, ${JSON.stringify(pyName)}))`);
     }
     if (field.valueConstraint) {
         const fn = field.valueConstraint.validateOnly ? "validate_pattern_value" : "validate_fixed_value";
-        helpers.add(fn);
         const value = pyLiteral(field.valueConstraint.value);
         // A constraint on a repeating element applies to every repetition, so
         // the helper needs the declared arity: the instance shape alone cannot
@@ -118,13 +107,11 @@ const collectRegularFieldValidation = (
     }
     if (isNotChoiceDeclarationField(field)) {
         if (field.enum) {
-            helpers.add("validate_enum");
             const target = field.enum.isOpen ? warningLines : errorLines;
             const listName = field.enum.isOpen ? "warnings" : "errors";
             pushListValidation(target, listName, "validate_enum", [JSON.stringify(pyName)], field.enum.values);
         }
         if (field.mustSupport && !field.required) {
-            helpers.add("validate_must_support");
             warningLines.push(
                 `warnings.extend(validate_must_support(self._resource, profile_name, ${JSON.stringify(pyName)}))`,
             );
@@ -132,12 +119,11 @@ const collectRegularFieldValidation = (
         if (field.reference) {
             const allowed = tsIndex.referenceAllowedTypes(field.reference);
             if (allowed.length > 0) {
-                helpers.add("validate_reference");
                 pushListValidation(errorLines, "errors", "validate_reference", [JSON.stringify(pyName)], allowed);
             }
         }
         if (fieldSlicing?.slices) {
-            collectSliceValidation(field, fieldSlicing, pyName, helpers, errorLines, tsIndex, formatName);
+            collectSliceValidation(field, fieldSlicing, pyName, errorLines, tsIndex, formatName);
         }
     }
 };
@@ -181,7 +167,6 @@ const collectSliceValidation = (
     field: RegularField | ChoiceFieldInstance,
     fieldSlicing: FieldSlicing,
     name: string,
-    helpers: Set<string>,
     errorLines: string[],
     tsIndex: TypeSchemaIndex,
     formatName: (s: string) => string,
@@ -193,14 +178,12 @@ const collectSliceValidation = (
         if (slice.min !== undefined || slice.max !== undefined) {
             const min = slice.min ?? 0;
             const max = slice.max ?? 0;
-            helpers.add("validate_slice_cardinality");
             errorLines.push(
                 `errors.extend(validate_slice_cardinality(self._resource, profile_name, ${JSON.stringify(name)}, ${pyLiteral(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}))`,
             );
         }
         const { requiredFields, choiceGroups } = collectSliceRequirements(slice, match, field, tsIndex, formatName);
         if (requiredFields.length === 0 && choiceGroups.length === 0) continue;
-        helpers.add("validate_slice_fields");
         const args = [JSON.stringify(name), pyLiteral(match), JSON.stringify(sliceName)];
         if (choiceGroups.length === 0) {
             pushListValidation(errorLines, "errors", "validate_slice_fields", args, requiredFields);
