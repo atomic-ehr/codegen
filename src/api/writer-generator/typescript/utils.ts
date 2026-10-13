@@ -75,7 +75,7 @@ const rewriteFieldTypeDefs: Record<
 };
 
 export const resolveFieldTsType = (
-    imports: SectionHandle<never, TypeIdentifier> | undefined,
+    tImport: SectionHandle<never, TypeIdentifier>,
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
@@ -84,7 +84,7 @@ export const resolveFieldTsType = (
     isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): string => {
     // Type modules import referenced types; other callers write them by name.
-    const typeRef = (id: TypeIdentifier) => imports?.use(id) ?? id.name;
+    const typeRef = (id: TypeIdentifier) => tImport.use(id);
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
@@ -122,17 +122,27 @@ export const resolveFieldTsType = (
 };
 
 export const fieldTsType = (
+    tImport: SectionHandle<never, TypeIdentifier>,
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
-): string =>
-    resolveFieldTsType(undefined, "", "", field, resolveRef, undefined, isFamilyType) + (field.array ? "[]" : "");
+): string => {
+    // Profile fields use nested types exported by their parent module.
+    const type =
+        isNestedIdentifier(field.type) && !field.enum && !field.reference?.resource.length
+            ? tsTypeFromIdentifier(tImport, field.type)
+            : resolveFieldTsType(tImport, "", "", field, resolveRef, undefined, isFamilyType);
+    return type + (field.array ? "[]" : "");
+};
 
-export const tsTypeFromIdentifier = (id: TypeIdentifier): string => {
-    if (isNestedIdentifier(id)) return tsResourceName(id);
+export const tsTypeFromIdentifier = (
+    tImport: SectionHandle<never, TypeIdentifier> | undefined,
+    id: TypeIdentifier,
+): string => {
+    if (isNestedIdentifier(id)) return tImport?.use(id) ?? tsResourceName(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set
     const primitiveType = primitiveType2tsType[id.name];
     if (primitiveType !== undefined) return primitiveType;
-    return id.name;
+    return tImport?.use(id) ?? id.name;
 };

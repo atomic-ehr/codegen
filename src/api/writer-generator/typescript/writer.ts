@@ -310,7 +310,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     generateType(
         tsIndex: TypeSchemaIndex,
-        imports: SectionHandle<never, TypeIdentifier>,
+        tImport: SectionHandle<never, TypeIdentifier>,
         schema: SpecializationTypeSchema | NestedTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
@@ -356,14 +356,14 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         }
         if (!isHardcodedGeneric && params.length > 0) {
             const declParams = params.map((p) => {
-                const constraint = imports.use(p.constraint);
+                const constraint = tImport.use(p.constraint);
                 return `${p.typeVar} extends ${constraint} = ${constraint}`;
             });
             name += `<${declParams.join(", ")}>`;
         }
 
         let extendsClause: string | undefined;
-        if (schema.base) extendsClause = `extends ${imports.use(schema.base)}`;
+        if (schema.base) extendsClause = `extends ${tImport.use(schema.base)}`;
 
         this.debugComment(schema.identifier);
         if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
@@ -390,7 +390,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                 const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
                 const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
                 if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
-                elementType = imports.use(element.identifier);
+                elementType = tImport.use(element.identifier);
             }
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
 
@@ -403,7 +403,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
                 const tsName = tsFieldName(fieldName);
                 const tsType = resolveFieldTsType(
-                    imports,
+                    tImport,
                     schema.identifier.name,
                     tsName,
                     field,
@@ -445,13 +445,13 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     generateNestedTypes(
         tsIndex: TypeSchemaIndex,
-        imports: SectionHandle<never, TypeIdentifier>,
+        tImport: SectionHandle<never, TypeIdentifier>,
         schema: SpecializationTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {
-            this.generateType(tsIndex, imports, subtype, isFamilyType);
+            this.generateType(tsIndex, tImport, subtype, isFamilyType);
             this.line();
         }
     }
@@ -461,23 +461,23 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             this.cd("profiles", () => {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
-                    generateProfileImports(this, tsIndex, schema);
-                    generateProfileClass(this, tsIndex, schema);
+                    const imports = generateProfileImports(this, tsIndex, schema);
+                    generateProfileClass(this, imports, tsIndex, schema);
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                const imports = this.typeModuleImports(schema);
+                const tImport = this.typeModuleImports(schema);
                 this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(tsIndex, imports, schema, isFamilyType);
+                this.generateNestedTypes(tsIndex, tImport, schema, isFamilyType);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, imports, schema, isFamilyType);
+                this.generateType(tsIndex, tImport, schema, isFamilyType);
                 this.generateResourceTypePredicate(schema);
             });
         } else {

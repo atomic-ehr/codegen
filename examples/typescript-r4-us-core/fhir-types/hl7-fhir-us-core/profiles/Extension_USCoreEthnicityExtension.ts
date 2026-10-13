@@ -6,31 +6,23 @@ import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
-    isRawExtensionInput,
     applyFixedValue,
     applySliceMatch,
-    matchesValue,
-    setArraySlice,
     getArraySlice,
-    ensureSliceDefaults,
-    setArraySliceAll,
     getArraySliceAll,
-    wrapSliceChoice,
-    unwrapSliceChoice,
     isExtension,
-    getExtensionValue,
+    isRawExtensionInput,
+    matchesValue,
     pushExtension,
+    setArraySlice,
+    setArraySliceAll,
+    unwrapSliceChoice,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
     validateFixedValue,
+    validateRequired,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    wrapSliceChoice,
 } from "../../profile-helpers";
 
 export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;

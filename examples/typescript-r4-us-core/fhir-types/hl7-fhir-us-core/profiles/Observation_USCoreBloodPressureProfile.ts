@@ -12,25 +12,24 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 import {
-    ensureProfile,
     applyFixedValue,
     applySliceMatch,
+    ensureProfile,
+    ensureSliceDefaults,
+    getArraySlice,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    wrapSliceChoice,
     unwrapSliceChoice,
-    validateRequired,
-    validateExcluded,
+    validateChoiceProhibited,
+    validateChoiceRequired,
+    validateEnum,
     validateFixedValue,
+    validateMustSupport,
+    validateReference,
+    validateRequired,
     validateSliceCardinality,
     validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    wrapSliceChoice,
 } from "../../profile-helpers";
 
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

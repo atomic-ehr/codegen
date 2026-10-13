@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { generateProfileClass } from "@root/api/writer-generator/typescript/profile";
+import { generateProfileClass, generateProfileImports } from "@root/api/writer-generator/typescript/profile";
 import { TypeScript } from "@root/api/writer-generator/typescript/writer";
 import type {
     CanonicalUrl,
@@ -87,7 +87,8 @@ const generateProfile = (
     const tsIndex = mkTypeSchemaIndex(schemas, { logger });
     w.cd("/", () => {
         w.cat(`${snapshot.identifier.name}Profile.ts`, () => {
-            generateProfileClass(w, tsIndex, snapshot);
+            const imports = generateProfileImports(w, tsIndex, snapshot);
+            generateProfileClass(w, imports, tsIndex, snapshot);
         });
     });
     const generated = w.writtenFiles()[0]?.content ?? "";
@@ -124,5 +125,115 @@ describe("TypeScript profile writer resourceType descriptor", () => {
         expect(errors).toHaveLength(1);
         expect(errors[0]?.message).toContain("Cannot emit static resourceType for profile 'OrphanProfile'");
         expect(generated).not.toContain("static readonly resourceType");
+    });
+});
+
+describe("TypeScript profile helper imports", () => {
+    test("omits the helper import when the profile emits no helper calls", () => {
+        const snapshot = makeSnapshot("OptionalAddress", datatypeBase);
+        snapshot.fields.data = { type: primitiveBase };
+        const { generated } = generateProfile(snapshot, [datatypeSchema, primitiveSchema]);
+
+        expect(generated).not.toContain("profile-helpers");
+    });
+
+    test("imports only validateRequired for inherited required fields", () => {
+        const snapshot = makeSnapshot("InheritedExtension", extensionBase);
+        snapshot.inheritedRequiredFields = ["url"];
+        const { generated } = generateProfile(snapshot, [extensionSchema]);
+
+        expect(generated).toContain('import { validateRequired } from "../../profile-helpers";');
+        expect(generated).toContain('...validateRequired(res, profileName, "url")');
+    });
+
+    test("imports a helper once when multiple fields use it only in warnings", () => {
+        const snapshot = makeSnapshot("SupportedAddress", datatypeBase);
+        snapshot.fields.first = { type: primitiveBase, mustSupport: true };
+        snapshot.fields.second = { type: primitiveBase, mustSupport: true };
+        const { generated } = generateProfile(snapshot, [datatypeSchema, primitiveSchema]);
+
+        expect(generated).toContain('import { validateMustSupport } from "../../profile-helpers";');
+        expect(generated).toContain('...validateMustSupport(res, profileName, "first")');
+        expect(generated).toContain('...validateMustSupport(res, profileName, "second")');
+        expect(generated).not.toContain("\u0000");
+    });
+});
+
+describe("TypeScript profile type imports", () => {
+    test("uses distinct aliases for types with the same name from different packages", () => {
+        const otherAddress: TypeIdentifier = {
+            ...datatypeBase,
+            package: "other.types",
+            url: "http://example.org/StructureDefinition/Address" as CanonicalUrl,
+        };
+        const snapshot = makeSnapshot("AddressPair", datatypeBase);
+        snapshot.fields.other = { type: otherAddress, required: true };
+        const { generated } = generateProfile(snapshot, [
+            datatypeSchema,
+            { identifier: otherAddress as ComplexTypeTypeSchema["identifier"] },
+        ]);
+
+        expect(generated).toContain('import type { Address } from "../../hl7-fhir-r4-core/Address";');
+        expect(generated).toContain('import type { Address as Address_1 } from "../../other-types/Address";');
+        expect(generated).toContain("other: Address_1;");
+        expect(generated).toContain("constructor (resource: Address)");
+        expect(generated).toContain("getOther () : Address_1 | undefined");
+        expect(generated).not.toContain("\u0000");
+    });
+
+    test("groups a nested field type with its parent module", () => {
+        const component: TypeIdentifier = {
+            ...resourceBase,
+            kind: "nested",
+            name: "component" as Name,
+            url: `${resourceBase.url}#component` as CanonicalUrl,
+        };
+        const snapshot = makeSnapshot("ComponentObservation", resourceBase);
+        snapshot.fields.component = { type: component, required: true, array: true };
+        const { generated } = generateProfile(snapshot, [resourceSchema]);
+
+        expect(generated).toContain(
+            'import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";',
+        );
+        expect(generated).toContain("component: ObservationComponent[];");
+        expect(generated).not.toContain("\u0000");
+    });
+
+    test("keeps primitive bases as TypeScript primitives", () => {
+        const { generated } = generateProfile(makeSnapshot("Binary", primitiveBase), [primitiveSchema, elementSchema]);
+
+        expect(generated).not.toContain("import type");
+        expect(generated).toContain("constructor (resource: string)");
+    });
+
+    test("uses the imported Extension alias in extension methods and nested targets", () => {
+        const otherExtension: TypeIdentifier = {
+            ...extensionBase,
+            package: "a.types",
+            url: "http://example.org/StructureDefinition/Extension" as CanonicalUrl,
+        };
+        const snapshot = makeSnapshot("ExtendedObservation", resourceBase);
+        snapshot.fields.other = { type: otherExtension, required: true };
+        snapshot.extensions = [
+            {
+                name: "note",
+                path: "contact.extension",
+                url: "http://example.org/StructureDefinition/note",
+                nameCandidates: { candidates: ["Note"], recommended: "Note" },
+            },
+        ];
+        const { generated } = generateProfile(snapshot, [
+            resourceSchema,
+            extensionSchema,
+            { identifier: otherExtension as ComplexTypeTypeSchema["identifier"] },
+        ]);
+
+        expect(generated).toContain(
+            'import type { Extension as Extension_1 } from "../../hl7-fhir-r4-core/Extension";',
+        );
+        expect(generated).toContain('Omit<Extension_1, "url"> | Extension_1');
+        expect(generated).toMatch(/public getNote\s*\(\)\s*:\s*Extension_1 \| undefined/);
+        expect(generated).toContain("target.extension = [] as Extension_1[]");
+        expect(generated).not.toContain("\u0000");
     });
 });
