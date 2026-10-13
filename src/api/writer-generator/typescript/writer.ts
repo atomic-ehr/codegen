@@ -1,5 +1,6 @@
+import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
-import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
+import type { WriterOptions } from "@root/api/writer-generator/writer";
 import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
 import {
     type CodedTerminologyEntry,
@@ -138,7 +139,7 @@ const allocateTerminologySymbols = (
     });
 };
 
-export class TypeScript extends Writer<TypeScriptOptions> {
+export class TypeScript extends SectionWriter<TypeScriptOptions> {
     private packageDirectories = new Map<string, string>();
 
     constructor(options: TypeScriptOptions) {
@@ -273,42 +274,21 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateDependenciesImports(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema, importPrefix = "../") {
-        if (schema.dependencies) {
-            const imports = [];
-            const skipped = [];
-            for (const dep of schema.dependencies) {
-                if (["complex-type", "resource", "logical"].includes(dep.kind)) {
-                    imports.push({
-                        tsPackage: `${importPrefix}${this.modulePath(dep)}`,
-                        name: tsResourceName(dep),
-                        dep: dep,
-                    });
-                } else {
-                    skipped.push(dep);
+    typeModuleImports(schema: SpecializationTypeSchema): SectionHandle<never, TypeIdentifier> {
+        return this.section<never, TypeIdentifier>({
+            name: tsResourceName,
+            render: (_definitions, usages) => {
+                const sorted = usages
+                    .filter(({ key }) => key.url !== schema.identifier.url)
+                    .sort((a, b) => tsResourceName(a.key).localeCompare(tsResourceName(b.key)));
+                for (const { key, local } of sorted) {
+                    const name = tsResourceName(key);
+                    const imported = local === name ? name : `${name} as ${local}`;
+                    this.tsImport(`../${this.modulePath(key)}`, imported, { typeOnly: true });
                 }
-            }
-            imports.sort((a, b) => a.name.localeCompare(b.name));
-            for (const dep of imports) {
-                this.debugComment(dep.dep);
-                this.tsImport(dep.tsPackage, dep.name, { typeOnly: true });
-            }
-            for (const dep of skipped) {
-                this.debugComment("skip:", dep);
-            }
-            this.line();
-            if (
-                this.withPrimitiveTypeExtension(schema) &&
-                schema.identifier.name !== "Element" &&
-                schema.dependencies.find((e) => e.name === "Element") === undefined
-            ) {
-                const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
-                const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
-                if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
-
-                this.tsImport(`${importPrefix}${this.modulePath(element.identifier)}`, "Element", { typeOnly: true });
-            }
-        }
+                if (sorted.length > 0) this.line();
+            },
+        });
     }
 
     generateComplexTypeReexports(schema: SpecializationTypeSchema) {
@@ -322,14 +302,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    addFieldExtension(fieldName: string, isArray: boolean): void {
+    addFieldExtension(fieldName: string, isArray: boolean, elementType: string): void {
         const extFieldName = tsFieldName(`_${fieldName}`);
-        const typeExpr = isArray ? "(Element | null)[]" : "Element";
+        const typeExpr = isArray ? `(${elementType} | null)[]` : elementType;
         this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
     generateType(
         tsIndex: TypeSchemaIndex,
+        imports: SectionHandle<never, TypeIdentifier>,
         schema: SpecializationTypeSchema | NestedTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
@@ -374,12 +355,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             }
         }
         if (!isHardcodedGeneric && params.length > 0) {
-            const declParams = params.map((p) => `${p.typeVar} extends ${p.constraint.name} = ${p.constraint.name}`);
+            const declParams = params.map((p) => {
+                const constraint = imports.use(p.constraint);
+                return `${p.typeVar} extends ${constraint} = ${constraint}`;
+            });
             name += `<${declParams.join(", ")}>`;
         }
 
         let extendsClause: string | undefined;
-        if (schema.base) extendsClause = `extends ${tsNameFromCanonical(schema.base.url)}`;
+        if (schema.base) extendsClause = `extends ${imports.use(schema.base)}`;
 
         this.debugComment(schema.identifier);
         if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
@@ -401,6 +385,13 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             }
 
             if (!schema.fields) return;
+            let elementType: string | undefined;
+            if (this.withPrimitiveTypeExtension(schema)) {
+                const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
+                const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
+                if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
+                elementType = imports.use(element.identifier);
+            }
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
 
             for (const [fieldName, field] of fields) {
@@ -412,6 +403,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
                 const tsName = tsFieldName(fieldName);
                 const tsType = resolveFieldTsType(
+                    imports,
                     schema.identifier.name,
                     tsName,
                     field,
@@ -424,10 +416,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const nestedArgs = nestedArgsByField[tsName] ?? "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${nestedArgs}${arraySymbol}`);
 
-                if (this.withPrimitiveTypeExtension(schema)) {
-                    if (isPrimitiveIdentifier(field.type)) {
-                        this.addFieldExtension(fieldName, field.array ?? false);
-                    }
+                if (elementType !== undefined && isPrimitiveIdentifier(field.type)) {
+                    this.addFieldExtension(fieldName, field.array ?? false, elementType);
                 }
             }
         });
@@ -455,12 +445,13 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
     generateNestedTypes(
         tsIndex: TypeSchemaIndex,
+        imports: SectionHandle<never, TypeIdentifier>,
         schema: SpecializationTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {
-            this.generateType(tsIndex, subtype, isFamilyType);
+            this.generateType(tsIndex, imports, subtype, isFamilyType);
             this.line();
         }
     }
@@ -478,15 +469,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                this.generateDependenciesImports(tsIndex, schema);
+                const imports = this.typeModuleImports(schema);
                 this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(tsIndex, schema, isFamilyType);
+                this.generateNestedTypes(tsIndex, imports, schema, isFamilyType);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema, isFamilyType);
+                this.generateType(tsIndex, imports, schema, isFamilyType);
                 this.generateResourceTypePredicate(schema);
             });
         } else {
