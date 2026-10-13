@@ -117,41 +117,6 @@ const addTypeImport = (
 // Import collection
 // ---------------------------------------------------------------------------
 
-const collectHelperImports = (
-    isResourceBase: boolean,
-    factoryInfo: ProfileFactoryInfo,
-    sliceDefs: SliceDef[],
-    extensions: ProfileExtension[],
-    validationHelpers: Set<string>,
-): string[] => {
-    const imports = ["build_resource"];
-    if (isResourceBase) imports.push("ensure_profile");
-    if (factoryInfo.sliceAutoFields.length > 0) imports.push("ensure_slice_defaults");
-    if (sliceDefs.length > 0) {
-        const hasNonTyped = sliceDefs.some((s) => !s.isTypeDiscriminated);
-        const hasTypedBounded = sliceDefs.some((s) => s.isTypeDiscriminated && !(s.array && s.max === 0));
-        const hasTypedUnbounded = sliceDefs.some((s) => s.isTypeDiscriminated && s.array && s.max === 0);
-        if (hasNonTyped) imports.push("apply_slice_match", "matches_value", "strip_match_keys");
-        if (hasTypedBounded || hasNonTyped) imports.push("get_array_slice", "set_array_slice");
-        if (hasTypedUnbounded) imports.push("get_array_slices", "set_array_slices");
-        if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrap_slice_choice", "unwrap_slice_choice");
-    }
-    if (extensions.length > 0) {
-        imports.push("_get_key", "is_extension", "get_extension_value", "push_extension");
-        if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extract_complex_extension");
-        if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensure_path");
-        // Complex/generic (non single-value) extension setters assert `is_record(value)` in the else branch.
-        const hasDictFormSetter = extensions.some(
-            (ext) =>
-                (ext.isComplex && ext.subExtensions) || !(ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]),
-        );
-        if (hasDictFormSetter) imports.push("is_record");
-    }
-    imports.push(...validationHelpers);
-    imports.sort();
-    return imports;
-};
-
 const collectTypeImports = (
     rootPackageName: string,
     baseTypeName: string,
@@ -213,7 +178,6 @@ const emitModuleImports = (
     factoryInfo: ProfileFactoryInfo,
     typeImports: Map<string, Set<string>>,
     extProfileImports: Map<string, ExtensionProfileInfo>,
-    helperImports: string[],
     sliceDefs: SliceDef[],
 ): void => {
     w.line("from __future__ import annotations");
@@ -258,7 +222,7 @@ const emitModuleImports = (
     for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
         w.pyImportFrom(`.${info.moduleName}`, extClassName);
     }
-    w.pyImportFrom(`${w.opts.rootPackageName}.profile_helpers`, ...helperImports);
+    w.useProfileHelperImports(w.profileHelperImports());
     w.line();
     w.line();
 };
@@ -409,9 +373,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(flatProfile.fields));
     const errorLines: string[] = [];
     const warningLines: string[] = [];
-    const validationHelpers = collectValidateBody(flatProfile, tsIndex, errorLines, warningLines, w.nameFormatFunction);
-
-    const helperImports = collectHelperImports(isResourceBase, factoryInfo, sliceDefs, extensions, validationHelpers);
+    collectValidateBody(flatProfile, tsIndex, errorLines, warningLines, w.nameFormatFunction);
     const typeImports = collectTypeImports(
         w.opts.rootPackageName,
         baseTypeName,
@@ -440,7 +402,6 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         factoryInfo,
         typeImports,
         extProfileImports,
-        helperImports,
         sliceDefs,
     );
 
@@ -475,6 +436,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
             warningLines,
         });
     });
+    w.clearProfileHelperImports();
     w.line();
 };
 

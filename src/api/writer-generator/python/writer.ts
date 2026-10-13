@@ -7,8 +7,9 @@ import {
     pyFhirPackageByName,
     pyPackage,
 } from "@root/api/writer-generator/python/naming-utils.ts";
+import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
 import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
-import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
+import type { WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CanonicalUrl,
@@ -104,16 +105,76 @@ type TypeSchemaPackageGroups = {
     groupedComplexTypes: Record<string, SpecializationTypeSchema[]>;
 };
 
-export class Python extends Writer<PythonGeneratorOptions> {
+const PROFILE_HELPERS = [
+    "_get_key",
+    "apply_slice_match",
+    "build_resource",
+    "ensure_path",
+    "ensure_profile",
+    "ensure_slice_defaults",
+    "extract_complex_extension",
+    "get_array_slice",
+    "get_array_slices",
+    "get_extension_value",
+    "is_extension",
+    "is_record",
+    "matches_value",
+    "push_extension",
+    "set_array_slice",
+    "set_array_slices",
+    "strip_match_keys",
+    "unwrap_slice_choice",
+    "wrap_slice_choice",
+    "validate_choice_prohibited",
+    "validate_choice_required",
+    "validate_enum",
+    "validate_excluded",
+    "validate_fixed_value",
+    "validate_must_support",
+    "validate_pattern_value",
+    "validate_reference",
+    "validate_required",
+    "validate_slice_cardinality",
+    "validate_slice_fields",
+];
+
+export class Python extends SectionWriter<PythonGeneratorOptions> {
     readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
+    private profileHelperImport?: SectionHandle<never, string>;
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
         this.forFhirpyClient = this.resolveClient(options);
         this.fieldFormat = options.fieldFormat;
+    }
+
+    profileHelperImports(): SectionHandle<never, string> {
+        return this.section<never, string>({
+            name: (name) => name,
+            render: (_definitions, usages) => {
+                const helpers = [...new Set(usages.map((usage) => usage.key))].sort();
+                if (helpers.length > 0) this.pyImportFrom(`${this.opts.rootPackageName}.profile_helpers`, ...helpers);
+            },
+        });
+    }
+
+    useProfileHelperImports(imports: SectionHandle<never, string>): void {
+        this.profileHelperImport = imports;
+    }
+
+    clearProfileHelperImports(): void {
+        this.profileHelperImport = undefined;
+    }
+
+    override write(str: string): void {
+        if (this.profileHelperImport) {
+            const helperPattern = new RegExp(`\\b(${PROFILE_HELPERS.join("|")})\\b`, "g");
+            str = str.replace(helperPattern, (helper) => this.profileHelperImport?.use(helper) ?? helper);
+        }
+        super.write(str);
     }
 
     /** Resolve which client integration to emit. `client` wins; `fhirpyClient` is the deprecated fallback; default is fhirpy. */
