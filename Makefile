@@ -12,6 +12,8 @@ TEST_TIMEOUT ?= 30000
 
 TYPECHECK = bunx tsc --noEmit
 
+TEST_ARG ?=
+
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
@@ -44,12 +46,12 @@ typecheck:
 
 test: typecheck
 	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
-		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
+		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test $(TEST_ARG) --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
 
 test-multi-package: typecheck
-	bun test test/api/write-generator/multi-package/cda.test.ts
-	bun test test/api/write-generator/multi-package/local-package.test.ts
-	bun test test/api/write-generator/multi-package/sql-on-fhir.test.ts
+	bun test $(TEST_ARG) test/api/write-generator/multi-package/cda.test.ts
+	bun test $(TEST_ARG) test/api/write-generator/multi-package/local-package.test.ts
+	bun test $(TEST_ARG) test/api/write-generator/multi-package/sql-on-fhir.test.ts
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
@@ -75,12 +77,12 @@ test-on-the-fly-example: test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on
 test-on-the-fly-norge-r4: typecheck
 	bun run examples/on-the-fly/norge-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/norge-r4/tsconfig.json
-	bun test ./examples/on-the-fly/norge-r4/
+	bun test $(TEST_ARG) ./examples/on-the-fly/norge-r4/
 
 test-on-the-fly-kbv-r4: typecheck
 	bun run examples/on-the-fly/kbv-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/kbv-r4/tsconfig.json
-	bun test ./examples/on-the-fly/kbv-r4/
+	bun test $(TEST_ARG) ./examples/on-the-fly/kbv-r4/
 
 test-on-the-fly-kbv-condition-diagnosis: typecheck
 	bun run examples/on-the-fly/kbv-condition-diagnosis/generate.ts
@@ -89,17 +91,17 @@ test-on-the-fly-kbv-condition-diagnosis: typecheck
 test-on-the-fly-ccda: typecheck
 	bun run examples/on-the-fly/ccda/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/ccda/tsconfig.json
-	bun test ./examples/on-the-fly/ccda/
+	bun test $(TEST_ARG) ./examples/on-the-fly/ccda/
 
 test-typescript-r4-us-core-example: typecheck
 	bun run examples/typescript-r4-us-core/generate.ts
 	$(TYPECHECK) --project examples/typescript-r4-us-core/tsconfig.json
-	bun test ./examples/typescript-r4-us-core/
+	bun test $(TEST_ARG) ./examples/typescript-r4-us-core/
 
 test-typescript-custom-packages-example: typecheck
 	bun run examples/typescript-custom-packages/generate.ts
 	$(TYPECHECK) --project examples/typescript-custom-packages/tsconfig.json
-	bun test ./examples/typescript-custom-packages/
+	bun test $(TEST_ARG) ./examples/typescript-custom-packages/
 
 test-mustache-java-r4-example: typecheck
 	bun run examples/mustache/mustache-java-r4-gen.ts
