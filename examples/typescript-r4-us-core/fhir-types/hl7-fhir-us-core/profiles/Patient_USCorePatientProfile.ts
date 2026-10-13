@@ -2,7 +2,6 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
@@ -24,20 +23,12 @@ import {
 import {
     ensureProfile,
     extractComplexExtension,
-    isExtension,
     getExtensionValue,
+    isExtension,
     pushExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;

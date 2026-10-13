@@ -12,23 +12,21 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 import {
-    ensureProfile,
     applyFixedValue,
     applySliceMatch,
+    ensureProfile,
+    ensureSliceDefaults,
+    getArraySlice,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateChoiceRequired,
+    validateEnum,
+    validateFixedValue,
     validateMustSupport,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
 } from "../../profile-helpers";
 
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;

@@ -48,22 +48,16 @@ import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTim
 import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
-    ensureProfile,
     ensurePath,
-    isExtension,
+    ensureProfile,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateEnum,
     validateMustSupport,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjAllergyIntoleranceProfileRaw = {
@@ -475,27 +469,21 @@ import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTim
 import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
-    ensureProfile,
     applySliceMatch,
+    ensureProfile,
+    getArraySlice,
+    getExtensionValue,
+    isExtension,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateEnum,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
 } from "../../profile-helpers";
 
 export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat = Omit<ConditionEvidence, "code">;
@@ -869,20 +857,14 @@ import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateEnum,
     validateMustSupport,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjConditionCriticalMedicalConditionProfileRaw = {
@@ -1225,21 +1207,14 @@ import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateEnum,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjConditionInfectionProfileRaw = {
@@ -1605,21 +1580,15 @@ import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateEnum,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
@@ -1986,20 +1955,12 @@ import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
     validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjConsentProfileRaw = {
@@ -2351,20 +2312,13 @@ import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTim
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjDeviceUseStatementProfileRaw = {
@@ -2661,17 +2615,11 @@ import type { Device } from "../../hl7-fhir-r4-core/Device";
 
 import {
     ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjDeviceProfileRaw = {
@@ -2778,16 +2726,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjAbatementDateTimeProfileRaw = {
@@ -2884,16 +2826,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjInactiveIngredientProfileRaw = {
@@ -2990,16 +2926,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjRecordedDateTimeProfileRaw = {
@@ -3095,19 +3025,7 @@ exports[`norge-r4 kjernejournal generated profiles matches golden output for eve
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import {
-    applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
-    validateMustSupport,
-} from "../../profile-helpers";
+import { applyFixedValue, validateChoiceProhibited, validateFixedValue, validateRequired } from "../../profile-helpers";
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjSourceOfInformationProfile {
@@ -3197,16 +3115,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjTextProfileRaw = {
@@ -3303,16 +3215,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjUpdatedDateTimeProfileRaw = {
@@ -3410,16 +3316,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjUpdaterProfileRaw = {
@@ -3516,16 +3416,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjValidUntilProfileRaw = {
@@ -3622,16 +3516,10 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjVerificationDateTimeProfileRaw = {
@@ -3729,16 +3617,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
-    validateMustSupport,
+    validateChoiceRequired,
+    validateFixedValue,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjVerifierProfileRaw = {
@@ -3845,27 +3727,21 @@ import { KjVerificationDateTimeProfile } from "./Extension_KjVerificationDateTim
 import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
-    ensureProfile,
     applySliceMatch,
+    ensureProfile,
+    ensureSliceDefaults,
+    getArraySlice,
+    getExtensionValue,
+    isExtension,
     matchesValue,
     setArraySlice,
-    getArraySlice,
-    ensureSliceDefaults,
-    isExtension,
-    getExtensionValue,
-    pushExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
+    validateSliceCardinality,
 } from "../../profile-helpers";
 
 export type KjFlag_Category_KjCategorySliceFlat = Omit<CodeableConcept, "coding">;
@@ -4212,17 +4088,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     ensureProfile,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjPractitionerRoleProfileRaw = {
@@ -4364,21 +4233,15 @@ import { KjVerifierProfile } from "./Extension_KjVerifier";
 
 import {
     ensureProfile,
-    isExtension,
     getExtensionValue,
-    pushExtension,
+    isExtension,
     upsertExtension,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
-    validateEnum,
-    validateReference,
-    validateChoiceRequired,
     validateChoiceProhibited,
+    validateEnum,
     validateMustSupport,
     validatePatternValue,
+    validateReference,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type KjProcedureProfileRaw = {
