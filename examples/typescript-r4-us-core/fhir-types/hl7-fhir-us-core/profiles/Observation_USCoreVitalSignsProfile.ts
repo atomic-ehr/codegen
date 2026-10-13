@@ -39,10 +39,13 @@ export type USCoreVitalSignsProfileRaw = {
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs";
+const profileName = "USCoreVitalSignsProfile";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreVitalSignsProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -55,8 +58,8 @@ export class USCoreVitalSignsProfile {
     }
 
     static from (resource: Observation) : USCoreVitalSignsProfile {
-        if (!resource.meta?.profile?.includes(USCoreVitalSignsProfile.canonicalUrl)) {
-            throw new Error(`USCoreVitalSignsProfile: meta.profile must include ${USCoreVitalSignsProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`USCoreVitalSignsProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new USCoreVitalSignsProfile(resource);
         const { errors } = profile.validate();
@@ -68,11 +71,11 @@ export class USCoreVitalSignsProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(USCoreVitalSignsProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : USCoreVitalSignsProfile {
-        ensureProfile(resource, USCoreVitalSignsProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             USCoreVitalSignsProfile.VSCatSliceMatch,
@@ -92,7 +95,7 @@ export class USCoreVitalSignsProfile {
             status: args.status,
             code: args.code,
             subject: args.subject,
-            meta: { profile: [USCoreVitalSignsProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -318,7 +321,6 @@ export class USCoreVitalSignsProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreVitalSignsProfile"
         const res = this.resource
         return {
             errors: [

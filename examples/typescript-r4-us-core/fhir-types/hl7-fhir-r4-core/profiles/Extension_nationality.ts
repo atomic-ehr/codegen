@@ -24,9 +24,12 @@ export type nationalityProfileFlat = {
     period?: Period;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality";
+const profileName = "nationality";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -43,12 +46,12 @@ export class nationalityProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === nationalityProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : nationalityProfile {
-        resource.url = nationalityProfile.canonicalUrl;
-        applyFixedValue(resource, "url", nationalityProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new nationalityProfile(resource);
     }
 
@@ -71,7 +74,7 @@ export class nationalityProfile {
         const resolvedExtensions = nationalityProfile.resolveInput(args ?? {});
 
         const resource: Extension = {
-            url: nationalityProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -124,12 +127,11 @@ export class nationalityProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "nationality"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", nationalityProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }

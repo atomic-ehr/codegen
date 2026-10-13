@@ -27,10 +27,13 @@ export type USCoreProvenanceProfileRaw = {
     agent: ProvenanceAgent[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance";
+const profileName = "USCoreProvenance";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreProvenanceProfile {
     static readonly resourceType = "Provenance";
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly ProvenanceAuthorSliceMatch: Record<string, unknown> = {
         "type": {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]},
@@ -46,8 +49,8 @@ export class USCoreProvenanceProfile {
     }
 
     static from (resource: Provenance) : USCoreProvenanceProfile {
-        if (!resource.meta?.profile?.includes(USCoreProvenanceProfile.canonicalUrl)) {
-            throw new Error(`USCoreProvenanceProfile: meta.profile must include ${USCoreProvenanceProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`USCoreProvenanceProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new USCoreProvenanceProfile(resource);
         const { errors } = profile.validate();
@@ -59,11 +62,11 @@ export class USCoreProvenanceProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Provenance") return false;
-        return (r.meta?.profile ?? []).includes(USCoreProvenanceProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Provenance) : USCoreProvenanceProfile {
-        ensureProfile(resource, USCoreProvenanceProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new USCoreProvenanceProfile(resource);
     }
 
@@ -73,7 +76,7 @@ export class USCoreProvenanceProfile {
             target: args.target,
             recorded: args.recorded,
             agent: args.agent,
-            meta: { profile: [USCoreProvenanceProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -157,7 +160,6 @@ export class USCoreProvenanceProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreProvenance"
         const res = this.resource
         return {
             errors: [

@@ -72,10 +72,13 @@ export type KjAllergyIntoleranceProfileRaw = {
     reaction: AllergyIntoleranceReaction[];
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjAllergyIntolerance";
+const profileName = "KjAllergyIntolerance";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjAllergyIntolerance (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjAllergyIntoleranceProfile {
     static readonly resourceType = "AllergyIntolerance";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjAllergyIntolerance";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: AllergyIntolerance;
 
@@ -84,8 +87,8 @@ export class KjAllergyIntoleranceProfile {
     }
 
     static from (resource: AllergyIntolerance) : KjAllergyIntoleranceProfile {
-        if (!resource.meta?.profile?.includes(KjAllergyIntoleranceProfile.canonicalUrl)) {
-            throw new Error(\`KjAllergyIntoleranceProfile: meta.profile must include \${KjAllergyIntoleranceProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjAllergyIntoleranceProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjAllergyIntoleranceProfile(resource);
         const { errors } = profile.validate();
@@ -97,11 +100,11 @@ export class KjAllergyIntoleranceProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "AllergyIntolerance") return false;
-        return (r.meta?.profile ?? []).includes(KjAllergyIntoleranceProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: AllergyIntolerance) : KjAllergyIntoleranceProfile {
-        ensureProfile(resource, KjAllergyIntoleranceProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjAllergyIntoleranceProfile(resource);
     }
 
@@ -117,7 +120,7 @@ export class KjAllergyIntoleranceProfile {
             recordedDate: args.recordedDate,
             recorder: args.recorder,
             reaction: args.reaction,
-            meta: { profile: [KjAllergyIntoleranceProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -417,7 +420,6 @@ export class KjAllergyIntoleranceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjAllergyIntolerance"
         const res = this.resource
         return {
             errors: [
@@ -499,10 +501,13 @@ export type KjConditionComplicationsOfAnesthesiaProfileRaw = {
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionComplicationsOfAnesthesia";
+const profileName = "KjConditionComplicationsOfAnesthesia";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionComplicationsOfAnesthesia (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionComplicationsOfAnesthesiaProfile {
     static readonly resourceType = "Condition";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionComplicationsOfAnesthesia";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly possibilityForVentilationWithMaskSliceMatch: Record<string, unknown> = {
         "code": {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/GradingOfMaskVentilation"}]},
@@ -515,8 +520,8 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     static from (resource: Condition) : KjConditionComplicationsOfAnesthesiaProfile {
-        if (!resource.meta?.profile?.includes(KjConditionComplicationsOfAnesthesiaProfile.canonicalUrl)) {
-            throw new Error(\`KjConditionComplicationsOfAnesthesiaProfile: meta.profile must include \${KjConditionComplicationsOfAnesthesiaProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjConditionComplicationsOfAnesthesiaProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjConditionComplicationsOfAnesthesiaProfile(resource);
         const { errors } = profile.validate();
@@ -528,11 +533,11 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Condition") return false;
-        return (r.meta?.profile ?? []).includes(KjConditionComplicationsOfAnesthesiaProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Condition) : KjConditionComplicationsOfAnesthesiaProfile {
-        ensureProfile(resource, KjConditionComplicationsOfAnesthesiaProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjConditionComplicationsOfAnesthesiaProfile(resource);
     }
 
@@ -546,7 +551,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
             subject: args.subject,
             recordedDate: args.recordedDate,
             recorder: args.recorder,
-            meta: { profile: [KjConditionComplicationsOfAnesthesiaProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -804,7 +809,6 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionComplicationsOfAnesthesia"
         const res = this.resource
         return {
             errors: [
@@ -877,10 +881,13 @@ export type KjConditionCriticalMedicalConditionProfileRaw = {
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionCriticalMedicalCondition";
+const profileName = "KjConditionCriticalMedicalCondition";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionCriticalMedicalCondition (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionCriticalMedicalConditionProfile {
     static readonly resourceType = "Condition";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionCriticalMedicalCondition";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Condition;
 
@@ -889,8 +896,8 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     static from (resource: Condition) : KjConditionCriticalMedicalConditionProfile {
-        if (!resource.meta?.profile?.includes(KjConditionCriticalMedicalConditionProfile.canonicalUrl)) {
-            throw new Error(\`KjConditionCriticalMedicalConditionProfile: meta.profile must include \${KjConditionCriticalMedicalConditionProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjConditionCriticalMedicalConditionProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjConditionCriticalMedicalConditionProfile(resource);
         const { errors } = profile.validate();
@@ -902,11 +909,11 @@ export class KjConditionCriticalMedicalConditionProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Condition") return false;
-        return (r.meta?.profile ?? []).includes(KjConditionCriticalMedicalConditionProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Condition) : KjConditionCriticalMedicalConditionProfile {
-        ensureProfile(resource, KjConditionCriticalMedicalConditionProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjConditionCriticalMedicalConditionProfile(resource);
     }
 
@@ -920,7 +927,7 @@ export class KjConditionCriticalMedicalConditionProfile {
             subject: args.subject,
             recordedDate: args.recordedDate,
             recorder: args.recorder,
-            meta: { profile: [KjConditionCriticalMedicalConditionProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -1156,7 +1163,6 @@ export class KjConditionCriticalMedicalConditionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionCriticalMedicalCondition"
         const res = this.resource
         return {
             errors: [
@@ -1227,10 +1233,13 @@ export type KjConditionInfectionProfileRaw = {
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionInfection";
+const profileName = "KjConditionInfection";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionInfection (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionInfectionProfile {
     static readonly resourceType = "Condition";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionInfection";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Condition;
 
@@ -1239,8 +1248,8 @@ export class KjConditionInfectionProfile {
     }
 
     static from (resource: Condition) : KjConditionInfectionProfile {
-        if (!resource.meta?.profile?.includes(KjConditionInfectionProfile.canonicalUrl)) {
-            throw new Error(\`KjConditionInfectionProfile: meta.profile must include \${KjConditionInfectionProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjConditionInfectionProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjConditionInfectionProfile(resource);
         const { errors } = profile.validate();
@@ -1252,11 +1261,11 @@ export class KjConditionInfectionProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Condition") return false;
-        return (r.meta?.profile ?? []).includes(KjConditionInfectionProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Condition) : KjConditionInfectionProfile {
-        ensureProfile(resource, KjConditionInfectionProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjConditionInfectionProfile(resource);
     }
 
@@ -1270,7 +1279,7 @@ export class KjConditionInfectionProfile {
             subject: args.subject,
             recordedDate: args.recordedDate,
             recorder: args.recorder,
-            meta: { profile: [KjConditionInfectionProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -1530,7 +1539,6 @@ export class KjConditionInfectionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionInfection"
         const res = this.resource
         return {
             errors: [
@@ -1601,10 +1609,13 @@ export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionTransplantsAndOtherForeignBodies";
+const profileName = "KjConditionTransplantsAndOtherForeignBodies";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionTransplantsAndOtherForeignBodies (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     static readonly resourceType = "Condition";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionTransplantsAndOtherForeignBodies";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Condition;
 
@@ -1613,8 +1624,8 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     static from (resource: Condition) : KjConditionTransplantsAndOtherForeignBodiesProfile {
-        if (!resource.meta?.profile?.includes(KjConditionTransplantsAndOtherForeignBodiesProfile.canonicalUrl)) {
-            throw new Error(\`KjConditionTransplantsAndOtherForeignBodiesProfile: meta.profile must include \${KjConditionTransplantsAndOtherForeignBodiesProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjConditionTransplantsAndOtherForeignBodiesProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjConditionTransplantsAndOtherForeignBodiesProfile(resource);
         const { errors } = profile.validate();
@@ -1626,11 +1637,11 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Condition") return false;
-        return (r.meta?.profile ?? []).includes(KjConditionTransplantsAndOtherForeignBodiesProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Condition) : KjConditionTransplantsAndOtherForeignBodiesProfile {
-        ensureProfile(resource, KjConditionTransplantsAndOtherForeignBodiesProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjConditionTransplantsAndOtherForeignBodiesProfile(resource);
     }
 
@@ -1644,7 +1655,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
             subject: args.subject,
             recordedDate: args.recordedDate,
             recorder: args.recorder,
-            meta: { profile: [KjConditionTransplantsAndOtherForeignBodiesProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -1904,7 +1915,6 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionTransplantsAndOtherForeignBodies"
         const res = this.resource
         return {
             errors: [
@@ -1973,10 +1983,13 @@ export type KjConsentProfileRaw = {
     policyRule: CodeableConcept;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConsent";
+const profileName = "KjConsent";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConsent (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConsentProfile {
     static readonly resourceType = "Consent";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConsent";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Consent;
 
@@ -1985,8 +1998,8 @@ export class KjConsentProfile {
     }
 
     static from (resource: Consent) : KjConsentProfile {
-        if (!resource.meta?.profile?.includes(KjConsentProfile.canonicalUrl)) {
-            throw new Error(\`KjConsentProfile: meta.profile must include \${KjConsentProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjConsentProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjConsentProfile(resource);
         const { errors } = profile.validate();
@@ -1998,11 +2011,11 @@ export class KjConsentProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Consent") return false;
-        return (r.meta?.profile ?? []).includes(KjConsentProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Consent) : KjConsentProfile {
-        ensureProfile(resource, KjConsentProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjConsentProfile(resource);
     }
 
@@ -2016,7 +2029,7 @@ export class KjConsentProfile {
             dateTime: args.dateTime,
             performer: args.performer,
             policyRule: args.policyRule,
-            meta: { profile: [KjConsentProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -2266,7 +2279,6 @@ export class KjConsentProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConsent"
         const res = this.resource
         return {
             errors: [
@@ -2329,10 +2341,13 @@ export type KjDeviceUseStatementProfileRaw = {
     device: Reference<"Device" /* http://nhn.no/kj/fhir/StructureDefinition/KjDevice */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDeviceUseStatement";
+const profileName = "KjDeviceUseStatement";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjDeviceUseStatement (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjDeviceUseStatementProfile {
     static readonly resourceType = "DeviceUseStatement";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDeviceUseStatement";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: DeviceUseStatement;
 
@@ -2341,8 +2356,8 @@ export class KjDeviceUseStatementProfile {
     }
 
     static from (resource: DeviceUseStatement) : KjDeviceUseStatementProfile {
-        if (!resource.meta?.profile?.includes(KjDeviceUseStatementProfile.canonicalUrl)) {
-            throw new Error(\`KjDeviceUseStatementProfile: meta.profile must include \${KjDeviceUseStatementProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjDeviceUseStatementProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjDeviceUseStatementProfile(resource);
         const { errors } = profile.validate();
@@ -2354,11 +2369,11 @@ export class KjDeviceUseStatementProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "DeviceUseStatement") return false;
-        return (r.meta?.profile ?? []).includes(KjDeviceUseStatementProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: DeviceUseStatement) : KjDeviceUseStatementProfile {
-        ensureProfile(resource, KjDeviceUseStatementProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjDeviceUseStatementProfile(resource);
     }
 
@@ -2370,7 +2385,7 @@ export class KjDeviceUseStatementProfile {
             recordedOn: args.recordedOn,
             source: args.source,
             device: args.device,
-            meta: { profile: [KjDeviceUseStatementProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -2578,7 +2593,6 @@ export class KjDeviceUseStatementProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjDeviceUseStatement"
         const res = this.resource
         return {
             errors: [
@@ -2626,10 +2640,13 @@ export type KjDeviceProfileRaw = {
     type: CodeableConcept<("1" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "27" | "28" | "29" | string)>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDevice";
+const profileName = "KjDevice";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjDevice (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjDeviceProfile {
     static readonly resourceType = "Device";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDevice";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Device;
 
@@ -2638,8 +2655,8 @@ export class KjDeviceProfile {
     }
 
     static from (resource: Device) : KjDeviceProfile {
-        if (!resource.meta?.profile?.includes(KjDeviceProfile.canonicalUrl)) {
-            throw new Error(\`KjDeviceProfile: meta.profile must include \${KjDeviceProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjDeviceProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjDeviceProfile(resource);
         const { errors } = profile.validate();
@@ -2651,11 +2668,11 @@ export class KjDeviceProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Device") return false;
-        return (r.meta?.profile ?? []).includes(KjDeviceProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Device) : KjDeviceProfile {
-        ensureProfile(resource, KjDeviceProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjDeviceProfile(resource);
     }
 
@@ -2663,7 +2680,7 @@ export class KjDeviceProfile {
         const resource: Device = {
             resourceType: "Device",
             type: args.type,
-            meta: { profile: [KjDeviceProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -2691,7 +2708,6 @@ export class KjDeviceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjDevice"
         const res = this.resource
         return {
             errors: [
@@ -2736,9 +2752,12 @@ export type KjAbatementDateTimeProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjAbatementDateTime";
+const profileName = "KjAbatementDateTime";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjAbatementDateTime (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjAbatementDateTimeProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjAbatementDateTime";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -2755,18 +2774,18 @@ export class KjAbatementDateTimeProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjAbatementDateTimeProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjAbatementDateTimeProfile {
-        resource.url = KjAbatementDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjAbatementDateTimeProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjAbatementDateTimeProfile(resource);
     }
 
     static createResource (args: KjAbatementDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjAbatementDateTimeProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -2799,12 +2818,11 @@ export class KjAbatementDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjAbatementDateTime"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjAbatementDateTimeProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -2836,9 +2854,12 @@ export type KjInactiveIngredientProfileRaw = {
     valueBoolean: boolean;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjInactiveIngredient";
+const profileName = "KjInactiveIngredient";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjInactiveIngredient (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjInactiveIngredientProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjInactiveIngredient";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -2855,18 +2876,18 @@ export class KjInactiveIngredientProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjInactiveIngredientProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjInactiveIngredientProfile {
-        resource.url = KjInactiveIngredientProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjInactiveIngredientProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjInactiveIngredientProfile(resource);
     }
 
     static createResource (args: KjInactiveIngredientProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjInactiveIngredientProfile.canonicalUrl,
+            url: canonicalUrl,
             valueBoolean: args.valueBoolean,
         }
         return resource;
@@ -2899,12 +2920,11 @@ export class KjInactiveIngredientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjInactiveIngredient"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjInactiveIngredientProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueBoolean"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -2936,9 +2956,12 @@ export type KjRecordedDateTimeProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjRecordedDateTime";
+const profileName = "KjRecordedDateTime";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjRecordedDateTime (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjRecordedDateTimeProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjRecordedDateTime";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -2955,18 +2978,18 @@ export class KjRecordedDateTimeProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjRecordedDateTimeProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjRecordedDateTimeProfile {
-        resource.url = KjRecordedDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjRecordedDateTimeProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjRecordedDateTimeProfile(resource);
     }
 
     static createResource (args: KjRecordedDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjRecordedDateTimeProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -2999,12 +3022,11 @@ export class KjRecordedDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjRecordedDateTime"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjRecordedDateTimeProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3027,9 +3049,12 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import { applyFixedValue, validateChoiceProhibited, validateFixedValue, validateRequired } from "../../profile-helpers";
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation";
+const profileName = "KjSourceOfInformation";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjSourceOfInformationProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3046,18 +3071,18 @@ export class KjSourceOfInformationProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjSourceOfInformationProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjSourceOfInformationProfile {
-        resource.url = KjSourceOfInformationProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjSourceOfInformationProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjSourceOfInformationProfile(resource);
     }
 
     static createResource () : Extension {
         const resource: Extension = {
-            url: KjSourceOfInformationProfile.canonicalUrl,
+            url: canonicalUrl,
         }
         return resource;
     }
@@ -3089,12 +3114,11 @@ export class KjSourceOfInformationProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjSourceOfInformation"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjSourceOfInformationProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
             warnings: [],
@@ -3125,9 +3149,12 @@ export type KjTextProfileRaw = {
     valueString: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjText";
+const profileName = "KjText";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjText (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjTextProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjText";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3144,18 +3171,18 @@ export class KjTextProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjTextProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjTextProfile {
-        resource.url = KjTextProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjTextProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjTextProfile(resource);
     }
 
     static createResource (args: KjTextProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjTextProfile.canonicalUrl,
+            url: canonicalUrl,
             valueString: args.valueString,
         }
         return resource;
@@ -3188,12 +3215,11 @@ export class KjTextProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjText"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjTextProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueString"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3225,9 +3251,12 @@ export type KjUpdatedDateTimeProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjUpdatedDateTime";
+const profileName = "KjUpdatedDateTime";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjUpdatedDateTime (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjUpdatedDateTimeProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjUpdatedDateTime";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3244,18 +3273,18 @@ export class KjUpdatedDateTimeProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjUpdatedDateTimeProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjUpdatedDateTimeProfile {
-        resource.url = KjUpdatedDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjUpdatedDateTimeProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjUpdatedDateTimeProfile(resource);
     }
 
     static createResource (args: KjUpdatedDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjUpdatedDateTimeProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3288,12 +3317,11 @@ export class KjUpdatedDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjUpdatedDateTime"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjUpdatedDateTimeProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3326,9 +3354,12 @@ export type KjUpdaterProfileRaw = {
     valueReference: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjUpdater";
+const profileName = "KjUpdater";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjUpdater (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjUpdaterProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjUpdater";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3345,18 +3376,18 @@ export class KjUpdaterProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjUpdaterProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjUpdaterProfile {
-        resource.url = KjUpdaterProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjUpdaterProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjUpdaterProfile(resource);
     }
 
     static createResource (args: KjUpdaterProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjUpdaterProfile.canonicalUrl,
+            url: canonicalUrl,
             valueReference: args.valueReference,
         }
         return resource;
@@ -3389,12 +3420,11 @@ export class KjUpdaterProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjUpdater"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjUpdaterProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueReference"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3426,9 +3456,12 @@ export type KjValidUntilProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjValidUntil";
+const profileName = "KjValidUntil";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjValidUntil (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjValidUntilProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjValidUntil";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3445,18 +3478,18 @@ export class KjValidUntilProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjValidUntilProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjValidUntilProfile {
-        resource.url = KjValidUntilProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjValidUntilProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjValidUntilProfile(resource);
     }
 
     static createResource (args: KjValidUntilProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjValidUntilProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3489,12 +3522,11 @@ export class KjValidUntilProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjValidUntil"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjValidUntilProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3526,9 +3558,12 @@ export type KjVerificationDateTimeProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjVerificationDateTime";
+const profileName = "KjVerificationDateTime";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjVerificationDateTime (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjVerificationDateTimeProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjVerificationDateTime";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3545,18 +3580,18 @@ export class KjVerificationDateTimeProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjVerificationDateTimeProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjVerificationDateTimeProfile {
-        resource.url = KjVerificationDateTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjVerificationDateTimeProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjVerificationDateTimeProfile(resource);
     }
 
     static createResource (args: KjVerificationDateTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjVerificationDateTimeProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -3589,12 +3624,11 @@ export class KjVerificationDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjVerificationDateTime"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjVerificationDateTimeProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3627,9 +3661,12 @@ export type KjVerifierProfileRaw = {
     valueReference: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjVerifier";
+const profileName = "KjVerifier";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjVerifier (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjVerifierProfile {
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjVerifier";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -3646,18 +3683,18 @@ export class KjVerifierProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === KjVerifierProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : KjVerifierProfile {
-        resource.url = KjVerifierProfile.canonicalUrl;
-        applyFixedValue(resource, "url", KjVerifierProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new KjVerifierProfile(resource);
     }
 
     static createResource (args: KjVerifierProfileRaw) : Extension {
         const resource: Extension = {
-            url: KjVerifierProfile.canonicalUrl,
+            url: canonicalUrl,
             valueReference: args.valueReference,
         }
         return resource;
@@ -3690,12 +3727,11 @@ export class KjVerifierProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjVerifier"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", KjVerifierProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueReference"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],
@@ -3756,10 +3792,13 @@ export type KjFlagProfileRaw = {
     category?: CodeableConcept[];
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjFlag";
+const profileName = "KjFlag";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjFlag (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjFlagProfile {
     static readonly resourceType = "Flag";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjFlag";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly KjCategorySliceMatch: Record<string, unknown> = {
         "coding": {"system":"http://nhn.no/kj/fhir/CodeSystem/SubcategoriesOfCriticalInformation"},
@@ -3772,8 +3811,8 @@ export class KjFlagProfile {
     }
 
     static from (resource: Flag) : KjFlagProfile {
-        if (!resource.meta?.profile?.includes(KjFlagProfile.canonicalUrl)) {
-            throw new Error(\`KjFlagProfile: meta.profile must include \${KjFlagProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjFlagProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjFlagProfile(resource);
         const { errors } = profile.validate();
@@ -3785,11 +3824,11 @@ export class KjFlagProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Flag") return false;
-        return (r.meta?.profile ?? []).includes(KjFlagProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Flag) : KjFlagProfile {
-        ensureProfile(resource, KjFlagProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             KjFlagProfile.KjCategorySliceMatch,
@@ -3811,7 +3850,7 @@ export class KjFlagProfile {
             subject: args.subject,
             period: args.period,
             author: args.author,
-            meta: { profile: [KjFlagProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -4050,7 +4089,6 @@ export class KjFlagProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjFlag"
         const res = this.resource
         return {
             errors: [
@@ -4100,10 +4138,13 @@ export type KjPractitionerRoleProfileRaw = {
     code: CodeableConcept[];
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole";
+const profileName = "KjPractitionerRole";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjPractitionerRoleProfile {
     static readonly resourceType = "PractitionerRole";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: PractitionerRole;
 
@@ -4112,8 +4153,8 @@ export class KjPractitionerRoleProfile {
     }
 
     static from (resource: PractitionerRole) : KjPractitionerRoleProfile {
-        if (!resource.meta?.profile?.includes(KjPractitionerRoleProfile.canonicalUrl)) {
-            throw new Error(\`KjPractitionerRoleProfile: meta.profile must include \${KjPractitionerRoleProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjPractitionerRoleProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjPractitionerRoleProfile(resource);
         const { errors } = profile.validate();
@@ -4125,11 +4166,11 @@ export class KjPractitionerRoleProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "PractitionerRole") return false;
-        return (r.meta?.profile ?? []).includes(KjPractitionerRoleProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: PractitionerRole) : KjPractitionerRoleProfile {
-        ensureProfile(resource, KjPractitionerRoleProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjPractitionerRoleProfile(resource);
     }
 
@@ -4139,7 +4180,7 @@ export class KjPractitionerRoleProfile {
             practitioner: args.practitioner,
             organization: args.organization,
             code: args.code,
-            meta: { profile: [KjPractitionerRoleProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -4185,7 +4226,6 @@ export class KjPractitionerRoleProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjPractitionerRole"
         const res = this.resource
         return {
             errors: [
@@ -4252,10 +4292,13 @@ export type KjProcedureProfileRaw = {
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
 
+const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjProcedure";
+const profileName = "KjProcedure";
+
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjProcedure (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjProcedureProfile {
     static readonly resourceType = "Procedure";
-    static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjProcedure";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Procedure;
 
@@ -4264,8 +4307,8 @@ export class KjProcedureProfile {
     }
 
     static from (resource: Procedure) : KjProcedureProfile {
-        if (!resource.meta?.profile?.includes(KjProcedureProfile.canonicalUrl)) {
-            throw new Error(\`KjProcedureProfile: meta.profile must include \${KjProcedureProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KjProcedureProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KjProcedureProfile(resource);
         const { errors } = profile.validate();
@@ -4277,11 +4320,11 @@ export class KjProcedureProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Procedure") return false;
-        return (r.meta?.profile ?? []).includes(KjProcedureProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Procedure) : KjProcedureProfile {
-        ensureProfile(resource, KjProcedureProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KjProcedureProfile(resource);
     }
 
@@ -4293,7 +4336,7 @@ export class KjProcedureProfile {
             code: args.code,
             subject: args.subject,
             recorder: args.recorder,
-            meta: { profile: [KjProcedureProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -4574,7 +4617,6 @@ export class KjProcedureProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjProcedure"
         const res = this.resource
         return {
             errors: [

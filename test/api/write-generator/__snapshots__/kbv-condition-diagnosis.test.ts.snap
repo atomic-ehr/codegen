@@ -3811,10 +3811,13 @@ export type KBV_PR_Base_Condition_DiagnosisProfileRaw = {
     subject: Reference<"Group" | "Patient">;
 }
 
+const canonicalUrl = "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis";
+const profileName = "KBV_PR_Base_Condition_Diagnosis";
+
 // CanonicalURL: https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis (pkg: kbv.basis#1.9.0)
 export class KBV_PR_Base_Condition_DiagnosisProfile {
     static readonly resourceType = "Condition";
-    static readonly canonicalUrl = "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Condition;
 
@@ -3823,8 +3826,8 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
     }
 
     static from (resource: Condition) : KBV_PR_Base_Condition_DiagnosisProfile {
-        if (!resource.meta?.profile?.includes(KBV_PR_Base_Condition_DiagnosisProfile.canonicalUrl)) {
-            throw new Error(\`KBV_PR_Base_Condition_DiagnosisProfile: meta.profile must include \${KBV_PR_Base_Condition_DiagnosisProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`KBV_PR_Base_Condition_DiagnosisProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new KBV_PR_Base_Condition_DiagnosisProfile(resource);
         const { errors } = profile.validate();
@@ -3836,11 +3839,11 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Condition") return false;
-        return (r.meta?.profile ?? []).includes(KBV_PR_Base_Condition_DiagnosisProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Condition) : KBV_PR_Base_Condition_DiagnosisProfile {
-        ensureProfile(resource, KBV_PR_Base_Condition_DiagnosisProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new KBV_PR_Base_Condition_DiagnosisProfile(resource);
     }
 
@@ -3849,7 +3852,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
             resourceType: "Condition",
             code: args.code,
             subject: args.subject,
-            meta: { profile: [KBV_PR_Base_Condition_DiagnosisProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -4049,7 +4052,6 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KBV_PR_Base_Condition_Diagnosis"
         const res = this.resource
         return {
             errors: [

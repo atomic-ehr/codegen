@@ -52,6 +52,9 @@ export type ProfileImports = {
     types: SectionHandle<never, TypeIdentifier>;
 };
 
+/** Profile imports plus module-level constants: `const.def(name, expr)` declares `const name = expr;`. */
+export type ProfileSections = ProfileImports & { const: SectionHandle<string, string> };
+
 export const resolveProfileType = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
@@ -64,7 +67,8 @@ export const resolveProfileType = (
 };
 
 type ProfileFactoryInfo = {
-    autoFields: { name: string; value: string }[];
+    /** `value` builds the expression; the profile's own URL is written as the given `canonicalUrl` expression. */
+    autoFields: { name: string; value: (canonicalUrl: string) => string }[];
     /** Array fields with required slices — optional param with auto-merge of required stubs */
     sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
@@ -154,7 +158,7 @@ export const collectProfileFactoryInfo = (
     const isFamilyType = tsIndex.isFamilyType;
 
     if (isResourceIdentifier(snapshot.base)) {
-        autoFields.push({ name: "resourceType", value: JSON.stringify(snapshot.base.name) });
+        autoFields.push({ name: "resourceType", value: () => JSON.stringify(snapshot.base.name) });
     }
 
     for (const [name, field] of Object.entries(fields)) {
@@ -167,13 +171,18 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.valueConstraint && !field.valueConstraint.validateOnly) {
-            // A fixed value equal to the profile's own canonical URL is already a static on the
-            // class, so reference it instead of repeating the literal.
-            const value =
-                field.valueConstraint.value === snapshot.identifier.url
-                    ? `${tsProfileClassName(snapshot)}.canonicalUrl`
-                    : JSON.stringify(field.valueConstraint.value);
-            autoFields.push({ name, value: field.array ? `[${value}]` : value });
+            // A fixed value equal to the profile's own canonical URL references the module
+            // constant instead of repeating the literal.
+            const fixed = field.valueConstraint.value;
+            const isOwnUrl = fixed === snapshot.identifier.url;
+            const array = field.array;
+            autoFields.push({
+                name,
+                value: (canonicalUrl) => {
+                    const value = isOwnUrl ? canonicalUrl : JSON.stringify(fixed);
+                    return array ? `[${value}]` : value;
+                },
+            });
             fixedFields.add(name);
             if (isNotChoiceDeclarationField(field) && field.type) {
                 const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
@@ -289,6 +298,17 @@ const profileHelperImports = (w: TypeScript): ProfileImports["helper"] =>
         },
     });
 
+const profileConstants = (w: TypeScript): ProfileSections["const"] =>
+    w.section<string, string>({
+        name: (name) => name,
+        defRender: (name, expr) => w.lineSM(`const ${name} = ${expr}`),
+        render: (definitions) => {
+            if (definitions.length === 0) return;
+            for (const { local, value } of definitions) w.lineSM(`const ${local} = ${value}`);
+            w.line();
+        },
+    });
+
 export const generateProfileImports = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
@@ -368,19 +388,20 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
 
 const generateFactoryMethods = (
     w: TypeScript,
-    imports: ProfileImports,
+    imports: ProfileSections,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     factoryInfo: ProfileFactoryInfo,
 ) => {
     const profileClassName = tsProfileClassName(snapshot);
+    const canonicalUrl = imports.const.use("canonicalUrl");
     const tsBaseResourceName = tsTypeFromIdentifier(imports.types, snapshot.base);
     const hasMeta = tsIndex.isWithMetaField(snapshot);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
     const allFields = [
-        ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
+        ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value(canonicalUrl) })),
         ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
@@ -390,10 +411,8 @@ const generateFactoryMethods = (
     w.line();
     w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
-            w.curlyBlock(["if", `(!resource.meta?.profile?.includes(${profileClassName}.canonicalUrl))`], () => {
-                w.line(
-                    `throw new Error(\`${profileClassName}: meta.profile must include \${${profileClassName}.canonicalUrl}\`)`,
-                );
+            w.curlyBlock(["if", `(!resource.meta?.profile?.some((p) => p === ${canonicalUrl}))`], () => {
+                w.line(`throw new Error(\`${profileClassName}: meta.profile must include \${${canonicalUrl}}\`)`);
             });
         }
         w.lineSM(`const profile = new ${profileClassName}(resource)`);
@@ -409,24 +428,26 @@ const generateFactoryMethods = (
             if (hasMeta && isResourceIdentifier(snapshot.base)) {
                 w.line(`const r = resource as { resourceType?: string; meta?: { profile?: string[] } };`);
                 w.line(`if (r.resourceType !== ${JSON.stringify(snapshot.base.name)}) return false;`);
-                w.lineSM(`return (r.meta?.profile ?? []).includes(${profileClassName}.canonicalUrl)`);
+                w.lineSM(`return (r.meta?.profile ?? []).some((p) => p === ${canonicalUrl})`);
             } else {
-                w.lineSM(`return (resource as { url?: string }).url === ${profileClassName}.canonicalUrl`);
+                w.lineSM(`return (resource as { url?: string }).url === ${canonicalUrl}`);
             }
         });
         w.line();
     }
     w.curlyBlock(["static", "apply", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
-            w.lineSM(`${imports.helper.use("ensureProfile")}(resource, ${profileClassName}.canonicalUrl)`);
+            w.lineSM(`${imports.helper.use("ensureProfile")}(resource, ${canonicalUrl})`);
         }
         if (snapshot.base.name === "Extension" && snapshot.identifier.url) {
-            w.lineSM(`resource.url = ${profileClassName}.canonicalUrl`);
+            w.lineSM(`resource.url = ${canonicalUrl}`);
         }
         const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
         if (applyAutoFields.length > 0) {
             for (const f of applyAutoFields) {
-                w.lineSM(`${imports.helper.use("applyFixedValue")}(resource, ${JSON.stringify(f.name)}, ${f.value})`);
+                w.lineSM(
+                    `${imports.helper.use("applyFixedValue")}(resource, ${JSON.stringify(f.name)}, ${f.value(canonicalUrl)})`,
+                );
             }
         }
         for (const f of factoryInfo.sliceAutoFields) {
@@ -542,11 +563,9 @@ const generateFactoryMethods = (
                 w.line(`extension: ${extensionVar},`);
                 if (hasMeta) {
                     if (hasMetaParam) {
-                        w.line(
-                            `meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${profileClassName}.canonicalUrl] },`,
-                        );
+                        w.line(`meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${canonicalUrl}] },`);
                     } else {
-                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                        w.line(`meta: { profile: [${canonicalUrl}] },`);
                     }
                 }
             });
@@ -591,10 +610,10 @@ const generateFactoryMethods = (
                     if (hasMeta) {
                         if (hasMetaParam) {
                             w.line(
-                                `meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${profileClassName}.canonicalUrl] },`,
+                                `meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${canonicalUrl}] },`,
                             );
                         } else {
-                            w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                            w.line(`meta: { profile: [${canonicalUrl}] },`);
                         }
                     }
                 });
@@ -869,7 +888,9 @@ export const generateProfileClass = (
     generateRawType(w, imports, snapshot, factoryInfo);
     generateFlatInputType(w, imports, tsIndex, snapshot, factoryInfo);
 
+    const sections: ProfileSections = { ...imports, const: profileConstants(w) };
     const canonicalUrl = snapshot.identifier.url;
+    sections.const.def("canonicalUrl", JSON.stringify(canonicalUrl));
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
 
     w.curlyBlock(["export", "class", profileClassName], () => {
@@ -881,12 +902,12 @@ export const generateProfileClass = (
                 `Cannot emit static resourceType for profile '${profileClassName}': base '${snapshot.base.url}' does not resolve to a specialization`,
             );
         }
-        w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
+        w.lineSM(`static readonly canonicalUrl = ${sections.const.use("canonicalUrl")}`);
         w.line();
         generateStaticSliceFields(w, sliceDefs);
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
-        generateFactoryMethods(w, imports, tsIndex, snapshot, factoryInfo);
+        generateFactoryMethods(w, sections, tsIndex, snapshot, factoryInfo);
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
@@ -897,7 +918,7 @@ export const generateProfileClass = (
         generateSliceGetters(w, imports, sliceDefs, snapshot);
 
         w.line("// Validation");
-        generateValidateMethod(w, imports, tsIndex, snapshot);
+        generateValidateMethod(w, sections, tsIndex, snapshot);
     });
     w.line();
 };

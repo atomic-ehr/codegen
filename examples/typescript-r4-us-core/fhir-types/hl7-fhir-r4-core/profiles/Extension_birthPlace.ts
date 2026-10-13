@@ -17,9 +17,12 @@ export type birthPlaceProfileRaw = {
     valueAddress: Address;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace";
+const profileName = "birthPlace";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthPlace (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthPlaceProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -36,18 +39,18 @@ export class birthPlaceProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === birthPlaceProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : birthPlaceProfile {
-        resource.url = birthPlaceProfile.canonicalUrl;
-        applyFixedValue(resource, "url", birthPlaceProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new birthPlaceProfile(resource);
     }
 
     static createResource (args: birthPlaceProfileRaw) : Extension {
         const resource: Extension = {
-            url: birthPlaceProfile.canonicalUrl,
+            url: canonicalUrl,
             valueAddress: args.valueAddress,
         }
         return resource;
@@ -80,12 +83,11 @@ export class birthPlaceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "birthPlace"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", birthPlaceProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueAddress"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],

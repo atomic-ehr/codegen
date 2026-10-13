@@ -17,9 +17,12 @@ export type USCoreIndividualSexExtensionProfileRaw = {
     valueCoding: Coding;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex";
+const profileName = "USCoreIndividualSexExtension";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreIndividualSexExtensionProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -36,18 +39,18 @@ export class USCoreIndividualSexExtensionProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === USCoreIndividualSexExtensionProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreIndividualSexExtensionProfile {
-        resource.url = USCoreIndividualSexExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", USCoreIndividualSexExtensionProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new USCoreIndividualSexExtensionProfile(resource);
     }
 
     static createResource (args: USCoreIndividualSexExtensionProfileRaw) : Extension {
         const resource: Extension = {
-            url: USCoreIndividualSexExtensionProfile.canonicalUrl,
+            url: canonicalUrl,
             valueCoding: args.valueCoding,
         }
         return resource;
@@ -80,12 +83,11 @@ export class USCoreIndividualSexExtensionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreIndividualSexExtension"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", USCoreIndividualSexExtensionProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueCoding"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],

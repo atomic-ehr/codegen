@@ -16,9 +16,12 @@ export type birthTimeProfileRaw = {
     valueDateTime: string;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime";
+const profileName = "birthTime";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthTime (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthTimeProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -35,18 +38,18 @@ export class birthTimeProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === birthTimeProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : birthTimeProfile {
-        resource.url = birthTimeProfile.canonicalUrl;
-        applyFixedValue(resource, "url", birthTimeProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new birthTimeProfile(resource);
     }
 
     static createResource (args: birthTimeProfileRaw) : Extension {
         const resource: Extension = {
-            url: birthTimeProfile.canonicalUrl,
+            url: canonicalUrl,
             valueDateTime: args.valueDateTime,
         }
         return resource;
@@ -79,12 +82,11 @@ export class birthTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "birthTime"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", birthTimeProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],

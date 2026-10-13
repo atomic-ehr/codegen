@@ -47,10 +47,13 @@ export type observation_bpProfileRaw = {
     component?: ObservationComponent[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
+const profileName = "observation-bp";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bpProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -69,8 +72,8 @@ export class observation_bpProfile {
     }
 
     static from (resource: Observation) : observation_bpProfile {
-        if (!resource.meta?.profile?.includes(observation_bpProfile.canonicalUrl)) {
-            throw new Error(`observation_bpProfile: meta.profile must include ${observation_bpProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`observation_bpProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new observation_bpProfile(resource);
         const { errors } = profile.validate();
@@ -82,11 +85,11 @@ export class observation_bpProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(observation_bpProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : observation_bpProfile {
-        ensureProfile(resource, observation_bpProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         applyFixedValue(resource, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
@@ -118,7 +121,7 @@ export class observation_bpProfile {
             component: componentWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: [observation_bpProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -279,7 +282,6 @@ export class observation_bpProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "observation-bp"
         const res = this.resource
         return {
             errors: [

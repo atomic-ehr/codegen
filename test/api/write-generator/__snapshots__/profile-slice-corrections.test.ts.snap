@@ -31,10 +31,13 @@ export type SystemOnlyCodingObservationProfileRaw = {
     code: CodeableConcept;
 }
 
+const canonicalUrl = "http://example.org/StructureDefinition/system-only-coding";
+const profileName = "SystemOnlyCodingObservation";
+
 // CanonicalURL: http://example.org/StructureDefinition/system-only-coding (pkg: codegen.test#1.0.0)
 export class SystemOnlyCodingObservationProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://example.org/StructureDefinition/system-only-coding";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Observation;
 
@@ -43,8 +46,8 @@ export class SystemOnlyCodingObservationProfile {
     }
 
     static from (resource: Observation) : SystemOnlyCodingObservationProfile {
-        if (!resource.meta?.profile?.includes(SystemOnlyCodingObservationProfile.canonicalUrl)) {
-            throw new Error(\`SystemOnlyCodingObservationProfile: meta.profile must include \${SystemOnlyCodingObservationProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`SystemOnlyCodingObservationProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new SystemOnlyCodingObservationProfile(resource);
         const { errors } = profile.validate();
@@ -56,11 +59,11 @@ export class SystemOnlyCodingObservationProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(SystemOnlyCodingObservationProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : SystemOnlyCodingObservationProfile {
-        ensureProfile(resource, SystemOnlyCodingObservationProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new SystemOnlyCodingObservationProfile(resource);
     }
 
@@ -70,7 +73,7 @@ export class SystemOnlyCodingObservationProfile {
             bodySite: args.bodySite,
             status: args.status,
             code: args.code,
-            meta: { profile: [SystemOnlyCodingObservationProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -116,7 +119,6 @@ export class SystemOnlyCodingObservationProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "SystemOnlyCodingObservation"
         const res = this.resource
         return {
             errors: [
@@ -163,10 +165,13 @@ export type CollidingSliceObservationProfileRaw = {
     component?: ObservationComponent[];
 }
 
+const canonicalUrl = "http://example.org/StructureDefinition/colliding-slice";
+const profileName = "CollidingSliceObservation";
+
 // CanonicalURL: http://example.org/StructureDefinition/colliding-slice (pkg: codegen.test#1.0.0)
 export class CollidingSliceObservationProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://example.org/StructureDefinition/colliding-slice";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly categorySliceMatch: Record<string, unknown> = {
         "code": {"coding":[{"system":"http://snomed.info/sct","code":"276885007"}]},
@@ -179,8 +184,8 @@ export class CollidingSliceObservationProfile {
     }
 
     static from (resource: Observation) : CollidingSliceObservationProfile {
-        if (!resource.meta?.profile?.includes(CollidingSliceObservationProfile.canonicalUrl)) {
-            throw new Error(\`CollidingSliceObservationProfile: meta.profile must include \${CollidingSliceObservationProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`CollidingSliceObservationProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new CollidingSliceObservationProfile(resource);
         const { errors } = profile.validate();
@@ -192,11 +197,11 @@ export class CollidingSliceObservationProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(CollidingSliceObservationProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : CollidingSliceObservationProfile {
-        ensureProfile(resource, CollidingSliceObservationProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         resource.component = ensureSliceDefaults(
             [...(resource.component ?? [])],
             CollidingSliceObservationProfile.categorySliceMatch,
@@ -215,7 +220,7 @@ export class CollidingSliceObservationProfile {
             component: componentWithDefaults,
             status: args.status,
             code: args.code,
-            meta: { profile: [CollidingSliceObservationProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -283,7 +288,6 @@ export class CollidingSliceObservationProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "CollidingSliceObservation"
         const res = this.resource
         return {
             errors: [
@@ -330,10 +334,13 @@ export type InheritedCollisionObservationProfileRaw = {
     component?: ObservationComponent[];
 }
 
+const canonicalUrl = "http://example.org/StructureDefinition/inherited-collision";
+const profileName = "InheritedCollisionObservation";
+
 // CanonicalURL: http://example.org/StructureDefinition/inherited-collision (pkg: codegen.test#1.0.0)
 export class InheritedCollisionObservationProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://example.org/StructureDefinition/inherited-collision";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly categorySliceMatch: Record<string, unknown> = {
         "code": {"coding":[{"system":"http://snomed.info/sct","code":"276885007"}]},
@@ -346,8 +353,8 @@ export class InheritedCollisionObservationProfile {
     }
 
     static from (resource: Observation) : InheritedCollisionObservationProfile {
-        if (!resource.meta?.profile?.includes(InheritedCollisionObservationProfile.canonicalUrl)) {
-            throw new Error(\`InheritedCollisionObservationProfile: meta.profile must include \${InheritedCollisionObservationProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`InheritedCollisionObservationProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new InheritedCollisionObservationProfile(resource);
         const { errors } = profile.validate();
@@ -359,11 +366,11 @@ export class InheritedCollisionObservationProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(InheritedCollisionObservationProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : InheritedCollisionObservationProfile {
-        ensureProfile(resource, InheritedCollisionObservationProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         resource.component = ensureSliceDefaults(
             [...(resource.component ?? [])],
             InheritedCollisionObservationProfile.categorySliceMatch,
@@ -382,7 +389,7 @@ export class InheritedCollisionObservationProfile {
             component: componentWithDefaults,
             status: args.status,
             code: args.code,
-            meta: { profile: [InheritedCollisionObservationProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -450,7 +457,6 @@ export class InheritedCollisionObservationProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "InheritedCollisionObservation"
         const res = this.resource
         return {
             errors: [

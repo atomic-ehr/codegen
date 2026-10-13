@@ -40,10 +40,13 @@ export type USCoreBodyWeightProfileRaw = {
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
+const profileName = "USCoreBodyWeightProfile";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBodyWeightProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -56,8 +59,8 @@ export class USCoreBodyWeightProfile {
     }
 
     static from (resource: Observation) : USCoreBodyWeightProfile {
-        if (!resource.meta?.profile?.includes(USCoreBodyWeightProfile.canonicalUrl)) {
-            throw new Error(`USCoreBodyWeightProfile: meta.profile must include ${USCoreBodyWeightProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`USCoreBodyWeightProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new USCoreBodyWeightProfile(resource);
         const { errors } = profile.validate();
@@ -69,11 +72,11 @@ export class USCoreBodyWeightProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(USCoreBodyWeightProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : USCoreBodyWeightProfile {
-        ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
@@ -94,7 +97,7 @@ export class USCoreBodyWeightProfile {
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: [USCoreBodyWeightProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -315,7 +318,6 @@ export class USCoreBodyWeightProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreBodyWeightProfile"
         const res = this.resource
         return {
             errors: [

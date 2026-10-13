@@ -16,9 +16,12 @@ export type own_prefixProfileRaw = {
     valueString: string;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix";
+const profileName = "own-prefix";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/humanname-own-prefix (pkg: hl7.fhir.r4.core#4.0.1)
 export class own_prefixProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -35,18 +38,18 @@ export class own_prefixProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === own_prefixProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : own_prefixProfile {
-        resource.url = own_prefixProfile.canonicalUrl;
-        applyFixedValue(resource, "url", own_prefixProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new own_prefixProfile(resource);
     }
 
     static createResource (args: own_prefixProfileRaw) : Extension {
         const resource: Extension = {
-            url: own_prefixProfile.canonicalUrl,
+            url: canonicalUrl,
             valueString: args.valueString,
         }
         return resource;
@@ -79,12 +82,11 @@ export class own_prefixProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "own-prefix"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", own_prefixProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueString"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],

@@ -50,10 +50,13 @@ export type USCoreBloodPressureProfileRaw = {
     component?: ObservationComponent[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
+const profileName = "USCoreBloodPressureProfile";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBloodPressureProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -72,8 +75,8 @@ export class USCoreBloodPressureProfile {
     }
 
     static from (resource: Observation) : USCoreBloodPressureProfile {
-        if (!resource.meta?.profile?.includes(USCoreBloodPressureProfile.canonicalUrl)) {
-            throw new Error(`USCoreBloodPressureProfile: meta.profile must include ${USCoreBloodPressureProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`USCoreBloodPressureProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new USCoreBloodPressureProfile(resource);
         const { errors } = profile.validate();
@@ -85,11 +88,11 @@ export class USCoreBloodPressureProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(USCoreBloodPressureProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
-        ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
@@ -121,7 +124,7 @@ export class USCoreBloodPressureProfile {
             component: componentWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: [USCoreBloodPressureProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -397,7 +400,6 @@ export class USCoreBloodPressureProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreBloodPressureProfile"
         const res = this.resource
         return {
             errors: [

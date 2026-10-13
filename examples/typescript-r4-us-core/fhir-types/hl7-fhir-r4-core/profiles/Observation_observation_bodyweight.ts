@@ -37,10 +37,13 @@ export type observation_bodyweightProfileRaw = {
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
+const profileName = "observation-bodyweight";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bodyweightProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -53,8 +56,8 @@ export class observation_bodyweightProfile {
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
-        if (!resource.meta?.profile?.includes(observation_bodyweightProfile.canonicalUrl)) {
-            throw new Error(`observation_bodyweightProfile: meta.profile must include ${observation_bodyweightProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`observation_bodyweightProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new observation_bodyweightProfile(resource);
         const { errors } = profile.validate();
@@ -66,11 +69,11 @@ export class observation_bodyweightProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(observation_bodyweightProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : observation_bodyweightProfile {
-        ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         applyFixedValue(resource, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
@@ -91,7 +94,7 @@ export class observation_bodyweightProfile {
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: [observation_bodyweightProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -197,7 +200,6 @@ export class observation_bodyweightProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "observation-bodyweight"
         const res = this.resource
         return {
             errors: [

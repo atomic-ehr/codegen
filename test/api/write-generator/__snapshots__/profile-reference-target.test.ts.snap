@@ -14,10 +14,13 @@ export type ReferenceTargetTaskProfileRaw = {
     intent: ("unknown" | "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
 }
 
+const canonicalUrl = "http://example.test/StructureDefinition/reference-target-task";
+const profileName = "ReferenceTargetTask";
+
 // CanonicalURL: http://example.test/StructureDefinition/reference-target-task (pkg: example.test.referencetarget#0.1.0)
 export class ReferenceTargetTaskProfile {
     static readonly resourceType = "Task";
-    static readonly canonicalUrl = "http://example.test/StructureDefinition/reference-target-task";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Task;
 
@@ -26,8 +29,8 @@ export class ReferenceTargetTaskProfile {
     }
 
     static from (resource: Task) : ReferenceTargetTaskProfile {
-        if (!resource.meta?.profile?.includes(ReferenceTargetTaskProfile.canonicalUrl)) {
-            throw new Error(\`ReferenceTargetTaskProfile: meta.profile must include \${ReferenceTargetTaskProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`ReferenceTargetTaskProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new ReferenceTargetTaskProfile(resource);
         const { errors } = profile.validate();
@@ -39,11 +42,11 @@ export class ReferenceTargetTaskProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Task") return false;
-        return (r.meta?.profile ?? []).includes(ReferenceTargetTaskProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Task) : ReferenceTargetTaskProfile {
-        ensureProfile(resource, ReferenceTargetTaskProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new ReferenceTargetTaskProfile(resource);
     }
 
@@ -52,7 +55,7 @@ export class ReferenceTargetTaskProfile {
             resourceType: "Task",
             status: args.status,
             intent: args.intent,
-            meta: { profile: [ReferenceTargetTaskProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -89,7 +92,6 @@ export class ReferenceTargetTaskProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ReferenceTargetTask"
         const res = this.resource
         return {
             errors: [

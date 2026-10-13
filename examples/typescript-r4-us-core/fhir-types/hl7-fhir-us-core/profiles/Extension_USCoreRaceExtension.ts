@@ -46,9 +46,12 @@ export type USCoreRaceExtensionProfileFlat = {
     text: string;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
+const profileName = "USCoreRaceExtension";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-race (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreRaceExtensionProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly ombCategorySliceMatch: Record<string, unknown> = {"url":"ombCategory"};
     private static readonly detailedSliceMatch: Record<string, unknown> = {"url":"detailed"};
@@ -69,12 +72,12 @@ export class USCoreRaceExtensionProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === USCoreRaceExtensionProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {
-        resource.url = USCoreRaceExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", USCoreRaceExtensionProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new USCoreRaceExtensionProfile(resource);
     }
 
@@ -102,7 +105,7 @@ export class USCoreRaceExtensionProfile {
         const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
-            url: USCoreRaceExtensionProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -240,7 +243,6 @@ export class USCoreRaceExtensionProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreRaceExtension"
         const res = this.resource
         return {
             errors: [
@@ -251,7 +253,7 @@ export class USCoreRaceExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
                 ...validateSliceFields(res, profileName, "extension", {"url":"text"}, "text", [], [["valueString"]]),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", USCoreRaceExtensionProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }

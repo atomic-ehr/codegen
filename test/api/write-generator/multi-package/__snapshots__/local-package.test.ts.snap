@@ -59,10 +59,13 @@ export type ExampleTypedBundleProfileRaw = {
     type: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection");
 }
 
+const canonicalUrl = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle";
+const profileName = "ExampleTypedBundle";
+
 // CanonicalURL: http://example.org/fhir/StructureDefinition/ExampleTypedBundle (pkg: example.folder.structures#0.0.1)
 export class ExampleTypedBundleProfile {
     static readonly resourceType = "Bundle";
-    static readonly canonicalUrl = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly PatientEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Patient"}};
     private static readonly OrganizationEntrySliceMatch: Record<string, unknown> = {
@@ -76,8 +79,8 @@ export class ExampleTypedBundleProfile {
     }
 
     static from (resource: Bundle) : ExampleTypedBundleProfile {
-        if (!resource.meta?.profile?.includes(ExampleTypedBundleProfile.canonicalUrl)) {
-            throw new Error(\`ExampleTypedBundleProfile: meta.profile must include \${ExampleTypedBundleProfile.canonicalUrl}\`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(\`ExampleTypedBundleProfile: meta.profile must include \${canonicalUrl}\`)
         }
         const profile = new ExampleTypedBundleProfile(resource);
         const { errors } = profile.validate();
@@ -89,11 +92,11 @@ export class ExampleTypedBundleProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Bundle") return false;
-        return (r.meta?.profile ?? []).includes(ExampleTypedBundleProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Bundle) : ExampleTypedBundleProfile {
-        ensureProfile(resource, ExampleTypedBundleProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new ExampleTypedBundleProfile(resource);
     }
 
@@ -101,7 +104,7 @@ export class ExampleTypedBundleProfile {
         const resource: Bundle = {
             resourceType: "Bundle",
             type: args.type,
-            meta: { profile: [ExampleTypedBundleProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -170,7 +173,6 @@ export class ExampleTypedBundleProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ExampleTypedBundle"
         const res = this.resource
         return {
             errors: [
