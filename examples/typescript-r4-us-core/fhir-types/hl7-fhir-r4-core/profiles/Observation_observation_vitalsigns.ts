@@ -35,10 +35,13 @@ export type observation_vitalsignsProfileRaw = {
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns";
+const profileName = "observation-vitalsigns";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_vitalsignsProfile {
     static readonly resourceType = "Observation";
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
         "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
@@ -51,8 +54,8 @@ export class observation_vitalsignsProfile {
     }
 
     static from (resource: Observation) : observation_vitalsignsProfile {
-        if (!resource.meta?.profile?.includes(observation_vitalsignsProfile.canonicalUrl)) {
-            throw new Error(`observation_vitalsignsProfile: meta.profile must include ${observation_vitalsignsProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`observation_vitalsignsProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new observation_vitalsignsProfile(resource);
         const { errors } = profile.validate();
@@ -64,11 +67,11 @@ export class observation_vitalsignsProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Observation") return false;
-        return (r.meta?.profile ?? []).includes(observation_vitalsignsProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Observation) : observation_vitalsignsProfile {
-        ensureProfile(resource, observation_vitalsignsProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_vitalsignsProfile.VSCatSliceMatch,
@@ -88,7 +91,7 @@ export class observation_vitalsignsProfile {
             status: args.status,
             code: args.code,
             subject: args.subject,
-            meta: { profile: [observation_vitalsignsProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -190,7 +193,6 @@ export class observation_vitalsignsProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "observation-vitalsigns"
         const res = this.resource
         return {
             errors: [

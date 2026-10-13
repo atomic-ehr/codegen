@@ -45,10 +45,13 @@ export type USCorePatientProfileRaw = {
     name: HumanName[];
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
+const profileName = "USCorePatientProfile";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient (pkg: hl7.fhir.us.core#8.0.1)
 export class USCorePatientProfile {
     static readonly resourceType = "Patient";
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Patient;
 
@@ -57,8 +60,8 @@ export class USCorePatientProfile {
     }
 
     static from (resource: Patient) : USCorePatientProfile {
-        if (!resource.meta?.profile?.includes(USCorePatientProfile.canonicalUrl)) {
-            throw new Error(`USCorePatientProfile: meta.profile must include ${USCorePatientProfile.canonicalUrl}`)
+        if (!resource.meta?.profile?.some((p) => p === canonicalUrl)) {
+            throw new Error(`USCorePatientProfile: meta.profile must include ${canonicalUrl}`)
         }
         const profile = new USCorePatientProfile(resource);
         const { errors } = profile.validate();
@@ -70,11 +73,11 @@ export class USCorePatientProfile {
         if (typeof resource !== "object" || resource === null) return false;
         const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
         if (r.resourceType !== "Patient") return false;
-        return (r.meta?.profile ?? []).includes(USCorePatientProfile.canonicalUrl);
+        return (r.meta?.profile ?? []).some((p) => p === canonicalUrl);
     }
 
     static apply (resource: Patient) : USCorePatientProfile {
-        ensureProfile(resource, USCorePatientProfile.canonicalUrl);
+        ensureProfile(resource, canonicalUrl);
         return new USCorePatientProfile(resource);
     }
 
@@ -83,7 +86,7 @@ export class USCorePatientProfile {
             resourceType: "Patient",
             identifier: args.identifier,
             name: args.name,
-            meta: { profile: [USCorePatientProfile.canonicalUrl] },
+            meta: { profile: [canonicalUrl] },
         }
         return resource;
     }
@@ -261,7 +264,6 @@ export class USCorePatientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCorePatientProfile"
         const res = this.resource
         return {
             errors: [

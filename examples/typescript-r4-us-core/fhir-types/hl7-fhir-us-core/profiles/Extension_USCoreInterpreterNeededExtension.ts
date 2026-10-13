@@ -17,9 +17,12 @@ export type USCoreInterpreterNeededExtensionProfileRaw = {
     valueCoding: Coding;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed";
+const profileName = "USCoreInterpreterNeededExtension";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreInterpreterNeededExtensionProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed";
+    static readonly canonicalUrl = canonicalUrl;
 
     private resource: Extension;
 
@@ -36,18 +39,18 @@ export class USCoreInterpreterNeededExtensionProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === USCoreInterpreterNeededExtensionProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
-        resource.url = USCoreInterpreterNeededExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", USCoreInterpreterNeededExtensionProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new USCoreInterpreterNeededExtensionProfile(resource);
     }
 
     static createResource (args: USCoreInterpreterNeededExtensionProfileRaw) : Extension {
         const resource: Extension = {
-            url: USCoreInterpreterNeededExtensionProfile.canonicalUrl,
+            url: canonicalUrl,
             valueCoding: args.valueCoding,
         }
         return resource;
@@ -80,12 +83,11 @@ export class USCoreInterpreterNeededExtensionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreInterpreterNeededExtension"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", USCoreInterpreterNeededExtensionProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueCoding"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueReference","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
             ],

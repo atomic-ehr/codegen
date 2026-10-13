@@ -39,9 +39,12 @@ export type USCoreTribalAffiliationExtensionProfileFlat = {
     isEnrolled?: boolean;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation";
+const profileName = "USCoreTribalAffiliationExtension";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreTribalAffiliationExtensionProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly tribalAffiliationSliceMatch: Record<string, unknown> = {"url":"tribalAffiliation"};
     private static readonly isEnrolledSliceMatch: Record<string, unknown> = {"url":"isEnrolled"};
@@ -61,12 +64,12 @@ export class USCoreTribalAffiliationExtensionProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === USCoreTribalAffiliationExtensionProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreTribalAffiliationExtensionProfile {
-        resource.url = USCoreTribalAffiliationExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new USCoreTribalAffiliationExtensionProfile(resource);
     }
 
@@ -89,7 +92,7 @@ export class USCoreTribalAffiliationExtensionProfile {
         const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
-            url: USCoreTribalAffiliationExtensionProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -194,7 +197,6 @@ export class USCoreTribalAffiliationExtensionProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreTribalAffiliationExtension"
         const res = this.resource
         return {
             errors: [
@@ -204,7 +206,7 @@ export class USCoreTribalAffiliationExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
                 ...validateSliceFields(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", [], [["valueBoolean"]]),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }

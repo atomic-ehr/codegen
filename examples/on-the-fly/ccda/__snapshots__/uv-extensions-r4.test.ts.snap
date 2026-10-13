@@ -138,9 +138,12 @@ export type WorkflowReasonProfileFlat = {
     reference?: Reference;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/workflow-reason";
+const profileName = "WorkflowReason";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/workflow-reason (pkg: hl7.fhir.uv.extensions.r4#5.3.0)
 export class WorkflowReasonProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/workflow-reason";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly conceptSliceMatch: Record<string, unknown> = {"url":"concept"};
     private static readonly referenceSliceMatch: Record<string, unknown> = {"url":"reference"};
@@ -160,12 +163,12 @@ export class WorkflowReasonProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === WorkflowReasonProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : WorkflowReasonProfile {
-        resource.url = WorkflowReasonProfile.canonicalUrl;
-        applyFixedValue(resource, "url", WorkflowReasonProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new WorkflowReasonProfile(resource);
     }
 
@@ -191,7 +194,7 @@ export class WorkflowReasonProfile {
         const resolvedExtensions = WorkflowReasonProfile.resolveInput(args);
 
         const resource: Extension = {
-            url: WorkflowReasonProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -312,7 +315,6 @@ export class WorkflowReasonProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "WorkflowReason"
         const res = this.resource
         return {
             errors: [
@@ -321,7 +323,7 @@ export class WorkflowReasonProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"reference"}, "reference", 0, 1),
                 ...validateSliceFields(res, profileName, "extension", {"url":"reference"}, "reference", [], [["valueReference"]]),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", WorkflowReasonProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }
@@ -374,9 +376,12 @@ export type ExtendedContactAvailabilityProfileFlat = {
     datatype: string;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/StructureDefinition/extended-contact-availability";
+const profileName = "ExtendedContactAvailability";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/extended-contact-availability (pkg: hl7.fhir.uv.extensions.r4#5.3.0)
 export class ExtendedContactAvailabilityProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/extended-contact-availability";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly availableTimeSliceMatch: Record<string, unknown> = {"url":"availableTime"};
     private static readonly notAvailableTimeSliceMatch: Record<string, unknown> = {"url":"notAvailableTime"};
@@ -396,12 +401,12 @@ export class ExtendedContactAvailabilityProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === ExtendedContactAvailabilityProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : ExtendedContactAvailabilityProfile {
-        resource.url = ExtendedContactAvailabilityProfile.canonicalUrl;
-        applyFixedValue(resource, "url", ExtendedContactAvailabilityProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new ExtendedContactAvailabilityProfile(resource);
     }
 
@@ -421,7 +426,7 @@ export class ExtendedContactAvailabilityProfile {
         const resolvedExtensions = ExtendedContactAvailabilityProfile.resolveInput(args);
 
         const resource: Extension = {
-            url: ExtendedContactAvailabilityProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -534,12 +539,11 @@ export class ExtendedContactAvailabilityProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ExtendedContactAvailability"
         const res = this.resource
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", ExtendedContactAvailabilityProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }

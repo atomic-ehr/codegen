@@ -46,9 +46,12 @@ export type USCoreEthnicityExtensionProfileFlat = {
     text: string;
 }
 
+const canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity";
+const profileName = "USCoreEthnicityExtension";
+
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreEthnicityExtensionProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity";
+    static readonly canonicalUrl = canonicalUrl;
 
     private static readonly ombCategorySliceMatch: Record<string, unknown> = {"url":"ombCategory"};
     private static readonly detailedSliceMatch: Record<string, unknown> = {"url":"detailed"};
@@ -69,12 +72,12 @@ export class USCoreEthnicityExtensionProfile {
 
     static is (resource: unknown) : resource is Extension {
         if (typeof resource !== "object" || resource === null) return false;
-        return (resource as { url?: string }).url === USCoreEthnicityExtensionProfile.canonicalUrl;
+        return (resource as { url?: string }).url === canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreEthnicityExtensionProfile {
-        resource.url = USCoreEthnicityExtensionProfile.canonicalUrl;
-        applyFixedValue(resource, "url", USCoreEthnicityExtensionProfile.canonicalUrl);
+        resource.url = canonicalUrl;
+        applyFixedValue(resource, "url", canonicalUrl);
         return new USCoreEthnicityExtensionProfile(resource);
     }
 
@@ -102,7 +105,7 @@ export class USCoreEthnicityExtensionProfile {
         const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
-            url: USCoreEthnicityExtensionProfile.canonicalUrl,
+            url: canonicalUrl,
             extension: resolvedExtensions,
         }
         return resource;
@@ -240,7 +243,6 @@ export class USCoreEthnicityExtensionProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreEthnicityExtension"
         const res = this.resource
         return {
             errors: [
@@ -251,7 +253,7 @@ export class USCoreEthnicityExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
                 ...validateSliceFields(res, profileName, "extension", {"url":"text"}, "text", [], [["valueString"]]),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", USCoreEthnicityExtensionProfile.canonicalUrl),
+                ...validateFixedValue(res, profileName, "url", canonicalUrl),
             ],
             warnings: [],
         }
