@@ -25,6 +25,8 @@ import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 
 import { ensureProfile, validatePatternValue, validateRequired } from "../../profile-helpers";
 
+const profileName = "SystemOnlyCodingObservation";
+
 export type SystemOnlyCodingObservationProfileRaw = {
     bodySite: CodeableConcept;
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -116,7 +118,6 @@ export class SystemOnlyCodingObservationProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "SystemOnlyCodingObservation"
         const res = this.resource
         return {
             errors: [
@@ -153,6 +154,8 @@ import {
     validateRequired,
     validateSliceCardinality,
 } from "../../profile-helpers";
+
+const profileName = "CollidingSliceObservation";
 
 export type CollidingSliceObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
 export type CollidingSliceObservation_Component_CategorySliceFlatAll = CollidingSliceObservation_Component_CategorySliceFlat;
@@ -283,7 +286,6 @@ export class CollidingSliceObservationProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "CollidingSliceObservation"
         const res = this.resource
         return {
             errors: [
@@ -320,6 +322,8 @@ import {
     validateRequired,
     validateSliceCardinality,
 } from "../../profile-helpers";
+
+const profileName = "InheritedCollisionObservation";
 
 export type InheritedCollisionObservation_Component_CategorySliceFlat = Omit<ObservationComponent, "code">;
 export type InheritedCollisionObservation_Component_CategorySliceFlatAll = InheritedCollisionObservation_Component_CategorySliceFlat;
@@ -450,7 +454,6 @@ export class InheritedCollisionObservationProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "InheritedCollisionObservation"
         const res = this.resource
         return {
             errors: [

@@ -137,6 +137,25 @@ describe("TypeScript profile helper imports", () => {
         expect(generated).not.toContain("profile-helpers");
     });
 
+    test("validate() without checks declares neither res nor profileName", () => {
+        const snapshot = makeSnapshot("OptionalAddress", datatypeBase);
+        snapshot.fields.data = { type: primitiveBase };
+        const { generated } = generateProfile(snapshot, [datatypeSchema, primitiveSchema]);
+
+        expect(generated).not.toContain("const res =");
+        expect(generated).not.toContain("profileName");
+    });
+
+    test("declares profileName once at module level", () => {
+        const snapshot = makeSnapshot("InheritedExtension", extensionBase);
+        snapshot.inheritedRequiredFields = ["url"];
+        const { generated } = generateProfile(snapshot, [extensionSchema]);
+
+        expect(generated).toContain('\nconst profileName = "InheritedExtension";\n');
+        expect(generated.match(/const profileName/g)?.length).toBe(1);
+        expect(generated).toContain("const res = this.resource");
+    });
+
     test("imports only validateRequired for inherited required fields", () => {
         const snapshot = makeSnapshot("InheritedExtension", extensionBase);
         snapshot.inheritedRequiredFields = ["url"];

@@ -9,6 +9,8 @@ import type { Task } from "../../hl7-fhir-r4-core/Task";
 
 import { ensureProfile, validateMustSupport, validateReference, validateRequired } from "../../profile-helpers";
 
+const profileName = "ReferenceTargetTask";
+
 export type ReferenceTargetTaskProfileRaw = {
     status: ("draft" | "requested" | "received" | "accepted" | "rejected" | "ready" | "cancelled" | "in-progress" | "on-hold" | "failed" | "completed" | "entered-in-error");
     intent: ("unknown" | "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
@@ -89,7 +91,6 @@ export class ReferenceTargetTaskProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ReferenceTargetTask"
         const res = this.resource
         return {
             errors: [

@@ -18,6 +18,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "ConstrainedValuesServiceRequest";
+
 export type ConstrainedValuesServiceRequestProfileRaw = {
     status: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     subject: Reference<"Device" | "Group" | "Location" | "Patient">;
@@ -116,7 +118,6 @@ export class ConstrainedValuesServiceRequestProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ConstrainedValuesServiceRequest"
         const res = this.resource
         return {
             errors: [

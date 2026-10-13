@@ -3806,6 +3806,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "KBV_PR_Base_Condition_Diagnosis";
+
 export type KBV_PR_Base_Condition_DiagnosisProfileRaw = {
     code: CodeableConcept;
     subject: Reference<"Group" | "Patient">;
@@ -4049,7 +4051,6 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KBV_PR_Base_Condition_Diagnosis"
         const res = this.resource
         return {
             errors: [

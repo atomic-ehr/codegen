@@ -17,7 +17,7 @@ const group = makeIdentifier("resource", "Group");
 const usCorePatient = makeIdentifier("profile", "USCorePatient") as ProfileIdentifier;
 const testPatient = makeIdentifier("profile", "TestPatient") as ProfileIdentifier;
 const tImport: SectionHandle<never, TypeIdentifier> = {
-    def: () => {},
+    def: () => undefined,
     use: (id) => id.name,
 };
 
