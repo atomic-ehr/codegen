@@ -7,10 +7,10 @@ import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../hl7-fhir-r4-core/Coding";
 import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Coding } from "../hl7-fhir-r4-core/Coding";

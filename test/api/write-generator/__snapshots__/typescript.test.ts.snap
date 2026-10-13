@@ -11,12 +11,12 @@ import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 import type { HumanName } from "../hl7-fhir-r4-core/HumanName";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Address } from "../hl7-fhir-r4-core/Address";
 export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
@@ -158,11 +158,11 @@ exports[`TypeScript Writer Generator generates BundleEntry with generic type-fam
 // Any manual changes made to this file may be overwritten.
 
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Resource } from "../hl7-fhir-r4-core/Resource";
 import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
-import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
@@ -230,11 +230,11 @@ exports[`TypeScript Writer Generator generates Bundle with inherited generic par
 // Any manual changes made to this file may be overwritten.
 
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Resource } from "../hl7-fhir-r4-core/Resource";
 import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
-import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
@@ -466,11 +466,11 @@ exports[`TypeScript CDA with Logical Model Promotion to Resource with resourceTy
 // Any manual changes made to this file may be overwritten.
 
 import type { CE } from "../hl7-cda-uv-core/CE";
+import type { Element } from "../hl7-fhir-r5-core/Element";
 import type { EN } from "../hl7-cda-uv-core/EN";
 import type { InfrastructureRoot } from "../hl7-cda-uv-core/InfrastructureRoot";
 import type { ST } from "../hl7-cda-uv-core/ST";
 
-import type { Element } from "../hl7-fhir-r5-core/Element";
 // CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/Material (pkg: hl7.cda.uv.core#2.0.1-sd)
 export interface Material extends InfrastructureRoot {
     resourceType: "Material";
