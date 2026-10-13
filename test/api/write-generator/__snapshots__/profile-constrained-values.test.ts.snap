@@ -10,18 +10,12 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { ServiceRequest } from "../../hl7-fhir-r4-core/ServiceRequest";
 
 import {
-    ensureProfile,
     applyFixedValue,
-    validateRequired,
-    validateExcluded,
-    validateFixedValue,
-    validateSliceCardinality,
-    validateSliceFields,
+    ensureProfile,
     validateEnum,
-    validateReference,
-    validateChoiceRequired,
-    validateChoiceProhibited,
+    validateFixedValue,
     validateMustSupport,
+    validateRequired,
 } from "../../profile-helpers";
 
 export type ConstrainedValuesServiceRequestProfileRaw = {

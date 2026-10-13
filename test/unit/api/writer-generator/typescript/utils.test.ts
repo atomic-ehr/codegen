@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import { fieldTsType } from "@root/api/writer-generator/typescript/utils";
 import type { CanonicalUrl, Name, ProfileIdentifier, RegularField, TypeIdentifier } from "@root/typeschema/types";
 
@@ -15,6 +16,10 @@ const patient = makeIdentifier("resource", "Patient");
 const group = makeIdentifier("resource", "Group");
 const usCorePatient = makeIdentifier("profile", "USCorePatient") as ProfileIdentifier;
 const testPatient = makeIdentifier("profile", "TestPatient") as ProfileIdentifier;
+const tImport: SectionHandle<never, TypeIdentifier> = {
+    def: () => {},
+    use: (id) => id.name,
+};
 
 const resolveRef = (ref: TypeIdentifier): TypeIdentifier => {
     if (ref.name === usCorePatient.name || ref.name === testPatient.name) return patient;
@@ -27,7 +32,7 @@ describe("fieldTsType reference targets", () => {
             type: referenceType,
             reference: { resource: [patient, group], effectiveResource: [patient, group] },
         };
-        expect(fieldTsType(field, resolveRef)).toBe(`Reference<"Patient" | "Group">`);
+        expect(fieldTsType(tImport, field, resolveRef)).toBe(`Reference<"Patient" | "Group">`);
     });
 
     test("profile target replaced by its resource type keeps the profile url as a comment", () => {
@@ -35,7 +40,7 @@ describe("fieldTsType reference targets", () => {
             type: referenceType,
             reference: { resource: [patient], effectiveResource: [patient], profiles: [usCorePatient] },
         };
-        expect(fieldTsType(field, resolveRef)).toBe(
+        expect(fieldTsType(tImport, field, resolveRef)).toBe(
             `Reference<"Patient" /* http://example.org/StructureDefinition/USCorePatient */>`,
         );
     });
@@ -49,7 +54,7 @@ describe("fieldTsType reference targets", () => {
                 profiles: [usCorePatient, testPatient],
             },
         };
-        expect(fieldTsType(field, resolveRef)).toBe(
+        expect(fieldTsType(tImport, field, resolveRef)).toBe(
             `Reference<"Group" | "Patient" /* http://example.org/StructureDefinition/USCorePatient, http://example.org/StructureDefinition/TestPatient */>`,
         );
     });

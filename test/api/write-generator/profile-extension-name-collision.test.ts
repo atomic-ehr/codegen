@@ -28,6 +28,7 @@ const notedExtension: PFS = {
                 slices: {
                     note: { min: 1, max: 1, match: { url: "note" }, schema: { elements: { valueString: {} } } },
                     detail: { min: 0, max: 1, match: { url: "detail" }, schema: { elements: { valueString: {} } } },
+                    coding: { min: 0, max: 1, match: { url: "coding" }, schema: { elements: { valueCoding: {} } } },
                 },
             },
         },
@@ -78,6 +79,11 @@ describe("complex extension applied at two paths", async () => {
     it("declares every exported type exactly once", () => {
         const duplicates = declaredTypeNames.filter((name, i) => declaredTypeNames.indexOf(name) !== i);
         expect(duplicates).toEqual([]);
+    });
+
+    it("imports the extension type without importing delegated sub-extension value types", () => {
+        expect(generated).toContain('import type { Extension } from "../../hl7-fhir-r4-core/Extension";');
+        expect(generated).not.toContain('from "../../hl7-fhir-r4-core/Coding"');
     });
 
     it("names the getter return types from the resolved accessor name", () => {
