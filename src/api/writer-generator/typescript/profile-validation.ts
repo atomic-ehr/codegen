@@ -59,12 +59,16 @@ export const collectRegularFieldValidation = (
     enumExprs?: ReadonlyMap<string, string>,
 ) => {
     if (field.excluded) {
-        errors.push(`...${imports.helper.use("validateExcluded")}(res, profileName, ${JSON.stringify(name)})`);
+        errors.push(
+            `...${imports.helper.use("validateExcluded")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+        );
         return;
     }
 
     if (field.required)
-        errors.push(`...${imports.helper.use("validateRequired")}(res, profileName, ${JSON.stringify(name)})`);
+        errors.push(
+            `...${imports.helper.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+        );
 
     if (field.valueConstraint) {
         const constrainedValueExpr =
@@ -78,25 +82,29 @@ export const collectRegularFieldValidation = (
         // the helper needs the declared arity: the instance shape alone cannot
         // tell an array-valued element from a wrong value on a single one.
         const repeating = field.array ? ", true" : "";
-        errors.push(`...${fn}(res, profileName, ${JSON.stringify(name)}, ${constrainedValueExpr}${repeating})`);
+        errors.push(
+            `...${fn}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${constrainedValueExpr}${repeating})`,
+        );
     }
 
     if (field.enum) {
         const target = field.enum.isOpen ? warnings : errors;
         const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
         target.push(
-            `...${imports.helper.use("validateEnum")}(res, profileName, ${JSON.stringify(name)}, ${valuesExpr})`,
+            `...${imports.helper.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`,
         );
     }
 
     if (field.mustSupport && !field.required)
-        warnings.push(`...${imports.helper.use("validateMustSupport")}(res, profileName, ${JSON.stringify(name)})`);
+        warnings.push(
+            `...${imports.helper.use("validateMustSupport")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+        );
 
     if (field.reference) {
         const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
         if (allowed.length > 0)
             errors.push(
-                `...${imports.helper.use("validateReference")}(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
+                `...${imports.helper.use("validateReference")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
             );
     }
 
@@ -108,7 +116,7 @@ export const collectRegularFieldValidation = (
                 const min = slice.min ?? 0;
                 const max = slice.max ?? 0;
                 errors.push(
-                    `...${imports.helper.use("validateSliceCardinality")}(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
+                    `...${imports.helper.use("validateSliceCardinality")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
                 );
             }
             const { requiredFields, choiceGroups } = collectSliceRequirements(slice, match, field, tsIndex);
@@ -120,7 +128,9 @@ export const collectRegularFieldValidation = (
                     JSON.stringify(requiredFields),
                 ];
                 if (choiceGroups.length > 0) args.push(JSON.stringify(choiceGroups));
-                errors.push(`...${imports.helper.use("validateSliceFields")}(res, profileName, ${args.join(", ")})`);
+                errors.push(
+                    `...${imports.helper.use("validateSliceFields")}(res, ${imports.const.use("profileName")}, ${args.join(", ")})`,
+                );
             }
         }
     }
@@ -133,16 +143,13 @@ export const generateValidateMethod = (
     snapshot: SnapshotProfileTypeSchema,
 ) => {
     const fields = snapshot.fields;
-    const profileName = snapshot.identifier.name;
     const canonicalUrl = snapshot.identifier.url;
     const canonicalUrlExpr = canonicalUrl
         ? { url: canonicalUrl, expr: `${tsProfileClassName(snapshot)}.canonicalUrl` }
         : undefined;
     const enumLinks = w.enumTerminologyLinks(tsIndex, snapshot);
+    imports.const.def("profileName", JSON.stringify(snapshot.identifier.name));
     w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
-        w.line(`const profileName = "${profileName}"`);
-        w.line("const res = this.resource");
-
         const errors: string[] = [];
         const warnings: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
@@ -151,11 +158,11 @@ export const generateValidateMethod = (
             if (isChoiceDeclarationField(field)) {
                 if (field.required)
                     errors.push(
-                        `...${imports.helper.use("validateChoiceRequired")}(res, profileName, ${JSON.stringify(field.choices)})`,
+                        `...${imports.helper.use("validateChoiceRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.choices)})`,
                     );
                 if (field.prohibited?.length)
                     errors.push(
-                        `...${imports.helper.use("validateChoiceProhibited")}(res, profileName, ${JSON.stringify(field.prohibited)})`,
+                        `...${imports.helper.use("validateChoiceProhibited")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.prohibited)})`,
                     );
                 continue;
             }
@@ -179,10 +186,11 @@ export const generateValidateMethod = (
         // profile's getter/setter surface.
         for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
             errors.push(
-                `...${imports.helper.use("validateRequired")}(res, profileName, ${JSON.stringify(inheritedName)})`,
+                `...${imports.helper.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(inheritedName)})`,
             );
         }
 
+        if (errors.length + warnings.length > 0) w.line("const res = this.resource");
         const emitArray = (label: string, exprs: string[]) => {
             if (exprs.length === 0) {
                 w.line(`${label}: [],`);

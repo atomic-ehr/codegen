@@ -50,6 +50,8 @@ import type { TypeScript } from "./writer";
 export type ProfileImports = {
     helper: SectionHandle<never, string>;
     types: SectionHandle<never, TypeIdentifier>;
+    /** Module-level constants: `def(name, expr)` declares `const name = expr;`. */
+    const: SectionHandle<string, string>;
 };
 
 export const resolveProfileType = (
@@ -289,6 +291,17 @@ const profileHelperImports = (w: TypeScript): ProfileImports["helper"] =>
         },
     });
 
+const profileConstants = (w: TypeScript): ProfileImports["const"] =>
+    w.section<string, string>({
+        name: (name) => name,
+        defRender: (name, expr) => w.lineSM(`const ${name} = ${expr}`),
+        render: (definitions) => {
+            if (definitions.length === 0) return;
+            for (const { local, value } of definitions) w.lineSM(`const ${local} = ${value}`);
+            w.line();
+        },
+    });
+
 export const generateProfileImports = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
@@ -345,7 +358,7 @@ export const generateProfileImports = (
     }
     if (extProfileImports.size > 0) w.line();
     const hImports = profileHelperImports(w);
-    return { helper: hImports, types };
+    return { helper: hImports, types, const: profileConstants(w) };
 };
 
 const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
