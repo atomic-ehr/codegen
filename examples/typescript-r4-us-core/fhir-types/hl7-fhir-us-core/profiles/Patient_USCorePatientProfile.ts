@@ -31,6 +31,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "USCorePatientProfile";
+
 export type USCorePatientProfile_RaceExtracted = Partial<Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">>;
 export type USCorePatientProfile_RaceVFlat = Pick<USCoreRaceExtensionProfileFlat, "ombCategory" | "detailed" | "text">;
 
@@ -261,7 +263,6 @@ export class USCorePatientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCorePatientProfile"
         const res = this.resource
         return {
             errors: [

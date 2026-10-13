@@ -15,6 +15,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "nationality";
+
 export type nationalityProfileRaw = {
     extension?: Extension[];
 }
@@ -124,7 +126,6 @@ export class nationalityProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "nationality"
         const res = this.resource
         return {
             errors: [

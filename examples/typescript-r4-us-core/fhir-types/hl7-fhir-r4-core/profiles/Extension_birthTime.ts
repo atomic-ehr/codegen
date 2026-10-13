@@ -12,6 +12,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "birthTime";
+
 export type birthTimeProfileRaw = {
     valueDateTime: string;
 }
@@ -79,7 +81,6 @@ export class birthTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "birthTime"
         const res = this.resource
         return {
             errors: [

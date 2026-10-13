@@ -13,6 +13,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "birthPlace";
+
 export type birthPlaceProfileRaw = {
     valueAddress: Address;
 }
@@ -80,7 +82,6 @@ export class birthPlaceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "birthPlace"
         const res = this.resource
         return {
             errors: [

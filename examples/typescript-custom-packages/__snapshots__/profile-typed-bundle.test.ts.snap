@@ -21,6 +21,8 @@ import {
     validateSliceCardinality,
 } from "../../profile-helpers";
 
+const profileName = "ExampleTypedBundle";
+
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlatAll = ExampleTypedBundle_Entry_PatientEntrySliceFlat;
 
@@ -142,7 +144,6 @@ export class ExampleTypedBundleProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "ExampleTypedBundle"
         const res = this.resource
         return {
             errors: [

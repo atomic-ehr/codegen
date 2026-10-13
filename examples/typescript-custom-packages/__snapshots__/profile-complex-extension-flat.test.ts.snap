@@ -45,6 +45,8 @@ import {
     validateSliceFields,
 } from "../../profile-helpers";
 
+const profileName = "NotedComplexExtension";
+
 export type NotedComplexExtension_Extension_NoteSliceFlat = Omit<Extension, "url">;
 export type NotedComplexExtension_Extension_NoteSliceFlatAll = NotedComplexExtension_Extension_NoteSliceFlat & {
     readonly url: "note";
@@ -221,7 +223,6 @@ export class NotedComplexExtensionProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "NotedComplexExtension"
         const res = this.resource
         return {
             errors: [
@@ -263,6 +264,8 @@ import {
     validateSliceCardinality,
     validateSliceFields,
 } from "../../profile-helpers";
+
+const profileName = "IdentifiedComplexExtension";
 
 export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlat = Omit<Extension, "url">;
 export type IdentifiedComplexExtension_Extension_OptionalValueSliceFlatAll = IdentifiedComplexExtension_Extension_OptionalValueSliceFlat & {
@@ -394,7 +397,6 @@ export class IdentifiedComplexExtensionProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "IdentifiedComplexExtension"
         const res = this.resource
         return {
             errors: [
@@ -514,8 +516,6 @@ export class NotedPatientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "NotedPatient"
-        const res = this.resource
         return {
             errors: [],
             warnings: [],

@@ -29,6 +29,8 @@ import {
     wrapSliceChoice,
 } from "../../profile-helpers";
 
+const profileName = "observation-bp";
+
 export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type Observation_bp_Category_VSCatSliceFlatAll = Observation_bp_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
@@ -279,7 +281,6 @@ export class observation_bpProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "observation-bp"
         const res = this.resource
         return {
             errors: [

@@ -12,6 +12,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "own-prefix";
+
 export type own_prefixProfileRaw = {
     valueString: string;
 }
@@ -79,7 +81,6 @@ export class own_prefixProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "own-prefix"
         const res = this.resource
         return {
             errors: [

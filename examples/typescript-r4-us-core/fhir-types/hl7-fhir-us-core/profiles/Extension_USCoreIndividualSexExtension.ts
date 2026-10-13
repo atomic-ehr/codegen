@@ -13,6 +13,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "USCoreIndividualSexExtension";
+
 export type USCoreIndividualSexExtensionProfileRaw = {
     valueCoding: Coding;
 }
@@ -80,7 +82,6 @@ export class USCoreIndividualSexExtensionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreIndividualSexExtension"
         const res = this.resource
         return {
             errors: [

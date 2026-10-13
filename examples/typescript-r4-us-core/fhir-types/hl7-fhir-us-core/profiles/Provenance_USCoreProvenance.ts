@@ -15,6 +15,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "USCoreProvenance";
+
 export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlat = Omit<ProvenanceAgent, "type">;
 export type USCoreProvenance_Agent_ProvenanceAuthorSliceFlatAll = USCoreProvenance_Agent_ProvenanceAuthorSliceFlat;
 
@@ -157,7 +159,6 @@ export class USCoreProvenanceProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreProvenance"
         const res = this.resource
         return {
             errors: [

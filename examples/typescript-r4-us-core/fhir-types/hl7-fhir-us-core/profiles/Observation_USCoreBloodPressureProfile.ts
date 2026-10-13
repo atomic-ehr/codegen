@@ -32,6 +32,8 @@ import {
     wrapSliceChoice,
 } from "../../profile-helpers";
 
+const profileName = "USCoreBloodPressureProfile";
+
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlatAll = USCoreBloodPressureProfile_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
@@ -397,7 +399,6 @@ export class USCoreBloodPressureProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreBloodPressureProfile"
         const res = this.resource
         return {
             errors: [

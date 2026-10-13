@@ -60,6 +60,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "KjAllergyIntolerance";
+
 export type KjAllergyIntoleranceProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
     verificationStatus: CodeableConcept<("unconfirmed" | "confirmed" | "refuted" | "entered-in-error")>;
@@ -417,7 +419,6 @@ export class KjAllergyIntoleranceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjAllergyIntolerance"
         const res = this.resource
         return {
             errors: [
@@ -485,6 +486,8 @@ import {
     validateRequired,
     validateSliceCardinality,
 } from "../../profile-helpers";
+
+const profileName = "KjConditionComplicationsOfAnesthesia";
 
 export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat = Omit<ConditionEvidence, "code">;
 export type KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlatAll = KjConditionComplicationsOfAnesthesia_Evidence_PossibilityForVentilationWithMaskSliceFlat;
@@ -804,7 +807,6 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionComplicationsOfAnesthesia"
         const res = this.resource
         return {
             errors: [
@@ -866,6 +868,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjConditionCriticalMedicalCondition";
 
 export type KjConditionCriticalMedicalConditionProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1156,7 +1160,6 @@ export class KjConditionCriticalMedicalConditionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionCriticalMedicalCondition"
         const res = this.resource
         return {
             errors: [
@@ -1216,6 +1219,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjConditionInfection";
 
 export type KjConditionInfectionProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1530,7 +1535,6 @@ export class KjConditionInfectionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionInfection"
         const res = this.resource
         return {
             errors: [
@@ -1590,6 +1594,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjConditionTransplantsAndOtherForeignBodies";
 
 export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
@@ -1904,7 +1910,6 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConditionTransplantsAndOtherForeignBodies"
         const res = this.resource
         return {
             errors: [
@@ -1962,6 +1967,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjConsent";
 
 export type KjConsentProfileRaw = {
     status: ("active" | "inactive" | "entered-in-error");
@@ -2266,7 +2273,6 @@ export class KjConsentProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjConsent"
         const res = this.resource
         return {
             errors: [
@@ -2320,6 +2326,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjDeviceUseStatement";
 
 export type KjDeviceUseStatementProfileRaw = {
     status: ("active" | "completed" | "entered-in-error");
@@ -2578,7 +2586,6 @@ export class KjDeviceUseStatementProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjDeviceUseStatement"
         const res = this.resource
         return {
             errors: [
@@ -2621,6 +2628,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjDevice";
 
 export type KjDeviceProfileRaw = {
     type: CodeableConcept<("1" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "27" | "28" | "29" | string)>;
@@ -2691,7 +2700,6 @@ export class KjDeviceProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjDevice"
         const res = this.resource
         return {
             errors: [
@@ -2731,6 +2739,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjAbatementDateTime";
 
 export type KjAbatementDateTimeProfileRaw = {
     valueDateTime: string;
@@ -2799,7 +2809,6 @@ export class KjAbatementDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjAbatementDateTime"
         const res = this.resource
         return {
             errors: [
@@ -2831,6 +2840,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjInactiveIngredient";
 
 export type KjInactiveIngredientProfileRaw = {
     valueBoolean: boolean;
@@ -2899,7 +2910,6 @@ export class KjInactiveIngredientProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjInactiveIngredient"
         const res = this.resource
         return {
             errors: [
@@ -2931,6 +2941,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjRecordedDateTime";
 
 export type KjRecordedDateTimeProfileRaw = {
     valueDateTime: string;
@@ -2999,7 +3011,6 @@ export class KjRecordedDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjRecordedDateTime"
         const res = this.resource
         return {
             errors: [
@@ -3026,6 +3037,8 @@ import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import { applyFixedValue, validateChoiceProhibited, validateFixedValue, validateRequired } from "../../profile-helpers";
+
+const profileName = "KjSourceOfInformation";
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjSourceOfInformation (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjSourceOfInformationProfile {
@@ -3089,7 +3102,6 @@ export class KjSourceOfInformationProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjSourceOfInformation"
         const res = this.resource
         return {
             errors: [
@@ -3120,6 +3132,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjText";
 
 export type KjTextProfileRaw = {
     valueString: string;
@@ -3188,7 +3202,6 @@ export class KjTextProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjText"
         const res = this.resource
         return {
             errors: [
@@ -3220,6 +3233,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjUpdatedDateTime";
 
 export type KjUpdatedDateTimeProfileRaw = {
     valueDateTime: string;
@@ -3288,7 +3303,6 @@ export class KjUpdatedDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjUpdatedDateTime"
         const res = this.resource
         return {
             errors: [
@@ -3321,6 +3335,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjUpdater";
 
 export type KjUpdaterProfileRaw = {
     valueReference: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
@@ -3389,7 +3405,6 @@ export class KjUpdaterProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjUpdater"
         const res = this.resource
         return {
             errors: [
@@ -3421,6 +3436,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjValidUntil";
 
 export type KjValidUntilProfileRaw = {
     valueDateTime: string;
@@ -3489,7 +3506,6 @@ export class KjValidUntilProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjValidUntil"
         const res = this.resource
         return {
             errors: [
@@ -3521,6 +3537,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjVerificationDateTime";
 
 export type KjVerificationDateTimeProfileRaw = {
     valueDateTime: string;
@@ -3589,7 +3607,6 @@ export class KjVerificationDateTimeProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjVerificationDateTime"
         const res = this.resource
         return {
             errors: [
@@ -3622,6 +3639,8 @@ import {
     validateFixedValue,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjVerifier";
 
 export type KjVerifierProfileRaw = {
     valueReference: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
@@ -3690,7 +3709,6 @@ export class KjVerifierProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjVerifier"
         const res = this.resource
         return {
             errors: [
@@ -3743,6 +3761,8 @@ import {
     validateRequired,
     validateSliceCardinality,
 } from "../../profile-helpers";
+
+const profileName = "KjFlag";
 
 export type KjFlag_Category_KjCategorySliceFlat = Omit<CodeableConcept, "coding">;
 export type KjFlag_Category_KjCategorySliceFlatAll = KjFlag_Category_KjCategorySliceFlat;
@@ -4050,7 +4070,6 @@ export class KjFlagProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjFlag"
         const res = this.resource
         return {
             errors: [
@@ -4093,6 +4112,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjPractitionerRole";
 
 export type KjPractitionerRoleProfileRaw = {
     practitioner: Reference<"Practitioner" /* http://hl7.no/fhir/StructureDefinition/no-basis-Practitioner */>;
@@ -4185,7 +4206,6 @@ export class KjPractitionerRoleProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjPractitionerRole"
         const res = this.resource
         return {
             errors: [
@@ -4243,6 +4263,8 @@ import {
     validateReference,
     validateRequired,
 } from "../../profile-helpers";
+
+const profileName = "KjProcedure";
 
 export type KjProcedureProfileRaw = {
     status: ("in-progress" | "entered-in-error" | "completed");
@@ -4574,7 +4596,6 @@ export class KjProcedureProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "KjProcedure"
         const res = this.resource
         return {
             errors: [

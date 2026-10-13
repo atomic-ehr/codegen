@@ -13,6 +13,8 @@ import {
     validateRequired,
 } from "../../profile-helpers";
 
+const profileName = "USCoreInterpreterNeededExtension";
+
 export type USCoreInterpreterNeededExtensionProfileRaw = {
     valueCoding: Coding;
 }
@@ -80,7 +82,6 @@ export class USCoreInterpreterNeededExtensionProfile {
     // Slices
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreInterpreterNeededExtension"
         const res = this.resource
         return {
             errors: [

@@ -29,6 +29,8 @@ import {
     validateSliceCardinality,
 } from "../../profile-helpers";
 
+const profileName = "USCoreBodyWeightProfile";
+
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlatAll = USCoreBodyWeightProfile_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
@@ -315,7 +317,6 @@ export class USCoreBodyWeightProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "USCoreBodyWeightProfile"
         const res = this.resource
         return {
             errors: [

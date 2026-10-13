@@ -23,6 +23,8 @@ import {
     validateSliceCardinality,
 } from "../../profile-helpers";
 
+const profileName = "observation-vitalsigns";
+
 export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type Observation_vitalsigns_Category_VSCatSliceFlatAll = Observation_vitalsigns_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
@@ -190,7 +192,6 @@ export class observation_vitalsignsProfile {
 
     // Validation
     validate(): { errors: string[]; warnings: string[] } {
-        const profileName = "observation-vitalsigns"
         const res = this.resource
         return {
             errors: [
