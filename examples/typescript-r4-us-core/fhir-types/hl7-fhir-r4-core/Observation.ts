@@ -6,6 +6,7 @@ import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
@@ -15,7 +16,6 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../hl7-fhir-r4-core/SampledData";
 import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
-import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
