@@ -1,3 +1,4 @@
+import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
@@ -151,6 +152,7 @@ export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
  *  (e.g. `Resource`) — a family admits any resource, so the bare `Reference`
  *  (defaulting to `str`) is the honest annotation. */
 export const pyReferenceTypeParam = (
+    typing: SectionHandle<never, string> | undefined,
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
@@ -158,7 +160,9 @@ export const pyReferenceTypeParam = (
     const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
     if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
-    return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
+    // Type modules import `Literal` through their section; profile modules import it themselves.
+    const literal = typing?.use("Literal") ?? "Literal";
+    return `${literal}[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
 };
 
 /** The family a reference's targets were widened to, when they were.

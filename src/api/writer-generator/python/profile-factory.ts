@@ -58,7 +58,7 @@ export const fieldPyType = (
         return field.array ? `list[${literal}]` : literal;
     }
     if (base === "Reference" && tsIndex) {
-        const typeParam = pyReferenceTypeParam(field, tsIndex);
+        const typeParam = pyReferenceTypeParam(undefined, field, tsIndex);
         if (typeParam) base = `Reference[${typeParam}]`;
     }
     return field.array ? `list[${base}]` : base;
@@ -103,7 +103,7 @@ const tryPromoteChoice = (
 const pyChoiceInstanceType = (field: ChoiceFieldInstance, tsIndex: TypeSchemaIndex): string => {
     let base = pyTypeFromIdentifier(field.type);
     if (base === "Reference") {
-        const typeParam = pyReferenceTypeParam(field, tsIndex);
+        const typeParam = pyReferenceTypeParam(undefined, field, tsIndex);
         if (typeParam) base = `Reference[${typeParam}]`;
     }
     return base + (field.array ? "[]" : "");

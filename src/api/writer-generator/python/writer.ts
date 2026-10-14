@@ -7,8 +7,9 @@ import {
     pyFhirPackageByName,
     pyPackage,
 } from "@root/api/writer-generator/python/naming-utils.ts";
+import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
 import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
-import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
+import type { WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CanonicalUrl,
@@ -45,21 +46,22 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
 
 const MAX_IMPORT_LINE_LENGTH = 100;
 
-const GENERIC_FIELD_REWRITES: Record<string, Record<string, string>> = {
-    Coding: { code: "T" },
-    CodeableConcept: { coding: "Coding[T]" },
-    Reference: { type: "T" },
+/** String-bound generics; a rewrite receives the field's own type name. */
+const GENERIC_FIELD_REWRITES: Record<string, Record<string, (fieldType: string) => string>> = {
+    Coding: { code: () => "T" },
+    CodeableConcept: { coding: (fieldType) => `${fieldType}[T]` },
+    Reference: { type: () => "T" },
 };
 
 const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
-): { typeVar: string; constraint: string }[] => {
-    const all: Record<string, string> = {};
+): { typeVar: string; constraint: TypeIdentifier }[] => {
+    const all: Record<string, TypeIdentifier> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
         for (const p of s.generic?.params ?? []) {
-            if (!Object.hasOwn(all, p.typeVar)) all[p.typeVar] = p.constraint.name;
+            if (!Object.hasOwn(all, p.typeVar)) all[p.typeVar] = p.constraint;
         }
     };
     addParams(schema);
@@ -69,9 +71,20 @@ const collectResourceGenericTypeVars = (
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
 };
 
-const pyEnumType = (enumDef: EnumDefinition): string => {
+const pyEnumType = (typing: SectionHandle<never, string>, enumDef: EnumDefinition): string => {
     const values = enumDef.values.map((e) => `"${e}"`).join(", ");
-    return enumDef.isOpen ? `Literal[${values}] | str` : `Literal[${values}]`;
+    const literal = typing.use("Literal");
+    return enumDef.isOpen ? `${literal}[${values}] | str` : `${literal}[${values}]`;
+};
+
+/** Import sections of a type module (`base.py` or a resource module), one per source module. */
+type PyTypeImports = {
+    pydantic: SectionHandle<never, string>;
+    typing: SectionHandle<never, string>;
+    typingExtensions: SectionHandle<never, string>;
+    fhirpy: SectionHandle<never, string>;
+    types: SectionHandle<never, TypeIdentifier>;
+    preprocessor: SectionHandle<never, string>;
 };
 
 export interface PythonGeneratorOptions extends WriterOptions {
@@ -93,10 +106,6 @@ export interface PythonGeneratorOptions extends WriterOptions {
     fhirpyClient?: boolean;
 }
 
-interface ImportGroup {
-    [packageName: string]: string[];
-}
-
 interface FieldInfo {
     name: string;
     type: string;
@@ -113,7 +122,7 @@ type TypeSchemaPackage = {
 
 type TypeSchemaPackages = Record<string, TypeSchemaPackage>;
 
-export class Python extends Writer<PythonGeneratorOptions> {
+export class Python extends SectionWriter<PythonGeneratorOptions> {
     readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
     private readonly forFhirpyClient: boolean;
@@ -160,7 +169,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
                         (schema) => collectResourceGenericTypeVars(schema).length > 0,
                     );
                     if (hasComplexTypes) {
-                        this.cat("base.py", () => this.generateBasePy(complexTypes));
+                        this.cat("base.py", () => this.generateBasePy(packageName, complexTypes));
                     }
                     if (hasResources || hasProfiles) {
                         this.cat("__init__.py", () => this.generatePackageInit(packageName, packageTypes));
@@ -237,18 +246,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateBasePy(packageComplexTypes: SpecializationTypeSchema[]): void {
+    private generateBasePy(packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
         const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.generateDisclaimer();
-        this.pyImportFrom("__future__", "annotations");
-        this.pyImportFrom("pydantic", ...["BaseModel", "ConfigDict", "Field", "PositiveInt"].sort());
-        this.pyImportFrom(
-            "typing",
-            ...["Any", "List as PyList", "Literal", ...(hasGenericTypes ? ["Generic"] : [])].sort(),
-        );
-        this.pyImportFrom("typing_extensions", "TypeVar");
+        const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, packageName);
+        const imports = this.typeModuleImports(packageName, `${pyFhirPackage}.base`);
         if (hasGenericTypes) {
-            this.line();
             // Covariant: the parameter says what a value holds, and callers
             // hand these models on to code that asks for the wider type.
             // Invariant, a precisely-typed `Reference[Literal["Patient"]]`
@@ -256,14 +259,14 @@ export class Python extends Writer<PythonGeneratorOptions> {
             // makes the narrower annotation a liability rather than a gain.
             // Unsound in principle for a mutable attribute; accepted because
             // the generated models are data carriers.
-            this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
+            this.line(`T = ${imports.typingExtensions.use("TypeVar")}('T', bound=str, default=str, covariant=True)`);
+            this.line();
         }
-        this.line();
         const sortedTypes = [...packageComplexTypes].sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
         for (const schema of sortAsDeclarationSequence(sortedTypes)) {
-            this.generateNestedTypes(schema);
+            this.generateNestedTypes(imports, schema);
             this.line();
-            this.generateType(schema);
+            this.generateType(imports, schema);
         }
         this.line();
     }
@@ -367,83 +370,103 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateResourceModule(schema: SpecializationTypeSchema): void {
         const typeVars = collectResourceGenericTypeVars(schema);
-        const hasResourceGenericParams = typeVars.length > 0;
 
         this.generateDisclaimer();
-        this.pyImportFrom("__future__", "annotations");
-        this.pyImportFrom(
-            "pydantic",
-            ...[
-                "BaseModel",
-                "ConfigDict",
-                "Field",
-                "PositiveInt",
-                ...(hasResourceGenericParams ? ["model_validator"] : []),
-            ].sort(),
-        );
-        this.pyImportFrom(
-            "typing",
-            ...["Any", "List as PyList", "Literal", ...(hasResourceGenericParams ? ["Generic"] : [])].sort(),
-        );
-        this.pyImportFrom("typing_extensions", ...["Self", ...(hasResourceGenericParams ? ["TypeVar"] : [])].sort());
-        this.generateFhirBaseModelImport();
-        this.line();
-        this.generateDependenciesImports(schema);
-        if (hasResourceGenericParams) {
-            const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
-            this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
+        const module = pyPackage(this.opts.rootPackageName, schema.identifier);
+        const imports = this.typeModuleImports(schema.identifier.package, module);
+        if (typeVars.length > 0) {
             this.line();
             for (const { typeVar, constraint } of typeVars) {
                 // Covariant for the same reason as the base `T`: a
                 // `BundleEntry[Patient]` is usable as a `BundleEntry[Resource]`.
+                const bound = imports.types.use(constraint);
                 this.line(
-                    `${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint}, covariant=True)`,
+                    `${typeVar} = ${imports.typingExtensions.use("TypeVar")}('${typeVar}', bound=${bound}, default=${bound}, covariant=True)`,
                 );
             }
         }
         this.line();
-        this.generateNestedTypes(schema);
+        this.generateNestedTypes(imports, schema);
         this.line();
-        this.generateType(schema);
+        this.generateType(imports, schema);
     }
 
-    private generateFhirBaseModelImport(): void {
-        if (this.forFhirpyClient)
-            this.pyImportFrom(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
+    /** `from __future__` stays first; each section below imports only the names its module's code uses. */
+    private typeModuleImports(packageName: string, module: string): PyTypeImports {
+        this.line("from __future__ import annotations");
+        const pydantic = this.moduleImports("pydantic");
+        // `List` is a FHIR resource class too, so the typing alias keeps them apart.
+        const typing = this.moduleImports("typing", (name) => (name === "List" ? "PyList" : name));
+        const typingExtensions = this.moduleImports("typing_extensions");
+        const fhirpy = this.moduleImports(`${this.opts.rootPackageName}.fhirpy_base_model`);
+        this.line();
+        const types = this.section<never, TypeIdentifier>({
+            name: deriveResourceName,
+            render: (_definitions, usages) => {
+                const byModule: Record<string, string[]> = {};
+                for (const { key, local } of usages) {
+                    const from = pyPackage(this.opts.rootPackageName, key);
+                    // Types declared in this module are written by name.
+                    if (from === module) continue;
+                    const name = deriveResourceName(key);
+                    (byModule[from] ??= []).push(name === local ? name : `${name} as ${local}`);
+                }
+                for (const [from, names] of Object.entries(byModule).sort(([a], [b]) => a.localeCompare(b)))
+                    this.pyImportFrom(from, ...names.sort());
+            },
+        });
+        const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, packageName);
+        const preprocessor = this.moduleImports(`${pyFhirPackage}.resource_preprocessor`);
+        return { pydantic, typing, typingExtensions, fhirpy, types, preprocessor };
     }
 
-    private generateType(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    /** One `from <module> import ...` line naming the symbols used from `module`. */
+    private moduleImports(module: string, name = (key: string) => key): SectionHandle<never, string> {
+        return this.section<never, string>({
+            name,
+            render: (_definitions, usages) => {
+                if (usages.length === 0) return;
+                const names = usages.map(({ key, local }) => (key === local ? key : `${key} as ${local}`));
+                this.pyImportFrom(module, ...names.sort());
+            },
+        });
+    }
+
+    private generateType(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
         const className = deriveResourceName(schema.identifier);
-        const superClasses = this.getSuperClasses(schema);
+        const superClasses = this.getSuperClasses(imports, schema);
 
         this.line(`class ${className}(${superClasses.join(", ")}):`);
         this.indentBlock(() => {
-            this.generateClassBody(schema);
+            this.generateClassBody(imports, schema);
         });
         this.line();
     }
 
-    private getSuperClasses(schema: SpecializationTypeSchema | NestedTypeSchema): string[] {
+    private getSuperClasses(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): string[] {
         const bases: string[] = [];
-        if (schema.base) bases.push(schema.base.name);
-        bases.push(...this.injectSuperClasses(schema.identifier.url));
+        if (schema.base) bases.push(imports.types.use(schema.base));
+        bases.push(...this.injectSuperClasses(imports, schema.identifier.url));
         // A schema with no base and no injected root still gets a pydantic body,
         // so without a model root every Field(...) and the model_config would be
         // inert class attributes. Reached by a logical model specializing a root
         // the package does not ship — R4's virtual `Base`, say, which leaves the
         // schema rootless — and by anything else that resolves to no parent.
-        if (bases.length === 0) bases.push(this.forFhirpyClient ? "FhirpyBaseModel" : "BaseModel");
-        if (schema.identifier.name in GENERIC_FIELD_REWRITES) bases.push("Generic[T]");
+        if (bases.length === 0)
+            bases.push(
+                this.forFhirpyClient ? imports.fhirpy.use("FhirpyBaseModel") : imports.pydantic.use("BaseModel"),
+            );
+        if (schema.identifier.name in GENERIC_FIELD_REWRITES) bases.push(`${imports.typing.use("Generic")}[T]`);
         const params = schema.generic?.params ?? [];
         if (params.length > 0) {
             const typeVars = params.map((p) => p.typeVar).join(", ");
-            bases.push(`Generic[${typeVars}]`);
+            bases.push(`${imports.typing.use("Generic")}[${typeVars}]`);
         }
         return bases;
     }
 
-    private generateClassBody(schema: SpecializationTypeSchema | NestedTypeSchema): void {
-        this.generateModelConfig();
+    private generateClassBody(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
+        this.generateModelConfig(imports);
 
         if (!schema.fields) {
             this.line("pass");
@@ -451,44 +474,50 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
 
         if (isResourceTypeSchema(schema)) {
-            this.generateResourceTypeField(schema);
+            this.generateResourceTypeField(imports, schema);
         }
 
-        this.generateFields(schema);
+        this.generateFields(imports, schema);
 
         if (this.opts.generateProfile && schema.identifier.name === "Extension") {
             this.generateExtensionEqualityMethods();
         }
 
         if (isResourceTypeSchema(schema)) {
-            this.generateResourceMethods(schema);
+            this.generateResourceMethods(imports, schema);
         }
 
         if ((schema.generic?.params?.length ?? 0) > 0) {
-            this.generateResourcePreprocessorMethod(schema);
+            this.generateResourcePreprocessorMethod(imports, schema);
         }
     }
 
-    private generateResourcePreprocessorMethod(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateResourcePreprocessorMethod(
+        imports: PyTypeImports,
+        schema: SpecializationTypeSchema | NestedTypeSchema,
+    ): void {
         const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
+        const any = imports.typing.use("Any");
         this.line();
-        this.line("@model_validator(mode='before')");
+        this.line(`@${imports.pydantic.use("model_validator")}(mode='before')`);
         this.line("@classmethod");
-        this.line("def _preprocess_resources(cls, data: Any) -> Any:");
+        this.line(`def _preprocess_resources(cls, data: ${any}) -> ${any}:`);
         this.line("    if isinstance(data, dict):");
-        this.line(`        return preprocess_resource_fields(data, "${pyFhirPackage}")`);
+        this.line(`        return ${imports.preprocessor.use("preprocess_resource_fields")}(data, "${pyFhirPackage}")`);
         this.line("    return data");
     }
 
-    private generateModelConfig(): void {
+    private generateModelConfig(imports: PyTypeImports): void {
         const extraMode = this.opts.allowExtraFields ? "allow" : "forbid";
-        this.line(`model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`);
+        this.line(
+            `model_config = ${imports.pydantic.use("ConfigDict")}(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`,
+        );
     }
 
-    private generateResourceTypeField(schema: SpecializationTypeSchema): void {
+    private generateResourceTypeField(imports: PyTypeImports, schema: SpecializationTypeSchema): void {
         // Type as `str`; the value is validated on the pydantic side via `pattern`.
         const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
-        this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
+        this.line(`${this.nameFormatFunction("resourceType")}: str = ${imports.pydantic.use("Field")}(`);
         this.indentBlock(() => {
             // Family/abstract base types (Resource, DomainResource) are subclassed by concrete
             // resources and never instantiated directly. Omitting the default keeps `resourceType`
@@ -506,18 +535,25 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateFields(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
-        const withExtensions = this.shouldAddPrimitiveExtensions(schema);
+        let elementType: string | undefined;
+        if (this.shouldAddPrimitiveExtensions(schema)) {
+            assert(this.tsIndex !== undefined);
+            const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
+            const element = this.tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
+            if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
+            elementType = imports.types.use(element.identifier);
+        }
 
         for (const [fieldName, field] of sortedFields) {
             if (!isNotChoiceDeclarationField(field)) continue;
 
-            const fieldInfo = this.buildFieldInfo(fieldName, field, schema);
+            const fieldInfo = this.buildFieldInfo(imports, fieldName, field, schema);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}${fieldInfo.comment ?? ""}`);
 
-            if (withExtensions && isPrimitiveIdentifier(field.type)) {
-                this.addPrimitiveExtensionField(fieldName, field.array ?? false);
+            if (elementType && isPrimitiveIdentifier(field.type)) {
+                this.addPrimitiveExtensionField(imports, fieldName, field.array ?? false, elementType);
             }
         }
     }
@@ -532,22 +568,30 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return false;
     }
 
-    private addPrimitiveExtensionField(fieldName: string, isArray: boolean): void {
+    private addPrimitiveExtensionField(
+        imports: PyTypeImports,
+        fieldName: string,
+        isArray: boolean,
+        elementType: string,
+    ): void {
         const pyFieldName = this.nameFormatFunction(`${fieldName}Extension`);
         const alias = `_${fieldName}`;
-        const typeExpr = isArray ? "PyList[Element | None] | None" : "Element | None";
+        const typeExpr = isArray
+            ? `${imports.typing.use("List")}[${elementType} | None] | None`
+            : `${elementType} | None`;
         const aliasSpec = `alias="${alias}", serialization_alias="${alias}"`;
-        this.line(`${pyFieldName}: ${typeExpr} = Field(None, ${aliasSpec})`);
+        this.line(`${pyFieldName}: ${typeExpr} = ${imports.pydantic.use("Field")}(None, ${aliasSpec})`);
     }
 
     private buildFieldInfo(
+        imports: PyTypeImports,
         fieldName: string,
         field: RegularField | ChoiceFieldInstance,
         schema: SpecializationTypeSchema | NestedTypeSchema,
     ): FieldInfo {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
-        const fieldType = this.determineFieldType(field, fieldName, schema);
-        const defaultValue = this.getFieldDefaultValue(field, fieldName);
+        const fieldType = this.determineFieldType(imports, field, fieldName, schema);
+        const defaultValue = this.getFieldDefaultValue(imports, field, fieldName);
         const family = this.tsIndex ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
 
         return {
@@ -559,18 +603,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private determineFieldType(
+        imports: PyTypeImports,
         field: RegularField | ChoiceFieldInstance,
         fieldName: string,
         schema: SpecializationTypeSchema | NestedTypeSchema,
     ): string {
         const schemaName = schema.identifier.name;
-        let fieldType = this.getBaseFieldType(field);
+        let fieldType = this.getBaseFieldType(imports, field);
 
         // String-bound generics (Coding.code → T, CodeableConcept.coding → Coding[T])
         const rewrite = GENERIC_FIELD_REWRITES[schemaName]?.[fieldName];
         if (rewrite) {
-            fieldType = rewrite;
-            if (field.array) fieldType = `PyList[${fieldType}]`;
+            fieldType = rewrite(fieldType);
+            if (field.array) fieldType = `${imports.typing.use("List")}[${fieldType}]`;
             if (!field.required) fieldType = `${fieldType} | None`;
             return fieldType;
         }
@@ -580,7 +625,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const directParam = params.find((p) => leafOf(p.path) === fieldName);
         if (directParam) {
             fieldType = directParam.typeVar;
-            if (field.array) fieldType = `PyList[${fieldType}]`;
+            if (field.array) fieldType = `${imports.typing.use("List")}[${fieldType}]`;
             if (!field.required) fieldType = `${fieldType} | None`;
             return fieldType;
         }
@@ -603,21 +648,23 @@ export class Python extends Writer<PythonGeneratorOptions> {
         if (field.enum) {
             const baseTypeName = field.type.name;
             if (baseTypeName in GENERIC_FIELD_REWRITES) {
-                fieldType = `${fieldType}[${pyEnumType(field.enum)}]`;
+                fieldType = `${fieldType}[${pyEnumType(imports.typing, field.enum)}]`;
             } else if (!field.enum.isOpen) {
                 const s: string = field.enum.values.map((e: string) => `"${e}"`).join(", ");
-                fieldType = `Literal[${s}]`;
+                fieldType = `${imports.typing.use("Literal")}[${s}]`;
             }
         }
 
-        if (fieldType === "Reference" && field.reference) {
+        // `fieldType` holds an import marker here, so test the identifier.
+        const isReference = !isPrimitiveIdentifier(field.type) && field.type.name === "Reference";
+        if (isReference && !field.enum && field.reference) {
             assert(this.tsIndex !== undefined);
-            const typeParam = pyReferenceTypeParam(field, this.tsIndex);
-            if (typeParam) fieldType = `Reference[${typeParam}]`;
+            const typeParam = pyReferenceTypeParam(imports.typing, field, this.tsIndex);
+            if (typeParam) fieldType = `${fieldType}[${typeParam}]`;
         }
 
         if (field.array) {
-            fieldType = `PyList[${fieldType}]`;
+            fieldType = `${imports.typing.use("List")}[${fieldType}]`;
         }
 
         if (!field.required) {
@@ -627,30 +674,33 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return fieldType;
     }
 
-    private getBaseFieldType(field: Field): string {
+    private getBaseFieldType(imports: PyTypeImports, field: Field): string {
         if (!isNotChoiceDeclarationField(field)) return "";
         if (isResourceIdentifier(field.type)) return `${field.type.name}Family`;
         if (isNestedIdentifier(field.type)) return deriveResourceName(field.type);
-        if (isPrimitiveIdentifier(field.type)) return PRIMITIVE_TYPE_MAP[field.type.name] ?? "str";
-        return field.type.name;
+        if (isPrimitiveIdentifier(field.type)) {
+            const type = PRIMITIVE_TYPE_MAP[field.type.name] ?? "str";
+            return type === "PositiveInt" ? imports.pydantic.use(type) : type;
+        }
+        return imports.types.use(field.type);
     }
 
-    private getFieldDefaultValue(field: Field, fieldName: string): string {
+    private getFieldDefaultValue(imports: PyTypeImports, field: Field, fieldName: string): string {
         const aliasSpec = `alias="${fieldName}", serialization_alias="${fieldName}"`;
-        if (!field.required) return ` = Field(None, ${aliasSpec})`;
-        return ` = Field(${aliasSpec})`;
+        if (!field.required) return ` = ${imports.pydantic.use("Field")}(None, ${aliasSpec})`;
+        return ` = ${imports.pydantic.use("Field")}(${aliasSpec})`;
     }
 
-    private generateResourceMethods(_schema: SpecializationTypeSchema): void {
+    private generateResourceMethods(imports: PyTypeImports, _schema: SpecializationTypeSchema): void {
         this.line();
-        this.line("def model_post_init(self, __context: Any) -> None:");
+        this.line(`def model_post_init(self, __context: ${imports.typing.use("Any")}) -> None:`);
         this.line(`    self.__pydantic_fields_set__.add("${this.nameFormatFunction("resourceType")}")`);
         this.line();
         this.line("def to_json(self, indent: int | None = None) -> str:");
         this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");
         this.line();
         this.line("@classmethod");
-        this.line("def from_json(cls, json: str) -> Self:");
+        this.line(`def from_json(cls, json: str) -> ${imports.typingExtensions.use("Self")}:`);
         this.line("    return cls.model_validate_json(json)");
     }
 
@@ -667,66 +717,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line("    return hash(self.url)");
     }
 
-    private generateNestedTypes(schema: SpecializationTypeSchema): void {
+    private generateNestedTypes(imports: PyTypeImports, schema: SpecializationTypeSchema): void {
         if (!schema.nested) return;
 
         this.line();
         for (const subtype of schema.nested) {
-            this.generateType(subtype);
+            this.generateType(imports, subtype);
         }
-    }
-
-    private generateDependenciesImports(schema: SpecializationTypeSchema): void {
-        if (!schema.dependencies || schema.dependencies.length === 0) return;
-
-        this.importComplexTypeDependencies(schema.dependencies);
-        this.importResourceDependencies(schema.dependencies);
-        this.importElementIfNeeded(schema);
-    }
-
-    private importElementIfNeeded(schema: SpecializationTypeSchema): void {
-        if (!this.shouldAddPrimitiveExtensions(schema)) return;
-        if (schema.identifier.name === "Element") return;
-        if (schema.dependencies?.find((d) => d.name === "Element")) return;
-
-        assert(this.tsIndex !== undefined);
-        const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
-        const element = this.tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
-        if (!element) return;
-
-        const pyPkg = pyPackage(this.opts.rootPackageName, element.identifier);
-        this.pyImportFrom(pyPkg, "Element");
-    }
-
-    private importComplexTypeDependencies(dependencies: TypeIdentifier[]): void {
-        const complexTypeDeps = dependencies.filter((dep) => dep.kind === "complex-type");
-        const depsByPackage = this.groupDependenciesByPackage(complexTypeDeps);
-
-        for (const [pyPackage, names] of Object.entries(depsByPackage)) {
-            this.pyImportFrom(pyPackage, ...names.sort());
-        }
-    }
-
-    private importResourceDependencies(dependencies: TypeIdentifier[]): void {
-        const resourceDeps = dependencies.filter((dep) => dep.kind === "resource");
-
-        for (const dep of resourceDeps) {
-            this.pyImportType(dep);
-        }
-    }
-
-    private groupDependenciesByPackage(dependencies: TypeIdentifier[]): ImportGroup {
-        const grouped: ImportGroup = {};
-
-        for (const dep of dependencies) {
-            const pyPkg = pyPackage(this.opts.rootPackageName, dep);
-            if (!grouped[pyPkg]) {
-                grouped[pyPkg] = [];
-            }
-            grouped[pyPkg].push(dep.name);
-        }
-
-        return grouped;
     }
 
     pyImportFrom(pyPackage: string, ...entities: string[]): void {
@@ -756,10 +753,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private pyImportType(identifier: TypeIdentifier): void {
-        this.pyImportFrom(pyPackage(this.opts.rootPackageName, identifier), pascalCase(identifier.name));
-    }
-
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
         if (!AVAILABLE_STRING_FORMATS[format]) {
             this.logger()?.warn(`Unknown field format '${format}'. Defaulting to SnakeCase.`);
@@ -769,10 +762,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return AVAILABLE_STRING_FORMATS[format];
     }
 
-    private injectSuperClasses(url: string): string[] {
+    private injectSuperClasses(imports: PyTypeImports, url: string): string[] {
         const name = canonicalToName(url);
-        if (name === "resource") return this.forFhirpyClient ? ["FhirpyBaseModel"] : ["BaseModel"];
-        if (name === "element") return ["BaseModel"];
+        if (name === "resource")
+            return [this.forFhirpyClient ? imports.fhirpy.use("FhirpyBaseModel") : imports.pydantic.use("BaseModel")];
+        if (name === "element") return [imports.pydantic.use("BaseModel")];
         return [];
     }
 }
