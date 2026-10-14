@@ -128,6 +128,9 @@ python-r4-us-core-test-setup:
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt; \
 	fi
+	@if [ ! -x "$(PYTHON_R4_US_CORE_EXAMPLE)/venv/bin/ruff" ]; then \
+		$(PYTHON_R4_US_CORE_EXAMPLE)/venv/bin/python -m pip install -r examples/python-r4-us-core/requirements-test.txt; \
+	fi
 
 # Offline: mypy + profile/bundle/extension/serialization tests (no Aidbox required).
 test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-r4-us-core-test-setup
