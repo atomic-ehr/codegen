@@ -296,14 +296,11 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                 const localName = usage?.local ?? value.entity.split(" as ").at(-1) ?? remoteName;
                 return { ...value, entity: localName === remoteName ? remoteName : `${remoteName} as ${localName}` };
             });
-        const sideEffects = imports.filter(({ entity }) => entity === "__side_effect__");
-        for (const { module } of sideEffects) this.line(`import ${module}  # noqa: F401`);
-        const fromImports = imports.filter(({ entity }) => entity !== "__side_effect__");
         const groups = [
-            fromImports.filter(({ module }) => module === "__future__"),
-            fromImports.filter(({ module }) => module === "typing"),
-            fromImports.filter(({ module }) => module === "pydantic" || module === "typing_extensions"),
-            fromImports.filter(
+            imports.filter(({ module }) => module === "__future__"),
+            imports.filter(({ module }) => module === "typing"),
+            imports.filter(({ module }) => module === "pydantic" || module === "typing_extensions"),
+            imports.filter(
                 ({ module }) =>
                     module !== "__future__" &&
                     module !== "typing" &&
@@ -311,7 +308,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                     module !== "typing_extensions" &&
                     !module.startsWith("."),
             ),
-            fromImports.filter(({ module }) => module.startsWith(".")),
+            imports.filter(({ module }) => module.startsWith(".")),
         ];
 
         let wroteGroup = false;
@@ -372,7 +369,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         groups: TypeSchemaPackageGroups,
         profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
     ): void {
-        this.generateRootInitFile(groups, profilesByPackage);
+        this.generateRootInitFile(groups);
         if (this.forFhirpyClient) {
             if (this.fieldFormat === "camelCase") {
                 this.copyAssets(resolvePyAssets("fhirpy_base_model_camel_case.py"), "fhirpy_base_model.py");
@@ -459,10 +456,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         }
     }
 
-    private generateRootInitFile(
-        groups: TypeSchemaPackageGroups,
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-    ): void {
+    private generateRootInitFile(groups: TypeSchemaPackageGroups): void {
         this.cd("/", () => {
             this.cat("__init__.py", () => {
                 this.generateDisclaimer();
@@ -470,7 +464,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                 const pydanticModels: string[] = this.collectAndImportAllModels(groups, imports);
                 this.line();
                 this.generateModelRebuilds(pydanticModels, imports);
-                this.importProfileRegistrations(profilesByPackage, imports);
             });
         });
     }
@@ -490,21 +483,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         for (const reference of models.sort((a, b) => a.split("#")[1]!.localeCompare(b.split("#")[1]!))) {
             const [module, name] = reference.split("#");
             this.line(`${imports.use(module!, name!)}.model_rebuild()`);
-        }
-    }
-
-    private importProfileRegistrations(
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-        imports: PythonImports,
-    ): void {
-        // `profiles/` exists for exactly these packages: resource packages with
-        // profiles and profile-only packages, both written by
-        // generateResourcePackages from the same map.
-        const packageNames = Object.keys(profilesByPackage).sort();
-        if (packageNames.length === 0) return;
-        for (const packageName of packageNames) {
-            const profilesPackage = `${pyFhirPackageByName(this.opts.rootPackageName, packageName)}.profiles`;
-            imports.force(profilesPackage, "__side_effect__");
         }
     }
 

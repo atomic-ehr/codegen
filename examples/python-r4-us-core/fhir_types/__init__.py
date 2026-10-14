@@ -2,9 +2,6 @@
 # GitHub: https://github.com/atomic-ehr/codegen
 # Any manual changes made to this file may be overwritten.
 
-import fhir_types.example_folder_structures.profiles  # noqa: F401
-import fhir_types.hl7_fhir_r4_core.profiles  # noqa: F401
-import fhir_types.hl7_fhir_us_core.profiles  # noqa: F401
 from fhir_types.hl7_fhir_r4_core.base import (
     Address,
     Age,
