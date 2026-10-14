@@ -70,7 +70,7 @@ const modulePathForTypeId = (rootPackageName: string, typeId: TypeIdentifier): s
 };
 
 const addExactTypeImport = (
-    typeImports: Map<string, Set<string>>,
+    typeImports: Record<string, Set<string>>,
     rootPackageName: string,
     skipName: string,
     typeId: TypeIdentifier,
@@ -79,13 +79,11 @@ const addExactTypeImport = (
     const name = deriveResourceName(typeId);
     if (!name || name === skipName) return;
     const modulePath = modulePathForTypeId(rootPackageName, typeId);
-    const names = typeImports.get(modulePath) ?? new Set<string>();
-    names.add(name);
-    typeImports.set(modulePath, names);
+    (typeImports[modulePath] ??= new Set<string>()).add(name);
 };
 
 const addTypeImport = (
-    typeImports: Map<string, Set<string>>,
+    typeImports: Record<string, Set<string>>,
     rootPackageName: string,
     skipName: string,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
@@ -104,12 +102,7 @@ const addTypeImport = (
         const name = deriveResourceName(id);
         if (name === skipName) continue;
         const modulePath = modulePathForTypeId(rootPackageName, id);
-        let names = typeImports.get(modulePath);
-        if (!names) {
-            names = new Set();
-            typeImports.set(modulePath, names);
-        }
-        names.add(name);
+        (typeImports[modulePath] ??= new Set<string>()).add(name);
     }
 };
 
@@ -160,8 +153,8 @@ const collectTypeImports = (
     sliceDefs: SliceDef[],
     extensions: ProfileExtension[],
     schemas: TypeSchemaIndex["schemas"],
-): Map<string, Set<string>> => {
-    const typeImports = new Map<string, Set<string>>();
+): Record<string, Set<string>> => {
+    const typeImports: Record<string, Set<string>> = {};
     for (const p of factoryInfo.params) addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, p.typeId);
     for (const f of factoryInfo.sliceAutoFields)
         addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, f.typeId);
@@ -191,12 +184,12 @@ const collectExtProfileImports = (
     tsIndex: TypeSchemaIndex,
     flatProfile: SnapshotProfileTypeSchema,
     extensions: ProfileExtension[],
-): Map<string, ExtensionProfileInfo> => {
-    const extProfileImports = new Map<string, ExtensionProfileInfo>();
+): Record<string, ExtensionProfileInfo> => {
+    const extProfileImports: Record<string, ExtensionProfileInfo> = {};
     for (const ext of extensions) {
         if (!ext.url) continue;
         const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext);
-        if (info && !extProfileImports.has(info.className)) extProfileImports.set(info.className, info);
+        if (info && !Object.hasOwn(extProfileImports, info.className)) extProfileImports[info.className] = info;
     }
     return extProfileImports;
 };
@@ -211,8 +204,8 @@ const emitModuleImports = (
     isResourceBase: boolean,
     extensions: ProfileExtension[],
     factoryInfo: ProfileFactoryInfo,
-    typeImports: Map<string, Set<string>>,
-    extProfileImports: Map<string, ExtensionProfileInfo>,
+    typeImports: Record<string, Set<string>>,
+    extProfileImports: Record<string, ExtensionProfileInfo>,
     helperImports: string[],
     sliceDefs: SliceDef[],
 ): void => {
@@ -252,10 +245,10 @@ const emitModuleImports = (
         w.pyImportFrom(`${basePkg}.base`, baseTypeName);
     }
     if (extensions.length > 0) w.pyImportFrom(`${basePkg}.base`, "Extension");
-    for (const [modulePath, names] of [...typeImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    for (const [modulePath, names] of Object.entries(typeImports).sort(([a], [b]) => a.localeCompare(b))) {
         w.pyImportFrom(modulePath, ...[...names].sort());
     }
-    for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    for (const [extClassName, info] of Object.entries(extProfileImports).sort(([a], [b]) => a.localeCompare(b))) {
         w.pyImportFrom(`.${info.moduleName}`, extClassName);
     }
     w.pyImportFrom(`${w.opts.rootPackageName}.profile_helpers`, ...helperImports);
@@ -432,9 +425,7 @@ export const generateProfileModule = (
     if (typedResources.length > 0) {
         const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
         const resourceModule = `${basePkg}.resource`;
-        const names = typeImports.get(resourceModule) ?? new Set<string>();
-        names.add("Resource");
-        typeImports.set(resourceModule, names);
+        (typeImports[resourceModule] ??= new Set<string>()).add("Resource");
     }
 
     emitModuleImports(

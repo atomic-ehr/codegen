@@ -59,7 +59,7 @@
         "noUselessFragments": "error"
       },
       "style": {
-        "useConsistentArrayType": "error",
+        "useConsistentArrayType": { "level": "error", "options": { "syntax": "shorthand" } },
         "useArrayLiterals": "error",
         "noNestedTernary": "error",
         "useImportType": "error",

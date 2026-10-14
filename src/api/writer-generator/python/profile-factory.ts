@@ -145,10 +145,10 @@ export const collectProfileFactoryInfo = (
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
     // Maps each choice instance name to all sibling instance names (from the same declaration).
-    const choiceGroups = new Map<string, string[]>();
+    const choiceGroups: Record<string, string[]> = {};
     for (const [, field] of Object.entries(fields)) {
         if (isChoiceDeclarationField(field)) {
-            for (const choice of field.choices) choiceGroups.set(choice, field.choices);
+            for (const choice of field.choices) choiceGroups[choice] = field.choices;
         }
     }
 
@@ -207,7 +207,7 @@ export const collectProfileFactoryInfo = (
     for (const [name, field] of pendingChoiceInstances) {
         if (promotedChoices.has(name)) continue;
         const pyType = pyChoiceInstanceType(field, tsIndex);
-        const choiceSiblings = (choiceGroups.get(name) ?? []).filter((s) => s !== name && !promotedChoices.has(s));
+        const choiceSiblings = (choiceGroups[name] ?? []).filter((s) => s !== name && !promotedChoices.has(s));
         choiceAccessors.push({
             name,
             pyType,

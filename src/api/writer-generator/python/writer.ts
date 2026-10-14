@@ -50,16 +50,16 @@ const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
-): Array<{ typeVar: string; constraint: string }> => {
-    const all = new Map<string, string>();
+): { typeVar: string; constraint: string }[] => {
+    const all: Record<string, string> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
         for (const p of s.generic?.params ?? []) {
-            if (!all.has(p.typeVar)) all.set(p.typeVar, p.constraint.name);
+            if (!Object.hasOwn(all, p.typeVar)) all[p.typeVar] = p.constraint.name;
         }
     };
     addParams(schema);
     for (const nested of schema.nested ?? []) addParams(nested);
-    return Array.from(all.entries())
+    return Object.entries(all)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
 };
