@@ -77,7 +77,7 @@ const pyEnumType = (typing: SectionHandle<never, string>, enumDef: EnumDefinitio
     return enumDef.isOpen ? `${literal}[${values}] | str` : `${literal}[${values}]`;
 };
 
-/** Import sections of a type module (`base.py` or a resource module): one per library module, plus `types` for FHIR types. */
+/** Import sections of a type module (`base.py` or a resource module): one per imported module, plus `types` for FHIR types. */
 type TypeModuleImports = {
     pydantic: SectionHandle<never, string>;
     typing: SectionHandle<never, string>;
