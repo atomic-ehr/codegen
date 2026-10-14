@@ -1,4 +1,10 @@
-import { ensureDependency, inResource, renamePackage, replaceText } from "@atomic-ehr/fhir-canonical-manager/patch";
+import {
+    ensureDependency,
+    inResource,
+    patchElement,
+    renamePackage,
+    replaceText,
+} from "@atomic-ehr/fhir-canonical-manager/patch";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
 
 if (require.main === module) {
@@ -31,6 +37,32 @@ if (require.main === module) {
                             "http://ehelse.no/fhir/StructureDefinition/gd-Person",
                             "http://hl7.org/fhir/StructureDefinition/Patient",
                         ),
+                    ]),
+                    // sfm-MedicationDispense adds sfm-MedicationStatement to authorizingPrescription, but base
+                    // R4 MedicationDispense.authorizingPrescription only allows MedicationRequest — narrow it back.
+                    inResource("http://ehelse.no/fhir/StructureDefinition/sfm-MedicationDispense", [
+                        patchElement("MedicationDispense.authorizingPrescription", (element) => ({
+                            ...element,
+                            type: element.type?.map((type) => ({
+                                ...type,
+                                targetProfile: ["http://hl7.org/fhir/StructureDefinition/MedicationRequest"],
+                            })),
+                        })),
+                    ]),
+                    // sfm-MedicationStatement adds sfm-MedicationStatement to basedOn, which base R4
+                    // MedicationStatement.basedOn doesn't allow — narrow it back to the base's targets.
+                    inResource("http://ehelse.no/fhir/StructureDefinition/sfm-MedicationStatement", [
+                        patchElement("MedicationStatement.basedOn", (element) => ({
+                            ...element,
+                            type: element.type?.map((type) => ({
+                                ...type,
+                                targetProfile: [
+                                    "http://hl7.org/fhir/StructureDefinition/CarePlan",
+                                    "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
+                                    "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
+                                ],
+                            })),
+                        })),
                     ]),
                 ],
             },

@@ -184,7 +184,7 @@ export class SfmMedicationDispenseProfile {
                 ...validateChoiceRequired(res, profileName, ["medicationReference"]),
                 ...validateChoiceProhibited(res, profileName, ["medicationCodeableConcept"]),
                 ...validateReference(res, profileName, "subject", ["Group","Patient"]),
-                ...validateReference(res, profileName, "authorizingPrescription", ["MedicationRequest","MedicationStatement"]),
+                ...validateReference(res, profileName, "authorizingPrescription", ["MedicationRequest"]),
             ],
             warnings: [
                 ...validateMustSupport(res, profileName, "subject"),
@@ -758,7 +758,7 @@ export class SfmMedicationStatementProfile {
                 ...validateChoiceProhibited(res, profileName, ["medicationCodeableConcept"]),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
-                ...validateReference(res, profileName, "basedOn", ["CarePlan","MedicationRequest","MedicationStatement","ServiceRequest"]),
+                ...validateReference(res, profileName, "basedOn", ["CarePlan","MedicationRequest","ServiceRequest"]),
                 ...validateReference(res, profileName, "partOf", ["MedicationAdministration","MedicationDispense","MedicationStatement","Observation","Procedure"]),
                 ...validateReference(res, profileName, "context", ["Encounter","EpisodeOfCare"]),
                 ...validateRequired(res, profileName, "dosage"),
