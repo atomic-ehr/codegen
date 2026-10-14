@@ -24,6 +24,7 @@ import type {
     ValueConstraint,
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
+import { assertNoElementDefects } from "./defect-assertions";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkSliceNameCandidates } from "./name-candidates";
 import { mkNestedIdentifier } from "./nested-types";
@@ -389,6 +390,7 @@ export const mkField = (
         }
     }
 
+    assertNoElementDefects(register, fhirSchema, path, element);
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     const fieldTypeUrl = element.type ? register.ensureSpecializationCanonicalUrl(element.type) : undefined;
     const fieldTypeFs = fieldTypeUrl ? register.resolveFs(fhirSchema.package_meta, fieldTypeUrl) : undefined;
