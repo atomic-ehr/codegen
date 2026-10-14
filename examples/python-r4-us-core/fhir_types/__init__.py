@@ -12,17 +12,17 @@ from fhir_types.hl7_fhir_r4_core.base import (
 from fhir_types.hl7_fhir_r4_core.bundle import (
     Bundle, BundleEntry, BundleEntryRequest, BundleEntryResponse, BundleEntrySearch, BundleLink
 )
-from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
-from fhir_types.hl7_fhir_r4_core.observation import (
-    Observation, ObservationComponent, ObservationReferenceRange
-)
 from fhir_types.hl7_fhir_r4_core.operation_outcome import OperationOutcome, OperationOutcomeIssue
-from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
+from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
 )
-from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent, ProvenanceEntity
+from fhir_types.hl7_fhir_r4_core.observation import (
+    Observation, ObservationComponent, ObservationReferenceRange
+)
+from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.resource import Resource
+from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent, ProvenanceEntity
 
 Address.model_rebuild()
 Age.model_rebuild()

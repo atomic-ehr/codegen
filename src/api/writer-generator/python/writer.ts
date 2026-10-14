@@ -254,7 +254,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
         }
         this.line();
-        for (const schema of sortAsDeclarationSequence(packageComplexTypes)) {
+        const sortedTypes = [...packageComplexTypes].sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
+        for (const schema of sortAsDeclarationSequence(sortedTypes)) {
             this.generateNestedTypes(schema);
             this.line();
             this.generateType(schema);
