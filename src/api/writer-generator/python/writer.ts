@@ -38,7 +38,10 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
     camelCase: camelCase,
 };
 
-const MAX_IMPORT_LINE_LENGTH = 100;
+const MAX_IMPORT_LINE_LENGTH = 88;
+const LEADING_NEWLINES = /^\n+/;
+
+type PythonImport = { module: string; entity: string };
 
 const GENERIC_FIELD_REWRITES: Record<string, Record<string, string>> = {
     Coding: { code: "T" },
@@ -144,11 +147,32 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
     private profileHelperImport?: SectionHandle<never, string>;
+    private importSection?: SectionHandle<never, string>;
+    private readonly fileImports = new Map<string, PythonImport>();
+    private inImportPreamble = false;
+    private renderingImports = false;
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
         this.forFhirpyClient = this.resolveClient(options);
         this.fieldFormat = options.fieldFormat;
+    }
+
+    override cat(fn: string, gen: () => void): void {
+        const previousSection = this.importSection;
+        const previousImports = new Map(this.fileImports);
+        const previousPreamble = this.inImportPreamble;
+        this.importSection = undefined;
+        this.fileImports.clear();
+        this.inImportPreamble = false;
+        try {
+            super.cat(fn, gen);
+        } finally {
+            this.importSection = previousSection;
+            this.fileImports.clear();
+            for (const [key, value] of previousImports) this.fileImports.set(key, value);
+            this.inImportPreamble = previousPreamble;
+        }
     }
 
     profileHelperImports(): SectionHandle<never, string> {
@@ -170,11 +194,88 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     override write(str: string): void {
+        if (this.renderingImports) {
+            super.write(str);
+            return;
+        }
+        if (this.inImportPreamble && !str.includes("\u0000:")) {
+            if (str.trim().length === 0) return;
+            this.inImportPreamble = false;
+            super.write(str.trimStart().startsWith("class ") ? "\n\n" : "\n");
+            str = str.replace(LEADING_NEWLINES, "");
+        }
         if (this.profileHelperImport) {
             const helperPattern = new RegExp(`\\b(${PROFILE_HELPERS.join("|")})\\b`, "g");
             str = str.replace(helperPattern, (helper) => this.profileHelperImport?.use(helper) ?? helper);
         }
         super.write(str);
+    }
+
+    private ensureImportSection(): SectionHandle<never, string> {
+        if (!this.importSection) {
+            this.importSection = this.section<never, string>({
+                name: () => "",
+                render: () => {
+                    this.renderingImports = true;
+                    try {
+                        this.renderImports();
+                    } finally {
+                        this.renderingImports = false;
+                    }
+                },
+            });
+        }
+        return this.importSection;
+    }
+
+    private renderImports(): void {
+        const imports = [...this.fileImports.values()];
+        const groups = [
+            imports.filter(({ module }) => module === "__future__"),
+            imports.filter(({ module }) => module === "typing"),
+            imports.filter(({ module }) => module === "pydantic" || module === "typing_extensions"),
+            imports.filter(
+                ({ module }) =>
+                    module !== "__future__" &&
+                    module !== "typing" &&
+                    module !== "pydantic" &&
+                    module !== "typing_extensions" &&
+                    !module.startsWith("."),
+            ),
+            imports.filter(({ module }) => module.startsWith(".")),
+        ];
+
+        let wroteGroup = false;
+        for (const group of groups) {
+            if (group.length === 0) continue;
+            if (wroteGroup) this.line();
+            const byModule = new Map<string, string[]>();
+            for (const { module, entity } of group) {
+                const entities = byModule.get(module) ?? [];
+                entities.push(entity);
+                byModule.set(module, entities);
+            }
+            for (const [module, entities] of [...byModule.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+                const plain = entities.filter((entity) => !entity.includes(" as ")).sort();
+                const aliases = entities.filter((entity) => entity.includes(" as ")).sort();
+                if (plain.length > 0) this.renderImportFrom(module, plain);
+                for (const alias of aliases) this.renderImportFrom(module, [alias]);
+            }
+            wroteGroup = true;
+        }
+    }
+
+    private renderImportFrom(module: string, entities: string[]): void {
+        const oneLine = `from ${module} import ${entities.join(", ")}`;
+        if (oneLine.length <= MAX_IMPORT_LINE_LENGTH) {
+            this.line(oneLine);
+            return;
+        }
+        this.line(`from ${module} import (`);
+        this.indentBlock(() => {
+            for (const entity of entities) this.line(`${entity},`);
+        });
+        this.line(")");
     }
 
     /** Resolve which client integration to emit. `client` wins; `fhirpyClient` is the deprecated fallback; default is fhirpy. */
@@ -326,7 +427,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         // `profiles/` exists for exactly these packages: resource packages with
         // profiles and profile-only packages, both written by
         // generateResourcePackages from the same map.
-        const packageNames = Object.keys(profilesByPackage);
+        const packageNames = Object.keys(profilesByPackage).sort();
         if (packageNames.length === 0) return;
         this.line();
         for (const packageName of packageNames) {
@@ -410,18 +511,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line();
 
         return baseTypes;
-    }
-
-    private buildImportLine(entities: string[], start: number, maxLen: number): { line: string; next: number } {
-        let line = "";
-        let i = start;
-        while (i < entities.length && line.length < maxLen) {
-            if (line.length > 0) line += ", ";
-            line += entities[i];
-            i++;
-        }
-        if (i < entities.length) line += ", \\";
-        return { line, next: i };
     }
 
     private importResources(
@@ -856,30 +945,13 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     pyImportFrom(pyPackage: string, ...entities: string[]): void {
-        const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
-
-        if (this.shouldUseSingleLineImport(oneLine, entities)) {
-            this.line(oneLine);
-        } else {
-            this.writeMultiLineImport(pyPackage, entities);
+        const imports = this.ensureImportSection();
+        this.inImportPreamble = true;
+        for (const entity of entities) {
+            const key = JSON.stringify([pyPackage, entity]);
+            this.fileImports.set(key, { module: pyPackage, entity });
         }
-    }
-
-    private shouldUseSingleLineImport(oneLine: string, entities: string[]): boolean {
-        return oneLine.length <= MAX_IMPORT_LINE_LENGTH || entities.length === 1;
-    }
-
-    private writeMultiLineImport(pyPackage: string, entities: string[]): void {
-        this.line(`from ${pyPackage} import (`);
-        this.indentBlock(() => {
-            let i = 0;
-            while (i < entities.length) {
-                const { line, next } = this.buildImportLine(entities, i, MAX_IMPORT_LINE_LENGTH);
-                this.line(line);
-                i = next;
-            }
-        });
-        this.line(")");
+        super.write(imports.use("imports"));
     }
 
     private pyImportType(identifier: TypeIdentifier): void {

@@ -3,9 +3,16 @@
 # Any manual changes made to this file may be overwritten.
 
 from .profiles import (
-    UscoreBloodPressureProfile, UscoreBodyWeightProfile, UscoreEthnicityExtension, UscoreIndividualSexExtension, \
-    UscoreInterpreterNeededExtension, UscorePatientProfile, UscoreProvenanceProfile, UscoreRaceExtension, \
-    UscoreTribalAffiliationExtension, UscoreVitalSignsProfile
+    UscoreBloodPressureProfile,
+    UscoreBodyWeightProfile,
+    UscoreEthnicityExtension,
+    UscoreIndividualSexExtension,
+    UscoreInterpreterNeededExtension,
+    UscorePatientProfile,
+    UscoreProvenanceProfile,
+    UscoreRaceExtension,
+    UscoreTribalAffiliationExtension,
+    UscoreVitalSignsProfile,
 )
 
 __all__ = [

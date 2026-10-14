@@ -6,11 +6,15 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast, overload
 
-from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period
+from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Extension, Period
 from fhir_types.profile_helpers import (
-    _get_key, build_resource, get_extension_value, is_extension, push_extension, validate_fixed_value, validate_required
+    _get_key,
+    build_resource,
+    get_extension_value,
+    is_extension,
+    push_extension,
+    validate_fixed_value,
+    validate_required,
 )
 
 

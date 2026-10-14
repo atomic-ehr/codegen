@@ -25,7 +25,15 @@ from __future__ import annotations
 
 import copy
 import re
-from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence, Sequence, TypeVar
+from typing import (
+    Any,
+    Iterable,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Sequence,
+    TypeVar,
+)
 
 from typing_extensions import TypeGuard
 

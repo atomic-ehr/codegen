@@ -6,17 +6,29 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast, overload
 
+from fhir_types.hl7_fhir_r4_core.base import Coding, Extension, HumanName, Identifier
 from fhir_types.hl7_fhir_r4_core.patient import Patient
-from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import Coding, HumanName, Identifier
+from fhir_types.profile_helpers import (
+    _get_key,
+    build_resource,
+    ensure_profile,
+    extract_complex_extension,
+    get_extension_value,
+    is_extension,
+    is_record,
+    push_extension,
+    validate_must_support,
+    validate_required,
+)
+
 from .extension_uscore_ethnicity_extension import UscoreEthnicityExtension
 from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
-from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
+from .extension_uscore_interpreter_needed_extension import (
+    UscoreInterpreterNeededExtension,
+)
 from .extension_uscore_race_extension import UscoreRaceExtension
-from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
-from fhir_types.profile_helpers import (
-    _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \
-    is_record, push_extension, validate_must_support, validate_required
+from .extension_uscore_tribal_affiliation_extension import (
+    UscoreTribalAffiliationExtension,
 )
 
 

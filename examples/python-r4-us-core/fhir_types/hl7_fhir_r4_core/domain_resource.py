@@ -3,11 +3,14 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
-from typing import Any, Generic, List as PyList, Literal
-from typing_extensions import Self, TypeVar
-from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
+from typing import Any, Generic, Literal
+from typing import List as PyList
+
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
+from typing_extensions import Self, TypeVar
+
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 from fhir_types.hl7_fhir_r4_core.base import Extension, Narrative
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.hl7_fhir_r4_core.resource_preprocessor import preprocess_resource_fields

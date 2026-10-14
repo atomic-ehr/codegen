@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import re
 import importlib
 import importlib.util
+import re
 from typing import Any
 
 

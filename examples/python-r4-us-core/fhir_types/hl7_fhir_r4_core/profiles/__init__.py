@@ -5,9 +5,9 @@
 from .extension_birth_place import BirthPlaceExtension
 from .extension_birth_time import BirthTimeExtension
 from .extension_nationality import NationalityExtension
+from .extension_own_prefix import OwnPrefixExtension
 from .observation_observation_bodyweight import ObservationBodyweightProfile
 from .observation_observation_vitalsigns import ObservationVitalsignsProfile
-from .extension_own_prefix import OwnPrefixExtension
 
 __all__ = [
     'BirthPlaceExtension',
