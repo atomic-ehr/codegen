@@ -40,9 +40,13 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
 
 const MAX_IMPORT_LINE_LENGTH = 88;
 const LEADING_NEWLINES = /^\n+/;
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 type PythonImport = { module: string; entity: string };
+export type PythonImports = {
+    use: (module: string, entity: string) => string;
+    force: (module: string, entity: string) => void;
+    from: (module: string, ...entities: string[]) => void;
+};
 
 const GENERIC_FIELD_REWRITES: Record<string, Record<string, string>> = {
     Coding: { code: "T" },
@@ -148,12 +152,11 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
     private profileHelperImport?: SectionHandle<never, string>;
-    private importSection?: SectionHandle<never, string>;
-    private readonly fileImports = new Map<string, PythonImport>();
-    private readonly importKeysByName = new Map<string, string>();
-    private readonly forcedImports = new Set<string>();
-    private inImportPreamble = false;
+    private activeImports?: PythonImports;
     private renderingImports = false;
+    private activeImportUse?: (name: string) => string;
+    private activeImportNames: string[] = [];
+    private inImportPreamble = false;
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
@@ -162,28 +165,75 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     override cat(fn: string, gen: () => void): void {
-        const previousSection = this.importSection;
-        const previousImports = new Map(this.fileImports);
-        const previousNames = new Map(this.importKeysByName);
-        const previousForcedImports = new Set(this.forcedImports);
-        const previousPreamble = this.inImportPreamble;
-        this.importSection = undefined;
-        this.fileImports.clear();
-        this.importKeysByName.clear();
-        this.forcedImports.clear();
+        const previous = {
+            imports: this.activeImports,
+            use: this.activeImportUse,
+            names: this.activeImportNames,
+            preamble: this.inImportPreamble,
+        };
+        this.activeImports = undefined;
+        this.activeImportUse = undefined;
+        this.activeImportNames = [];
         this.inImportPreamble = false;
         try {
             super.cat(fn, gen);
         } finally {
-            this.importSection = previousSection;
-            this.fileImports.clear();
-            for (const [key, value] of previousImports) this.fileImports.set(key, value);
-            this.importKeysByName.clear();
-            for (const [name, key] of previousNames) this.importKeysByName.set(name, key);
-            this.forcedImports.clear();
-            for (const key of previousForcedImports) this.forcedImports.add(key);
-            this.inImportPreamble = previousPreamble;
+            this.activeImports = previous.imports;
+            this.activeImportUse = previous.use;
+            this.activeImportNames = previous.names;
+            this.inImportPreamble = previous.preamble;
         }
+    }
+
+    createImports(): PythonImports {
+        const definitions = new Map<string, PythonImport>();
+        const forced = new Set<string>();
+        const names = new Map<string, string>();
+        const handle = this.section<never, string>({
+            name: (key) => definitions.get(key)?.entity.split(" as ").at(-1) ?? "",
+            render: (_definitions, usages) => {
+                this.renderingImports = true;
+                try {
+                    this.renderImports(usages, definitions, forced);
+                } finally {
+                    this.renderingImports = false;
+                }
+            },
+        });
+        const keyOf = (module: string, entity: string) => JSON.stringify([module, entity]);
+        const imports: PythonImports = {
+            use: (module, entity) => {
+                const key = keyOf(module, entity);
+                definitions.set(key, { module, entity });
+                names.set(entity.split(" as ").at(-1) ?? entity, key);
+                return handle.use(key);
+            },
+            force: (module, entity) => {
+                const key = keyOf(module, entity);
+                definitions.set(key, { module, entity });
+                forced.add(key);
+                this.inImportPreamble = true;
+            },
+            from: (module, ...entities) => {
+                for (const entity of entities) {
+                    const key = keyOf(module, entity);
+                    definitions.set(key, { module, entity });
+                    names.set(entity.split(" as ").at(-1) ?? entity, key);
+                    if (module === "__future__") forced.add(key);
+                }
+                if (entities.length > 0) this.inImportPreamble = true;
+                this.activeImportNames = [...names.keys()].sort((a, b) => b.length - a.length);
+                this.activeImportUse = (name) => {
+                    const key = names.get(name);
+                    return key === undefined ? name : handle.use(key);
+                };
+            },
+        };
+        this.activeImports = imports;
+        this.activeImportNames = [];
+        this.inImportPreamble = false;
+        this.activeImportUse = undefined;
+        return imports;
     }
 
     profileHelperImports(): SectionHandle<never, string> {
@@ -191,8 +241,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             name: (name) => name,
             render: (_definitions, usages) => {
                 const helpers = [...new Set(usages.map((usage) => usage.key))].sort();
-                if (helpers.length > 0)
-                    this.pyImportFromUsed(`${this.opts.rootPackageName}.profile_helpers`, ...helpers);
+                if (helpers.length > 0) {
+                    for (const helper of helpers)
+                        this.activeImports?.force(`${this.opts.rootPackageName}.profile_helpers`, helper);
+                }
             },
         });
     }
@@ -206,56 +258,36 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     override write(str: string): void {
-        if (this.renderingImports) {
-            super.write(str);
-            return;
-        }
-        if (str.includes("\u0000:")) {
-            super.write(str);
-            return;
-        }
-        if (this.inImportPreamble) {
+        if (!this.renderingImports && !str.includes("\u0000:") && this.inImportPreamble) {
             if (str.trim().length === 0) return;
             this.inImportPreamble = false;
             super.write(str.trimStart().startsWith("class ") ? "\n\n" : "\n");
             str = str.replace(LEADING_NEWLINES, "");
         }
-        if (this.importKeysByName.size > 0 && this.importSection) {
-            const names = [...this.importKeysByName.keys()].sort((a, b) => b.length - a.length);
-            const importPattern = new RegExp(`\\b(${names.map(escapeRegExp).join("|")})\\b`, "g");
-            str = str.replace(importPattern, (name) => {
-                const key = this.importKeysByName.get(name);
-                return key === undefined ? name : (this.importSection?.use(key) ?? name);
-            });
+        if (!this.renderingImports && this.activeImportUse && !str.includes("\u0000:")) {
+            if (this.activeImportNames.length > 0) {
+                const escaped = this.activeImportNames.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+                const pattern = new RegExp(`\\b(${escaped.join("|")})\\b`, "g");
+                str = str.replace(pattern, (name) => this.activeImportUse?.(name) ?? name);
+            }
         }
-        if (this.profileHelperImport) {
-            const helperPattern = new RegExp(`\\b(${PROFILE_HELPERS.join("|")})\\b`, "g");
-            str = str.replace(helperPattern, (helper) => this.profileHelperImport?.use(helper) ?? helper);
+        if (!this.renderingImports && this.profileHelperImport) {
+            const pattern = new RegExp(`\\b(${PROFILE_HELPERS.join("|")})\\b`, "g");
+            str = str.replace(pattern,
+                (helper) => this.profileHelperImport?.use(helper) ?? helper,
+            );
         }
         super.write(str);
     }
 
-    private ensureImportSection(): SectionHandle<never, string> {
-        if (!this.importSection) {
-            this.importSection = this.section<never, string>({
-                name: (key) => this.fileImports.get(key)?.entity.split(" as ").at(-1) ?? "",
-                render: (_definitions, usages) => {
-                    this.renderingImports = true;
-                    try {
-                        this.renderImports(usages);
-                    } finally {
-                        this.renderingImports = false;
-                    }
-                },
-            });
-        }
-        return this.importSection;
-    }
-
-    private renderImports(usages: Array<{ key: string; local: string }>): void {
+    private renderImports(
+        usages: Array<{ key: string; local: string }>,
+        definitions: Map<string, PythonImport>,
+        forced: Set<string>,
+    ): void {
         const usagesByKey = new Map(usages.map((usage) => [usage.key, usage]));
-        const importsByKey = new Map(usages.map(({ key }) => [key, this.fileImports.get(key)]));
-        for (const key of this.forcedImports) importsByKey.set(key, this.fileImports.get(key));
+        const importsByKey = new Map(usages.map(({ key }) => [key, definitions.get(key)]));
+        for (const key of forced) importsByKey.set(key, definitions.get(key));
         const imports = [...importsByKey.entries()]
             .filter((entry): entry is [string, PythonImport] => entry[1] !== undefined)
             .map(([key, value]) => {
@@ -264,11 +296,14 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                 const localName = usage?.local ?? value.entity.split(" as ").at(-1) ?? remoteName;
                 return { ...value, entity: localName === remoteName ? remoteName : `${remoteName} as ${localName}` };
             });
+        const sideEffects = imports.filter(({ entity }) => entity === "__side_effect__");
+        for (const { module } of sideEffects) this.line(`import ${module}  # noqa: F401`);
+        const fromImports = imports.filter(({ entity }) => entity !== "__side_effect__");
         const groups = [
-            imports.filter(({ module }) => module === "__future__"),
-            imports.filter(({ module }) => module === "typing"),
-            imports.filter(({ module }) => module === "pydantic" || module === "typing_extensions"),
-            imports.filter(
+            fromImports.filter(({ module }) => module === "__future__"),
+            fromImports.filter(({ module }) => module === "typing"),
+            fromImports.filter(({ module }) => module === "pydantic" || module === "typing_extensions"),
+            fromImports.filter(
                 ({ module }) =>
                     module !== "__future__" &&
                     module !== "typing" &&
@@ -276,7 +311,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                     module !== "typing_extensions" &&
                     !module.startsWith("."),
             ),
-            imports.filter(({ module }) => module.startsWith(".")),
+            fromImports.filter(({ module }) => module.startsWith(".")),
         ];
 
         let wroteGroup = false;
@@ -431,50 +466,54 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.cd("/", () => {
             this.cat("__init__.py", () => {
                 this.generateDisclaimer();
-                const pydanticModels: string[] = this.collectAndImportAllModels(groups);
-                this.generateModelRebuilds(pydanticModels);
-                this.importProfileRegistrations(profilesByPackage);
+                const imports = this.createImports();
+                const pydanticModels: string[] = this.collectAndImportAllModels(groups, imports);
+                this.line();
+                this.generateModelRebuilds(pydanticModels, imports);
+                this.importProfileRegistrations(profilesByPackage, imports);
             });
         });
     }
 
-    private collectAndImportAllModels(groups: TypeSchemaPackageGroups): string[] {
+    private collectAndImportAllModels(groups: TypeSchemaPackageGroups, imports: PythonImports): string[] {
         const models: string[] = [];
 
         for (const packageName of Object.keys(groups.groupedResources)) {
             const fullPyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-            models.push(...this.importComplexTypes(fullPyPackageName, groups.groupedComplexTypes[packageName]));
-            models.push(...this.importResources(fullPyPackageName, false, groups.groupedResources[packageName]));
+            models.push(...this.importComplexTypes(fullPyPackageName, groups.groupedComplexTypes[packageName], imports, true));
+            models.push(...this.importResources(fullPyPackageName, false, groups.groupedResources[packageName], imports, true));
         }
-        this.line();
-
         return models;
     }
 
-    private generateModelRebuilds(models: string[]): void {
-        for (const modelName of models.sort()) {
-            this.line(`${modelName}.model_rebuild()`);
+    private generateModelRebuilds(models: string[], imports: PythonImports): void {
+        for (const reference of models.sort((a, b) => a.split("#")[1]!.localeCompare(b.split("#")[1]!))) {
+            const [module, name] = reference.split("#");
+            this.line(`${imports.use(module!, name!)}.model_rebuild()`);
         }
     }
 
-    private importProfileRegistrations(profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>): void {
+    private importProfileRegistrations(
+        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
+        imports: PythonImports,
+    ): void {
         // `profiles/` exists for exactly these packages: resource packages with
         // profiles and profile-only packages, both written by
         // generateResourcePackages from the same map.
         const packageNames = Object.keys(profilesByPackage).sort();
         if (packageNames.length === 0) return;
-        this.line();
         for (const packageName of packageNames) {
             const profilesPackage = `${pyFhirPackageByName(this.opts.rootPackageName, packageName)}.profiles`;
-            this.line(`import ${profilesPackage}  # noqa: F401`);
+            imports.force(profilesPackage, "__side_effect__");
         }
     }
 
     private generateBasePy(_packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
-        const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.cat("base.py", () => {
             this.generateDisclaimer();
-            this.generateDefaultImports(hasGenericTypes);
+            const imports = this.createImports();
+            this.generateDefaultImports(imports);
+            const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
             if (hasGenericTypes) {
                 this.line();
                 // Covariant: the parameter says what a value holds, and callers
@@ -487,16 +526,16 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                 this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
             }
             this.line();
-            this.generateComplexTypes(packageComplexTypes);
+            this.generateComplexTypes(packageComplexTypes, imports);
             this.line();
         });
     }
 
-    private generateComplexTypes(complexTypes: SpecializationTypeSchema[]): void {
+    private generateComplexTypes(complexTypes: SpecializationTypeSchema[], imports: PythonImports): void {
         for (const schema of sortAsDeclarationSequence(complexTypes)) {
-            this.generateNestedTypes(schema);
+            this.generateNestedTypes(schema, imports);
             this.line();
-            this.generateType(schema);
+            this.generateType(schema, imports);
         }
     }
 
@@ -508,9 +547,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     ): void {
         this.cat("__init__.py", () => {
             this.generateDisclaimer();
-            this.importComplexTypes(fullPyPackageName, packageComplexTypes);
-            const allResourceNames = this.importResources(fullPyPackageName, true, packageResources);
-            this.importPackageProfiles(profileNames);
+            const imports = this.createImports();
+            this.importComplexTypes(fullPyPackageName, packageComplexTypes, imports);
+            const allResourceNames = this.importResources(fullPyPackageName, true, packageResources, imports);
+            this.importPackageProfiles(profileNames, imports);
             this.line();
             this.generateExportsDeclaration(packageComplexTypes, [...allResourceNames, ...profileNames]);
         });
@@ -519,9 +559,9 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     /** Re-export a package's profile classes from its `__init__.py`, so they are
      *  reachable as `<package>.<ProfileClass>` and not only by module path.
      *  Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
-    private importPackageProfiles(profileNames: string[]): void {
+    private importPackageProfiles(profileNames: string[], imports: PythonImports): void {
         if (profileNames.length === 0) return;
-        this.pyImportFrom(".profiles", ...profileNames);
+        for (const name of profileNames) imports.force(".profiles", name);
     }
 
     /** A package that carries only profiles still needs its own barrel; the
@@ -529,7 +569,8 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private generateProfileOnlyPackageInit(profileNames: string[]): void {
         this.cat("__init__.py", () => {
             this.generateDisclaimer();
-            this.importPackageProfiles(profileNames);
+            const imports = this.createImports();
+            this.importPackageProfiles(profileNames, imports);
             this.line();
             this.squareBlock(["__all__", "="], () => {
                 for (const name of profileNames) this.line(`'${name}',`);
@@ -537,26 +578,34 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         });
     }
 
-    private importComplexTypes(fullPyPackageName: string, packageComplexTypes?: SpecializationTypeSchema[]): string[] {
+    private importComplexTypes(
+        fullPyPackageName: string,
+        packageComplexTypes: SpecializationTypeSchema[] | undefined,
+        imports: PythonImports,
+        useInCode = false,
+    ): string[] {
         if (!packageComplexTypes || packageComplexTypes.length === 0) return [];
 
         const baseTypes = packageComplexTypes.map((t) => t.identifier.name).sort();
-        this.pyImportFrom(`${fullPyPackageName}.base`, ...baseTypes);
-        this.line();
+        const module = `${fullPyPackageName}.base`;
+        if (!useInCode) for (const name of baseTypes) imports.force(module, name);
+        if (!useInCode) this.line();
 
-        return baseTypes;
+        return useInCode ? baseTypes.map((name) => `${module}#${name}`) : baseTypes;
     }
 
     private importResources(
         fullPyPackageName: string,
         importEmptyResources: boolean,
-        packageResources?: SpecializationTypeSchema[],
+        packageResources: SpecializationTypeSchema[] | undefined,
+        imports: PythonImports,
+        useInCode = false,
     ): string[] {
         if (!packageResources || packageResources.length === 0) return [];
         const allResourceNames: string[] = [];
 
         for (const resource of packageResources) {
-            const names = this.importOneResource(resource, fullPyPackageName);
+            const names = this.importOneResource(resource, fullPyPackageName, imports, useInCode);
             if (!importEmptyResources && !resource.fields) continue;
             allResourceNames.push(...names);
         }
@@ -564,13 +613,17 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return allResourceNames;
     }
 
-    private importOneResource(resource: SpecializationTypeSchema, fullPyPackageName: string): string[] {
+    private importOneResource(
+        resource: SpecializationTypeSchema,
+        fullPyPackageName: string,
+        imports: PythonImports,
+        useInCode: boolean,
+    ): string[] {
         const moduleName = `${fullPyPackageName}.${snakeCase(resource.identifier.name)}`;
         const importNames = this.collectResourceImportNames(resource);
 
-        this.pyImportFrom(moduleName, ...importNames);
-
-        return [...importNames];
+        if (!useInCode) for (const name of importNames) imports.force(moduleName, name);
+        return useInCode ? importNames.map((name) => `${moduleName}#${name}`) : importNames;
     }
 
     private collectResourceImportNames(resource: SpecializationTypeSchema): string[] {
@@ -606,13 +659,14 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
 
         this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
             this.generateDisclaimer();
-            this.generateDefaultImports(false, hasResourceGenericParams, true);
-            this.generateFhirBaseModelImport();
+            const imports = this.createImports();
+            this.generateDefaultImports(imports);
+            this.generateFhirBaseModelImport(imports);
             this.line();
-            this.generateDependenciesImports(schema);
+            this.generateDependenciesImports(schema, imports);
             if (hasResourceGenericParams) {
                 const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
-                this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
+                imports.from(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
                 this.line();
                 for (const { typeVar, constraint } of typeVars) {
                     // Covariant for the same reason as the base `T`: a
@@ -623,24 +677,24 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                 }
             }
             this.line();
-            this.generateNestedTypes(schema);
+            this.generateNestedTypes(schema, imports);
             this.line();
-            this.generateType(schema);
+            this.generateType(schema, imports);
         });
     }
 
-    private generateFhirBaseModelImport(): void {
+    private generateFhirBaseModelImport(imports: PythonImports): void {
         if (this.forFhirpyClient)
-            this.pyImportFrom(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
+            imports.from(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
     }
 
-    private generateType(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateType(schema: SpecializationTypeSchema | NestedTypeSchema, imports: PythonImports): void {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(schema);
 
         this.line(`class ${className}(${superClasses.join(", ")}):`);
         this.indentBlock(() => {
-            this.generateClassBody(schema);
+            this.generateClassBody(schema, imports);
         });
         this.line();
     }
@@ -664,7 +718,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return bases;
     }
 
-    private generateClassBody(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateClassBody(schema: SpecializationTypeSchema | NestedTypeSchema, imports: PythonImports): void {
         this.generateModelConfig();
 
         if (!schema.fields) {
@@ -676,7 +730,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             this.generateResourceTypeField(schema);
         }
 
-        this.generateFields(schema);
+            this.generateFields(schema, imports);
 
         if (this.opts.generateProfile && schema.identifier.name === "Extension") {
             this.generateExtensionEqualityMethods();
@@ -728,14 +782,14 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema, imports: PythonImports): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
         const withExtensions = this.shouldAddPrimitiveExtensions(schema);
 
         for (const [fieldName, field] of sortedFields) {
             if ("choices" in field && field.choices) continue;
 
-            const fieldInfo = this.buildFieldInfo(fieldName, field, schema);
+            const fieldInfo = this.buildFieldInfo(fieldName, field, schema, imports);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}${fieldInfo.comment ?? ""}`);
 
             if (withExtensions && "type" in field && isPrimitiveIdentifier(field.type)) {
@@ -766,9 +820,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         fieldName: string,
         field: Field,
         schema: SpecializationTypeSchema | NestedTypeSchema,
+        imports: PythonImports,
     ): FieldInfo {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
-        const fieldType = this.determineFieldType(field, fieldName, schema);
+        const fieldType = this.determineFieldType(field, fieldName, schema, imports);
         const defaultValue = this.getFieldDefaultValue(field, fieldName);
         const family = this.tsIndex && "reference" in field ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
 
@@ -784,6 +839,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         field: Field,
         fieldName: string,
         schema: SpecializationTypeSchema | NestedTypeSchema,
+        _imports: PythonImports,
     ): string {
         const schemaName = schema.identifier.name;
         let fieldType = field ? this.getBaseFieldType(field) : "";
@@ -896,44 +952,31 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line("    return hash(self.url)");
     }
 
-    private generateNestedTypes(schema: SpecializationTypeSchema): void {
+    private generateNestedTypes(schema: SpecializationTypeSchema, imports: PythonImports): void {
         if (!schema.nested) return;
 
         this.line();
         for (const subtype of schema.nested) {
-            this.generateType(subtype);
+            this.generateType(subtype, imports);
         }
     }
 
-    private generateDefaultImports(
-        includeGenericImports: boolean,
-        includeResourceGenericImports = false,
-        includeResourceMethods = false,
-    ): void {
-        this.pyImportFrom("__future__", "annotations");
-        const pydanticImports = ["BaseModel", "ConfigDict", "Field", "PositiveInt"];
-        if (includeResourceGenericImports) pydanticImports.push("model_validator");
-        this.pyImportFrom("pydantic", ...pydanticImports.sort());
-        const typingImports = ["Any", "List as PyList", "Literal"];
-        if (includeGenericImports || includeResourceGenericImports) {
-            typingImports.push("Generic");
-        }
-        this.pyImportFrom("typing", ...typingImports.sort());
-        const typingExtImports: string[] = [];
-        if (includeGenericImports || includeResourceGenericImports) typingExtImports.push("TypeVar");
-        if (includeResourceMethods) typingExtImports.push("Self");
-        if (typingExtImports.length > 0) this.pyImportFrom("typing_extensions", ...typingExtImports.sort());
+    private generateDefaultImports(imports: PythonImports): void {
+        imports.from("__future__", "annotations");
+        imports.from("pydantic", "BaseModel", "ConfigDict", "Field", "PositiveInt", "model_validator");
+        imports.from("typing", "Any", "Generic", "List as PyList", "Literal");
+        imports.from("typing_extensions", "Self", "TypeVar");
     }
 
-    private generateDependenciesImports(schema: SpecializationTypeSchema): void {
+    private generateDependenciesImports(schema: SpecializationTypeSchema, imports: PythonImports): void {
         if (!schema.dependencies || schema.dependencies.length === 0) return;
 
-        this.importComplexTypeDependencies(schema.dependencies);
-        this.importResourceDependencies(schema.dependencies);
-        this.importElementIfNeeded(schema);
+        this.importComplexTypeDependencies(schema.dependencies, imports);
+        this.importResourceDependencies(schema.dependencies, imports);
+        this.importElementIfNeeded(schema, imports);
     }
 
-    private importElementIfNeeded(schema: SpecializationTypeSchema): void {
+    private importElementIfNeeded(schema: SpecializationTypeSchema, imports: PythonImports): void {
         if (!this.shouldAddPrimitiveExtensions(schema)) return;
         if (schema.identifier.name === "Element") return;
         if (schema.dependencies?.find((d) => d.name === "Element")) return;
@@ -944,23 +987,23 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         if (!element) return;
 
         const pyPkg = pyPackage(this.opts.rootPackageName, element.identifier);
-        this.pyImportFrom(pyPkg, "Element");
+        imports.from(pyPkg, "Element");
     }
 
-    private importComplexTypeDependencies(dependencies: TypeIdentifier[]): void {
+    private importComplexTypeDependencies(dependencies: TypeIdentifier[], imports: PythonImports): void {
         const complexTypeDeps = dependencies.filter((dep) => dep.kind === "complex-type");
         const depsByPackage = this.groupDependenciesByPackage(complexTypeDeps);
 
         for (const [pyPackage, names] of Object.entries(depsByPackage)) {
-            this.pyImportFrom(pyPackage, ...names.sort());
+            imports.from(pyPackage, ...names.sort());
         }
     }
 
-    private importResourceDependencies(dependencies: TypeIdentifier[]): void {
+    private importResourceDependencies(dependencies: TypeIdentifier[], imports: PythonImports): void {
         const resourceDeps = dependencies.filter((dep) => dep.kind === "resource");
 
         for (const dep of resourceDeps) {
-            this.pyImportType(dep);
+            imports.from(pyPackage(this.opts.rootPackageName, dep), pascalCase(dep.name));
         }
     }
 
@@ -976,37 +1019,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         }
 
         return grouped;
-    }
-
-    pyImportFrom(pyPackage: string, ...entities: string[]): void {
-        this.ensureImportSection();
-        this.inImportPreamble = true;
-        for (const entity of entities) {
-            const key = this.registerImport(pyPackage, entity);
-            if (pyPackage === "__future__") this.forcedImports.add(key);
-        }
-    }
-
-    private pyImportFromUsed(pyPackage: string, ...entities: string[]): void {
-        this.ensureImportSection();
-        for (const entity of entities) {
-            const key = this.registerImport(pyPackage, entity);
-            this.forcedImports.add(key);
-        }
-    }
-
-    private registerImport(module: string, entity: string): string {
-        const key = JSON.stringify([module, entity]);
-        if (!this.fileImports.has(key)) {
-            this.fileImports.set(key, { module, entity });
-            const localName = entity.split(" as ").at(-1) ?? entity;
-            this.importKeysByName.set(localName, key);
-        }
-        return key;
-    }
-
-    private pyImportType(identifier: TypeIdentifier): void {
-        this.pyImportFrom(pyPackage(this.opts.rootPackageName, identifier), pascalCase(identifier.name));
     }
 
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {

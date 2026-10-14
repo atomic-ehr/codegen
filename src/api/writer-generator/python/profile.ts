@@ -32,7 +32,7 @@ import {
     type SliceDef,
 } from "./profile-slices";
 import { collectValidateBody } from "./profile-validation";
-import type { Python } from "./writer";
+import type { Python, PythonImports } from "./writer";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -172,6 +172,7 @@ const collectExtProfileImports = (
 
 const emitModuleImports = (
     w: Python,
+    imports: PythonImports,
     flatProfile: SnapshotProfileTypeSchema,
     isResourceBase: boolean,
     extensions: ProfileExtension[],
@@ -180,8 +181,7 @@ const emitModuleImports = (
     extProfileImports: Map<string, ExtensionProfileInfo>,
     sliceDefs: SliceDef[],
 ): void => {
-    w.line("from __future__ import annotations");
-    w.line();
+    imports.force("__future__", "annotations");
 
     const usesLiteral = [...factoryInfo.params, ...factoryInfo.accessors, ...factoryInfo.sliceAutoFields].some((f) =>
         f.pyType.includes("Literal["),
@@ -204,26 +204,25 @@ const emitModuleImports = (
     if (needsOverload || usesLiteral) typingNames.push("Literal");
     if (needsOverload) typingNames.push("overload");
     if (typingNames.length > 0) {
-        w.pyImportFrom("typing", ...[...typingNames].sort());
+        imports.from("typing", ...[...typingNames].sort());
         w.line();
     }
 
     const baseTypeName = flatProfile.base.name;
     const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
     if (isResourceBase) {
-        w.pyImportFrom(`${basePkg}.${snakeCase(baseTypeName)}`, baseTypeName);
+        imports.from(`${basePkg}.${snakeCase(baseTypeName)}`, baseTypeName);
     } else {
-        w.pyImportFrom(`${basePkg}.base`, baseTypeName);
+        imports.from(`${basePkg}.base`, baseTypeName);
     }
-    if (extensions.length > 0) w.pyImportFrom(`${basePkg}.base`, "Extension");
+    if (extensions.length > 0) imports.from(`${basePkg}.base`, "Extension");
     for (const [modulePath, names] of [...typeImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-        w.pyImportFrom(modulePath, ...[...names].sort());
+        imports.from(modulePath, ...[...names].sort());
     }
     for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-        w.pyImportFrom(`.${info.moduleName}`, extClassName);
+        imports.from(`.${info.moduleName}`, extClassName);
     }
     w.useProfileHelperImports(w.profileHelperImports());
-    w.line();
     w.line();
 };
 
@@ -352,7 +351,7 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     generateValidateMethod(w, className, errorLines, warningLines);
 };
 
-const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): void => {
+const generateProfileModule = (w: Python, imports: PythonImports, tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): void => {
     const className = pyProfileClassName(flatProfile);
     const baseTypeName = flatProfile.base.name;
     const isResourceBase = isResourceIdentifier(flatProfile.base);
@@ -396,6 +395,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
 
     emitModuleImports(
         w,
+        imports,
         flatProfile,
         isResourceBase,
         extensions,
@@ -447,13 +447,14 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
 const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: SnapshotProfileTypeSchema[]): void => {
     w.cat("__init__.py", () => {
         w.generateDisclaimer();
+        const imports = w.createImports();
         const seen = new Set<string>();
         for (const profile of profiles) {
             const className = pyProfileClassName(profile);
             const moduleName = pyProfileModuleName(tsIndex, profile);
             if (seen.has(className)) continue;
             seen.add(className);
-            w.pyImportFrom(`.${moduleName}`, className);
+            imports.force(`.${moduleName}`, className);
         }
         // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
         w.line();
@@ -480,7 +481,8 @@ export const generateNewProfiles = (
             const moduleName = pyProfileModuleName(tsIndex, profile);
             w.cat(`${moduleName}.py`, () => {
                 w.generateDisclaimer();
-                generateProfileModule(w, tsIndex, profile);
+                const imports = w.createImports();
+                generateProfileModule(w, imports, tsIndex, profile);
             });
         }
         generateProfilesInit(w, tsIndex, profiles);
