@@ -219,8 +219,8 @@ export const upsertExtension = <E extends { url?: string }>(target: { extension?
  *          extension has no nested children.
  */
 export const extractComplexExtension = <T = Record<string, unknown>>(
-    extension: { extension?: Array<{ url?: string }> } | undefined,
-    config: Array<{ name: string; valueField: string; isArray: boolean }>,
+    extension: { extension?: { url?: string }[] } | undefined,
+    config: { name: string; valueField: string; isArray: boolean }[],
 ): T | undefined => {
     if (!extension?.extension) return undefined;
     const result: Record<string, unknown> = {};

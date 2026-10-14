@@ -71,7 +71,7 @@ const elementSchema: ComplexTypeTypeSchema = {
 };
 const generateProfile = (
     snapshot: SnapshotProfileTypeSchema,
-    schemas: Array<ResourceTypeSchema | ComplexTypeTypeSchema | PrimitiveTypeSchema>,
+    schemas: (ResourceTypeSchema | ComplexTypeTypeSchema | PrimitiveTypeSchema)[],
 ) => {
     const logger = mkCodegenLogger({ level: "ERROR" });
     const w = new TypeScript({

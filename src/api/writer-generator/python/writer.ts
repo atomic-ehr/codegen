@@ -9,7 +9,7 @@ import {
 } from "@root/api/writer-generator/python/naming-utils.ts";
 import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
-import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
+import { sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CanonicalUrl,
     type EnumDefinition,
@@ -25,7 +25,8 @@ import {
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
 import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
-import { collectProfileClassNames, generateNewProfiles } from "./profile";
+import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
+import { pyProfileModuleName } from "./profile-naming";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
 
@@ -49,16 +50,16 @@ const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
-): Array<{ typeVar: string; constraint: string }> => {
-    const all = new Map<string, string>();
+): { typeVar: string; constraint: string }[] => {
+    const all: Record<string, string> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
         for (const p of s.generic?.params ?? []) {
-            if (!all.has(p.typeVar)) all.set(p.typeVar, p.constraint.name);
+            if (!Object.hasOwn(all, p.typeVar)) all[p.typeVar] = p.constraint.name;
         }
     };
     addParams(schema);
     for (const nested of schema.nested ?? []) addParams(nested);
-    return Array.from(all.entries())
+    return Object.entries(all)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
 };
@@ -99,10 +100,13 @@ interface FieldInfo {
     comment?: string;
 }
 
-type TypeSchemaPackageGroups = {
-    groupedResources: Record<string, SpecializationTypeSchema[]>;
-    groupedComplexTypes: Record<string, SpecializationTypeSchema[]>;
+type TypeSchemaPackage = {
+    resources: SpecializationTypeSchema[];
+    complexTypes: SpecializationTypeSchema[];
+    profiles: SnapshotProfileTypeSchema[];
 };
+
+type TypeSchemaPackages = Record<string, TypeSchemaPackage>;
 
 export class Python extends Writer<PythonGeneratorOptions> {
     readonly nameFormatFunction: (name: string) => string;
@@ -128,130 +132,85 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
         this.tsIndex = tsIndex;
-        const groups: TypeSchemaPackageGroups = {
-            groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
-            groupedResources: groupByPackages(tsIndex.collectResources()),
-        };
-        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectSnapshotProfiles()) : {};
-        this.generateRootPackages(groups, profilesByPackage);
-        this.generateSDKPackages(tsIndex, groups, profilesByPackage);
-    }
-
-    private generateRootPackages(
-        groups: TypeSchemaPackageGroups,
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-    ): void {
-        this.generateRootInitFile(groups, profilesByPackage);
-        if (this.forFhirpyClient) {
-            if (this.fieldFormat === "camelCase") {
-                this.copyAssets(resolvePyAssets("fhirpy_base_model_camel_case.py"), "fhirpy_base_model.py");
-            } else {
-                this.copyAssets(resolvePyAssets("fhirpy_base_model.py"), "fhirpy_base_model.py");
-            }
-        }
-        // Shared profile runtime helpers live once at the root package and are
-        // imported absolutely (e.g. `from fhir_types.profile_helpers import ...`).
-        if (Object.keys(profilesByPackage).length > 0) {
-            this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
-        }
-        this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
-    }
-
-    private generateSDKPackages(
-        tsIndex: TypeSchemaIndex,
-        groups: TypeSchemaPackageGroups,
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-    ): void {
-        this.generateComplexTypesPackages(groups.groupedComplexTypes);
-        this.generateResourcePackages(tsIndex, groups, profilesByPackage);
-    }
-
-    private generateComplexTypesPackages(groupedComplexTypes: Record<string, SpecializationTypeSchema[]>): void {
-        for (const [packageName, packageComplexTypes] of Object.entries(groupedComplexTypes)) {
-            this.cd(`/${snakeCase(packageName)}`, () => {
-                this.generateBasePy(packageName, packageComplexTypes);
-            });
-        }
-    }
-
-    private generateResourcePackages(
-        tsIndex: TypeSchemaIndex,
-        groups: TypeSchemaPackageGroups,
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-    ): void {
-        for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
-            this.cd(`/${snakeCase(packageName)}`, () => {
-                const packageProfiles = profilesByPackage[packageName] ?? [];
-                this.generateResourcePackageContent(
-                    packageName,
-                    packageResources,
-                    groups.groupedComplexTypes[packageName] || [],
-                    collectProfileClassNames(packageProfiles),
-                );
-
-                if (packageProfiles.length > 0) {
-                    generateNewProfiles(this, tsIndex, packageProfiles);
-                }
-            });
-        }
-
-        // Profile-only packages (e.g. us-core, which constrains r4.core
-        // resources but has no resources of its own). Emit their profiles
-        // into a sibling package directory.
-        for (const [packageName, packageProfiles] of Object.entries(profilesByPackage)) {
-            if (groups.groupedResources[packageName]) continue;
-            if (!packageProfiles || packageProfiles.length === 0) continue;
-            this.cd(`/${snakeCase(packageName)}`, () => {
-                generateNewProfiles(this, tsIndex, packageProfiles);
-                this.generateProfileOnlyPackageInit(collectProfileClassNames(packageProfiles));
-            });
-        }
-    }
-
-    private generateResourcePackageContent(
-        packageName: string,
-        packageResources: SpecializationTypeSchema[],
-        packageComplexTypes: SpecializationTypeSchema[],
-        profileNames: string[] = [],
-    ): void {
-        const pyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-
-        this.generateResourcePackageInit(pyPackageName, packageResources, packageComplexTypes, profileNames);
-
-        const hasAnyResourceGenericParams = packageResources.some((s) => collectResourceGenericTypeVars(s).length > 0);
-        if (hasAnyResourceGenericParams) {
-            this.copyAssets(resolvePyAssets("resource_preprocessor.py"), "resource_preprocessor.py");
-        }
-
-        for (const schema of packageResources) {
-            this.generateResourceModule(schema);
-        }
-    }
-
-    private generateRootInitFile(
-        groups: TypeSchemaPackageGroups,
-        profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>,
-    ): void {
+        const packages = this.collectPackages(tsIndex);
+        const hasProfiles = Object.values(packages).some(({ profiles }) => profiles.length > 0);
         this.cd("/", () => {
-            this.cat("__init__.py", () => {
-                this.generateDisclaimer();
-                const pydanticModels: string[] = this.collectAndImportAllModels(groups);
-                this.generateModelRebuilds(pydanticModels);
-                this.importProfileRegistrations(profilesByPackage);
-            });
+            this.cat("__init__.py", () => this.generateRootInit(packages));
+            if (this.forFhirpyClient) {
+                const asset =
+                    this.fieldFormat === "camelCase" ? "fhirpy_base_model_camel_case.py" : "fhirpy_base_model.py";
+                this.copyAssets(resolvePyAssets(asset), "fhirpy_base_model.py");
+            }
+            if (hasProfiles) {
+                this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
+            }
+            this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
+            for (const [packageName, packageTypes] of Object.entries(packages)) {
+                this.cd(snakeCase(packageName), () => {
+                    const { complexTypes, resources, profiles } = packageTypes;
+                    const hasComplexTypes = complexTypes.length > 0;
+                    const hasResources = resources.length > 0;
+                    const hasProfiles = profiles.length > 0;
+                    const needsResourcePreprocessor = resources.some(
+                        (schema) => collectResourceGenericTypeVars(schema).length > 0,
+                    );
+                    if (hasComplexTypes) {
+                        this.cat("base.py", () => this.generateBasePy(complexTypes));
+                    }
+                    if (hasResources || hasProfiles) {
+                        this.cat("__init__.py", () => this.generatePackageInit(packageName, packageTypes));
+                    }
+                    if (needsResourcePreprocessor) {
+                        this.copyAssets(resolvePyAssets("resource_preprocessor.py"), "resource_preprocessor.py");
+                    }
+                    for (const schema of resources) {
+                        this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
+                            this.generateResourceModule(schema);
+                        });
+                    }
+                    if (hasProfiles) {
+                        this.cd("profiles", () => {
+                            for (const profile of profiles) {
+                                const moduleName = pyProfileModuleName(tsIndex, profile);
+                                this.cat(`${moduleName}.py`, () => generateProfileModule(this, tsIndex, profile));
+                            }
+                            this.cat("__init__.py", () => generateProfilesInit(this, tsIndex, profiles));
+                        });
+                    }
+                });
+            }
         });
     }
 
-    private collectAndImportAllModels(groups: TypeSchemaPackageGroups): string[] {
-        const models: string[] = [];
+    private generateRootInit(packages: TypeSchemaPackages): void {
+        this.generateDisclaimer();
+        const models = this.collectAndImportAllModels(packages);
+        this.generateModelRebuilds(models);
+        this.importProfileRegistrations(packages);
+    }
 
-        for (const packageName of Object.keys(groups.groupedResources)) {
+    private collectPackages(tsIndex: TypeSchemaIndex): TypeSchemaPackages {
+        const packages: TypeSchemaPackages = {};
+        const packageGroup = (name: string) => (packages[name] ??= { resources: [], complexTypes: [], profiles: [] });
+        for (const schema of tsIndex.collectResources()) packageGroup(schema.identifier.package).resources.push(schema);
+        for (const schema of tsIndex.collectComplexTypes())
+            packageGroup(schema.identifier.package).complexTypes.push(schema);
+        if (this.opts.generateProfile) {
+            for (const profile of tsIndex.collectSnapshotProfiles())
+                packageGroup(profile.identifier.package).profiles.push(profile);
+        }
+        return packages;
+    }
+
+    private collectAndImportAllModels(packages: TypeSchemaPackages): string[] {
+        const models: string[] = [];
+        for (const [packageName, { complexTypes, resources }] of Object.entries(packages)) {
+            if (resources.length === 0) continue;
             const fullPyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-            models.push(...this.importComplexTypes(fullPyPackageName, groups.groupedComplexTypes[packageName]));
-            models.push(...this.importResources(fullPyPackageName, false, groups.groupedResources[packageName]));
+            models.push(...this.importComplexTypes(fullPyPackageName, complexTypes));
+            models.push(...this.importResources(fullPyPackageName, false, resources));
         }
         this.line();
-
         return models;
     }
 
@@ -261,11 +220,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private importProfileRegistrations(profilesByPackage: Record<string, SnapshotProfileTypeSchema[]>): void {
-        // `profiles/` exists for exactly these packages: resource packages with
-        // profiles and profile-only packages, both written by
-        // generateResourcePackages from the same map.
-        const packageNames = Object.keys(profilesByPackage);
+    private importProfileRegistrations(packages: TypeSchemaPackages): void {
+        const packageNames = Object.entries(packages)
+            .filter(([, { profiles }]) => profiles.length > 0)
+            .map(([name]) => name);
         if (packageNames.length === 0) return;
         this.line();
         for (const packageName of packageNames) {
@@ -274,50 +232,49 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateBasePy(_packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
+    private generateBasePy(packageComplexTypes: SpecializationTypeSchema[]): void {
         const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
-        this.cat("base.py", () => {
-            this.generateDisclaimer();
-            this.generateDefaultImports(hasGenericTypes);
-            if (hasGenericTypes) {
-                this.line();
-                // Covariant: the parameter says what a value holds, and callers
-                // hand these models on to code that asks for the wider type.
-                // Invariant, a precisely-typed `Reference[Literal["Patient"]]`
-                // cannot be passed where a plain `Reference` is expected, which
-                // makes the narrower annotation a liability rather than a gain.
-                // Unsound in principle for a mutable attribute; accepted because
-                // the generated models are data carriers.
-                this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
-            }
+        this.generateDisclaimer();
+        this.pyImportFrom("__future__", "annotations");
+        this.pyImportFrom("pydantic", ...["BaseModel", "ConfigDict", "Field", "PositiveInt"].sort());
+        this.pyImportFrom(
+            "typing",
+            ...["Any", "List as PyList", "Literal", ...(hasGenericTypes ? ["Generic"] : [])].sort(),
+        );
+        this.pyImportFrom("typing_extensions", "TypeVar");
+        if (hasGenericTypes) {
             this.line();
-            this.generateComplexTypes(packageComplexTypes);
-            this.line();
-        });
-    }
-
-    private generateComplexTypes(complexTypes: SpecializationTypeSchema[]): void {
-        for (const schema of sortAsDeclarationSequence(complexTypes)) {
+            // Covariant: the parameter says what a value holds, and callers
+            // hand these models on to code that asks for the wider type.
+            // Invariant, a precisely-typed `Reference[Literal["Patient"]]`
+            // cannot be passed where a plain `Reference` is expected, which
+            // makes the narrower annotation a liability rather than a gain.
+            // Unsound in principle for a mutable attribute; accepted because
+            // the generated models are data carriers.
+            this.line("T = TypeVar('T', bound=str, default=str, covariant=True)");
+        }
+        this.line();
+        const sortedTypes = [...packageComplexTypes].sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
+        for (const schema of sortAsDeclarationSequence(sortedTypes)) {
             this.generateNestedTypes(schema);
             this.line();
             this.generateType(schema);
         }
+        this.line();
     }
 
-    private generateResourcePackageInit(
-        fullPyPackageName: string,
-        packageResources: SpecializationTypeSchema[],
-        packageComplexTypes?: SpecializationTypeSchema[],
-        profileNames: string[] = [],
-    ): void {
-        this.cat("__init__.py", () => {
-            this.generateDisclaimer();
-            this.importComplexTypes(fullPyPackageName, packageComplexTypes);
-            const allResourceNames = this.importResources(fullPyPackageName, true, packageResources);
-            this.importPackageProfiles(profileNames);
-            this.line();
-            this.generateExportsDeclaration(packageComplexTypes, [...allResourceNames, ...profileNames]);
-        });
+    private generatePackageInit(packageName: string, { complexTypes, resources, profiles }: TypeSchemaPackage): void {
+        this.generateDisclaimer();
+        const pyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
+        const profileNames = collectProfileClassNames(profiles);
+        if (resources.length > 0) this.importComplexTypes(pyPackageName, complexTypes);
+        const resourceNames = this.importResources(pyPackageName, true, resources);
+        this.importPackageProfiles(profileNames);
+        this.line();
+        this.generateExportsDeclaration(resources.length > 0 ? complexTypes : undefined, [
+            ...resourceNames,
+            ...profileNames,
+        ]);
     }
 
     /** Re-export a package's profile classes from its `__init__.py`, so they are
@@ -326,19 +283,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private importPackageProfiles(profileNames: string[]): void {
         if (profileNames.length === 0) return;
         this.pyImportFrom(".profiles", ...profileNames);
-    }
-
-    /** A package that carries only profiles still needs its own barrel; the
-     *  resource-package path never runs for it. */
-    private generateProfileOnlyPackageInit(profileNames: string[]): void {
-        this.cat("__init__.py", () => {
-            this.generateDisclaimer();
-            this.importPackageProfiles(profileNames);
-            this.line();
-            this.squareBlock(["__all__", "="], () => {
-                for (const name of profileNames) this.line(`'${name}',`);
-            });
-        });
     }
 
     private importComplexTypes(fullPyPackageName: string, packageComplexTypes?: SpecializationTypeSchema[]): string[] {
@@ -420,29 +364,42 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const typeVars = collectResourceGenericTypeVars(schema);
         const hasResourceGenericParams = typeVars.length > 0;
 
-        this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
-            this.generateDisclaimer();
-            this.generateDefaultImports(false, hasResourceGenericParams, true);
-            this.generateFhirBaseModelImport();
+        this.generateDisclaimer();
+        this.pyImportFrom("__future__", "annotations");
+        this.pyImportFrom(
+            "pydantic",
+            ...[
+                "BaseModel",
+                "ConfigDict",
+                "Field",
+                "PositiveInt",
+                ...(hasResourceGenericParams ? ["model_validator"] : []),
+            ].sort(),
+        );
+        this.pyImportFrom(
+            "typing",
+            ...["Any", "List as PyList", "Literal", ...(hasResourceGenericParams ? ["Generic"] : [])].sort(),
+        );
+        this.pyImportFrom("typing_extensions", ...["Self", ...(hasResourceGenericParams ? ["TypeVar"] : [])].sort());
+        this.generateFhirBaseModelImport();
+        this.line();
+        this.generateDependenciesImports(schema);
+        if (hasResourceGenericParams) {
+            const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
+            this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
             this.line();
-            this.generateDependenciesImports(schema);
-            if (hasResourceGenericParams) {
-                const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
-                this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
-                this.line();
-                for (const { typeVar, constraint } of typeVars) {
-                    // Covariant for the same reason as the base `T`: a
-                    // `BundleEntry[Patient]` is usable as a `BundleEntry[Resource]`.
-                    this.line(
-                        `${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint}, covariant=True)`,
-                    );
-                }
+            for (const { typeVar, constraint } of typeVars) {
+                // Covariant for the same reason as the base `T`: a
+                // `BundleEntry[Patient]` is usable as a `BundleEntry[Resource]`.
+                this.line(
+                    `${typeVar} = TypeVar('${typeVar}', bound=${constraint}, default=${constraint}, covariant=True)`,
+                );
             }
-            this.line();
-            this.generateNestedTypes(schema);
-            this.line();
-            this.generateType(schema);
-        });
+        }
+        this.line();
+        this.generateNestedTypes(schema);
+        this.line();
+        this.generateType(schema);
     }
 
     private generateFhirBaseModelImport(): void {
@@ -719,26 +676,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
         for (const subtype of schema.nested) {
             this.generateType(subtype);
         }
-    }
-
-    private generateDefaultImports(
-        includeGenericImports: boolean,
-        includeResourceGenericImports = false,
-        includeResourceMethods = false,
-    ): void {
-        this.pyImportFrom("__future__", "annotations");
-        const pydanticImports = ["BaseModel", "ConfigDict", "Field", "PositiveInt"];
-        if (includeResourceGenericImports) pydanticImports.push("model_validator");
-        this.pyImportFrom("pydantic", ...pydanticImports.sort());
-        const typingImports = ["Any", "List as PyList", "Literal"];
-        if (includeGenericImports || includeResourceGenericImports) {
-            typingImports.push("Generic");
-        }
-        this.pyImportFrom("typing", ...typingImports.sort());
-        const typingExtImports: string[] = [];
-        if (includeGenericImports || includeResourceGenericImports) typingExtImports.push("TypeVar");
-        if (includeResourceMethods) typingExtImports.push("Self");
-        if (typingExtImports.length > 0) this.pyImportFrom("typing_extensions", ...typingExtImports.sort());
     }
 
     private generateDependenciesImports(schema: SpecializationTypeSchema): void {
