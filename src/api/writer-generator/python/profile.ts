@@ -388,7 +388,12 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     generateValidateMethod(w, className, errorLines, warningLines);
 };
 
-const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): void => {
+export const generateProfileModule = (
+    w: Python,
+    tsIndex: TypeSchemaIndex,
+    flatProfile: SnapshotProfileTypeSchema,
+): void => {
+    w.generateDisclaimer();
     const className = pyProfileClassName(flatProfile);
     const baseTypeName = flatProfile.base.name;
     const isResourceBase = isResourceIdentifier(flatProfile.base);
@@ -482,22 +487,24 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
 // Entry points
 // ---------------------------------------------------------------------------
 
-const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: SnapshotProfileTypeSchema[]): void => {
-    w.cat("__init__.py", () => {
-        w.generateDisclaimer();
-        const seen = new Set<string>();
-        for (const profile of profiles) {
-            const className = pyProfileClassName(profile);
-            const moduleName = pyProfileModuleName(tsIndex, profile);
-            if (seen.has(className)) continue;
-            seen.add(className);
-            w.pyImportFrom(`.${moduleName}`, className);
-        }
-        // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
-        w.line();
-        w.squareBlock(["__all__", "="], () => {
-            for (const className of [...seen].sort()) w.line(`'${className}',`);
-        });
+export const generateProfilesInit = (
+    w: Python,
+    tsIndex: TypeSchemaIndex,
+    profiles: SnapshotProfileTypeSchema[],
+): void => {
+    w.generateDisclaimer();
+    const seen = new Set<string>();
+    for (const profile of profiles) {
+        const className = pyProfileClassName(profile);
+        const moduleName = pyProfileModuleName(tsIndex, profile);
+        if (seen.has(className)) continue;
+        seen.add(className);
+        w.pyImportFrom(`.${moduleName}`, className);
+    }
+    // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
+    w.line();
+    w.squareBlock(["__all__", "="], () => {
+        for (const className of [...seen].sort()) w.line(`'${className}',`);
     });
 };
 
@@ -505,22 +512,3 @@ const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: Sna
  *  `__init__.py` re-exports from `.profiles`. */
 export const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string[] =>
     [...new Set(profiles.map(pyProfileClassName))].sort();
-
-/** Entry point called from `python/writer.ts` when `generateProfile` is true. */
-export const generateNewProfiles = (
-    w: Python,
-    tsIndex: TypeSchemaIndex,
-    profiles: SnapshotProfileTypeSchema[],
-): void => {
-    if (profiles.length === 0) return;
-    w.cd("profiles", () => {
-        for (const profile of profiles) {
-            const moduleName = pyProfileModuleName(tsIndex, profile);
-            w.cat(`${moduleName}.py`, () => {
-                w.generateDisclaimer();
-                generateProfileModule(w, tsIndex, profile);
-            });
-        }
-        generateProfilesInit(w, tsIndex, profiles);
-    });
-};
