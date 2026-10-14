@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, cast, overload
+from typing import Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Extension, Period
 from fhir_types.profile_helpers import (

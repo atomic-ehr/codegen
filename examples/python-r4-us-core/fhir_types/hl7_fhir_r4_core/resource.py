@@ -4,10 +4,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
-from typing import List as PyList
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import ConfigDict, Field
 from typing_extensions import Self
 
 from fhir_types.fhirpy_base_model import FhirpyBaseModel

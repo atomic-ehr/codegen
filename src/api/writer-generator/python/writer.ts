@@ -40,6 +40,7 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
 
 const MAX_IMPORT_LINE_LENGTH = 88;
 const LEADING_NEWLINES = /^\n+/;
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 type PythonImport = { module: string; entity: string };
 
@@ -149,6 +150,8 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private profileHelperImport?: SectionHandle<never, string>;
     private importSection?: SectionHandle<never, string>;
     private readonly fileImports = new Map<string, PythonImport>();
+    private readonly importKeysByName = new Map<string, string>();
+    private readonly forcedImports = new Set<string>();
     private inImportPreamble = false;
     private renderingImports = false;
     constructor(options: PythonGeneratorOptions) {
@@ -161,9 +164,13 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     override cat(fn: string, gen: () => void): void {
         const previousSection = this.importSection;
         const previousImports = new Map(this.fileImports);
+        const previousNames = new Map(this.importKeysByName);
+        const previousForcedImports = new Set(this.forcedImports);
         const previousPreamble = this.inImportPreamble;
         this.importSection = undefined;
         this.fileImports.clear();
+        this.importKeysByName.clear();
+        this.forcedImports.clear();
         this.inImportPreamble = false;
         try {
             super.cat(fn, gen);
@@ -171,6 +178,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             this.importSection = previousSection;
             this.fileImports.clear();
             for (const [key, value] of previousImports) this.fileImports.set(key, value);
+            this.importKeysByName.clear();
+            for (const [name, key] of previousNames) this.importKeysByName.set(name, key);
+            this.forcedImports.clear();
+            for (const key of previousForcedImports) this.forcedImports.add(key);
             this.inImportPreamble = previousPreamble;
         }
     }
@@ -180,7 +191,8 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             name: (name) => name,
             render: (_definitions, usages) => {
                 const helpers = [...new Set(usages.map((usage) => usage.key))].sort();
-                if (helpers.length > 0) this.pyImportFrom(`${this.opts.rootPackageName}.profile_helpers`, ...helpers);
+                if (helpers.length > 0)
+                    this.pyImportFromUsed(`${this.opts.rootPackageName}.profile_helpers`, ...helpers);
             },
         });
     }
@@ -198,11 +210,23 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             super.write(str);
             return;
         }
-        if (this.inImportPreamble && !str.includes("\u0000:")) {
+        if (str.includes("\u0000:")) {
+            super.write(str);
+            return;
+        }
+        if (this.inImportPreamble) {
             if (str.trim().length === 0) return;
             this.inImportPreamble = false;
             super.write(str.trimStart().startsWith("class ") ? "\n\n" : "\n");
             str = str.replace(LEADING_NEWLINES, "");
+        }
+        if (this.importKeysByName.size > 0 && this.importSection) {
+            const names = [...this.importKeysByName.keys()].sort((a, b) => b.length - a.length);
+            const importPattern = new RegExp(`\\b(${names.map(escapeRegExp).join("|")})\\b`, "g");
+            str = str.replace(importPattern, (name) => {
+                const key = this.importKeysByName.get(name);
+                return key === undefined ? name : (this.importSection?.use(key) ?? name);
+            });
         }
         if (this.profileHelperImport) {
             const helperPattern = new RegExp(`\\b(${PROFILE_HELPERS.join("|")})\\b`, "g");
@@ -214,11 +238,11 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private ensureImportSection(): SectionHandle<never, string> {
         if (!this.importSection) {
             this.importSection = this.section<never, string>({
-                name: () => "",
-                render: () => {
+                name: (key) => this.fileImports.get(key)?.entity.split(" as ").at(-1) ?? "",
+                render: (_definitions, usages) => {
                     this.renderingImports = true;
                     try {
-                        this.renderImports();
+                        this.renderImports(usages);
                     } finally {
                         this.renderingImports = false;
                     }
@@ -228,8 +252,18 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return this.importSection;
     }
 
-    private renderImports(): void {
-        const imports = [...this.fileImports.values()];
+    private renderImports(usages: Array<{ key: string; local: string }>): void {
+        const usagesByKey = new Map(usages.map((usage) => [usage.key, usage]));
+        const importsByKey = new Map(usages.map(({ key }) => [key, this.fileImports.get(key)]));
+        for (const key of this.forcedImports) importsByKey.set(key, this.fileImports.get(key));
+        const imports = [...importsByKey.entries()]
+            .filter((entry): entry is [string, PythonImport] => entry[1] !== undefined)
+            .map(([key, value]) => {
+                const usage = usagesByKey.get(key);
+                const remoteName = value.entity.split(" as ")[0] ?? value.entity;
+                const localName = usage?.local ?? value.entity.split(" as ").at(-1) ?? remoteName;
+                return { ...value, entity: localName === remoteName ? remoteName : `${remoteName} as ${localName}` };
+            });
         const groups = [
             imports.filter(({ module }) => module === "__future__"),
             imports.filter(({ module }) => module === "typing"),
@@ -945,13 +979,30 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     pyImportFrom(pyPackage: string, ...entities: string[]): void {
-        const imports = this.ensureImportSection();
+        this.ensureImportSection();
         this.inImportPreamble = true;
         for (const entity of entities) {
-            const key = JSON.stringify([pyPackage, entity]);
-            this.fileImports.set(key, { module: pyPackage, entity });
+            const key = this.registerImport(pyPackage, entity);
+            if (pyPackage === "__future__") this.forcedImports.add(key);
         }
-        super.write(imports.use("imports"));
+    }
+
+    private pyImportFromUsed(pyPackage: string, ...entities: string[]): void {
+        this.ensureImportSection();
+        for (const entity of entities) {
+            const key = this.registerImport(pyPackage, entity);
+            this.forcedImports.add(key);
+        }
+    }
+
+    private registerImport(module: string, entity: string): string {
+        const key = JSON.stringify([module, entity]);
+        if (!this.fileImports.has(key)) {
+            this.fileImports.set(key, { module, entity });
+            const localName = entity.split(" as ").at(-1) ?? entity;
+            this.importKeysByName.set(localName, key);
+        }
+        return key;
     }
 
     private pyImportType(identifier: TypeIdentifier): void {

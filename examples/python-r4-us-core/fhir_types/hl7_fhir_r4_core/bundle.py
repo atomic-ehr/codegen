@@ -7,10 +7,9 @@ from __future__ import annotations
 from typing import Any, Generic, Literal
 from typing import List as PyList
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
+from pydantic import ConfigDict, Field, model_validator
 from typing_extensions import Self, TypeVar
 
-from fhir_types.fhirpy_base_model import FhirpyBaseModel
 from fhir_types.hl7_fhir_r4_core.base import (
     BackboneElement,
     Element,

@@ -31,7 +31,8 @@ describe("Python Writer Generator", async () => {
             expect(basePy).toContain("coding: PyList[Coding[T]] | None");
         });
         it("generates TypeVar import and declaration", () => {
-            expect(basePy).toContain("from typing import Any, Generic, List as PyList, Literal");
+            expect(basePy).toContain("from typing import Generic, Literal");
+            expect(basePy).toContain("from typing import List as PyList");
             expect(basePy).toContain("from typing_extensions import TypeVar");
             expect(basePy).toContain("T = TypeVar('T', bound=str, default=str, covariant=True)");
         });

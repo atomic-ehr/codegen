@@ -134,6 +134,9 @@ test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
 	     mypy .
+	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     ruff check --isolated --select F401,F811,F841,I fhir_types ../../assets/api/writer-generator/python
 
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
