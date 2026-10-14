@@ -77,8 +77,8 @@ const pyEnumType = (typing: SectionHandle<never, string>, enumDef: EnumDefinitio
     return enumDef.isOpen ? `${literal}[${values}] | str` : `${literal}[${values}]`;
 };
 
-/** Import sections of a type module (`base.py` or a resource module), one per source module. */
-type PyTypeImports = {
+/** Import sections of a type module (`base.py` or a resource module): one per library module, plus `types` for FHIR types. */
+type TypeModuleImports = {
     pydantic: SectionHandle<never, string>;
     typing: SectionHandle<never, string>;
     typingExtensions: SectionHandle<never, string>;
@@ -392,7 +392,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     /** `from __future__` stays first; each section below imports only the names its module's code uses. */
-    private typeModuleImports(packageName: string, module: string): PyTypeImports {
+    private typeModuleImports(packageName: string, module: string): TypeModuleImports {
         this.line("from __future__ import annotations");
         const pydantic = this.moduleImports("pydantic");
         // `List` is a FHIR resource class too, so the typing alias keeps them apart.
@@ -432,7 +432,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         });
     }
 
-    private generateType(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateType(imports: TypeModuleImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(imports, schema);
 
@@ -443,7 +443,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line();
     }
 
-    private getSuperClasses(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): string[] {
+    private getSuperClasses(imports: TypeModuleImports, schema: SpecializationTypeSchema | NestedTypeSchema): string[] {
         const bases: string[] = [];
         if (schema.base) bases.push(imports.types.use(schema.base));
         bases.push(...this.injectSuperClasses(imports, schema.identifier.url));
@@ -465,7 +465,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return bases;
     }
 
-    private generateClassBody(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateClassBody(imports: TypeModuleImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
         this.generateModelConfig(imports);
 
         if (!schema.fields) {
@@ -493,7 +493,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private generateResourcePreprocessorMethod(
-        imports: PyTypeImports,
+        imports: TypeModuleImports,
         schema: SpecializationTypeSchema | NestedTypeSchema,
     ): void {
         const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
@@ -507,14 +507,14 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line("    return data");
     }
 
-    private generateModelConfig(imports: PyTypeImports): void {
+    private generateModelConfig(imports: TypeModuleImports): void {
         const extraMode = this.opts.allowExtraFields ? "allow" : "forbid";
         this.line(
             `model_config = ${imports.pydantic.use("ConfigDict")}(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`,
         );
     }
 
-    private generateResourceTypeField(imports: PyTypeImports, schema: SpecializationTypeSchema): void {
+    private generateResourceTypeField(imports: TypeModuleImports, schema: SpecializationTypeSchema): void {
         // Type as `str`; the value is validated on the pydantic side via `pattern`.
         const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
         this.line(`${this.nameFormatFunction("resourceType")}: str = ${imports.pydantic.use("Field")}(`);
@@ -535,7 +535,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private generateFields(imports: PyTypeImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
+    private generateFields(imports: TypeModuleImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
         let elementType: string | undefined;
         if (this.shouldAddPrimitiveExtensions(schema)) {
@@ -569,7 +569,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private addPrimitiveExtensionField(
-        imports: PyTypeImports,
+        imports: TypeModuleImports,
         fieldName: string,
         isArray: boolean,
         elementType: string,
@@ -584,7 +584,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private buildFieldInfo(
-        imports: PyTypeImports,
+        imports: TypeModuleImports,
         fieldName: string,
         field: RegularField | ChoiceFieldInstance,
         schema: SpecializationTypeSchema | NestedTypeSchema,
@@ -603,7 +603,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private determineFieldType(
-        imports: PyTypeImports,
+        imports: TypeModuleImports,
         field: RegularField | ChoiceFieldInstance,
         fieldName: string,
         schema: SpecializationTypeSchema | NestedTypeSchema,
@@ -674,7 +674,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return fieldType;
     }
 
-    private getBaseFieldType(imports: PyTypeImports, field: Field): string {
+    private getBaseFieldType(imports: TypeModuleImports, field: Field): string {
         if (!isNotChoiceDeclarationField(field)) return "";
         if (isResourceIdentifier(field.type)) return `${field.type.name}Family`;
         if (isNestedIdentifier(field.type)) return deriveResourceName(field.type);
@@ -685,13 +685,13 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return imports.types.use(field.type);
     }
 
-    private getFieldDefaultValue(imports: PyTypeImports, field: Field, fieldName: string): string {
+    private getFieldDefaultValue(imports: TypeModuleImports, field: Field, fieldName: string): string {
         const aliasSpec = `alias="${fieldName}", serialization_alias="${fieldName}"`;
         if (!field.required) return ` = ${imports.pydantic.use("Field")}(None, ${aliasSpec})`;
         return ` = ${imports.pydantic.use("Field")}(${aliasSpec})`;
     }
 
-    private generateResourceMethods(imports: PyTypeImports, _schema: SpecializationTypeSchema): void {
+    private generateResourceMethods(imports: TypeModuleImports, _schema: SpecializationTypeSchema): void {
         this.line();
         this.line(`def model_post_init(self, __context: ${imports.typing.use("Any")}) -> None:`);
         this.line(`    self.__pydantic_fields_set__.add("${this.nameFormatFunction("resourceType")}")`);
@@ -717,7 +717,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.line("    return hash(self.url)");
     }
 
-    private generateNestedTypes(imports: PyTypeImports, schema: SpecializationTypeSchema): void {
+    private generateNestedTypes(imports: TypeModuleImports, schema: SpecializationTypeSchema): void {
         if (!schema.nested) return;
 
         this.line();
@@ -762,7 +762,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return AVAILABLE_STRING_FORMATS[format];
     }
 
-    private injectSuperClasses(imports: PyTypeImports, url: string): string[] {
+    private injectSuperClasses(imports: TypeModuleImports, url: string): string[] {
         const name = canonicalToName(url);
         if (name === "resource")
             return [this.forFhirpyClient ? imports.fhirpy.use("FhirpyBaseModel") : imports.pydantic.use("BaseModel")];
