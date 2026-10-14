@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { excludeCanonical } from "@atomic-ehr/fhir-canonical-manager/patch";
+import { excludeCanonical, inPackage, inResource, patchElement } from "@atomic-ehr/fhir-canonical-manager/patch";
 import { APIBuilder, prettyReport } from "../../src/api";
 
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
@@ -72,5 +72,79 @@ const report = await new APIBuilder({
 
 console.log(prettyReport(report));
 if (!report.success) process.exit(1);
+
+// WidenedRelatedPerson restates RelatedPerson.patient (base: Patient) with Patient and Person.
+// A profile may only narrow its base, so generating it as is fails with an error that prints
+// both fixes as APIBuilder configs; each focused generation below pastes one of them.
+const widenedRelatedPersonUrl = "http://example.test/StructureDefinition/widened-related-person";
+
+const generateReferenceTargets = async (builder: APIBuilder, outputDir: string) => {
+    const report = await builder
+        .fromPackage("hl7.fhir.r5.core", "5.0.0")
+        .localStructureDefinitions({
+            package: { name: "example.reference.targets", version: "0.0.1" },
+            path: Path.join(__dirname, "reference-targets"),
+            dependencies: [{ name: "hl7.fhir.r5.core", version: "5.0.0" }],
+        })
+        .typeSchema({ treeShake: { "example.reference.targets": { [widenedRelatedPersonUrl]: {} } } })
+        .throwException(true)
+        .cleanOutput(true)
+        .typescript({ withDebugComment: false, generateProfile: true })
+        .outputTo(`./examples/typescript-custom-packages/${outputDir}`)
+        .generate();
+    console.log(prettyReport(report));
+    if (!report.success) process.exit(1);
+};
+
+// Fix 1 from the error: narrow the profile to its base's targets.
+await generateReferenceTargets(
+    new APIBuilder({
+        canonicalManager: {
+            patches: {
+                fhirResource: [
+                    inPackage("example.reference.targets", [
+                        inResource("http://example.test/StructureDefinition/widened-related-person", [
+                            patchElement("RelatedPerson.patient", (element) => ({
+                                ...element,
+                                type: element.type?.map((type) => ({
+                                    ...type,
+                                    targetProfile: ["http://hl7.org/fhir/StructureDefinition/Patient"],
+                                })),
+                            })),
+                        ]),
+                    ]),
+                ],
+            },
+        },
+    }),
+    "fhir-types-narrow-profile",
+);
+
+// Fix 2 from the error: extend the base to the profile's targets.
+await generateReferenceTargets(
+    new APIBuilder({
+        canonicalManager: {
+            patches: {
+                fhirResource: [
+                    inPackage("hl7.fhir.r5.core", [
+                        inResource("http://hl7.org/fhir/StructureDefinition/RelatedPerson", [
+                            patchElement("RelatedPerson.patient", (element) => ({
+                                ...element,
+                                type: element.type?.map((type) => ({
+                                    ...type,
+                                    targetProfile: [
+                                        "http://hl7.org/fhir/StructureDefinition/Patient",
+                                        "http://hl7.org/fhir/StructureDefinition/Person",
+                                    ],
+                                })),
+                            })),
+                        ]),
+                    ]),
+                ],
+            },
+        },
+    }),
+    "fhir-types-extend-base",
+);
 
 console.log("✅ FHIR types generated successfully!");

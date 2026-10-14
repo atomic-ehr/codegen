@@ -1,0 +1,50 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`a profile whose reference targets exceed its base explains the defect and both fixes 1`] = `
+[
+  
+"Profile reference targets exceed its base:
+
+  package:         example.reference.targets#0.0.1
+  profile:         http://example.test/StructureDefinition/widened-related-person
+  base:            http://hl7.org/fhir/StructureDefinition/RelatedPerson
+  element:         RelatedPerson.patient
+  base targets:    http://hl7.org/fhir/StructureDefinition/Patient
+  profile targets: http://hl7.org/fhir/StructureDefinition/Patient, http://hl7.org/fhir/StructureDefinition/Person
+
+A profile may only narrow its base (https://hl7.org/fhir/profiling.html#using), so the package is invalid.
+
+Repair it with a canonicalManager patch (inPackage, inResource, patchElement from @atomic-ehr/fhir-canonical-manager/patch), either way:
+
+1. Narrow the profile to its base's targets:
+
+  // add to APIBuilder argument at canonicalManager.patches.fhirResource
+  inPackage("example.reference.targets", [
+      inResource("http://example.test/StructureDefinition/widened-related-person", [
+          patchElement("RelatedPerson.patient", (element) => ({
+              ...element,
+              type: element.type?.map((type) => ({
+                  ...type,
+                  targetProfile: ["http://hl7.org/fhir/StructureDefinition/Patient"],
+              })),
+          })),
+      ]),
+  ])
+
+2. Extend the base to the profile's targets:
+
+  // add to APIBuilder argument at canonicalManager.patches.fhirResource
+  inPackage("hl7.fhir.r5.core", [
+      inResource("http://hl7.org/fhir/StructureDefinition/RelatedPerson", [
+          patchElement("RelatedPerson.patient", (element) => ({
+              ...element,
+              type: element.type?.map((type) => ({
+                  ...type,
+                  targetProfile: ["http://hl7.org/fhir/StructureDefinition/Patient", "http://hl7.org/fhir/StructureDefinition/Person"],
+              })),
+          })),
+      ]),
+  ])"
+,
+]
+`;
