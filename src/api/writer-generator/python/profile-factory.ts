@@ -80,9 +80,9 @@ export const pyReferenceComment = (field: RegularField | ChoiceFieldInstance): s
 /** Try to promote a required single-choice declaration to a direct param. */
 const tryPromoteChoice = (
     imports: ProfileImports,
+    tsIndex: TypeSchemaIndex,
     field: Field,
     fields: Record<string, Field>,
-    tsIndex: TypeSchemaIndex,
 ): ProfileFactoryInfo["params"][number] | undefined => {
     if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
     const choiceName = field.choices[0];
@@ -111,12 +111,12 @@ const pyChoiceInstanceType = (
 const collectBaseRequiredParams = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     coveredNames: string[],
 ): ProfileFactoryInfo["params"] => {
     const params: ProfileFactoryInfo["params"] = [];
     const covered = new Set(coveredNames);
-    const baseSchema = tsIndex.resolveType(flatProfile.base);
+    const baseSchema = tsIndex.resolveType(snapshot.base);
     if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return params;
     for (const [name, field] of Object.entries(baseSchema.fields)) {
         if (covered.has(name)) continue;
@@ -134,14 +134,14 @@ const collectBaseRequiredParams = (
 export const collectProfileFactoryInfo = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
 ): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const pendingChoiceInstances: [string, ChoiceFieldInstance][] = [];
-    const fields = flatProfile.fields;
+    const fields = snapshot.fields;
     const promotedChoices = new Set<string>();
     // Maps each choice instance name to all sibling instance names (from the same declaration).
     const choiceGroups: Record<string, string[]> = {};
@@ -151,8 +151,8 @@ export const collectProfileFactoryInfo = (
         }
     }
 
-    if (isResourceIdentifier(flatProfile.base)) {
-        autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
+    if (isResourceIdentifier(snapshot.base)) {
+        autoFields.push({ name: "resourceType", value: JSON.stringify(snapshot.base.name) });
     }
 
     for (const [name, field] of Object.entries(fields)) {
@@ -163,7 +163,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (isChoiceDeclarationField(field)) {
-            const promoted = tryPromoteChoice(imports, field, fields, tsIndex);
+            const promoted = tryPromoteChoice(imports, tsIndex, field, fields);
             if (promoted) {
                 params.push(promoted);
                 promotedChoices.add(promoted.name);
@@ -182,7 +182,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (isNotChoiceDeclarationField(field)) {
-            const sliceNames = collectRequiredSliceNames(field, flatProfile.slicing?.[name]);
+            const sliceNames = collectRequiredSliceNames(field, snapshot.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
                     const pyType = fieldPyType(imports, field, tsIndex);
@@ -200,7 +200,7 @@ export const collectProfileFactoryInfo = (
     }
 
     params.push(
-        ...collectBaseRequiredParams(imports, tsIndex, flatProfile, [
+        ...collectBaseRequiredParams(imports, tsIndex, snapshot, [
             ...autoFields.map((f) => f.name),
             ...sliceAutoFields.map((f) => f.name),
             ...params.map((f) => f.name),

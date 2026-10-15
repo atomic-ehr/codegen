@@ -46,13 +46,13 @@ export const generateExtensionMethods = (
     w: Python,
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     className: string,
     extensionBaseNames: Record<string, string>,
 ): void => {
-    const pkgName = flatProfile.identifier.package;
-    const extensionType = imports.types.use(resolveFhirType(tsIndex, flatProfile, "Extension"));
-    for (const ext of flatProfile.extensions ?? []) {
+    const pkgName = snapshot.identifier.package;
+    const extensionType = imports.types.use(resolveFhirType(tsIndex, snapshot, "Extension"));
+    for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
         const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended);
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");

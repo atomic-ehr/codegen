@@ -46,7 +46,7 @@ const collectSliceRequirements = (
     return { requiredFields, choiceGroups };
 };
 
-export const collectRegularFieldValidation = (
+const collectRegularFieldValidation = (
     imports: ProfileSections,
     name: string,
     field: RegularField | ChoiceFieldInstance,
@@ -59,14 +59,14 @@ export const collectRegularFieldValidation = (
     const warnings: string[] = [];
     if (field.excluded) {
         errors.push(
-            `...${imports.helper.use("validateExcluded")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+            `...${imports.helpers.use("validateExcluded")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
         );
         return { errors, warnings };
     }
 
     if (field.required)
         errors.push(
-            `...${imports.helper.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+            `...${imports.helpers.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
         );
 
     if (field.valueConstraint) {
@@ -74,7 +74,7 @@ export const collectRegularFieldValidation = (
             canonicalUrlExpr && name === "url" && field.valueConstraint.value === canonicalUrlExpr.url
                 ? canonicalUrlExpr.expr
                 : JSON.stringify(field.valueConstraint.value);
-        const fn = imports.helper.use(
+        const fn = imports.helpers.use(
             field.valueConstraint.validateOnly ? "validatePatternValue" : "validateFixedValue",
         );
         // A constraint on a repeating element applies to every repetition, so
@@ -90,20 +90,20 @@ export const collectRegularFieldValidation = (
         const target = field.enum.isOpen ? warnings : errors;
         const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
         target.push(
-            `...${imports.helper.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`,
+            `...${imports.helpers.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`,
         );
     }
 
     if (field.mustSupport && !field.required)
         warnings.push(
-            `...${imports.helper.use("validateMustSupport")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
+            `...${imports.helpers.use("validateMustSupport")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
         );
 
     if (field.reference) {
         const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
         if (allowed.length > 0)
             errors.push(
-                `...${imports.helper.use("validateReference")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
+                `...${imports.helpers.use("validateReference")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
             );
     }
 
@@ -115,7 +115,7 @@ export const collectRegularFieldValidation = (
                 const min = slice.min ?? 0;
                 const max = slice.max ?? 0;
                 errors.push(
-                    `...${imports.helper.use("validateSliceCardinality")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
+                    `...${imports.helpers.use("validateSliceCardinality")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
                 );
             }
             const { requiredFields, choiceGroups } = collectSliceRequirements(slice, match, field, tsIndex);
@@ -128,7 +128,7 @@ export const collectRegularFieldValidation = (
                 ];
                 if (choiceGroups.length > 0) args.push(JSON.stringify(choiceGroups));
                 errors.push(
-                    `...${imports.helper.use("validateSliceFields")}(res, ${imports.const.use("profileName")}, ${args.join(", ")})`,
+                    `...${imports.helpers.use("validateSliceFields")}(res, ${imports.const.use("profileName")}, ${args.join(", ")})`,
                 );
             }
         }
@@ -156,11 +156,11 @@ export const generateValidateMethod = (
             if (isChoiceDeclarationField(field)) {
                 if (field.required)
                     errors.push(
-                        `...${imports.helper.use("validateChoiceRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.choices)})`,
+                        `...${imports.helpers.use("validateChoiceRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.choices)})`,
                     );
                 if (field.prohibited?.length)
                     errors.push(
-                        `...${imports.helper.use("validateChoiceProhibited")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.prohibited)})`,
+                        `...${imports.helpers.use("validateChoiceProhibited")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(field.prohibited)})`,
                     );
                 continue;
             }
@@ -184,7 +184,7 @@ export const generateValidateMethod = (
         // profile's getter/setter surface.
         for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
             errors.push(
-                `...${imports.helper.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(inheritedName)})`,
+                `...${imports.helpers.use("validateRequired")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(inheritedName)})`,
             );
         }
 
