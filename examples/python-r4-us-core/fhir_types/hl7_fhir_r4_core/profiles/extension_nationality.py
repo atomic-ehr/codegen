@@ -10,7 +10,8 @@ from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period
 from fhir_types.profile_helpers import (
-    _get_key, build_resource, get_extension_value, is_extension, push_extension, validate_fixed_value, validate_required
+    build_resource, get_extension_value, is_extension, push_extension, validate_extension_url, validate_fixed_value, \
+    validate_required
 )
 
 
@@ -71,8 +72,7 @@ class NationalityExtension:
 
     def set_code(self, value: "Extension | CodeableConcept") -> "NationalityExtension":
         if is_extension(value):
-            if _get_key(value, "url") != "code":
-                raise ValueError(f"Expected extension url 'code', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "code")
             push_extension(self._resource, value)
         else:
             assert not isinstance(value, Extension)
@@ -95,8 +95,7 @@ class NationalityExtension:
 
     def set_period(self, value: "Extension | Period") -> "NationalityExtension":
         if is_extension(value):
-            if _get_key(value, "url") != "period":
-                raise ValueError(f"Expected extension url 'period', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "period")
             push_extension(self._resource, value)
         else:
             assert not isinstance(value, Extension)
