@@ -189,7 +189,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.generateDisclaimer();
         const models = this.collectAndImportAllModels(packages);
         this.generateModelRebuilds(models);
-        this.importProfileRegistrations(packages);
     }
 
     private collectPackages(tsIndex: TypeSchemaIndex): TypeSchemaPackages {
@@ -220,18 +219,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private generateModelRebuilds(models: readonly string[]): void {
         for (const modelName of [...models].sort()) {
             this.line(`${modelName}.model_rebuild()`);
-        }
-    }
-
-    private importProfileRegistrations(packages: TypeSchemaPackages): void {
-        const packageNames = Object.entries(packages)
-            .filter(([, { profiles }]) => profiles.length > 0)
-            .map(([name]) => name);
-        if (packageNames.length === 0) return;
-        this.line();
-        for (const packageName of packageNames) {
-            const profilesPackage = `${pyFhirPackageByName(this.opts.rootPackageName, packageName)}.profiles`;
-            this.line(`import ${profilesPackage}  # noqa: F401`);
         }
     }
 

@@ -81,7 +81,3 @@ Signature.model_rebuild()
 Timing.model_rebuild()
 TriggerDefinition.model_rebuild()
 UsageContext.model_rebuild()
-
-import fhir_types.hl7_fhir_r4_core.profiles  # noqa: F401
-import fhir_types.hl7_fhir_us_core.profiles  # noqa: F401
-import fhir_types.example_folder_structures.profiles  # noqa: F401
