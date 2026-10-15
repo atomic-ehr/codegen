@@ -38,7 +38,7 @@ import {
     typeModuleImports,
 } from "./imports";
 import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
-import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
+import { collectProfileClassNames, generateProfileIndex, generateProfileModule } from "./profile";
 import { pyProfileModuleName } from "./profile-naming";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
@@ -183,7 +183,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                                 const moduleName = pyProfileModuleName(tsIndex, profile);
                                 this.cat(`${moduleName}.py`, () => generateProfileModule(this, tsIndex, profile));
                             }
-                            this.cat("__init__.py", () => generateProfilesInit(this, tsIndex, profiles));
+                            this.cat("__init__.py", () => generateProfileIndex(this, tsIndex, profiles));
                         });
                     }
                 });

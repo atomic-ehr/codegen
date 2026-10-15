@@ -124,6 +124,8 @@ export const profileModuleImports = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ): ProfileImports => {
+    w.line("from __future__ import annotations");
+    w.line();
     const className = pyProfileClassName(snapshot);
     const render = createImportRenderer(w);
     const tImports = moduleImports(w, render, "typing");

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { generateProfileClass, generateProfileImports } from "@root/api/writer-generator/typescript/profile";
+import { generateProfileModule } from "@root/api/writer-generator/typescript/profile";
 import { TypeScript } from "@root/api/writer-generator/typescript/writer";
 import type {
     CanonicalUrl,
@@ -69,8 +69,7 @@ const generateProfile = (
     const tsIndex = mkTypeSchemaIndex(schemas, { logger });
     w.cd("/", () => {
         w.cat(`${snapshot.identifier.name}Profile.ts`, () => {
-            const imports = generateProfileImports(w, tsIndex, snapshot);
-            generateProfileClass(w, imports, tsIndex, snapshot);
+            generateProfileModule(w, tsIndex, snapshot);
         });
     });
     const generated = w.writtenFiles()[0]?.content ?? "";
