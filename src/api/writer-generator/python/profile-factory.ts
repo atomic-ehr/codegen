@@ -11,7 +11,7 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { pyLiteral, pyReferenceTypeParam, pyTypeFromIdentifier } from "./naming-utils";
+import { pyLiteral, pyReferenceTypeParam, pyTypeFromIdentifier, type TypingImports } from "./naming-utils";
 import { pyFieldName, pySliceStaticName, pySnakeName } from "./profile-naming";
 import { collectRequiredSliceNames } from "./profile-slices";
 import type { Python } from "./writer";
@@ -43,22 +43,24 @@ export type ProfileFactoryInfo = {
  * union instead of a bare `str` (open value sets stay `str`, since
  * `Literal[...] | str` collapses to `str`). */
 export const fieldPyType = (
+    tImports: TypingImports,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef?: TypeSchemaIndex["findLastSpecializationByIdentifier"],
-    tsIndex?: TypeSchemaIndex,
+    tsIndex: TypeSchemaIndex,
 ): string => {
     // A nested backbone element is its own generated class (ObservationComponent,
     // ProvenanceAgent), so it must not be resolved: the last specialization of a
     // nested identifier is BackboneElement, which is what the model field is
     // declared *against*, not what it accepts.
-    const resolved = resolveRef && !isNestedIdentifier(field.type) ? resolveRef(field.type) : field.type;
+    const resolved = isNestedIdentifier(field.type)
+        ? field.type
+        : tsIndex.findLastSpecializationByIdentifier(field.type);
     let base = pyTypeFromIdentifier(resolved);
     if (base === "str" && field.enum && !field.enum.isOpen && field.enum.values.length > 0) {
-        const literal = `Literal[${field.enum.values.map((v) => JSON.stringify(v)).join(", ")}]`;
+        const literal = `${tImports.use("Literal")}[${field.enum.values.map((v) => JSON.stringify(v)).join(", ")}]`;
         return field.array ? `list[${literal}]` : literal;
     }
-    if (base === "Reference" && tsIndex) {
-        const typeParam = pyReferenceTypeParam(undefined, field, tsIndex);
+    if (base === "Reference") {
+        const typeParam = pyReferenceTypeParam(tImports, field, tsIndex);
         if (typeParam) base = `Reference[${typeParam}]`;
     }
     return field.array ? `list[${base}]` : base;
@@ -78,6 +80,7 @@ export const pyReferenceComment = (field: RegularField | ChoiceFieldInstance): s
 
 /** Try to promote a required single-choice declaration to a direct param. */
 const tryPromoteChoice = (
+    tImports: TypingImports,
     field: Field,
     fields: Record<string, Field>,
     params: ProfileFactoryInfo["params"],
@@ -89,7 +92,7 @@ const tryPromoteChoice = (
     if (!choiceName) return;
     const choiceField = fields[choiceName];
     if (!choiceField || !isChoiceInstanceField(choiceField)) return;
-    const pyType = pyChoiceInstanceType(choiceField, tsIndex);
+    const pyType = pyChoiceInstanceType(tImports, choiceField, tsIndex);
     params.push({
         name: choiceName,
         pyType,
@@ -100,10 +103,14 @@ const tryPromoteChoice = (
 };
 
 /** Python type for a choice variant, with Reference targets parametrized. */
-const pyChoiceInstanceType = (field: ChoiceFieldInstance, tsIndex: TypeSchemaIndex): string => {
+const pyChoiceInstanceType = (
+    tImports: TypingImports,
+    field: ChoiceFieldInstance,
+    tsIndex: TypeSchemaIndex,
+): string => {
     let base = pyTypeFromIdentifier(field.type);
     if (base === "Reference") {
-        const typeParam = pyReferenceTypeParam(undefined, field, tsIndex);
+        const typeParam = pyReferenceTypeParam(tImports, field, tsIndex);
         if (typeParam) base = `Reference[${typeParam}]`;
     }
     return base + (field.array ? "[]" : "");
@@ -111,9 +118,9 @@ const pyChoiceInstanceType = (field: ChoiceFieldInstance, tsIndex: TypeSchemaInd
 
 /** Include base-type required fields not already covered by profile constraints. */
 const collectBaseRequiredParams = (
+    tImports: TypingImports,
     tsIndex: TypeSchemaIndex,
     flatProfile: SnapshotProfileTypeSchema,
-    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     params: ProfileFactoryInfo["params"],
     coveredNames: string[],
 ): void => {
@@ -126,13 +133,14 @@ const collectBaseRequiredParams = (
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) continue;
         if (isNotChoiceDeclarationField(field) && field.type) {
-            const pyType = fieldPyType(field, resolveRef, tsIndex);
+            const pyType = fieldPyType(tImports, field, tsIndex);
             params.push({ name, pyType, typeId: field.type, refComment: pyReferenceComment(field) });
         }
     }
 };
 
 export const collectProfileFactoryInfo = (
+    tImports: TypingImports,
     tsIndex: TypeSchemaIndex,
     flatProfile: SnapshotProfileTypeSchema,
 ): ProfileFactoryInfo => {
@@ -143,7 +151,6 @@ export const collectProfileFactoryInfo = (
     const pendingChoiceInstances: [string, ChoiceFieldInstance][] = [];
     const fields = flatProfile.fields;
     const promotedChoices = new Set<string>();
-    const resolveRef = tsIndex.findLastSpecializationByIdentifier;
     // Maps each choice instance name to all sibling instance names (from the same declaration).
     const choiceGroups: Record<string, string[]> = {};
     for (const [, field] of Object.entries(fields)) {
@@ -164,7 +171,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (isChoiceDeclarationField(field)) {
-            tryPromoteChoice(field, fields, params, promotedChoices, tsIndex);
+            tryPromoteChoice(tImports, field, fields, params, promotedChoices, tsIndex);
             continue;
         }
 
@@ -172,7 +179,7 @@ export const collectProfileFactoryInfo = (
             const value = pyLiteral(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             if (isNotChoiceDeclarationField(field) && field.type) {
-                const pyType = fieldPyType(field, resolveRef, tsIndex);
+                const pyType = fieldPyType(tImports, field, tsIndex);
                 autoAccessors.push({ name, pyType, typeId: field.type, refComment: pyReferenceComment(field) });
             }
             continue;
@@ -182,7 +189,7 @@ export const collectProfileFactoryInfo = (
             const sliceNames = collectRequiredSliceNames(field, flatProfile.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
-                    const pyType = fieldPyType(field, resolveRef, tsIndex);
+                    const pyType = fieldPyType(tImports, field, tsIndex);
                     sliceAutoFields.push({ name, pyType, typeId: field.type, sliceNames });
                     autoAccessors.push({ name, pyType, typeId: field.type, refComment: pyReferenceComment(field) });
                 }
@@ -191,12 +198,12 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.required) {
-            const pyType = fieldPyType(field, resolveRef, tsIndex);
+            const pyType = fieldPyType(tImports, field, tsIndex);
             params.push({ name, pyType, typeId: field.type, refComment: pyReferenceComment(field) });
         }
     }
 
-    collectBaseRequiredParams(tsIndex, flatProfile, resolveRef, params, [
+    collectBaseRequiredParams(tImports, tsIndex, flatProfile, params, [
         ...autoFields.map((f) => f.name),
         ...sliceAutoFields.map((f) => f.name),
         ...params.map((f) => f.name),
@@ -206,7 +213,7 @@ export const collectProfileFactoryInfo = (
     const choiceAccessors: ProfileFactoryInfo["accessors"] = [];
     for (const [name, field] of pendingChoiceInstances) {
         if (promotedChoices.has(name)) continue;
-        const pyType = pyChoiceInstanceType(field, tsIndex);
+        const pyType = pyChoiceInstanceType(tImports, field, tsIndex);
         const choiceSiblings = (choiceGroups[name] ?? []).filter((s) => s !== name && !promotedChoices.has(s));
         choiceAccessors.push({
             name,

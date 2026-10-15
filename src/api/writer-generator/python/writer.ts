@@ -30,7 +30,7 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
-import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
+import { pyReferenceFamilyName, pyReferenceTypeParam, type TypingImports } from "./naming-utils";
 import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
 import { pyProfileModuleName } from "./profile-naming";
 
@@ -71,16 +71,16 @@ const collectResourceGenericTypeVars = (
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
 };
 
-const pyEnumType = (typing: SectionHandle<never, string>, enumDef: EnumDefinition): string => {
+const pyEnumType = (tImports: TypingImports, enumDef: EnumDefinition): string => {
     const values = enumDef.values.map((e) => `"${e}"`).join(", ");
-    const literal = typing.use("Literal");
+    const literal = tImports.use("Literal");
     return enumDef.isOpen ? `${literal}[${values}] | str` : `${literal}[${values}]`;
 };
 
 /** Import sections of a type module (`base.py` or a resource module): one per imported module, plus `types` for FHIR types. */
 type TypeModuleImports = {
     pydantic: SectionHandle<never, string>;
-    typing: SectionHandle<never, string>;
+    typing: TypingImports;
     typingExtensions: SectionHandle<never, string>;
     fhirpy: SectionHandle<never, string>;
     types: SectionHandle<never, TypeIdentifier>;

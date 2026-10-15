@@ -4,6 +4,8 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
 import { isNestedIdentifier, isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
 
+export type TypingImports = SectionHandle<never, string>;
+
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
     instant: "str",
@@ -152,7 +154,7 @@ export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
  *  (e.g. `Resource`) — a family admits any resource, so the bare `Reference`
  *  (defaulting to `str`) is the honest annotation. */
 export const pyReferenceTypeParam = (
-    typing: SectionHandle<never, string> | undefined,
+    tImports: TypingImports,
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
@@ -160,8 +162,7 @@ export const pyReferenceTypeParam = (
     const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
     if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
-    // Type modules import `Literal` through their section; profile modules import it themselves.
-    const literal = typing?.use("Literal") ?? "Literal";
+    const literal = tImports.use("Literal");
     return `${literal}[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
 };
 

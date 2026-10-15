@@ -8,6 +8,7 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import type { TypingImports } from "./naming-utils";
 import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName } from "./naming-utils";
 import { type ExtensionProfileInfo, generateExtensionMethods, resolveExtensionProfile } from "./profile-extensions";
 import {
@@ -198,23 +199,11 @@ const collectExtProfileImports = (
 // Import emission
 // ---------------------------------------------------------------------------
 
-const emitModuleImports = (
-    w: Python,
-    flatProfile: SnapshotProfileTypeSchema,
-    isResourceBase: boolean,
-    extensions: ProfileExtension[],
+const collectTypingNames = (
     factoryInfo: ProfileFactoryInfo,
-    typeImports: Record<string, Set<string>>,
-    extProfileImports: Record<string, ExtensionProfileInfo>,
-    helperImports: string[],
     sliceDefs: SliceDef[],
-): void => {
-    w.line("from __future__ import annotations");
-    w.line();
-
-    const usesLiteral = [...factoryInfo.params, ...factoryInfo.accessors, ...factoryInfo.sliceAutoFields].some((f) =>
-        f.pyType.includes("Literal["),
-    );
+    extensions: ProfileExtension[],
+): string[] => {
     // Non-type-discriminated slice getters emit `@overload`s with a `Literal["raw"]` mode.
     const hasNonTypedSlice = sliceDefs.some((s) => !s.isTypeDiscriminated);
     const needsOverload = extensions.length > 0 || hasNonTypedSlice;
@@ -230,13 +219,20 @@ const emitModuleImports = (
     const typingNames: string[] = [];
     if (needsAny) typingNames.push("Any");
     if (needsCast) typingNames.push("cast");
-    if (needsOverload || usesLiteral) typingNames.push("Literal");
+    if (needsOverload) typingNames.push("Literal");
     if (needsOverload) typingNames.push("overload");
-    if (typingNames.length > 0) {
-        w.pyImportFrom("typing", ...[...typingNames].sort());
-        w.line();
-    }
+    return typingNames;
+};
 
+const emitModuleImports = (
+    w: Python,
+    flatProfile: SnapshotProfileTypeSchema,
+    isResourceBase: boolean,
+    extensions: ProfileExtension[],
+    typeImports: Record<string, Set<string>>,
+    extProfileImports: Record<string, ExtensionProfileInfo>,
+    helperImports: string[],
+): void => {
     const baseTypeName = flatProfile.base.name;
     const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
     if (isResourceBase) {
@@ -387,11 +383,25 @@ export const generateProfileModule = (
     flatProfile: SnapshotProfileTypeSchema,
 ): void => {
     w.generateDisclaimer();
+    w.line("from __future__ import annotations");
+    w.line();
+    const tImports: TypingImports = w.section<never, string>({
+        name: (key) => key,
+        render: (_definitions, usages) => {
+            const names = new Set([
+                ...typingNames,
+                ...usages.map(({ key, local }) => (key === local ? key : `${key} as ${local}`)),
+            ]);
+            if (names.size === 0) return;
+            w.pyImportFrom("typing", ...[...names].sort());
+            w.line();
+        },
+    });
     const className = pyProfileClassName(flatProfile);
     const baseTypeName = flatProfile.base.name;
     const isResourceBase = isResourceIdentifier(flatProfile.base);
     const canonicalUrl = flatProfile.identifier.url ?? "";
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
+    const factoryInfo = collectProfileFactoryInfo(tImports, tsIndex, flatProfile);
     const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
     const typedResources = [
         ...new Set(
@@ -404,6 +414,7 @@ export const generateProfileModule = (
     const annotatedBaseTypeName =
         typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Resource]` : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
+    const typingNames = collectTypingNames(factoryInfo, sliceDefs, extensions);
     const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(flatProfile.fields));
     const errorLines: string[] = [];
     const warningLines: string[] = [];
@@ -428,17 +439,7 @@ export const generateProfileModule = (
         (typeImports[resourceModule] ??= new Set<string>()).add("Resource");
     }
 
-    emitModuleImports(
-        w,
-        flatProfile,
-        isResourceBase,
-        extensions,
-        factoryInfo,
-        typeImports,
-        extProfileImports,
-        helperImports,
-        sliceDefs,
-    );
+    emitModuleImports(w, flatProfile, isResourceBase, extensions, typeImports, extProfileImports, helperImports);
 
     w.line(`class ${className}:`);
     w.indentBlock(() => {
