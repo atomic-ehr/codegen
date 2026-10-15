@@ -15,8 +15,8 @@ from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeed
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from fhir_types.profile_helpers import (
-    _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \
-    is_record, push_extension, validate_must_support, validate_required
+    build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, is_record, \
+    push_extension, validate_extension_url, validate_must_support, validate_required
 )
 
 
@@ -109,8 +109,7 @@ class UscorePatientProfile:
         if isinstance(value, UscoreRaceExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
-            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race":
-                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
             push_extension(self._resource, value)
         else:
             assert is_record(value)
@@ -153,8 +152,7 @@ class UscorePatientProfile:
         if isinstance(value, UscoreEthnicityExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
-            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity":
-                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
             push_extension(self._resource, value)
         else:
             assert is_record(value)
@@ -197,8 +195,7 @@ class UscorePatientProfile:
         if isinstance(value, UscoreTribalAffiliationExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
-            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation":
-                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
             push_extension(self._resource, value)
         else:
             assert is_record(value)
@@ -232,8 +229,7 @@ class UscorePatientProfile:
         if isinstance(value, UscoreIndividualSexExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
-            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex":
-                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")
             push_extension(self._resource, value)
         else:
             assert not isinstance(value, Extension)
@@ -262,8 +258,7 @@ class UscorePatientProfile:
         if isinstance(value, UscoreInterpreterNeededExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
-            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed":
-                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
             push_extension(self._resource, value)
         else:
             assert not isinstance(value, Extension)

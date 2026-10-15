@@ -162,6 +162,13 @@ def is_extension(value: object, url: str | None = None) -> bool:
     return url is None or bool(ext_url == url)
 
 
+def validate_extension_url(value: object, expected_url: str) -> None:
+    """Raise when a raw extension's URL does not match the expected URL."""
+    actual_url = _get_key(value, "url")
+    if actual_url != expected_url:
+        raise ValueError(f"Expected extension url '{expected_url}', got {actual_url!r}")
+
+
 def get_extension_value(ext: object | None, field: str) -> Any:
     """Read a single typed value field from an Extension dict or Pydantic model,
     returning ``None`` when the extension itself is absent or the field is not set."""

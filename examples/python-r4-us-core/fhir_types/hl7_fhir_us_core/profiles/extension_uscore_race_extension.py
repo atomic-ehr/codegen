@@ -9,8 +9,8 @@ from typing import Any, Literal, cast, overload
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.profile_helpers import (
-    _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \
-    is_extension, is_record, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, \
+    apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, is_extension, \
+    is_record, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_extension_url, \
     validate_fixed_value, validate_required, validate_slice_cardinality, validate_slice_fields, wrap_slice_choice
 )
 
@@ -91,8 +91,7 @@ class UscoreRaceExtension:
 
     def set_omb_category(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
-            if _get_key(value, "url") != "ombCategory":
-                raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "ombCategory")
             push_extension(self._resource, value)
         else:
             assert is_record(value)
@@ -115,8 +114,7 @@ class UscoreRaceExtension:
 
     def set_detailed(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
-            if _get_key(value, "url") != "detailed":
-                raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "detailed")
             push_extension(self._resource, value)
         else:
             assert is_record(value)
@@ -139,8 +137,7 @@ class UscoreRaceExtension:
 
     def set_text(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
-            if _get_key(value, "url") != "text":
-                raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
+            validate_extension_url(value, "text")
             push_extension(self._resource, value)
         else:
             assert is_record(value)

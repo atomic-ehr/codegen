@@ -452,12 +452,17 @@ def test_set_race_accepts_raw_extension() -> None:
     assert profile.get_race() is not None
 
 
-def test_set_race_throws_on_wrong_extension_url() -> None:
+@pytest.mark.parametrize("as_dict", [False, True])
+def test_set_race_throws_on_wrong_extension_url(as_dict: bool) -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
-    wrong_extension = Extension(url="http://example.com/wrong-url", extension=[])
+    wrong_extension = (
+        {"url": "http://example.com/wrong-url", "extension": []}
+        if as_dict
+        else Extension(url="http://example.com/wrong-url", extension=[])
+    )
     with pytest.raises(ValueError, match="Expected extension url"):
         profile.set_race(wrong_extension)
 

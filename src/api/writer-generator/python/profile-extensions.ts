@@ -191,10 +191,7 @@ const emitSetterDispatchPreamble = (
     const keyword = startedChain ? "elif" : "if";
     w.line(`${keyword} is_extension(value):`);
     w.indentBlock(() => {
-        w.line(`if _get_key(value, "url") != ${JSON.stringify(ext.url)}:`);
-        w.indentBlock(() =>
-            w.line(`raise ValueError(f"Expected extension url '${ext.url}', got {_get_key(value, 'url')!r}")`),
-        );
+        w.line(`validate_extension_url(value, ${JSON.stringify(ext.url)})`);
         emitExtPush(w, targetPath, "value");
     });
 };
