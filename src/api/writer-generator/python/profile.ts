@@ -14,13 +14,7 @@ import {
     pyProfileModuleName,
     resolveProfileMethodBaseNames,
 } from "./profile-naming";
-import {
-    collectSliceDefs,
-    generateSliceGetters,
-    generateSliceSetters,
-    generateStaticSliceFields,
-    type SliceDef,
-} from "./profile-slices";
+import { collectSliceDefs, generateSliceMethods, generateStaticSliceFields, type SliceDef } from "./profile-slices";
 import { collectValidateBody } from "./profile-validation";
 import type { Python } from "./writer";
 
@@ -77,11 +71,7 @@ const generateProfileClass = (
         generateFactoryMethods(w, imports, tsIndex, snapshot, factoryInfo, sliceDefs);
         generateFieldAccessors(w, imports, snapshot, factoryInfo, methodNames);
         generateExtensionMethods(w, imports, tsIndex, snapshot, methodNames);
-
-        if (sliceDefs.length > 0) {
-            generateSliceGetters(w, imports, sliceDefs, methodNames);
-            generateSliceSetters(w, imports, className, sliceDefs, methodNames);
-        }
+        generateSliceMethods(w, imports, snapshot, sliceDefs, methodNames);
 
         const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
         generateValidateMethod(w, className, errorLines, warningLines);

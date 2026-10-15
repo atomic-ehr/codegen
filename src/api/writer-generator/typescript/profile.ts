@@ -13,10 +13,6 @@ import {
     resolveProfileMethodBaseNames,
     tsProfileClassName,
     tsProfileModuleName,
-    tsResourceName,
-    tsSliceFlatAllTypeName,
-    tsSliceFlatTypeName,
-    tsSliceStaticName,
 } from "./name";
 import {
     generateExtensionExtractedTypes,
@@ -31,101 +27,15 @@ import {
     generateRawType,
     type ProfileFactoryInfo,
 } from "./profile-factory";
-import { collectSliceDefs, generateSliceGetters, generateSliceSetters, type SliceDef } from "./profile-slices";
+import {
+    collectSliceDefs,
+    generateSliceInputTypes,
+    generateSliceMethods,
+    generateStaticSliceFields,
+    type SliceDef,
+} from "./profile-slices";
 import { generateValidateMethod } from "./profile-validation";
-import { tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
-
-const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
-    for (const sliceDef of sliceDefs) {
-        const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-        const json = JSON.stringify(sliceDef.match);
-        const prefix = `private static readonly ${staticName}: Record<string, unknown> = `;
-        if (prefix.length + json.length <= (w.opts.lineWidth ?? 120)) {
-            w.lineSM(`${prefix}${json}`);
-        } else {
-            w.curlyBlock([prefix.trimEnd()], () => {
-                for (const [key, value] of Object.entries(sliceDef.match)) {
-                    w.line(`${JSON.stringify(key)}: ${JSON.stringify(value)},`);
-                }
-            });
-        }
-    }
-    if (sliceDefs.length > 0) w.line();
-};
-
-/** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
-const valueToTypeLiteral = (value: unknown): string => {
-    if (value === null || value === undefined) return "undefined";
-    if (typeof value === "string") return JSON.stringify(value);
-    if (typeof value === "number" || typeof value === "boolean") return String(value);
-    if (Array.isArray(value)) return `[${value.map(valueToTypeLiteral).join(", ")}]`;
-    if (typeof value === "object") {
-        const entries = Object.entries(value as Record<string, unknown>)
-            .map(([k, v]) => `${k}: ${valueToTypeLiteral(v)}`)
-            .join("; ");
-        return `{ ${entries} }`;
-    }
-    return "unknown";
-};
-
-const generateSliceInputTypes = (
-    w: TypeScript,
-    imports: ProfileImports,
-    snapshot: SnapshotProfileTypeSchema,
-    sliceDefs: SliceDef[],
-) => {
-    if (sliceDefs.length === 0) return;
-    const tsProfileName = tsResourceName(snapshot.identifier);
-    for (const sliceDef of sliceDefs) {
-        const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchFields = sliceDef.typeDiscriminator ? [] : Object.keys(sliceDef.match);
-        const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
-        if (sliceDef.constrainedChoice) {
-            const cc = sliceDef.constrainedChoice;
-            allExcluded.push(cc.choiceBase);
-            for (const name of cc.allChoiceNames) {
-                if (!allExcluded.includes(name)) allExcluded.push(name);
-            }
-        }
-        const excludedNames = allExcluded.map((name) => JSON.stringify(name));
-        const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
-        const baseType = sliceDef.typedBaseType;
-        let inputTypeExpr = baseType;
-        if (excludedNames.length > 0) {
-            inputTypeExpr = `Omit<${inputTypeExpr}, ${excludedNames.join(" | ")}>`;
-        }
-        if (requiredNames.length > 0) {
-            inputTypeExpr = `${inputTypeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
-        }
-        if (sliceDef.constrainedChoice) {
-            inputTypeExpr = `${inputTypeExpr} & ${tsTypeFromIdentifier(imports.types, sliceDef.constrainedChoice.variantType)}`;
-        }
-        // Input type — setter parameter, no discriminator fields
-        w.lineSM(`export type ${inputTypeName} = ${inputTypeExpr}`);
-        // Flat type — getter return, includes readonly discriminator values as literal types
-        const safeMatchEntries =
-            matchFields.length > 0 && !sliceDef.constrainedChoice
-                ? matchFields
-                      .filter((key) => {
-                          const v = sliceDef.match[key];
-                          return Array.isArray(v) || typeof v !== "object" || v === null;
-                      })
-                      .map((key) => ({ key, typeLiteral: valueToTypeLiteral(sliceDef.match[key]) }))
-                : [];
-        if (safeMatchEntries.length > 0) {
-            w.curlyBlock([`export type ${flatTypeName} = ${inputTypeName} &`], () => {
-                for (const entry of safeMatchEntries) {
-                    w.lineSM(`readonly ${entry.key}: ${entry.typeLiteral}`);
-                }
-            });
-        } else {
-            w.lineSM(`export type ${flatTypeName} = ${inputTypeName}`);
-        }
-        w.line();
-    }
-};
 
 const generateProfileClass = (
     w: TypeScript,
@@ -161,8 +71,7 @@ const generateProfileClass = (
         generateExtensionMethods(w, imports, tsIndex, snapshot, methodNames);
 
         w.line("// Slices");
-        generateSliceSetters(w, imports, sliceDefs, snapshot, methodNames);
-        generateSliceGetters(w, imports, sliceDefs, snapshot, methodNames);
+        generateSliceMethods(w, imports, snapshot, sliceDefs, methodNames);
 
         w.line("// Validation");
         generateValidateMethod(w, sections, tsIndex, snapshot);

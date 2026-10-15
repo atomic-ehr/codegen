@@ -374,7 +374,7 @@ const generateApplyMethod = (w: TypeScript, imports: ProfileImports, ctx: Factor
             }
         }
         for (const f of factoryInfo.sliceAutoFields) {
-            const matchRefs = f.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}SliceMatch`);
+            const matchRefs = f.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}`);
             w.line(`resource.${f.name} = ${imports.helpers.use("ensureSliceDefaults")}(`);
             w.indentBlock(() => {
                 w.line(`[...(resource.${f.name} ?? [])],`);
@@ -463,9 +463,7 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
             w.lineSM(`const resolvedExtensions = ${className}.resolveInput(${inputExpression})`);
             for (const field of factoryInfo.sliceAutoFields) {
                 if (field.name === "extension") continue;
-                const matchRefs = field.sliceNames.map(
-                    (sliceName) => `${className}.${tsSliceStaticName(sliceName)}SliceMatch`,
-                );
+                const matchRefs = field.sliceNames.map((sliceName) => `${className}.${tsSliceStaticName(sliceName)}`);
                 w.line(`const ${field.name}WithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${field.name} ?? [])],`);
@@ -477,7 +475,7 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
             }
             const extSliceField = factoryInfo.sliceAutoFields.find((f) => f.name === "extension");
             if (extSliceField) {
-                const matchRefs = extSliceField.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}SliceMatch`);
+                const matchRefs = extSliceField.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}`);
                 w.line(`const extensionWithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line("resolvedExtensions,");
@@ -514,7 +512,7 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
         const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${baseTypeName}`], () => {
             for (const f of factoryInfo.sliceAutoFields) {
-                const matchRefs = f.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}SliceMatch`);
+                const matchRefs = f.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}`);
                 w.line(`const ${f.name}WithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${f.name} ?? [])],`);
