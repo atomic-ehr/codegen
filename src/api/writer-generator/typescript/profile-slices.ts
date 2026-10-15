@@ -11,6 +11,7 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import type { ProfileImports } from "./imports";
 import {
     type ProfileMethodBaseNames,
     tsFieldName,
@@ -20,7 +21,6 @@ import {
     tsSliceFlatTypeName,
     tsSliceStaticName,
 } from "./name";
-import type { ProfileImports } from "./profile";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 

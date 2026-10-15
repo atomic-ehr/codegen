@@ -33,27 +33,6 @@ import { collectValidateBody } from "./profile-validation";
 import type { Python } from "./writer";
 
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type ProfileGenContext = {
-    w: Python;
-    imports: ProfileImports;
-    tsIndex: TypeSchemaIndex;
-    snapshot: SnapshotProfileTypeSchema;
-    baseTypeName: string;
-    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
-    annotatedBaseTypeName: string;
-    className: string;
-    isResourceBase: boolean;
-    factoryInfo: ProfileFactoryInfo;
-    sliceDefs: SliceDef[];
-    methodNames: ProfileMethodBaseNames;
-    errorLines: string[];
-    warningLines: string[];
-};
-
-// ---------------------------------------------------------------------------
 // Class method generators
 // ---------------------------------------------------------------------------
 
@@ -132,70 +111,22 @@ const generateValidateMethod = (w: Python, className: string, errorLines: string
 };
 
 // ---------------------------------------------------------------------------
-// Class body + module
+// Profile class
 // ---------------------------------------------------------------------------
 
-const generateClassBody = (ctx: ProfileGenContext): void => {
-    const {
-        w,
-        imports,
-        tsIndex,
-        snapshot,
-        baseTypeName,
-        annotatedBaseTypeName,
-        className,
-        isResourceBase,
-        errorLines,
-        warningLines,
-        factoryInfo,
-        sliceDefs,
-        methodNames,
-    } = ctx;
-    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
-
-    w.line(`def __init__(self, resource: ${annotatedBaseTypeName}) -> None:`);
-    w.indentBlock(() => w.line("self._resource = resource"));
-    w.line();
-
-    generateFromResourceMethod(w, annotatedBaseTypeName, className, isResourceBase);
-    generateApplyMethod(w, imports, annotatedBaseTypeName, className, isResourceBase);
-    generateCreateResource(w, imports, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
-    w.line();
-    generateCreateMethod(w, className, hasParams, factoryInfo);
-
-    w.line(`def to_resource(self) -> ${annotatedBaseTypeName}:`);
-    w.indentBlock(() => w.line("return self._resource"));
-    w.line();
-
-    if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
-        generateFieldAccessors(w, imports, className, factoryInfo, methodNames.allBaseNames);
-
-    const extensions = snapshot.extensions ?? [];
-    if (extensions.length > 0) generateExtensionMethods(w, imports, tsIndex, snapshot, className, methodNames);
-
-    if (sliceDefs.length > 0) {
-        generateSliceGetters(w, imports, sliceDefs, methodNames);
-        generateSliceSetters(w, imports, className, sliceDefs, methodNames);
-    }
-
-    generateValidateMethod(w, className, errorLines, warningLines);
-};
-
-export const generateProfileModule = (
+const generateProfileClass = (
     w: Python,
+    imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+    factoryInfo: ProfileFactoryInfo,
+    methodNames: ProfileMethodBaseNames,
 ): void => {
-    w.generateDisclaimer();
-    w.line("from __future__ import annotations");
-    w.line();
-    const imports = profileModuleImports(w, tsIndex, snapshot);
     const className = pyProfileClassName(snapshot);
     const baseTypeName = profilePyType(imports, snapshot.base);
     const isResourceBase = isResourceIdentifier(snapshot.base);
     const canonicalUrl = snapshot.identifier.url ?? "";
-    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
-    const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
     const typedResources = [
         ...new Set(
             sliceDefs
@@ -204,12 +135,12 @@ export const generateProfileModule = (
                 .filter((resource): resource is string => resource !== undefined),
         ),
     ];
+    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
     const annotatedBaseTypeName =
         typedResources.length > 0
             ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, snapshot, "Resource"))}]`
             : baseTypeName;
-    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
-    const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
+    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
 
     w.line(`class ${className}:`);
     w.indentBlock(() => {
@@ -227,21 +158,34 @@ export const generateProfileModule = (
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, imports, sliceDefs);
-        generateClassBody({
-            w,
-            imports,
-            tsIndex,
-            snapshot,
-            baseTypeName,
-            annotatedBaseTypeName,
-            className,
-            isResourceBase,
-            factoryInfo,
-            sliceDefs,
-            methodNames,
-            errorLines,
-            warningLines,
-        });
+
+        w.line(`def __init__(self, resource: ${annotatedBaseTypeName}) -> None:`);
+        w.indentBlock(() => w.line("self._resource = resource"));
+        w.line();
+
+        generateFromResourceMethod(w, annotatedBaseTypeName, className, isResourceBase);
+        generateApplyMethod(w, imports, annotatedBaseTypeName, className, isResourceBase);
+        generateCreateResource(w, imports, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
+        w.line();
+        generateCreateMethod(w, className, hasParams, factoryInfo);
+
+        w.line(`def to_resource(self) -> ${annotatedBaseTypeName}:`);
+        w.indentBlock(() => w.line("return self._resource"));
+        w.line();
+
+        if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
+            generateFieldAccessors(w, imports, className, factoryInfo, methodNames.allBaseNames);
+
+        const extensions = snapshot.extensions ?? [];
+        if (extensions.length > 0) generateExtensionMethods(w, imports, tsIndex, snapshot, className, methodNames);
+
+        if (sliceDefs.length > 0) {
+            generateSliceGetters(w, imports, sliceDefs, methodNames);
+            generateSliceSetters(w, imports, className, sliceDefs, methodNames);
+        }
+
+        const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
+        generateValidateMethod(w, className, errorLines, warningLines);
     });
     w.line();
 };
@@ -250,7 +194,20 @@ export const generateProfileModule = (
 // Entry points
 // ---------------------------------------------------------------------------
 
-export const generateProfilesInit = (
+export const generateProfileModule = (
+    w: Python,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+): void => {
+    w.generateDisclaimer();
+    const imports = profileModuleImports(w, tsIndex, snapshot);
+    const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
+    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
+    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
+    generateProfileClass(w, imports, tsIndex, snapshot, sliceDefs, factoryInfo, methodNames);
+};
+
+export const generateProfileIndex = (
     w: Python,
     tsIndex: TypeSchemaIndex,
     profiles: SnapshotProfileTypeSchema[],

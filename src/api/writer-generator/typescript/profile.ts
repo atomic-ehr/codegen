@@ -1,10 +1,7 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
-import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
+import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
-    type CanonicalUrl,
     isChoiceDeclarationField,
     isChoiceInstanceField,
-    isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isProfileIdentifier,
@@ -17,6 +14,13 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    type ProfileImports,
+    type ProfileSections,
+    profileConstants,
+    profileModuleImports,
+    resolveFhirType,
+} from "./imports";
+import {
     type ProfileMethodBaseNames,
     resolveProfileMethodBaseNames,
     tsCamelCase,
@@ -24,7 +28,6 @@ import {
     tsExtensionFlatTypeName,
     tsExtensionVFlatTypeName,
     tsFieldName,
-    tsNameFromCanonical,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -48,25 +51,6 @@ import {
 import { generateValidateMethod } from "./profile-validation";
 import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
-
-export type ProfileImports = {
-    types: SectionHandle<never, TypeIdentifier>;
-    helpers: SectionHandle<never, string>;
-};
-
-/** Profile imports plus module-level constants: `const.def(name, expr)` declares `const name = expr;`. */
-export type ProfileSections = ProfileImports & { const: SectionHandle<string, string> };
-
-export const resolveFhirType = (
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-    name: string,
-): TypeIdentifier => {
-    const url = `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl;
-    const schema = tsIndex.resolveByUrl(snapshot.identifier.package, url);
-    if (!schema) throw new Error(`'${url}' not found for ${snapshot.identifier.package}.`);
-    return schema.identifier;
-};
 
 type ProfileFactoryInfo = {
     /** `value` builds the expression; the profile's own URL is written as the given `canonicalUrl` expression. */
@@ -286,111 +270,6 @@ const collectBaseRequiredParams = (
         }
     }
     return params;
-};
-
-export const generateProfileIndexFile = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    profiles: SnapshotProfileTypeSchema[],
-) => {
-    if (profiles.length === 0) return;
-    w.cd("profiles", () => {
-        w.cat("index.ts", () => {
-            const exports: Map<string, string> = new Map();
-            for (const snapshot of profiles) {
-                const className = tsProfileClassName(snapshot);
-                if (!exports.has(className)) {
-                    exports.set(className, tsProfileModuleName(tsIndex, snapshot));
-                }
-            }
-            for (const className of [...exports.keys()].sort()) {
-                w.tsExport(`./${exports.get(className)}`, className);
-            }
-        });
-    });
-};
-
-const profileHelperImports = (w: TypeScript): ProfileImports["helpers"] =>
-    w.section<never, string>({
-        name: (name) => name,
-        render: (_definitions, usages) => {
-            if (usages.length === 0) return;
-            w.tsImport(
-                "../../profile-helpers",
-                ...usages.map(({ key, local }) => (key === local ? key : `${key} as ${local}`)),
-            );
-            w.line();
-        },
-    });
-
-const profileConstants = (w: TypeScript): ProfileSections["const"] =>
-    w.section<string, string>({
-        name: (name) => name,
-        defRender: (name, expr) => w.lineSM(`const ${name} = ${expr}`),
-        render: (definitions) => {
-            if (definitions.length === 0) return;
-            for (const { local, value } of definitions) w.lineSM(`const ${local} = ${value}`);
-            w.line();
-        },
-    });
-
-export const generateProfileImports = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-): ProfileImports => {
-    const terminologyImports = w.enumTerminologyLinks(tsIndex, snapshot).imports;
-    const types = w.section<never, TypeIdentifier>({
-        name: tsResourceName,
-        render: (_definitions, usages) => {
-            const grouped = new Map<string, string[]>();
-            for (const { key, local } of usages) {
-                let modulePath = `../../${w.modulePath(key)}`;
-                if (isNestedIdentifier(key)) {
-                    const path = tsNameFromCanonical(key.url, true);
-                    if (path) modulePath = `../../${w.packageDir(key)}/${pascalCase(path)}`;
-                }
-                const name = tsResourceName(key);
-                const names = grouped.get(modulePath) ?? [];
-                names.push(name === local ? name : `${name} as ${local}`);
-                grouped.set(modulePath, names);
-            }
-            for (const [modulePath, names] of [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-                w.tsImport(modulePath, ...names.sort(), { typeOnly: true });
-            }
-            if (grouped.size > 0) w.line();
-        },
-    });
-
-    // Value imports into emitted terminology modules: enum validations whose
-    // code lists are fully explained by emitted systems reference them instead
-    // of inlining literals.
-    const sortedTerminology = [...terminologyImports.entries()].sort(([left], [right]) => left.localeCompare(right));
-    for (const [moduleDir, symbols] of sortedTerminology) {
-        w.tsImport(`../../${moduleDir}/terminology`, ...[...symbols].sort());
-    }
-    if (sortedTerminology.length > 0) w.line();
-
-    // Import extension profile classes for delegation in setters
-    const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
-    for (const ext of snapshot.extensions ?? []) {
-        if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        if (!info) continue;
-        if (!extProfileImports.has(info.className)) {
-            const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;
-            extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
-        }
-    }
-    for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
-        a.localeCompare(b),
-    )) {
-        const imports = [className, ...(hasFlatInput ? [`type ${className}Flat`] : [])];
-        w.tsImport(modulePath, ...imports);
-    }
-    if (extProfileImports.size > 0) w.line();
-    const helpers = profileHelperImports(w);
-    return { types, helpers };
 };
 
 const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
@@ -896,25 +775,17 @@ const generateFlatInputType = (
     w.line();
 };
 
-export const generateProfileClass = (
+const generateProfileClass = (
     w: TypeScript,
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+    factoryInfo: ProfileFactoryInfo,
+    methodNames: ProfileMethodBaseNames,
 ) => {
     const tsBaseResourceName = tsTypeFromIdentifier(imports.types, snapshot.base);
     const profileClassName = tsProfileClassName(snapshot);
-    const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
-    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
-    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
-
-    generateInlineExtensionInputTypes(w, imports, tsIndex, snapshot);
-    generateExtensionExtractedTypes(w, tsIndex, snapshot, methodNames);
-    generateSliceInputTypes(w, imports, snapshot, sliceDefs);
-
-    generateRawType(w, imports, snapshot, factoryInfo);
-    generateFlatInputType(w, imports, tsIndex, snapshot, factoryInfo);
-
     const sections: ProfileSections = { ...imports, const: profileConstants(w) };
     const canonicalUrl = snapshot.identifier.url;
     sections.const.def("canonicalUrl", JSON.stringify(canonicalUrl));
@@ -948,4 +819,38 @@ export const generateProfileClass = (
         generateValidateMethod(w, sections, tsIndex, snapshot);
     });
     w.line();
+};
+
+export const generateProfileModule = (w: TypeScript, tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema) => {
+    w.generateDisclaimer();
+    const imports = profileModuleImports(w, tsIndex, snapshot);
+    const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
+    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
+    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
+
+    generateInlineExtensionInputTypes(w, imports, tsIndex, snapshot);
+    generateExtensionExtractedTypes(w, tsIndex, snapshot, methodNames);
+    generateSliceInputTypes(w, imports, snapshot, sliceDefs);
+
+    generateRawType(w, imports, snapshot, factoryInfo);
+    generateFlatInputType(w, imports, tsIndex, snapshot, factoryInfo);
+
+    generateProfileClass(w, imports, tsIndex, snapshot, sliceDefs, factoryInfo, methodNames);
+};
+
+export const generateProfileIndex = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    profiles: SnapshotProfileTypeSchema[],
+) => {
+    const exports: Map<string, string> = new Map();
+    for (const snapshot of profiles) {
+        const className = tsProfileClassName(snapshot);
+        if (!exports.has(className)) {
+            exports.set(className, tsProfileModuleName(tsIndex, snapshot));
+        }
+    }
+    for (const className of [...exports.keys()].sort()) {
+        w.tsExport(`./${exports.get(className)}`, className);
+    }
 };

@@ -8,6 +8,7 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import { type ProfileImports, resolveFhirType } from "./imports";
 import {
     type ProfileMethodBaseNames,
     tsCamelCase,
@@ -19,7 +20,7 @@ import {
     tsResourceName,
     tsValueFieldName,
 } from "./name";
-import { collectProfileFactoryInfo, type ProfileImports, resolveFhirType } from "./profile";
+import { collectProfileFactoryInfo } from "./profile";
 import { tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 

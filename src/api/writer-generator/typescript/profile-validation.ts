@@ -8,7 +8,7 @@ import {
     type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { ProfileSections } from "./profile";
+import type { ProfileSections } from "./imports";
 import type { TypeScript } from "./writer";
 
 /**
