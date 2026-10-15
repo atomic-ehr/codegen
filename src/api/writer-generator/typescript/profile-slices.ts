@@ -5,13 +5,14 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isTypeDiscriminated,
+    type NameCandidates,
     type RegularField,
     type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { uppercaseFirstLetter } from "../utils";
 import {
+    type ProfileMethodBaseNames,
     tsFieldName,
     tsProfileClassName,
     tsResourceName,
@@ -22,17 +23,6 @@ import {
 import type { ProfileImports } from "./profile";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
-
-export const sliceAccessorBaseName = (
-    candidates: readonly string[],
-    recommended: string,
-    fieldNames: readonly string[],
-    reservedNames: ReadonlySet<string> = new Set(),
-): string => {
-    const reserved = new Set([...fieldNames.map((name) => uppercaseFirstLetter(name)), ...reservedNames]);
-    if (!reserved.has(recommended)) return recommended;
-    return candidates.find((candidate) => !reserved.has(candidate)) ?? recommended;
-};
 
 /** Collect choice declaration field names from a base type schema */
 const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
@@ -88,8 +78,8 @@ export type SliceDef = {
     /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
     typedBaseType: string;
     sliceName: string;
-    /** Collision-free base name from nameCandidates.recommended (e.g. "VSCat", "SystolicBP") */
-    baseName: string;
+    /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
+    nameCandidates: NameCandidates;
     match: Record<string, unknown>;
     /** Required fields, already filtered (match keys and polymorphic base names removed) */
     required: string[];
@@ -107,7 +97,6 @@ export const collectSliceDefs = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ): SliceDef[] => {
-    const reservedBaseNames = new Set<string>();
     return Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
@@ -134,19 +123,12 @@ export const collectSliceDefs = (
                     if (!resourceSchema) throw new Error(`Resource type '${resourceType}' not found for ${pkgName}.`);
                     typedBaseType = `${baseType}<${imports.types.use(resourceSchema.identifier)}>`;
                 }
-                const baseName = sliceAccessorBaseName(
-                    slice.nameCandidates.candidates,
-                    slice.nameCandidates.recommended,
-                    Object.keys(snapshot.fields),
-                    reservedBaseNames,
-                );
-                reservedBaseNames.add(baseName);
                 return {
                     fieldName,
                     baseType,
                     typedBaseType,
                     sliceName,
-                    baseName,
+                    nameCandidates: slice.nameCandidates,
                     match: slice.match ?? {},
                     required,
                     excluded: slice.excluded ?? [],
@@ -164,11 +146,12 @@ export const generateSliceSetters = (
     imports: ProfileImports,
     sliceDefs: SliceDef[],
     snapshot: SnapshotProfileTypeSchema,
+    methodNames: ProfileMethodBaseNames,
 ) => {
     const profileClassName = tsProfileClassName(snapshot);
     const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
-        const baseName = sliceDef.baseName;
+        const baseName = methodNames.slice(sliceDef);
         const methodName = `set${baseName}`;
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
@@ -241,12 +224,13 @@ export const generateSliceGetters = (
     imports: ProfileImports,
     sliceDefs: SliceDef[],
     snapshot: SnapshotProfileTypeSchema,
+    methodNames: ProfileMethodBaseNames,
 ) => {
     const profileClassName = tsProfileClassName(snapshot);
     const tsProfileName = tsResourceName(snapshot.identifier);
     const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
-        const baseName = sliceDef.baseName;
+        const baseName = methodNames.slice(sliceDef);
         const getMethodName = `get${baseName}`;
         const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;

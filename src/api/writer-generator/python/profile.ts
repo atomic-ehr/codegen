@@ -17,9 +17,9 @@ import {
     type ProfileFactoryInfo,
 } from "./profile-factory";
 import {
+    type ProfileMethodBaseNames,
     pyProfileClassName,
     pyProfileModuleName,
-    type ResolvedProfileMethods,
     resolveProfileMethodBaseNames,
 } from "./profile-naming";
 import {
@@ -48,7 +48,7 @@ type ProfileGenContext = {
     isResourceBase: boolean;
     factoryInfo: ProfileFactoryInfo;
     sliceDefs: SliceDef[];
-    resolvedNames: ResolvedProfileMethods;
+    methodNames: ProfileMethodBaseNames;
     errorLines: string[];
     warningLines: string[];
 };
@@ -149,7 +149,7 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
         warningLines,
         factoryInfo,
         sliceDefs,
-        resolvedNames,
+        methodNames,
     } = ctx;
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
 
@@ -168,15 +168,14 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     w.line();
 
     if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
-        generateFieldAccessors(w, imports, className, factoryInfo, resolvedNames.allBaseNames);
+        generateFieldAccessors(w, imports, className, factoryInfo, methodNames.allBaseNames);
 
     const extensions = snapshot.extensions ?? [];
-    if (extensions.length > 0)
-        generateExtensionMethods(w, imports, tsIndex, snapshot, className, resolvedNames.extensions);
+    if (extensions.length > 0) generateExtensionMethods(w, imports, tsIndex, snapshot, className, methodNames);
 
     if (sliceDefs.length > 0) {
-        generateSliceGetters(w, imports, sliceDefs, resolvedNames.slices);
-        generateSliceSetters(w, imports, className, sliceDefs, resolvedNames.slices);
+        generateSliceGetters(w, imports, sliceDefs, methodNames);
+        generateSliceSetters(w, imports, className, sliceDefs, methodNames);
     }
 
     generateValidateMethod(w, className, errorLines, warningLines);
@@ -209,8 +208,7 @@ export const generateProfileModule = (
         typedResources.length > 0
             ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, snapshot, "Resource"))}]`
             : baseTypeName;
-    const extensions = snapshot.extensions ?? [];
-    const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(snapshot.fields));
+    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
     const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
 
     w.line(`class ${className}:`);
@@ -240,7 +238,7 @@ export const generateProfileModule = (
             isResourceBase,
             factoryInfo,
             sliceDefs,
-            resolvedNames,
+            methodNames,
             errorLines,
             warningLines,
         });
