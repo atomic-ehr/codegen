@@ -3,8 +3,11 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Generic
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field, model_validator
-from typing import Any, Generic, List as PyList
 from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import Extension, Narrative

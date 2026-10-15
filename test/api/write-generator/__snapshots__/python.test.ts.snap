@@ -17,8 +17,11 @@ exports[`Python Writer Generator bundle.py matches snapshot 1`] = `
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Generic, Literal
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field, model_validator
-from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
@@ -124,12 +127,23 @@ exports[`Python Writer Generator patient.py matches snapshot 1`] = `
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Literal
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field
-from typing import Any, List as PyList, Literal
 from typing_extensions import Self
 
 from fhir_types.hl7_fhir_r4_core.base import (
-    Address, Attachment, BackboneElement, CodeableConcept, ContactPoint, HumanName, Identifier, Period, Reference
+    Address,
+    Attachment,
+    BackboneElement,
+    CodeableConcept,
+    ContactPoint,
+    HumanName,
+    Identifier,
+    Period,
+    Reference,
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 
@@ -202,8 +216,11 @@ exports[`Python Writer Generator generates BundleEntry with generic type-family 
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Generic, Literal
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field, model_validator
-from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
@@ -309,8 +326,11 @@ exports[`Python Writer Generator generates Bundle with inherited generic params 
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Generic, Literal
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field, model_validator
-from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
@@ -419,12 +439,29 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast, overload
 
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
+from fhir_types.hl7_fhir_r4_core.base import (
+    CodeableConcept,
+    Period,
+    Quantity,
+    Reference,
+)
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.profile_helpers import (
-    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, set_array_slice, \\
-    strip_match_keys, validate_choice_prohibited, validate_choice_required, validate_enum, validate_fixed_value, \\
-    validate_must_support, validate_reference, validate_required, validate_slice_cardinality
+    apply_slice_match,
+    build_resource,
+    ensure_profile,
+    ensure_slice_defaults,
+    get_array_slice,
+    set_array_slice,
+    strip_match_keys,
+    validate_choice_prohibited,
+    validate_choice_required,
+    validate_enum,
+    validate_fixed_value,
+    validate_must_support,
+    validate_reference,
+    validate_required,
+    validate_slice_cardinality,
 )
 
 
@@ -617,13 +654,32 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast, overload
 
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
+from fhir_types.hl7_fhir_r4_core.base import (
+    CodeableConcept,
+    Period,
+    Quantity,
+    Reference,
+)
 from fhir_types.hl7_fhir_r4_core.observation import Observation, ObservationComponent
 from fhir_types.profile_helpers import (
-    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, set_array_slice, \\
-    strip_match_keys, unwrap_slice_choice, validate_choice_prohibited, validate_choice_required, validate_enum, \\
-    validate_fixed_value, validate_must_support, validate_reference, validate_required, validate_slice_cardinality, \\
-    validate_slice_fields, wrap_slice_choice
+    apply_slice_match,
+    build_resource,
+    ensure_profile,
+    ensure_slice_defaults,
+    get_array_slice,
+    set_array_slice,
+    strip_match_keys,
+    unwrap_slice_choice,
+    validate_choice_prohibited,
+    validate_choice_required,
+    validate_enum,
+    validate_fixed_value,
+    validate_must_support,
+    validate_reference,
+    validate_required,
+    validate_slice_cardinality,
+    validate_slice_fields,
+    wrap_slice_choice,
 )
 
 

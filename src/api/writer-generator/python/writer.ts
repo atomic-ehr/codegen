@@ -30,7 +30,13 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
-import { type LibraryImports, pyImportFrom, type TypeModuleImports, typeModuleImports } from "./imports";
+import {
+    createImportRenderer,
+    type ImportRenderer,
+    type LibraryImports,
+    type TypeModuleImports,
+    typeModuleImports,
+} from "./imports";
 import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
 import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
 import { pyProfileModuleName } from "./profile-naming";
@@ -187,7 +193,8 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
 
     private generateRootInit(packages: TypeSchemaPackages): void {
         this.generateDisclaimer();
-        const models = this.collectAndImportAllModels(packages);
+        const imports = createImportRenderer(this);
+        const models = this.collectAndImportAllModels(imports, packages);
         this.generateModelRebuilds(models);
     }
 
@@ -204,13 +211,13 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return packages;
     }
 
-    private collectAndImportAllModels(packages: TypeSchemaPackages): string[] {
+    private collectAndImportAllModels(imports: ImportRenderer, packages: TypeSchemaPackages): string[] {
         const models: string[] = [];
         for (const [packageName, { complexTypes, resources }] of Object.entries(packages)) {
             if (resources.length === 0) continue;
             const fullPyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-            models.push(...this.importComplexTypes(fullPyPackageName, complexTypes));
-            models.push(...this.importResources(fullPyPackageName, false, resources));
+            models.push(...this.importComplexTypes(imports, fullPyPackageName, complexTypes));
+            models.push(...this.importResources(imports, fullPyPackageName, false, resources));
         }
         this.line();
         return models;
@@ -227,6 +234,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.generateDisclaimer();
         const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, packageName);
         const imports = typeModuleImports(this, packageName, `${pyFhirPackage}.base`);
+        this.line();
         if (hasGenericTypes) {
             // Covariant: the parameter says what a value holds, and callers
             // hand these models on to code that asks for the wider type.
@@ -249,11 +257,12 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
 
     private generatePackageInit(packageName: string, { complexTypes, resources, profiles }: TypeSchemaPackage): void {
         this.generateDisclaimer();
+        const imports = createImportRenderer(this);
         const pyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
         const profileNames = collectProfileClassNames(profiles);
-        if (resources.length > 0) this.importComplexTypes(pyPackageName, complexTypes);
-        const resourceNames = this.importResources(pyPackageName, true, resources);
-        this.importPackageProfiles(profileNames);
+        if (resources.length > 0) this.importComplexTypes(imports, pyPackageName, complexTypes);
+        const resourceNames = this.importResources(imports, pyPackageName, true, resources);
+        this.importPackageProfiles(imports, profileNames);
         this.line();
         this.generateExportsDeclaration(resources.length > 0 ? complexTypes : undefined, [
             ...resourceNames,
@@ -264,22 +273,26 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     /** Re-export a package's profile classes from its `__init__.py`, so they are
      *  reachable as `<package>.<ProfileClass>` and not only by module path.
      *  Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
-    private importPackageProfiles(profileNames: string[]): void {
+    private importPackageProfiles(imports: ImportRenderer, profileNames: string[]): void {
         if (profileNames.length === 0) return;
-        pyImportFrom(this, ".profiles", ...profileNames);
+        imports(".profiles", ...profileNames);
     }
 
-    private importComplexTypes(fullPyPackageName: string, packageComplexTypes?: SpecializationTypeSchema[]): string[] {
+    private importComplexTypes(
+        imports: ImportRenderer,
+        fullPyPackageName: string,
+        packageComplexTypes?: SpecializationTypeSchema[],
+    ): string[] {
         if (!packageComplexTypes || packageComplexTypes.length === 0) return [];
 
         const baseTypes = packageComplexTypes.map((t) => t.identifier.name).sort();
-        pyImportFrom(this, `${fullPyPackageName}.base`, ...baseTypes);
-        this.line();
+        imports(`${fullPyPackageName}.base`, ...baseTypes);
 
         return baseTypes;
     }
 
     private importResources(
+        imports: ImportRenderer,
         fullPyPackageName: string,
         importEmptyResources: boolean,
         packageResources?: SpecializationTypeSchema[],
@@ -288,7 +301,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         const allResourceNames: string[] = [];
 
         for (const resource of packageResources) {
-            const names = this.importOneResource(resource, fullPyPackageName);
+            const names = this.importOneResource(imports, resource, fullPyPackageName);
             if (!importEmptyResources && !resource.fields) continue;
             allResourceNames.push(...names);
         }
@@ -296,11 +309,15 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return allResourceNames;
     }
 
-    private importOneResource(resource: SpecializationTypeSchema, fullPyPackageName: string): string[] {
+    private importOneResource(
+        imports: ImportRenderer,
+        resource: SpecializationTypeSchema,
+        fullPyPackageName: string,
+    ): string[] {
         const moduleName = `${fullPyPackageName}.${snakeCase(resource.identifier.name)}`;
         const importNames = this.collectResourceImportNames(resource);
 
-        pyImportFrom(this, moduleName, ...importNames);
+        imports(moduleName, ...importNames);
 
         return [...importNames];
     }

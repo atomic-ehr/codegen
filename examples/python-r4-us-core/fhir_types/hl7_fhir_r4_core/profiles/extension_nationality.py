@@ -8,8 +8,13 @@ from typing import Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Extension, Period
 from fhir_types.profile_helpers import (
-    build_resource, get_extension_value, is_extension, push_extension, validate_extension_url, validate_fixed_value, \
-    validate_required
+    build_resource,
+    get_extension_value,
+    is_extension,
+    push_extension,
+    validate_extension_url,
+    validate_fixed_value,
+    validate_required,
 )
 
 

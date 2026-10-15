@@ -8,9 +8,22 @@ from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.profile_helpers import (
-    apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, is_extension, is_record, push_extension, \
-    set_array_slice, strip_match_keys, unwrap_slice_choice, validate_extension_url, validate_fixed_value, \
-    validate_required, validate_slice_cardinality, validate_slice_fields, wrap_slice_choice
+    apply_slice_match,
+    build_resource,
+    ensure_slice_defaults,
+    get_array_slice,
+    is_extension,
+    is_record,
+    push_extension,
+    set_array_slice,
+    strip_match_keys,
+    unwrap_slice_choice,
+    validate_extension_url,
+    validate_fixed_value,
+    validate_required,
+    validate_slice_cardinality,
+    validate_slice_fields,
+    wrap_slice_choice,
 )
 
 

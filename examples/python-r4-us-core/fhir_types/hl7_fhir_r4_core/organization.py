@@ -3,12 +3,22 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Any, Literal
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field
-from typing import Any, List as PyList, Literal
 from typing_extensions import Self
 
 from fhir_types.hl7_fhir_r4_core.base import (
-    Address, BackboneElement, CodeableConcept, ContactPoint, Element, HumanName, Identifier, Reference
+    Address,
+    BackboneElement,
+    CodeableConcept,
+    ContactPoint,
+    Element,
+    HumanName,
+    Identifier,
+    Reference,
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 

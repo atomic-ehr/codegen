@@ -3,11 +3,13 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import ConfigDict, Field
-from typing import Any
-from typing_extensions import Self
-from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
+from typing import Any
+
+from pydantic import ConfigDict, Field
+from typing_extensions import Self
+
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 from fhir_types.hl7_fhir_r4_core.base import Element, Meta
 
 

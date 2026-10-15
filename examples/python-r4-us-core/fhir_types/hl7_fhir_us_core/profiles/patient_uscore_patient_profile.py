@@ -8,14 +8,32 @@ from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Coding, Extension, HumanName, Identifier
 from fhir_types.hl7_fhir_r4_core.patient import Patient
-from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_ethnicity_extension import UscoreEthnicityExtension
-from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
-from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
-from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_race_extension import UscoreRaceExtension
-from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_ethnicity_extension import (
+    UscoreEthnicityExtension,
+)
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_individual_sex_extension import (
+    UscoreIndividualSexExtension,
+)
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_interpreter_needed_extension import (
+    UscoreInterpreterNeededExtension,
+)
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_race_extension import (
+    UscoreRaceExtension,
+)
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_tribal_affiliation_extension import (
+    UscoreTribalAffiliationExtension,
+)
 from fhir_types.profile_helpers import (
-    build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, is_record, \
-    push_extension, validate_extension_url, validate_must_support, validate_required
+    build_resource,
+    ensure_profile,
+    extract_complex_extension,
+    get_extension_value,
+    is_extension,
+    is_record,
+    push_extension,
+    validate_extension_url,
+    validate_must_support,
+    validate_required,
 )
 
 

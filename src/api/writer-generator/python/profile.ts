@@ -1,6 +1,12 @@
 import { isResourceIdentifier, type SnapshotProfileTypeSchema } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { type ProfileImports, profileModuleImports, profilePyType, pyImportFrom, resolveFhirType } from "./imports";
+import {
+    createImportRenderer,
+    type ProfileImports,
+    profileModuleImports,
+    profilePyType,
+    resolveFhirType,
+} from "./imports";
 import { generateExtensionMethods } from "./profile-extensions";
 import {
     buildCallArgs,
@@ -251,13 +257,14 @@ export const generateProfilesInit = (
     profiles: SnapshotProfileTypeSchema[],
 ): void => {
     w.generateDisclaimer();
+    const imports = createImportRenderer(w);
     const seen = new Set<string>();
     for (const profile of profiles) {
         const className = pyProfileClassName(profile);
         const moduleName = pyProfileModuleName(tsIndex, profile);
         if (seen.has(className)) continue;
         seen.add(className);
-        pyImportFrom(w, `.${moduleName}`, className);
+        imports(`.${moduleName}`, className);
     }
     // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
     w.line();
