@@ -11,9 +11,6 @@ import { type ProfileImports, type ProfileSections, profileConstants, profileMod
 import {
     type ProfileMethodBaseNames,
     resolveProfileMethodBaseNames,
-    tsExtensionExtractedTypeName,
-    tsExtensionFlatTypeName,
-    tsExtensionVFlatTypeName,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -22,10 +19,9 @@ import {
     tsSliceStaticName,
 } from "./name";
 import {
-    collectSubExtensionSlices,
-    extensionExtractedTypes,
+    generateExtensionExtractedTypes,
     generateExtensionMethods,
-    resolveExtensionProfile,
+    generateInlineExtensionInputTypes,
 } from "./profile-extensions";
 import {
     collectProfileFactoryInfo,
@@ -56,59 +52,6 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
         }
     }
     if (sliceDefs.length > 0) w.line();
-};
-
-/** Generate inline extension input types only for complex extensions without a resolved FlatInput profile */
-const generateInlineExtensionInputTypes = (
-    w: TypeScript,
-    imports: ProfileImports,
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-) => {
-    const tsProfileName = tsResourceName(snapshot.identifier);
-    const complexExtensions = (snapshot.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
-    for (const ext of complexExtensions) {
-        if (!ext.url) continue;
-        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0 : false;
-        if (hasFlatInput) continue;
-        const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
-        w.curlyBlock(["export", "type", typeName, "="], () => {
-            for (const sub of ext.subExtensions ?? []) {
-                const tsType = sub.valueFieldType ? tsTypeFromIdentifier(imports.types, sub.valueFieldType) : "unknown";
-                const isArray = sub.max === "*";
-                const isRequired = sub.min !== undefined && sub.min > 0;
-                w.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
-            }
-        });
-        w.line();
-    }
-};
-
-/** Name what the complex extension getters return, so the overloads, the implementation
- *  signature and the extractComplexExtension calls refer to a type instead of repeating it —
- *  and so a consumer has a name for the shape it receives. */
-const generateExtensionExtractedTypes = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    snapshot: SnapshotProfileTypeSchema,
-    methodNames: ProfileMethodBaseNames,
-) => {
-    const tsProfileName = tsResourceName(snapshot.identifier);
-    const complexExtensions = (snapshot.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
-    for (const ext of complexExtensions) {
-        if (!ext.url) continue;
-        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
-        const { flat, vFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
-        // Name from the collision-resolved base name, the same source the getters use: two
-        // entries for one extension at two paths share `ext.name` and would declare twice.
-        const baseName = methodNames.extension(ext);
-        w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, baseName)} = ${flat}`);
-        if (vFlat) {
-            w.lineSM(`export type ${tsExtensionVFlatTypeName(tsProfileName, baseName)} = ${vFlat}`);
-        }
-        w.line();
-    }
 };
 
 /** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
