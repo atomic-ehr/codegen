@@ -86,7 +86,7 @@ const choiceClearMethodName = (choiceOf: string): string => `clear${uppercaseFir
 const collectChoiceAccessors = (
     imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
-    promotedChoices: Set<string>,
+    promotedChoices: ReadonlySet<string>,
 ): Pick<ProfileFactoryInfo, "accessors" | "choiceClearMethods"> => {
     // Group every choice-instance field by its declaration (choiceOf). A profile
     // that constrains value[x] narrows the declaration's `choices` list, but the
@@ -127,19 +127,16 @@ const tryPromoteChoice = (
     imports: ProfileImports,
     field: SnapshotProfileTypeSchema["fields"][string],
     fields: SnapshotProfileTypeSchema["fields"],
-    params: ProfileFactoryInfo["params"],
-    promotedChoices: Set<string>,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
-): void => {
+): ProfileFactoryInfo["params"][number] | undefined => {
     if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
     const choiceName = field.choices[0];
     if (!choiceName) return;
     const choiceField = fields[choiceName];
     if (!choiceField || !isChoiceInstanceField(choiceField)) return;
     const tsType = fieldTsType(imports.types, choiceField, resolveRef, isFamilyType);
-    params.push({ name: choiceName, tsType, typeId: choiceField.type });
-    promotedChoices.add(choiceName);
+    return { name: choiceName, tsType, typeId: choiceField.type };
 };
 
 export const collectProfileFactoryInfo = (
@@ -166,7 +163,11 @@ export const collectProfileFactoryInfo = (
         if (isChoiceInstanceField(field)) continue;
 
         if (isChoiceDeclarationField(field)) {
-            tryPromoteChoice(imports, field, fields, params, promotedChoices, resolveRef, isFamilyType);
+            const promoted = tryPromoteChoice(imports, field, fields, resolveRef, isFamilyType);
+            if (promoted) {
+                params.push(promoted);
+                promotedChoices.add(promoted.name);
+            }
             continue;
         }
 
@@ -214,19 +215,20 @@ export const collectProfileFactoryInfo = (
         }
     }
 
-    collectBaseRequiredParams(
-        tsIndex,
-        imports,
-        snapshot,
-        resolveRef,
-        params,
-        [
-            ...autoFields.map((f) => f.name),
-            ...sliceAutoFields.map((f) => f.name),
-            ...params.map((f) => f.name),
-            ...promotedChoices,
-        ],
-        isFamilyType,
+    params.push(
+        ...collectBaseRequiredParams(
+            tsIndex,
+            imports,
+            snapshot,
+            resolveRef,
+            [
+                ...autoFields.map((f) => f.name),
+                ...sliceAutoFields.map((f) => f.name),
+                ...params.map((f) => f.name),
+                ...promotedChoices,
+            ],
+            isFamilyType,
+        ),
     );
 
     const { accessors: choiceAccessors, choiceClearMethods } = collectChoiceAccessors(
@@ -244,13 +246,13 @@ const collectBaseRequiredParams = (
     imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
-    params: ProfileFactoryInfo["params"],
     coveredNames: string[],
     isFamilyType?: (ref: TypeIdentifier) => boolean,
-) => {
+): ProfileFactoryInfo["params"] => {
+    const params: ProfileFactoryInfo["params"] = [];
     const covered = new Set(coveredNames);
     const baseSchema = tsIndex.resolveType(snapshot.base);
-    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return;
+    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return params;
     for (const [name, field] of Object.entries(baseSchema.fields)) {
         if (covered.has(name)) continue;
         if (!field.required) continue;
@@ -261,6 +263,7 @@ const collectBaseRequiredParams = (
             params.push({ name, tsType, typeId: field.type });
         }
     }
+    return params;
 };
 
 export const generateProfileIndexFile = (

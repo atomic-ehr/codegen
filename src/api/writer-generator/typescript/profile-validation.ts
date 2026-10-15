@@ -48,20 +48,20 @@ const collectSliceRequirements = (
 
 export const collectRegularFieldValidation = (
     imports: ProfileSections,
-    errors: string[],
-    warnings: string[],
     name: string,
     field: RegularField | ChoiceFieldInstance,
     canonicalUrlExpr?: { url: string; expr: string },
     tsIndex?: TypeSchemaIndex,
     fieldSlicing?: FieldSlicing,
     enumExprs?: ReadonlyMap<string, string>,
-) => {
+): { errors: string[]; warnings: string[] } => {
+    const errors: string[] = [];
+    const warnings: string[] = [];
     if (field.excluded) {
         errors.push(
             `...${imports.helper.use("validateExcluded")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
         );
-        return;
+        return { errors, warnings };
     }
 
     if (field.required)
@@ -133,6 +133,7 @@ export const collectRegularFieldValidation = (
             }
         }
     }
+    return { errors, warnings };
 };
 
 export const generateValidateMethod = (
@@ -164,10 +165,8 @@ export const generateValidateMethod = (
                 continue;
             }
 
-            collectRegularFieldValidation(
+            const validation = collectRegularFieldValidation(
                 imports,
-                errors,
-                warnings,
                 name,
                 field,
                 canonicalUrlExpr,
@@ -175,6 +174,8 @@ export const generateValidateMethod = (
                 snapshot.slicing?.[name],
                 enumLinks.exprs,
             );
+            errors.push(...validation.errors);
+            warnings.push(...validation.warnings);
         }
 
         // Base-resource required fields the profile chain did not re-state.
