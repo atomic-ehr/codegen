@@ -11,13 +11,13 @@
 import { LEADING_DIGIT_RE, PYTHON_KEYWORDS } from "@root/api/writer-generator/python/naming-utils";
 import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type {
+    NameCandidates,
     ProfileExtension,
     ProfileTypeSchema,
     SnapshotProfileTypeSchema,
     TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { SliceDef } from "./profile-slices";
 
 // ---------------------------------------------------------------------------
 // Identifier sanitisation
@@ -91,9 +91,11 @@ export const pySliceStaticName = (name: string): string => {
 export const pyValueFieldName = (id: TypeIdentifier, formatName: (s: string) => string = snakeCase): string =>
     formatName(`value${pascalCase(normalizePyName(id.name))}`);
 
-export type ResolvedProfileMethods = {
-    extensions: Record<string, string>;
-    slices: Record<string, string>;
+type SliceNaming = { fieldName: string; sliceName: string; nameCandidates: NameCandidates };
+
+export type ProfileMethodBaseNames = {
+    extension: (ext: ProfileExtension) => string;
+    slice: (sliceDef: SliceNaming) => string;
     allBaseNames: Set<string>;
 };
 
@@ -118,16 +120,15 @@ const pyAccessorBaseName = (candidates: readonly string[], recommended: string, 
 };
 
 export const resolveProfileMethodBaseNames = (
-    extensions: ProfileExtension[],
-    sliceDefs: SliceDef[],
-    fieldNames: readonly string[] = [],
-): ResolvedProfileMethods => {
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceNaming[],
+): ProfileMethodBaseNames => {
     // Field accessors are emitted from the same class, so their names are taken
     // before either extension or slice accessors get to pick.
-    const reserved = new Set(fieldNames.map((name) => snakeCase(name)));
+    const reserved = new Set(Object.keys(snapshot.fields).map((name) => snakeCase(name)));
 
     const extensionsRecord: Record<string, string> = {};
-    for (const ext of extensions) {
+    for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
         const name = pyAccessorBaseName(ext.nameCandidates.candidates, ext.nameCandidates.recommended, reserved);
         reserved.add(name);
@@ -142,5 +143,10 @@ export const resolveProfileMethodBaseNames = (
     }
 
     const allBaseNames = new Set([...Object.values(extensionsRecord), ...Object.values(slicesRecord)]);
-    return { extensions: extensionsRecord, slices: slicesRecord, allBaseNames };
+    return {
+        extension: (ext) => extensionsRecord[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended),
+        slice: (sliceDef) =>
+            slicesRecord[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended,
+        allBaseNames,
+    };
 };

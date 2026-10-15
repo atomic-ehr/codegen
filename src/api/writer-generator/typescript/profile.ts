@@ -17,6 +17,8 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    type ProfileMethodBaseNames,
+    resolveProfileMethodBaseNames,
     tsCamelCase,
     tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
@@ -724,6 +726,7 @@ const generateExtensionExtractedTypes = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
+    methodNames: ProfileMethodBaseNames,
 ) => {
     const tsProfileName = tsResourceName(snapshot.identifier);
     const complexExtensions = (snapshot.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
@@ -733,7 +736,7 @@ const generateExtensionExtractedTypes = (
         const { flat, vFlat } = extensionExtractedTypes(tsProfileName, ext, extProfileInfo);
         // Name from the collision-resolved base name, the same source the getters use: two
         // entries for one extension at two paths share `ext.name` and would declare twice.
-        const baseName = ext.nameCandidates.recommended;
+        const baseName = methodNames.extension(ext);
         w.lineSM(`export type ${tsExtensionExtractedTypeName(tsProfileName, baseName)} = ${flat}`);
         if (vFlat) {
             w.lineSM(`export type ${tsExtensionVFlatTypeName(tsProfileName, baseName)} = ${vFlat}`);
@@ -896,9 +899,10 @@ export const generateProfileClass = (
     const profileClassName = tsProfileClassName(snapshot);
     const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
     const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
+    const methodNames = resolveProfileMethodBaseNames(snapshot, sliceDefs);
 
     generateInlineExtensionInputTypes(w, imports, tsIndex, snapshot);
-    generateExtensionExtractedTypes(w, tsIndex, snapshot);
+    generateExtensionExtractedTypes(w, tsIndex, snapshot, methodNames);
     generateSliceInputTypes(w, imports, snapshot, sliceDefs);
 
     generateRawType(w, imports, snapshot, factoryInfo);
@@ -927,11 +931,11 @@ export const generateProfileClass = (
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
-        generateExtensionMethods(w, imports, tsIndex, snapshot);
+        generateExtensionMethods(w, imports, tsIndex, snapshot, methodNames);
 
         w.line("// Slices");
-        generateSliceSetters(w, imports, sliceDefs, snapshot);
-        generateSliceGetters(w, imports, sliceDefs, snapshot);
+        generateSliceSetters(w, imports, sliceDefs, snapshot, methodNames);
+        generateSliceGetters(w, imports, sliceDefs, snapshot, methodNames);
 
         w.line("// Validation");
         generateValidateMethod(w, sections, tsIndex, snapshot);

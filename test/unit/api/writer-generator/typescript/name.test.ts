@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { tsResourceName } from "@root/api/writer-generator/typescript/name";
+import { tsAccessorBaseName, tsResourceName } from "@root/api/writer-generator/typescript/name";
 import type { CanonicalUrl, Name, TypeIdentifier } from "@root/typeschema/types";
 
 const makeIdentifier = (props: {
@@ -80,5 +80,34 @@ describe("tsResourceName", () => {
     test("escapes TypeScript keywords", () => {
         const id = makeIdentifier({ kind: "resource", name: "class" });
         expect(tsResourceName(id)).toBe("class_");
+    });
+});
+
+describe("tsAccessorBaseName", () => {
+    test("qualifies a slice accessor that collides with an inherited field accessor", () => {
+        expect(
+            tsAccessorBaseName(
+                ["Category", "ComponentCategory", "ComponentCategorySlice"],
+                "Category",
+                new Set(["Category", "Component"]),
+            ),
+        ).toBe("ComponentCategory");
+    });
+
+    test("keeps a collision-free recommended slice accessor", () => {
+        expect(tsAccessorBaseName(["SystolicBP", "ComponentSystolicBP"], "SystolicBP", new Set(["Component"]))).toBe(
+            "SystolicBP",
+        );
+    });
+
+    test("allocates a distinct accessor when an earlier slice selected the same candidate", () => {
+        const candidates = ["Category", "ComponentCategory", "OtherComponentCategory"];
+        const reserved = new Set(["Category", "Component"]);
+        const first = tsAccessorBaseName(candidates, "Category", reserved);
+        reserved.add(first);
+        const second = tsAccessorBaseName(candidates, "Category", reserved);
+
+        expect(first).toBe("ComponentCategory");
+        expect(second).toBe("OtherComponentCategory");
     });
 });

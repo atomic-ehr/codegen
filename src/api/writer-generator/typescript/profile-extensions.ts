@@ -9,6 +9,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    type ProfileMethodBaseNames,
     tsCamelCase,
     tsExtensionExtractedTypeName,
     tsExtensionFlatTypeName,
@@ -257,8 +258,7 @@ const generateExtensionGetterOverloads = (
 type ExtensionMethodInfo = {
     ext: ProfileExtension;
     snapshot: SnapshotProfileTypeSchema;
-    setMethodName: string;
-    getMethodName: string;
+    baseName: string;
     targetPath: string[];
     extProfileInfo: ExtensionProfileInfo | undefined;
     extensionType: TypeIdentifier;
@@ -269,7 +269,7 @@ type ExtensionMethodInfo = {
 const generateComplexExtensionSetter = (w: TypeScript, imports: ProfileImports, info: ExtensionMethodInfo) => {
     const extensionId = info.extensionType;
     const extensionType = imports.types.use(extensionId);
-    const { ext, snapshot, setMethodName, targetPath, extProfileInfo } = info;
+    const { ext, snapshot, baseName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const extProfileHasFlatInput = extProfileInfo
@@ -279,7 +279,7 @@ const generateComplexExtensionSetter = (w: TypeScript, imports: ProfileImports, 
 
     if (extProfileInfo && extProfileHasFlatInput) {
         const paramType = `${extProfileInfo.className}Flat | ${extProfileInfo.className} | ${extensionType}`;
-        w.curlyBlock(["public", setMethodName, `(input: ${paramType}): this`], () => {
+        w.curlyBlock(["public", `set${baseName}`, `(input: ${paramType}): this`], () => {
             w.ifElseChain(
                 [
                     {
@@ -306,7 +306,7 @@ const generateComplexExtensionSetter = (w: TypeScript, imports: ProfileImports, 
             w.line("return this");
         });
     } else {
-        w.curlyBlock(["public", setMethodName, `(input: ${inputTypeName}): this`], () => {
+        w.curlyBlock(["public", `set${baseName}`, `(input: ${inputTypeName}): this`], () => {
             w.line(`const subExtensions: ${extensionType}[] = []`);
             for (const sub of ext.subExtensions ?? []) {
                 const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
@@ -368,11 +368,10 @@ export const extensionExtractedTypes = (
 
 const generateComplexExtensionGetter = (w: TypeScript, imports: ProfileImports, info: ExtensionMethodInfo) => {
     const extensionId = info.extensionType;
-    const { ext, snapshot, getMethodName, targetPath, extProfileInfo } = info;
+    const { ext, snapshot, baseName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
     // Same collision-resolved base name the method names use, so a profile carrying one
     // extension at two paths refers to two distinct declarations rather than one repeated.
-    const baseName = ext.nameCandidates.recommended;
     const extractedType = tsExtensionExtractedTypeName(tsProfileName, baseName);
     // The vflat arm needs the extension profile's validate(), so it is emitted
     // only when the extension resolves to a profile class.
@@ -385,7 +384,7 @@ const generateComplexExtensionGetter = (w: TypeScript, imports: ProfileImports, 
         extensionId,
         ext,
         targetPath,
-        getMethodName,
+        `get${baseName}`,
         extractedType,
         extProfileInfo,
         () => {
@@ -418,7 +417,7 @@ const generateSingleValueExtensionSetter = (
 ) => {
     const extensionId = info.extensionType;
     const extensionType = imports.types.use(extensionId);
-    const { ext, setMethodName, targetPath, extProfileInfo } = info;
+    const { ext, baseName, targetPath, extProfileInfo } = info;
     const firstValueType = ext.valueFieldTypes?.[0];
     if (!firstValueType) return;
     const valueType = tsTypeFromIdentifier(imports.types, firstValueType);
@@ -433,7 +432,7 @@ const generateSingleValueExtensionSetter = (
         const elseExpr = extValueParam
             ? `${extProfileInfo.className}.createResource({ ${valueField}: value as ${resolvedValueType} })`
             : `{ url: "${ext.url}", ${valueField}: value as ${valueType} } as ${extensionType}`;
-        w.curlyBlock(["public", setMethodName, `(value: ${paramType}): this`], () => {
+        w.curlyBlock(["public", `set${baseName}`, `(value: ${paramType}): this`], () => {
             w.ifElseChain(
                 [
                     {
@@ -452,7 +451,7 @@ const generateSingleValueExtensionSetter = (
             w.line("return this");
         });
     } else {
-        w.curlyBlock(["public", setMethodName, `(value: ${valueType}): this`], () => {
+        w.curlyBlock(["public", `set${baseName}`, `(value: ${valueType}): this`], () => {
             const extLiteral = `{ url: "${ext.url}", ${valueField}: value } as ${extensionType}`;
             generateExtensionPush(w, imports, extensionId, targetPath, extLiteral, useUpsert);
             w.line("return this");
@@ -462,7 +461,7 @@ const generateSingleValueExtensionSetter = (
 
 const generateSingleValueExtensionGetter = (w: TypeScript, imports: ProfileImports, info: ExtensionMethodInfo) => {
     const extensionId = info.extensionType;
-    const { ext, getMethodName, targetPath, extProfileInfo } = info;
+    const { ext, baseName, targetPath, extProfileInfo } = info;
     const firstValueType = ext.valueFieldTypes?.[0];
     if (!firstValueType) return;
     const valueType = tsTypeFromIdentifier(imports.types, firstValueType);
@@ -474,7 +473,7 @@ const generateSingleValueExtensionGetter = (w: TypeScript, imports: ProfileImpor
         extensionId,
         ext,
         targetPath,
-        getMethodName,
+        `get${baseName}`,
         valueType,
         extProfileInfo,
         () => {
@@ -488,37 +487,41 @@ const generateSingleValueExtensionGetter = (w: TypeScript, imports: ProfileImpor
 const generateGenericExtensionSetter = (w: TypeScript, imports: ProfileImports, info: ExtensionMethodInfo) => {
     const extensionId = info.extensionType;
     const extensionType = imports.types.use(extensionId);
-    const { ext, setMethodName, targetPath } = info;
+    const { ext, baseName, targetPath } = info;
     const useUpsert = ext.max === "1";
 
-    w.curlyBlock(["public", setMethodName, `(value: Omit<${extensionType}, "url"> | ${extensionType}): this`], () => {
-        w.ifElseChain(
-            [
-                {
-                    cond: `${imports.helpers.use("isExtension")}(value)`,
-                    body: () => generateRawExtensionBody(w, imports, extensionId, ext, targetPath, "value", useUpsert),
-                },
-            ],
-            () =>
-                generateExtensionPush(
-                    w,
-                    imports,
-                    extensionId,
-                    targetPath,
-                    `{ url: "${ext.url}", ...value } as ${extensionType}`,
-                    useUpsert,
-                ),
-        );
-        w.line("return this");
-    });
+    w.curlyBlock(
+        ["public", `set${baseName}`, `(value: Omit<${extensionType}, "url"> | ${extensionType}): this`],
+        () => {
+            w.ifElseChain(
+                [
+                    {
+                        cond: `${imports.helpers.use("isExtension")}(value)`,
+                        body: () =>
+                            generateRawExtensionBody(w, imports, extensionId, ext, targetPath, "value", useUpsert),
+                    },
+                ],
+                () =>
+                    generateExtensionPush(
+                        w,
+                        imports,
+                        extensionId,
+                        targetPath,
+                        `{ url: "${ext.url}", ...value } as ${extensionType}`,
+                        useUpsert,
+                    ),
+            );
+            w.line("return this");
+        },
+    );
 };
 
 const generateGenericExtensionGetter = (w: TypeScript, imports: ProfileImports, info: ExtensionMethodInfo) => {
     const extensionId = info.extensionType;
     const extensionType = imports.types.use(extensionId);
-    const { ext, getMethodName, targetPath } = info;
+    const { ext, baseName, targetPath } = info;
 
-    w.curlyBlock(["public", getMethodName, `(): ${extensionType} | undefined`], () => {
+    w.curlyBlock(["public", `get${baseName}`, `(): ${extensionType} | undefined`], () => {
         if (targetPath.length === 0) {
             w.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
         } else {
@@ -535,21 +538,20 @@ export const generateExtensionMethods = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
+    methodNames: ProfileMethodBaseNames,
 ) => {
     const extensions = snapshot.extensions ?? [];
     if (!extensions.some((ext) => ext.url)) return;
     const extensionType = resolveFhirType(tsIndex, snapshot, "Extension");
     for (const ext of extensions) {
         if (!ext.url) continue;
-        const baseName = ext.nameCandidates.recommended;
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
         const info: ExtensionMethodInfo = {
             ext,
             snapshot,
             extensionType,
-            setMethodName: `set${baseName}`,
-            getMethodName: `get${baseName}`,
+            baseName: methodNames.extension(ext),
             targetPath,
             extProfileInfo,
         };

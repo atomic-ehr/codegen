@@ -12,7 +12,7 @@ import {
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
 import { pyLiteral } from "./naming-utils";
-import { pyFieldName, pySliceStaticName } from "./profile-naming";
+import { type ProfileMethodBaseNames, pyFieldName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
 export type SliceDef = {
@@ -171,11 +171,10 @@ export const generateSliceGetters = (
     w: Python,
     imports: ProfileImports,
     sliceDefs: SliceDef[],
-    sliceBaseNames: Record<string, string>,
+    methodNames: ProfileMethodBaseNames,
 ): void => {
     for (const sliceDef of sliceDefs) {
-        const baseName =
-            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
+        const baseName = methodNames.slice(sliceDef);
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
@@ -252,11 +251,10 @@ export const generateSliceSetters = (
     imports: ProfileImports,
     className: string,
     sliceDefs: SliceDef[],
-    sliceBaseNames: Record<string, string>,
+    methodNames: ProfileMethodBaseNames,
 ): void => {
     for (const sliceDef of sliceDefs) {
-        const baseName =
-            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
+        const baseName = methodNames.slice(sliceDef);
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         if (sliceDef.isTypeDiscriminated) {

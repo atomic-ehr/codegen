@@ -1,4 +1,3 @@
-import { snakeCase } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
     isProfileTypeSchema,
@@ -8,7 +7,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
-import { pyValueFieldName } from "./profile-naming";
+import { type ProfileMethodBaseNames, pyValueFieldName } from "./profile-naming";
 import type { Python } from "./writer";
 
 // ---------------------------------------------------------------------------
@@ -48,13 +47,13 @@ export const generateExtensionMethods = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     className: string,
-    extensionBaseNames: Record<string, string>,
+    methodNames: ProfileMethodBaseNames,
 ): void => {
     const pkgName = snapshot.identifier.package;
     const extensionType = imports.types.use(resolveFhirType(tsIndex, snapshot, "Extension"));
     for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
-        const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended);
+        const baseName = methodNames.extension(ext);
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const profileId = resolveExtensionProfile(tsIndex, pkgName, ext);
         const profileClass = profileId ? imports.types.use(profileId) : undefined;
