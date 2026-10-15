@@ -112,7 +112,9 @@ export const tsExtensionVFlatTypeName = (profileName: string, extensionName: str
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}VFlat`;
 };
 
-export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
+/** Static class member name for a slice's match constant. */
+export const tsSliceStaticName = (name: string): string =>
+    `${name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_")}SliceMatch`;
 
 export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;
 

@@ -8,11 +8,12 @@ import {
     type NameCandidates,
     type RegularField,
     type SnapshotProfileTypeSchema,
+    type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
 import { pyLiteral } from "./naming-utils";
-import { type ProfileMethodBaseNames, pyFieldName, pySliceStaticName } from "./profile-naming";
+import { type ProfileMethodBaseNames, pyFieldName, pyProfileClassName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
 export type SliceDef = {
@@ -26,9 +27,11 @@ export type SliceDef = {
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     elementTypeName: string | undefined;
     /** True when the FieldSlicing discriminator type is "type" (resource-type discriminator). */
-    isTypeDiscriminated: boolean;
+    typeDiscriminated: boolean;
     /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
     typeDiscriminatorType: string | undefined;
+    /** Element type parameterized with the matched resource type (e.g. "BundleEntry[Patient]"); `Any` for a primitive element. */
+    typedBaseType: string;
     /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
     nameCandidates: NameCandidates;
 };
@@ -46,19 +49,35 @@ export const collectRequiredSliceNames = (
     return names.length > 0 ? names : undefined;
 };
 
-export const generateStaticSliceFields = (w: Python, imports: ProfileImports, sliceDefs: SliceDef[]): void => {
-    for (const sliceDef of sliceDefs) {
-        const staticName = pySliceStaticName(sliceDef.sliceName);
-        w.line(`${staticName}: dict[str, ${imports.typing.use("Any")}] = ${pyLiteral(sliceDef.match)}`);
+/** Collect choice declaration field names from a base type schema */
+const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
+    const names = new Set<string>();
+    const schema = tsIndex.resolveType(typeId);
+    if (schema && "fields" in schema && schema.fields) {
+        for (const [name, f] of Object.entries(schema.fields)) {
+            if (isChoiceDeclarationField(f)) names.add(name);
+        }
     }
-    if (sliceDefs.length > 0) w.line();
+    return names;
+};
+
+/** Extract resource type name from a type-discriminator match, looking one level deep only
+ *  (e.g. {"resource":{"resourceType":"Patient"}} → "Patient"). */
+const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+    for (const val of Object.values(match)) {
+        if (val !== null && typeof val === "object" && !Array.isArray(val)) {
+            const rt = (val as Record<string, unknown>).resourceType;
+            if (typeof rt === "string") return rt;
+        }
+    }
+    return undefined;
 };
 
 /** Ensure the slice match has shapes that Pydantic accepts when the match is
  *  later merged into user input and passed to a model constructor: a plain
  *  object value for a list-typed field is wrapped in a single-element list.
  *  Values that are already lists are recursed into but not rewrapped. */
-export const normalizeMatchForPython = (
+const normalizeMatchForPython = (
     tsIndex: TypeSchemaIndex,
     match: Record<string, unknown>,
     schema: ReturnType<TypeSchemaIndex["resolveType"]> | undefined,
@@ -91,20 +110,6 @@ export const normalizeMatchForPython = (
     return result;
 };
 
-const extractTypeDiscriminatorResource = (
-    isTypeDiscriminated: boolean,
-    rawMatch: Record<string, unknown> | undefined,
-): string | undefined => {
-    if (!isTypeDiscriminated || !rawMatch) return undefined;
-    for (const val of Object.values(rawMatch)) {
-        if (val !== null && typeof val === "object" && !Array.isArray(val)) {
-            const rt = (val as Record<string, unknown>).resourceType;
-            if (typeof rt === "string") return rt;
-        }
-    }
-    return undefined;
-};
-
 export const collectSliceDefs = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
@@ -114,13 +119,8 @@ export const collectSliceDefs = (
     return Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
-        const choiceBaseNames = new Set<string>();
+        const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
         const baseSchema = tsIndex.resolveType(field.type);
-        if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
-            for (const [n, f] of Object.entries(baseSchema.fields)) {
-                if (isChoiceDeclarationField(f)) choiceBaseNames.add(n);
-            }
-        }
         return Object.entries(fieldSlicing.slices)
             .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
             .map(([sliceName, slice]) => {
@@ -132,10 +132,12 @@ export const collectSliceDefs = (
                 // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
                 const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
                 const typeDiscriminated = isTypeDiscriminated(fieldSlicing);
-                const typeDiscriminatorResource = extractTypeDiscriminatorResource(
-                    typeDiscriminated,
-                    slice.match as Record<string, unknown> | undefined,
-                );
+                const resourceType = typeDiscriminated ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
+                const elementTypeName =
+                    field.type && !isPrimitiveIdentifier(field.type) ? profilePyType(imports, field.type) : undefined;
+                const typeDiscriminatorType = resourceType
+                    ? profilePyType(imports, resolveFhirType(tsIndex, snapshot, resourceType))
+                    : undefined;
                 return {
                     fieldName,
                     sliceName,
@@ -144,30 +146,32 @@ export const collectSliceDefs = (
                     array: Boolean(field.array),
                     max: slice.max ?? 0,
                     constrainedChoice,
-                    elementTypeName:
-                        field.type && !isPrimitiveIdentifier(field.type)
-                            ? profilePyType(imports, field.type)
-                            : undefined,
-                    isTypeDiscriminated: typeDiscriminated,
-                    typeDiscriminatorType: typeDiscriminatorResource
-                        ? profilePyType(imports, resolveFhirType(tsIndex, snapshot, typeDiscriminatorResource))
-                        : undefined,
+                    elementTypeName,
+                    typeDiscriminated,
+                    typeDiscriminatorType,
+                    typedBaseType:
+                        elementTypeName && typeDiscriminatorType
+                            ? `${elementTypeName}[${typeDiscriminatorType}]`
+                            : (elementTypeName ?? imports.typing.use("Any")),
                     nameCandidates: slice.nameCandidates,
                 };
             });
     });
 };
 
+export const generateStaticSliceFields = (w: Python, imports: ProfileImports, sliceDefs: SliceDef[]): void => {
+    for (const sliceDef of sliceDefs) {
+        const staticName = pySliceStaticName(sliceDef.sliceName);
+        w.line(`${staticName}: dict[str, ${imports.typing.use("Any")}] = ${pyLiteral(sliceDef.match)}`);
+    }
+    if (sliceDefs.length > 0) w.line();
+};
+
 // ---------------------------------------------------------------------------
 // Slice getters / setters
 // ---------------------------------------------------------------------------
 
-const sliceElementRetType = (imports: ProfileImports, sliceDef: SliceDef): string =>
-    sliceDef.elementTypeName && sliceDef.typeDiscriminatorType
-        ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorType}]`
-        : (sliceDef.elementTypeName ?? imports.typing.use("Any"));
-
-export const generateSliceGetters = (
+const generateSliceGetters = (
     w: Python,
     imports: ProfileImports,
     sliceDefs: SliceDef[],
@@ -179,8 +183,8 @@ export const generateSliceGetters = (
         const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
-        if (sliceDef.isTypeDiscriminated) {
-            const retType = sliceElementRetType(imports, sliceDef);
+        if (sliceDef.typeDiscriminated) {
+            const retType = sliceDef.typedBaseType;
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> list[${retType}] | None:`);
@@ -246,19 +250,20 @@ export const generateSliceGetters = (
     }
 };
 
-export const generateSliceSetters = (
+const generateSliceSetters = (
     w: Python,
     imports: ProfileImports,
-    className: string,
+    snapshot: SnapshotProfileTypeSchema,
     sliceDefs: SliceDef[],
     methodNames: ProfileMethodBaseNames,
 ): void => {
+    const className = pyProfileClassName(snapshot);
     for (const sliceDef of sliceDefs) {
         const baseName = methodNames.slice(sliceDef);
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
-        if (sliceDef.isTypeDiscriminated) {
-            const retType = sliceElementRetType(imports, sliceDef);
+        if (sliceDef.typeDiscriminated) {
+            const retType = sliceDef.typedBaseType;
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def set_${baseName}(self, values: list[${retType}]) -> "${className}":`);
@@ -316,4 +321,16 @@ export const generateSliceSetters = (
         }
         w.line();
     }
+};
+
+export const generateSliceMethods = (
+    w: Python,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+    methodNames: ProfileMethodBaseNames,
+): void => {
+    // All slice getters first, then all slice setters.
+    generateSliceGetters(w, imports, sliceDefs, methodNames);
+    generateSliceSetters(w, imports, snapshot, sliceDefs, methodNames);
 };

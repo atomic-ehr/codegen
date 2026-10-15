@@ -413,7 +413,7 @@ export const generateFactoryMethods = (
     const typedResources = [
         ...new Set(
             sliceDefs
-                .filter((s) => s.isTypeDiscriminated)
+                .filter((s) => s.typeDiscriminated)
                 .map((s) => s.typeDiscriminatorType)
                 .filter((resource): resource is string => resource !== undefined),
         ),

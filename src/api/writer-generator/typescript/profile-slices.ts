@@ -4,6 +4,7 @@ import {
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
+    isResourceIdentifier,
     isTypeDiscriminated,
     type NameCandidates,
     type RegularField,
@@ -24,28 +25,23 @@ import {
 import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
-/** Collect choice declaration field names from a base type schema */
-const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
-    const names = new Set<string>();
-    const schema = tsIndex.resolveType(typeId);
-    if (schema && "fields" in schema && schema.fields) {
-        for (const [name, f] of Object.entries(schema.fields)) {
-            if (isChoiceDeclarationField(f)) names.add(name);
-        }
-    }
-    return names;
-};
-
-/** Extract resource type name from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}} → "Patient") */
-export const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
-    for (const value of Object.values(match)) {
-        if (typeof value !== "object" || value === null) continue;
-        const obj = value as Record<string, unknown>;
-        if (typeof obj.resourceType === "string") return obj.resourceType;
-        const nested = extractResourceTypeFromMatch(obj);
-        if (nested) return nested;
-    }
-    return undefined;
+export type SliceDef = {
+    fieldName: string;
+    /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
+    typedBaseType: string;
+    sliceName: string;
+    /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
+    nameCandidates: NameCandidates;
+    match: Record<string, unknown>;
+    /** Required fields, already filtered (match keys and polymorphic base names removed) */
+    required: string[];
+    excluded: string[];
+    array: boolean;
+    constrainedChoice: ConstrainedChoiceInfo | undefined;
+    /** True when the slice uses a type discriminator (match by resourceType) */
+    typeDiscriminated: boolean;
+    /** Max cardinality of the slice. 0 or undefined = unbounded ("*"), positive = exact limit. */
+    max: number;
 };
 
 /**
@@ -72,24 +68,28 @@ export const collectRequiredSliceNames = (
     return names.length > 0 ? names : undefined;
 };
 
-export type SliceDef = {
-    fieldName: string;
-    baseType: string;
-    /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
-    typedBaseType: string;
-    sliceName: string;
-    /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
-    nameCandidates: NameCandidates;
-    match: Record<string, unknown>;
-    /** Required fields, already filtered (match keys and polymorphic base names removed) */
-    required: string[];
-    excluded: string[];
-    array: boolean;
-    constrainedChoice: ConstrainedChoiceInfo | undefined;
-    /** True when the slice uses a type discriminator (match by resourceType) */
-    typeDiscriminator: boolean;
-    /** Max cardinality of the slice. 0 or undefined = unbounded ("*"), positive = exact limit. */
-    max: number;
+/** Collect choice declaration field names from a base type schema */
+const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
+    const names = new Set<string>();
+    const schema = tsIndex.resolveType(typeId);
+    if (schema && "fields" in schema && schema.fields) {
+        for (const [name, f] of Object.entries(schema.fields)) {
+            if (isChoiceDeclarationField(f)) names.add(name);
+        }
+    }
+    return names;
+};
+
+/** Extract resource type name from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}} → "Patient") */
+const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+    for (const value of Object.values(match)) {
+        if (typeof value !== "object" || value === null) continue;
+        const obj = value as Record<string, unknown>;
+        if (typeof obj.resourceType === "string") return obj.resourceType;
+        const nested = extractResourceTypeFromMatch(obj);
+        if (nested) return nested;
+    }
+    return undefined;
 };
 
 export const collectSliceDefs = (
@@ -103,7 +103,7 @@ export const collectSliceDefs = (
         const baseType = tsTypeFromIdentifier(imports.types, field.type);
         const pkgName = snapshot.identifier.package;
         const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
-        const isTypeDisc = isTypeDiscriminated(fieldSlicing);
+        const typeDiscriminated = isTypeDiscriminated(fieldSlicing);
         return Object.entries(fieldSlicing.slices)
             .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
             .map(([sliceName, slice]) => {
@@ -114,18 +114,17 @@ export const collectSliceDefs = (
                 const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
                 // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
                 const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
-                const resourceType = isTypeDisc ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
+                const resourceType = typeDiscriminated ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
                 let typedBaseType = baseType;
                 if (resourceType) {
                     const resourceSchema = tsIndex.schemas.find(
-                        (s) => s.identifier.name === resourceType && s.identifier.kind === "resource",
+                        (s) => s.identifier.name === resourceType && isResourceIdentifier(s.identifier),
                     );
                     if (!resourceSchema) throw new Error(`Resource type '${resourceType}' not found for ${pkgName}.`);
                     typedBaseType = `${baseType}<${imports.types.use(resourceSchema.identifier)}>`;
                 }
                 return {
                     fieldName,
-                    baseType,
                     typedBaseType,
                     sliceName,
                     nameCandidates: slice.nameCandidates,
@@ -134,18 +133,210 @@ export const collectSliceDefs = (
                     excluded: slice.excluded ?? [],
                     array: Boolean(field.array),
                     constrainedChoice,
-                    typeDiscriminator: isTypeDisc,
+                    typeDiscriminated,
                     max: slice.max ?? 0,
                 };
             });
     });
 };
 
-export const generateSliceSetters = (
+export const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
+    for (const sliceDef of sliceDefs) {
+        const staticName = tsSliceStaticName(sliceDef.sliceName);
+        const json = JSON.stringify(sliceDef.match);
+        const prefix = `private static readonly ${staticName}: Record<string, unknown> = `;
+        if (prefix.length + json.length <= (w.opts.lineWidth ?? 120)) {
+            w.lineSM(`${prefix}${json}`);
+        } else {
+            w.curlyBlock([prefix.trimEnd()], () => {
+                for (const [key, value] of Object.entries(sliceDef.match)) {
+                    w.line(`${JSON.stringify(key)}: ${JSON.stringify(value)},`);
+                }
+            });
+        }
+    }
+    if (sliceDefs.length > 0) w.line();
+};
+
+/** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
+const valueToTypeLiteral = (value: unknown): string => {
+    if (value === null || value === undefined) return "undefined";
+    if (typeof value === "string") return JSON.stringify(value);
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (Array.isArray(value)) return `[${value.map(valueToTypeLiteral).join(", ")}]`;
+    if (typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>)
+            .map(([k, v]) => `${k}: ${valueToTypeLiteral(v)}`)
+            .join("; ");
+        return `{ ${entries} }`;
+    }
+    return "unknown";
+};
+
+export const generateSliceInputTypes = (
     w: TypeScript,
     imports: ProfileImports,
-    sliceDefs: SliceDef[],
     snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+) => {
+    if (sliceDefs.length === 0) return;
+    const tsProfileName = tsResourceName(snapshot.identifier);
+    for (const sliceDef of sliceDefs) {
+        const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const matchFields = sliceDef.typeDiscriminated ? [] : Object.keys(sliceDef.match);
+        const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
+        if (sliceDef.constrainedChoice) {
+            const cc = sliceDef.constrainedChoice;
+            allExcluded.push(cc.choiceBase);
+            for (const name of cc.allChoiceNames) {
+                if (!allExcluded.includes(name)) allExcluded.push(name);
+            }
+        }
+        const excludedNames = allExcluded.map((name) => JSON.stringify(name));
+        const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
+        const baseType = sliceDef.typedBaseType;
+        let inputTypeExpr = baseType;
+        if (excludedNames.length > 0) {
+            inputTypeExpr = `Omit<${inputTypeExpr}, ${excludedNames.join(" | ")}>`;
+        }
+        if (requiredNames.length > 0) {
+            inputTypeExpr = `${inputTypeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
+        }
+        if (sliceDef.constrainedChoice) {
+            inputTypeExpr = `${inputTypeExpr} & ${tsTypeFromIdentifier(imports.types, sliceDef.constrainedChoice.variantType)}`;
+        }
+        // Input type — setter parameter, no discriminator fields
+        w.lineSM(`export type ${inputTypeName} = ${inputTypeExpr}`);
+        // Flat type — getter return, includes readonly discriminator values as literal types
+        const safeMatchEntries =
+            matchFields.length > 0 && !sliceDef.constrainedChoice
+                ? matchFields
+                      .filter((key) => {
+                          const v = sliceDef.match[key];
+                          return Array.isArray(v) || typeof v !== "object" || v === null;
+                      })
+                      .map((key) => ({ key, typeLiteral: valueToTypeLiteral(sliceDef.match[key]) }))
+                : [];
+        if (safeMatchEntries.length > 0) {
+            w.curlyBlock([`export type ${flatTypeName} = ${inputTypeName} &`], () => {
+                for (const entry of safeMatchEntries) {
+                    w.lineSM(`readonly ${entry.key}: ${entry.typeLiteral}`);
+                }
+            });
+        } else {
+            w.lineSM(`export type ${flatTypeName} = ${inputTypeName}`);
+        }
+        w.line();
+    }
+};
+
+const generateSliceGetters = (
+    w: TypeScript,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+    methodNames: ProfileMethodBaseNames,
+) => {
+    const profileClassName = tsProfileClassName(snapshot);
+    const tsProfileName = tsResourceName(snapshot.identifier);
+    const defaultMode = w.opts.sliceGetterDefault ?? "flat";
+    for (const sliceDef of sliceDefs) {
+        const baseName = methodNames.slice(sliceDef);
+        const getMethodName = `get${baseName}`;
+        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}`;
+        const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
+        const tsField = tsFieldName(sliceDef.fieldName);
+        const fieldAccess = tsGet("this.resource", tsField);
+        const baseType = sliceDef.typedBaseType;
+        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
+
+        if (isUnbounded) {
+            // Unbounded slice: return an array or undefined
+            const defaultReturn = defaultMode === "raw" ? `${baseType}[]` : `${flatTypeName}[]`;
+
+            // Overload signatures
+            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName}[] | undefined`);
+            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType}[] | undefined`);
+            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
+
+            // Implementation
+            w.curlyBlock(
+                [
+                    "public",
+                    getMethodName,
+                    `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[] | undefined`,
+                ],
+                () => {
+                    w.line(`const match = ${matchRef}`);
+                    w.line(`const items = ${imports.helpers.use("getArraySliceAll")}(${fieldAccess}, match)`);
+                    w.line("if (items.length === 0) return undefined");
+                    if (sliceDef.typeDiscriminated) {
+                        w.line(`if (mode === 'raw') return items as ${baseType}[]`);
+                    } else {
+                        w.line("if (mode === 'raw') return items");
+                    }
+                    if (sliceDef.constrainedChoice) {
+                        const cc = sliceDef.constrainedChoice;
+                        w.line(
+                            `return items.map(item => ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
+                        );
+                    } else {
+                        w.line(`return items as unknown as ${flatTypeName}[]`);
+                    }
+                },
+            );
+        } else {
+            // Single-element slice: return single item or undefined
+            const defaultReturn = defaultMode === "raw" ? baseType : flatTypeName;
+
+            // Overload signatures
+            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName} | undefined`);
+            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
+            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
+
+            // Implementation
+            w.curlyBlock(
+                [
+                    "public",
+                    getMethodName,
+                    `(mode: 'flat' | 'raw' = '${defaultMode}'): ${flatTypeName} | ${baseType} | undefined`,
+                ],
+                () => {
+                    w.line(`const match = ${matchRef}`);
+                    if (sliceDef.array) {
+                        w.line(`const item = ${imports.helpers.use("getArraySlice")}(${fieldAccess}, match)`);
+                        w.line("if (!item) return undefined");
+                    } else {
+                        w.line(`const item = ${fieldAccess}`);
+                        w.line(`if (!item || !${imports.helpers.use("matchesValue")}(item, match)) return undefined`);
+                    }
+                    if (sliceDef.typeDiscriminated) {
+                        w.line(`if (mode === 'raw') return item as ${baseType}`);
+                    } else {
+                        w.line("if (mode === 'raw') return item");
+                    }
+                    if (sliceDef.constrainedChoice) {
+                        const cc = sliceDef.constrainedChoice;
+                        w.line(
+                            `return ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                        );
+                    } else {
+                        w.line(`return item as unknown as ${flatTypeName}`);
+                    }
+                },
+            );
+        }
+        w.line();
+    }
+};
+
+const generateSliceSetters = (
+    w: TypeScript,
+    imports: ProfileImports,
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
     methodNames: ProfileMethodBaseNames,
 ) => {
     const profileClassName = tsProfileClassName(snapshot);
@@ -154,7 +345,7 @@ export const generateSliceSetters = (
         const baseName = methodNames.slice(sliceDef);
         const methodName = `set${baseName}`;
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
+        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
@@ -219,103 +410,14 @@ export const generateSliceSetters = (
     }
 };
 
-export const generateSliceGetters = (
+export const generateSliceMethods = (
     w: TypeScript,
     imports: ProfileImports,
-    sliceDefs: SliceDef[],
     snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
     methodNames: ProfileMethodBaseNames,
 ) => {
-    const profileClassName = tsProfileClassName(snapshot);
-    const tsProfileName = tsResourceName(snapshot.identifier);
-    const defaultMode = w.opts.sliceGetterDefault ?? "flat";
-    for (const sliceDef of sliceDefs) {
-        const baseName = methodNames.slice(sliceDef);
-        const getMethodName = `get${baseName}`;
-        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-        const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
-        const tsField = tsFieldName(sliceDef.fieldName);
-        const fieldAccess = tsGet("this.resource", tsField);
-        const baseType = sliceDef.typedBaseType;
-        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
-
-        if (isUnbounded) {
-            // Unbounded slice: return an array or undefined
-            const defaultReturn = defaultMode === "raw" ? `${baseType}[]` : `${flatTypeName}[]`;
-
-            // Overload signatures
-            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName}[] | undefined`);
-            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType}[] | undefined`);
-            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
-
-            // Implementation
-            w.curlyBlock(
-                [
-                    "public",
-                    getMethodName,
-                    `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[] | undefined`,
-                ],
-                () => {
-                    w.line(`const match = ${matchRef}`);
-                    w.line(`const items = ${imports.helpers.use("getArraySliceAll")}(${fieldAccess}, match)`);
-                    w.line("if (items.length === 0) return undefined");
-                    if (sliceDef.typeDiscriminator) {
-                        w.line(`if (mode === 'raw') return items as ${baseType}[]`);
-                    } else {
-                        w.line("if (mode === 'raw') return items");
-                    }
-                    if (sliceDef.constrainedChoice) {
-                        const cc = sliceDef.constrainedChoice;
-                        w.line(
-                            `return items.map(item => ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
-                        );
-                    } else {
-                        w.line(`return items as unknown as ${flatTypeName}[]`);
-                    }
-                },
-            );
-        } else {
-            // Single-element slice: return single item or undefined
-            const defaultReturn = defaultMode === "raw" ? baseType : flatTypeName;
-
-            // Overload signatures
-            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName} | undefined`);
-            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
-            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
-
-            // Implementation
-            w.curlyBlock(
-                [
-                    "public",
-                    getMethodName,
-                    `(mode: 'flat' | 'raw' = '${defaultMode}'): ${flatTypeName} | ${baseType} | undefined`,
-                ],
-                () => {
-                    w.line(`const match = ${matchRef}`);
-                    if (sliceDef.array) {
-                        w.line(`const item = ${imports.helpers.use("getArraySlice")}(${fieldAccess}, match)`);
-                        w.line("if (!item) return undefined");
-                    } else {
-                        w.line(`const item = ${fieldAccess}`);
-                        w.line(`if (!item || !${imports.helpers.use("matchesValue")}(item, match)) return undefined`);
-                    }
-                    if (sliceDef.typeDiscriminator) {
-                        w.line(`if (mode === 'raw') return item as ${baseType}`);
-                    } else {
-                        w.line("if (mode === 'raw') return item");
-                    }
-                    if (sliceDef.constrainedChoice) {
-                        const cc = sliceDef.constrainedChoice;
-                        w.line(
-                            `return ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
-                        );
-                    } else {
-                        w.line(`return item as unknown as ${flatTypeName}`);
-                    }
-                },
-            );
-        }
-        w.line();
-    }
+    // All slice setters first, then all slice getters.
+    generateSliceSetters(w, imports, snapshot, sliceDefs, methodNames);
+    generateSliceGetters(w, imports, snapshot, sliceDefs, methodNames);
 };
