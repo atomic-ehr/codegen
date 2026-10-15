@@ -20,7 +20,7 @@ import {
     tsResourceName,
     tsValueFieldName,
 } from "./name";
-import { collectProfileFactoryInfo } from "./profile";
+import { collectProfileFactoryInfo } from "./profile-factory";
 import { tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 

@@ -1,18 +1,10 @@
 import { isResourceIdentifier, type SnapshotProfileTypeSchema } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import {
-    createImportRenderer,
-    type ProfileImports,
-    profileModuleImports,
-    profilePyType,
-    resolveFhirType,
-} from "./imports";
+import { createImportRenderer, type ProfileImports, profileModuleImports } from "./imports";
 import { generateExtensionMethods } from "./profile-extensions";
 import {
-    buildCallArgs,
-    buildParamSignature,
     collectProfileFactoryInfo,
-    generateCreateResource,
+    generateFactoryMethods,
     generateFieldAccessors,
     type ProfileFactoryInfo,
 } from "./profile-factory";
@@ -35,67 +27,6 @@ import type { Python } from "./writer";
 // ---------------------------------------------------------------------------
 // Class method generators
 // ---------------------------------------------------------------------------
-
-const generateFromResourceMethod = (
-    w: Python,
-    annotatedBaseTypeName: string,
-    className: string,
-    isResourceBase: boolean,
-): void => {
-    w.line("@classmethod");
-    w.line(`def from_resource(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
-    w.indentBlock(() => {
-        if (isResourceBase) {
-            w.line('meta = getattr(resource, "meta", None)');
-            w.line('profiles = getattr(meta, "profile", None) if meta is not None else None');
-            w.line("if profiles is None or cls.canonical_url not in profiles:");
-            w.indentBlock(() => {
-                w.line(`raise ValueError(f"${className}: meta.profile must include {cls.canonical_url}")`);
-            });
-        }
-        w.line("profile = cls(resource)");
-        w.line("result = profile.validate()");
-        w.line('if result["errors"]:');
-        w.indentBlock(() => w.line('raise ValueError("; ".join(result["errors"]))'));
-        w.line("return profile");
-    });
-    w.line();
-};
-
-const generateApplyMethod = (
-    w: Python,
-    imports: ProfileImports,
-    annotatedBaseTypeName: string,
-    className: string,
-    isResourceBase: boolean,
-): void => {
-    w.line("@classmethod");
-    w.line(`def apply(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
-    w.indentBlock(() => {
-        if (isResourceBase) w.line(`${imports.helpers.use("ensure_profile")}(resource, cls.canonical_url)`);
-        w.line("return cls(resource)");
-    });
-    w.line();
-};
-
-const generateCreateMethod = (
-    w: Python,
-    className: string,
-    hasParams: boolean,
-    factoryInfo: ProfileFactoryInfo,
-): void => {
-    w.line("@classmethod");
-    if (hasParams) {
-        w.line(`def create(cls, ${buildParamSignature(factoryInfo, w.nameFormatFunction)}) -> "${className}":`);
-        w.indentBlock(() =>
-            w.line(`return cls.apply(cls.create_resource(${buildCallArgs(factoryInfo, w.nameFormatFunction)}))`),
-        );
-    } else {
-        w.line(`def create(cls) -> "${className}":`);
-        w.indentBlock(() => w.line("return cls.apply(cls.create_resource())"));
-    }
-    w.line();
-};
 
 const generateValidateMethod = (w: Python, className: string, errorLines: string[], warningLines: string[]): void => {
     w.line("def validate(self) -> dict[str, list[str]]:");
@@ -124,23 +55,8 @@ const generateProfileClass = (
     methodNames: ProfileMethodBaseNames,
 ): void => {
     const className = pyProfileClassName(snapshot);
-    const baseTypeName = profilePyType(imports, snapshot.base);
     const isResourceBase = isResourceIdentifier(snapshot.base);
     const canonicalUrl = snapshot.identifier.url ?? "";
-    const typedResources = [
-        ...new Set(
-            sliceDefs
-                .filter((s) => s.isTypeDiscriminated)
-                .map((s) => s.typeDiscriminatorType)
-                .filter((resource): resource is string => resource !== undefined),
-        ),
-    ];
-    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
-    const annotatedBaseTypeName =
-        typedResources.length > 0
-            ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, snapshot, "Resource"))}]`
-            : baseTypeName;
-    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
 
     w.line(`class ${className}:`);
     w.indentBlock(() => {
@@ -158,23 +74,8 @@ const generateProfileClass = (
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, imports, sliceDefs);
-
-        w.line(`def __init__(self, resource: ${annotatedBaseTypeName}) -> None:`);
-        w.indentBlock(() => w.line("self._resource = resource"));
-        w.line();
-
-        generateFromResourceMethod(w, annotatedBaseTypeName, className, isResourceBase);
-        generateApplyMethod(w, imports, annotatedBaseTypeName, className, isResourceBase);
-        generateCreateResource(w, imports, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
-        w.line();
-        generateCreateMethod(w, className, hasParams, factoryInfo);
-
-        w.line(`def to_resource(self) -> ${annotatedBaseTypeName}:`);
-        w.indentBlock(() => w.line("return self._resource"));
-        w.line();
-
-        if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
-            generateFieldAccessors(w, imports, className, factoryInfo, methodNames.allBaseNames);
+        generateFactoryMethods(w, imports, tsIndex, snapshot, factoryInfo, sliceDefs);
+        generateFieldAccessors(w, imports, snapshot, factoryInfo, methodNames);
 
         const extensions = snapshot.extensions ?? [];
         if (extensions.length > 0) generateExtensionMethods(w, imports, tsIndex, snapshot, className, methodNames);
