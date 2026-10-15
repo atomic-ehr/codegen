@@ -108,11 +108,11 @@ const extractTypeDiscriminatorResource = (
 export const collectSliceDefs = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
 ): SliceDef[] => {
-    const pkgName = flatProfile.identifier.package;
-    return Object.entries(flatProfile.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
-        const field = flatProfile.fields[fieldName];
+    const pkgName = snapshot.identifier.package;
+    return Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
+        const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
         const choiceBaseNames = new Set<string>();
         const baseSchema = tsIndex.resolveType(field.type);
@@ -150,7 +150,7 @@ export const collectSliceDefs = (
                             : undefined,
                     isTypeDiscriminated: typeDiscriminated,
                     typeDiscriminatorType: typeDiscriminatorResource
-                        ? profilePyType(imports, resolveFhirType(tsIndex, flatProfile, typeDiscriminatorResource))
+                        ? profilePyType(imports, resolveFhirType(tsIndex, snapshot, typeDiscriminatorResource))
                         : undefined,
                     nameCandidates: slice.nameCandidates,
                 };

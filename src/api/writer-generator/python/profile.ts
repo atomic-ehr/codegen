@@ -40,7 +40,7 @@ type ProfileGenContext = {
     w: Python;
     imports: ProfileImports;
     tsIndex: TypeSchemaIndex;
-    flatProfile: SnapshotProfileTypeSchema;
+    snapshot: SnapshotProfileTypeSchema;
     baseTypeName: string;
     /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
     annotatedBaseTypeName: string;
@@ -140,7 +140,7 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
         w,
         imports,
         tsIndex,
-        flatProfile,
+        snapshot,
         baseTypeName,
         annotatedBaseTypeName,
         className,
@@ -170,9 +170,9 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
         generateFieldAccessors(w, imports, className, factoryInfo, resolvedNames.allBaseNames);
 
-    const extensions = flatProfile.extensions ?? [];
+    const extensions = snapshot.extensions ?? [];
     if (extensions.length > 0)
-        generateExtensionMethods(w, imports, tsIndex, flatProfile, className, resolvedNames.extensions);
+        generateExtensionMethods(w, imports, tsIndex, snapshot, className, resolvedNames.extensions);
 
     if (sliceDefs.length > 0) {
         generateSliceGetters(w, imports, sliceDefs, resolvedNames.slices);
@@ -185,18 +185,18 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
 export const generateProfileModule = (
     w: Python,
     tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
 ): void => {
     w.generateDisclaimer();
     w.line("from __future__ import annotations");
     w.line();
-    const imports = profileModuleImports(w, tsIndex, flatProfile);
-    const className = pyProfileClassName(flatProfile);
-    const baseTypeName = profilePyType(imports, flatProfile.base);
-    const isResourceBase = isResourceIdentifier(flatProfile.base);
-    const canonicalUrl = flatProfile.identifier.url ?? "";
-    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, flatProfile);
-    const sliceDefs = collectSliceDefs(imports, tsIndex, flatProfile);
+    const imports = profileModuleImports(w, tsIndex, snapshot);
+    const className = pyProfileClassName(snapshot);
+    const baseTypeName = profilePyType(imports, snapshot.base);
+    const isResourceBase = isResourceIdentifier(snapshot.base);
+    const canonicalUrl = snapshot.identifier.url ?? "";
+    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, snapshot);
+    const sliceDefs = collectSliceDefs(imports, tsIndex, snapshot);
     const typedResources = [
         ...new Set(
             sliceDefs
@@ -207,16 +207,16 @@ export const generateProfileModule = (
     ];
     const annotatedBaseTypeName =
         typedResources.length > 0
-            ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, flatProfile, "Resource"))}]`
+            ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, snapshot, "Resource"))}]`
             : baseTypeName;
-    const extensions = flatProfile.extensions ?? [];
-    const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(flatProfile.fields));
-    const { errorLines, warningLines } = collectValidateBody(imports, flatProfile, tsIndex, w.nameFormatFunction);
+    const extensions = snapshot.extensions ?? [];
+    const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(snapshot.fields));
+    const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
 
     w.line(`class ${className}:`);
     w.indentBlock(() => {
-        if (flatProfile.description) {
-            w.line(`"""${flatProfile.description}`);
+        if (snapshot.description) {
+            w.line(`"""${snapshot.description}`);
             w.line();
             w.line(`CanonicalURL: ${canonicalUrl}`);
             w.line(`"""`);
@@ -225,7 +225,7 @@ export const generateProfileModule = (
         // The snapshot's base is the nearest non-profile schema in the hierarchy
         // (see buildProfileSnapshot), so no further resolution is needed: an
         // extension profile bases on Extension and gets no resource type.
-        if (isResourceBase) w.line(`resource_type: str = ${JSON.stringify(flatProfile.base.name)}`);
+        if (isResourceBase) w.line(`resource_type: str = ${JSON.stringify(snapshot.base.name)}`);
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, imports, sliceDefs);
@@ -233,7 +233,7 @@ export const generateProfileModule = (
             w,
             imports,
             tsIndex,
-            flatProfile,
+            snapshot,
             baseTypeName,
             annotatedBaseTypeName,
             className,
@@ -260,9 +260,9 @@ export const generateProfilesInit = (
     w.generateDisclaimer();
     const imports = createImportRenderer(w);
     const seen = new Set<string>();
-    for (const profile of profiles) {
-        const className = pyProfileClassName(profile);
-        const moduleName = pyProfileModuleName(tsIndex, profile);
+    for (const snapshot of profiles) {
+        const className = pyProfileClassName(snapshot);
+        const moduleName = pyProfileModuleName(tsIndex, snapshot);
         if (seen.has(className)) continue;
         seen.add(className);
         imports(`.${moduleName}`, className);

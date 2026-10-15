@@ -103,8 +103,8 @@ export type SliceDef = {
 };
 
 export const collectSliceDefs = (
-    tsIndex: TypeSchemaIndex,
     imports: ProfileImports,
+    tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ): SliceDef[] => {
     const reservedBaseNames = new Set<string>();
@@ -187,14 +187,14 @@ export const generateSliceSetters = (
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
-                        `const values = input.map(item => ${imports.helper.use("matchesValue")}(item, match) ? item as ${baseType} : ${imports.helper.use("applySliceMatch")}<${baseType}>(${imports.helper.use("wrapSliceChoice")}<${baseType}>(item, ${JSON.stringify(cc.variant)}), match))`,
+                        `const values = input.map(item => ${imports.helpers.use("matchesValue")}(item, match) ? item as ${baseType} : ${imports.helpers.use("applySliceMatch")}<${baseType}>(${imports.helpers.use("wrapSliceChoice")}<${baseType}>(item, ${JSON.stringify(cc.variant)}), match))`,
                     );
                 } else {
                     w.line(
-                        `const values = input.map(item => ${imports.helper.use("matchesValue")}(item, match) ? item as ${baseType} : ${imports.helper.use("applySliceMatch")}<${baseType}>(item, match))`,
+                        `const values = input.map(item => ${imports.helpers.use("matchesValue")}(item, match) ? item as ${baseType} : ${imports.helpers.use("applySliceMatch")}<${baseType}>(item, match))`,
                     );
                 }
-                w.line(`${imports.helper.use("setArraySliceAll")}(arr, match, values)`);
+                w.line(`${imports.helpers.use("setArraySliceAll")}(arr, match, values)`);
                 w.line("return this");
             });
         } else {
@@ -204,10 +204,10 @@ export const generateSliceSetters = (
             const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
             w.curlyBlock(["public", methodName, paramSignature], () => {
                 w.line(`const match = ${matchRef}`);
-                w.curlyBlock(["if", `(input && ${imports.helper.use("matchesValue")}(input, match))`], () => {
+                w.curlyBlock(["if", `(input && ${imports.helpers.use("matchesValue")}(input, match))`], () => {
                     if (sliceDef.array) {
                         w.line(
-                            `${imports.helper.use("setArraySlice")}(${fieldAccess} ??= [], match, input as ${baseType})`,
+                            `${imports.helpers.use("setArraySlice")}(${fieldAccess} ??= [], match, input as ${baseType})`,
                         );
                     } else {
                         w.line(`${fieldAccess} = input as ${baseType}`);
@@ -218,14 +218,14 @@ export const generateSliceSetters = (
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
-                        `const wrapped = ${imports.helper.use("wrapSliceChoice")}<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
+                        `const wrapped = ${imports.helpers.use("wrapSliceChoice")}<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
                     );
-                    w.line(`const value = ${imports.helper.use("applySliceMatch")}<${baseType}>(wrapped, match)`);
+                    w.line(`const value = ${imports.helpers.use("applySliceMatch")}<${baseType}>(wrapped, match)`);
                 } else {
-                    w.line(`const value = ${imports.helper.use("applySliceMatch")}<${baseType}>(${inputExpr}, match)`);
+                    w.line(`const value = ${imports.helpers.use("applySliceMatch")}<${baseType}>(${inputExpr}, match)`);
                 }
                 if (sliceDef.array) {
-                    w.line(`${imports.helper.use("setArraySlice")}(${fieldAccess} ??= [], match, value)`);
+                    w.line(`${imports.helpers.use("setArraySlice")}(${fieldAccess} ??= [], match, value)`);
                 } else {
                     w.line(`${fieldAccess} = value`);
                 }
@@ -274,7 +274,7 @@ export const generateSliceGetters = (
                 ],
                 () => {
                     w.line(`const match = ${matchRef}`);
-                    w.line(`const items = ${imports.helper.use("getArraySliceAll")}(${fieldAccess}, match)`);
+                    w.line(`const items = ${imports.helpers.use("getArraySliceAll")}(${fieldAccess}, match)`);
                     w.line("if (items.length === 0) return undefined");
                     if (sliceDef.typeDiscriminator) {
                         w.line(`if (mode === 'raw') return items as ${baseType}[]`);
@@ -284,7 +284,7 @@ export const generateSliceGetters = (
                     if (sliceDef.constrainedChoice) {
                         const cc = sliceDef.constrainedChoice;
                         w.line(
-                            `return items.map(item => ${imports.helper.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
+                            `return items.map(item => ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
                         );
                     } else {
                         w.line(`return items as unknown as ${flatTypeName}[]`);
@@ -310,11 +310,11 @@ export const generateSliceGetters = (
                 () => {
                     w.line(`const match = ${matchRef}`);
                     if (sliceDef.array) {
-                        w.line(`const item = ${imports.helper.use("getArraySlice")}(${fieldAccess}, match)`);
+                        w.line(`const item = ${imports.helpers.use("getArraySlice")}(${fieldAccess}, match)`);
                         w.line("if (!item) return undefined");
                     } else {
                         w.line(`const item = ${fieldAccess}`);
-                        w.line(`if (!item || !${imports.helper.use("matchesValue")}(item, match)) return undefined`);
+                        w.line(`if (!item || !${imports.helpers.use("matchesValue")}(item, match)) return undefined`);
                     }
                     if (sliceDef.typeDiscriminator) {
                         w.line(`if (mode === 'raw') return item as ${baseType}`);
@@ -324,7 +324,7 @@ export const generateSliceGetters = (
                     if (sliceDef.constrainedChoice) {
                         const cc = sliceDef.constrainedChoice;
                         w.line(
-                            `return ${imports.helper.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                            `return ${imports.helpers.use("unwrapSliceChoice")}<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
                         );
                     } else {
                         w.line(`return item as unknown as ${flatTypeName}`);

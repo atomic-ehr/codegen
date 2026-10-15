@@ -40,13 +40,13 @@ type ValidationBody = { errorLines: string[]; warningLines: string[] };
 /** Collect validation expressions, registering helper imports at each emitted call. */
 export const collectValidateBody = (
     imports: ProfileImports,
-    flatProfile: SnapshotProfileTypeSchema,
     tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
     formatName: (s: string) => string,
 ): ValidationBody => {
     const errorLines: string[] = [];
     const warningLines: string[] = [];
-    const fields = flatProfile.fields;
+    const fields = snapshot.fields;
     for (const [name, field] of Object.entries(fields)) {
         const pyName = pyFieldName(name, formatName);
         if (isChoiceInstanceField(field)) continue;
@@ -73,7 +73,7 @@ export const collectValidateBody = (
         const validation = collectRegularFieldValidation(
             imports,
             field,
-            flatProfile.slicing?.[name],
+            snapshot.slicing?.[name],
             pyName,
             tsIndex,
             formatName,
@@ -85,7 +85,7 @@ export const collectValidateBody = (
     // Emitted here (not via the regular field loop) because they intentionally
     // live outside `fields` to avoid pulling unrelated base metadata into the
     // profile's getter/setter surface.
-    for (const inheritedName of flatProfile.inheritedRequiredFields ?? []) {
+    for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
         errorLines.push(
             `errors.extend(${imports.helpers.use("validate_required")}(self._resource, profile_name, ${JSON.stringify(pyFieldName(inheritedName, formatName))}))`,
         );
