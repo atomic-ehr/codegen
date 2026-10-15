@@ -95,7 +95,7 @@ export const profileModuleImports = (
     const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
     for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
+        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext);
         if (!info) continue;
         if (!extProfileImports.has(info.className)) {
             const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;

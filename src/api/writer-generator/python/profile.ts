@@ -76,9 +76,7 @@ const generateProfileClass = (
         generateStaticSliceFields(w, imports, sliceDefs);
         generateFactoryMethods(w, imports, tsIndex, snapshot, factoryInfo, sliceDefs);
         generateFieldAccessors(w, imports, snapshot, factoryInfo, methodNames);
-
-        const extensions = snapshot.extensions ?? [];
-        if (extensions.length > 0) generateExtensionMethods(w, imports, tsIndex, snapshot, className, methodNames);
+        generateExtensionMethods(w, imports, tsIndex, snapshot, methodNames);
 
         if (sliceDefs.length > 0) {
             generateSliceGetters(w, imports, sliceDefs, methodNames);
