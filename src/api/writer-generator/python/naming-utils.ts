@@ -1,7 +1,7 @@
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
-import { isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
+import { isNestedIdentifier, isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -86,7 +86,7 @@ export const canonicalToName = (canonical: string | undefined, dropFragment = tr
 };
 
 export const deriveResourceName = (id: TypeIdentifier): string => {
-    if (id.kind === "nested") {
+    if (isNestedIdentifier(id)) {
         const url = id.url;
         const path = canonicalToName(url, false);
         if (!path) return "";

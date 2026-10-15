@@ -12,13 +12,18 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts
 import { sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CanonicalUrl,
+    type ChoiceFieldInstance,
     type EnumDefinition,
     type Field,
+    isNestedIdentifier,
     isNestedTypeSchema,
+    isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
+    type RegularField,
     type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
@@ -506,12 +511,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const withExtensions = this.shouldAddPrimitiveExtensions(schema);
 
         for (const [fieldName, field] of sortedFields) {
-            if ("choices" in field && field.choices) continue;
+            if (!isNotChoiceDeclarationField(field)) continue;
 
             const fieldInfo = this.buildFieldInfo(fieldName, field, schema);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}${fieldInfo.comment ?? ""}`);
 
-            if (withExtensions && "type" in field && isPrimitiveIdentifier(field.type)) {
+            if (withExtensions && isPrimitiveIdentifier(field.type)) {
                 this.addPrimitiveExtensionField(fieldName, field.array ?? false);
             }
         }
@@ -521,8 +526,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
         if (!this.opts.primitiveTypeExtension) return false;
         if (!isSpecializationTypeSchema(schema)) return false;
         for (const field of Object.values(schema.fields ?? {})) {
-            if ("choices" in field && field.choices) continue;
-            if ("type" in field && isPrimitiveIdentifier(field.type)) return true;
+            if (!isNotChoiceDeclarationField(field)) continue;
+            if (isPrimitiveIdentifier(field.type)) return true;
         }
         return false;
     }
@@ -537,13 +542,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private buildFieldInfo(
         fieldName: string,
-        field: Field,
+        field: RegularField | ChoiceFieldInstance,
         schema: SpecializationTypeSchema | NestedTypeSchema,
     ): FieldInfo {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
         const fieldType = this.determineFieldType(field, fieldName, schema);
         const defaultValue = this.getFieldDefaultValue(field, fieldName);
-        const family = this.tsIndex && "reference" in field ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
+        const family = this.tsIndex ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
 
         return {
             name: pyFieldName,
@@ -554,12 +559,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private determineFieldType(
-        field: Field,
+        field: RegularField | ChoiceFieldInstance,
         fieldName: string,
         schema: SpecializationTypeSchema | NestedTypeSchema,
     ): string {
         const schemaName = schema.identifier.name;
-        let fieldType = field ? this.getBaseFieldType(field) : "";
+        let fieldType = this.getBaseFieldType(field);
 
         // String-bound generics (Coding.code → T, CodeableConcept.coding → Coding[T])
         const rewrite = GENERIC_FIELD_REWRITES[schemaName]?.[fieldName];
@@ -581,7 +586,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
 
         // Resource-bound generics: field's type is itself a generic schema (passthrough)
-        if ("type" in field && field.type && params.length > 0) {
+        if (params.length > 0) {
             assert(this.tsIndex !== undefined);
             const target = this.tsIndex.resolveType(field.type);
             if (target && (isNestedTypeSchema(target) || isSpecializationTypeSchema(target))) {
@@ -595,8 +600,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
             }
         }
 
-        if ("enum" in field && field.enum) {
-            const baseTypeName = "type" in field ? field.type.name : "";
+        if (field.enum) {
+            const baseTypeName = field.type.name;
             if (baseTypeName in GENERIC_FIELD_REWRITES) {
                 fieldType = `${fieldType}[${pyEnumType(field.enum)}]`;
             } else if (!field.enum.isOpen) {
@@ -605,7 +610,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             }
         }
 
-        if (fieldType === "Reference" && "reference" in field && field.reference) {
+        if (fieldType === "Reference" && field.reference) {
             assert(this.tsIndex !== undefined);
             const typeParam = pyReferenceTypeParam(field, this.tsIndex);
             if (typeParam) fieldType = `Reference[${typeParam}]`;
@@ -623,23 +628,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private getBaseFieldType(field: Field): string {
-        if ("type" in field && field.type.kind === "resource") return `${field.type.name}Family`;
-
-        if ("type" in field && field.type.kind === "nested") return deriveResourceName(field.type);
-
-        if ("type" in field && field.type.kind === "primitive-type")
-            return PRIMITIVE_TYPE_MAP[field.type.name] ?? "str";
-
-        return "type" in field ? field.type.name : "";
+        if (!isNotChoiceDeclarationField(field)) return "";
+        if (isResourceIdentifier(field.type)) return `${field.type.name}Family`;
+        if (isNestedIdentifier(field.type)) return deriveResourceName(field.type);
+        if (isPrimitiveIdentifier(field.type)) return PRIMITIVE_TYPE_MAP[field.type.name] ?? "str";
+        return field.type.name;
     }
 
     private getFieldDefaultValue(field: Field, fieldName: string): string {
         const aliasSpec = `alias="${fieldName}", serialization_alias="${fieldName}"`;
-
-        if (!field.required) {
-            return ` = Field(None, ${aliasSpec})`;
-        }
-
+        if (!field.required) return ` = Field(None, ${aliasSpec})`;
         return ` = Field(${aliasSpec})`;
     }
 
