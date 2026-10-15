@@ -7,7 +7,7 @@ import {
     pyFhirPackageByName,
     pyPackage,
 } from "@root/api/writer-generator/python/naming-utils.ts";
-import { type SectionHandle, SectionWriter } from "@root/api/writer-generator/section-writer";
+import { SectionWriter } from "@root/api/writer-generator/section-writer";
 import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type { WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -30,7 +30,8 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
-import { pyReferenceFamilyName, pyReferenceTypeParam, type TypingImports } from "./naming-utils";
+import { type LibraryImports, pyImportFrom, type TypeModuleImports, typeModuleImports } from "./imports";
+import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
 import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
 import { pyProfileModuleName } from "./profile-naming";
 
@@ -43,8 +44,6 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
     PascalCase: pascalCase,
     camelCase: camelCase,
 };
-
-const MAX_IMPORT_LINE_LENGTH = 100;
 
 /** String-bound generics; a rewrite receives the field's own type name. */
 const GENERIC_FIELD_REWRITES: Record<string, Record<string, (fieldType: string) => string>> = {
@@ -71,20 +70,10 @@ const collectResourceGenericTypeVars = (
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
 };
 
-const pyEnumType = (tImports: TypingImports, enumDef: EnumDefinition): string => {
+const pyEnumType = (tImports: LibraryImports, enumDef: EnumDefinition): string => {
     const values = enumDef.values.map((e) => `"${e}"`).join(", ");
     const literal = tImports.use("Literal");
     return enumDef.isOpen ? `${literal}[${values}] | str` : `${literal}[${values}]`;
-};
-
-/** Import sections of a type module (`base.py` or a resource module): one per imported module, plus `types` for FHIR types. */
-type TypeModuleImports = {
-    pydantic: SectionHandle<never, string>;
-    typing: TypingImports;
-    typingExtensions: SectionHandle<never, string>;
-    fhirpy: SectionHandle<never, string>;
-    types: SectionHandle<never, TypeIdentifier>;
-    preprocessor: SectionHandle<never, string>;
 };
 
 export interface PythonGeneratorOptions extends WriterOptions {
@@ -228,8 +217,8 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         return models;
     }
 
-    private generateModelRebuilds(models: string[]): void {
-        for (const modelName of models.sort()) {
+    private generateModelRebuilds(models: readonly string[]): void {
+        for (const modelName of [...models].sort()) {
             this.line(`${modelName}.model_rebuild()`);
         }
     }
@@ -250,7 +239,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.generateDisclaimer();
         const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-        const imports = this.typeModuleImports(packageName, `${pyFhirPackage}.base`);
+        const imports = typeModuleImports(this, packageName, `${pyFhirPackage}.base`);
         if (hasGenericTypes) {
             // Covariant: the parameter says what a value holds, and callers
             // hand these models on to code that asks for the wider type.
@@ -290,29 +279,17 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
      *  Explicit, so strict mypy (`no_implicit_reexport`) sees the names. */
     private importPackageProfiles(profileNames: string[]): void {
         if (profileNames.length === 0) return;
-        this.pyImportFrom(".profiles", ...profileNames);
+        pyImportFrom(this, ".profiles", ...profileNames);
     }
 
     private importComplexTypes(fullPyPackageName: string, packageComplexTypes?: SpecializationTypeSchema[]): string[] {
         if (!packageComplexTypes || packageComplexTypes.length === 0) return [];
 
         const baseTypes = packageComplexTypes.map((t) => t.identifier.name).sort();
-        this.pyImportFrom(`${fullPyPackageName}.base`, ...baseTypes);
+        pyImportFrom(this, `${fullPyPackageName}.base`, ...baseTypes);
         this.line();
 
         return baseTypes;
-    }
-
-    private buildImportLine(entities: string[], start: number, maxLen: number): { line: string; next: number } {
-        let line = "";
-        let i = start;
-        while (i < entities.length && line.length < maxLen) {
-            if (line.length > 0) line += ", ";
-            line += entities[i];
-            i++;
-        }
-        if (i < entities.length) line += ", \\";
-        return { line, next: i };
     }
 
     private importResources(
@@ -336,7 +313,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         const moduleName = `${fullPyPackageName}.${snakeCase(resource.identifier.name)}`;
         const importNames = this.collectResourceImportNames(resource);
 
-        this.pyImportFrom(moduleName, ...importNames);
+        pyImportFrom(this, moduleName, ...importNames);
 
         return [...importNames];
     }
@@ -373,7 +350,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
 
         this.generateDisclaimer();
         const module = pyPackage(this.opts.rootPackageName, schema.identifier);
-        const imports = this.typeModuleImports(schema.identifier.package, module);
+        const imports = typeModuleImports(this, schema.identifier.package, module);
         if (typeVars.length > 0) {
             this.line();
             for (const { typeVar, constraint } of typeVars) {
@@ -389,47 +366,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         this.generateNestedTypes(imports, schema);
         this.line();
         this.generateType(imports, schema);
-    }
-
-    /** `from __future__` stays first; each section below imports only the names its module's code uses. */
-    private typeModuleImports(packageName: string, module: string): TypeModuleImports {
-        this.line("from __future__ import annotations");
-        const pydantic = this.moduleImports("pydantic");
-        // `List` is a FHIR resource class too, so the typing alias keeps them apart.
-        const typing = this.moduleImports("typing", (name) => (name === "List" ? "PyList" : name));
-        const typingExtensions = this.moduleImports("typing_extensions");
-        const fhirpy = this.moduleImports(`${this.opts.rootPackageName}.fhirpy_base_model`);
-        this.line();
-        const types = this.section<never, TypeIdentifier>({
-            name: deriveResourceName,
-            render: (_definitions, usages) => {
-                const byModule: Record<string, string[]> = {};
-                for (const { key, local } of usages) {
-                    const from = pyPackage(this.opts.rootPackageName, key);
-                    // Types declared in this module are written by name.
-                    if (from === module) continue;
-                    const name = deriveResourceName(key);
-                    (byModule[from] ??= []).push(name === local ? name : `${name} as ${local}`);
-                }
-                for (const [from, names] of Object.entries(byModule).sort(([a], [b]) => a.localeCompare(b)))
-                    this.pyImportFrom(from, ...names.sort());
-            },
-        });
-        const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, packageName);
-        const preprocessor = this.moduleImports(`${pyFhirPackage}.resource_preprocessor`);
-        return { pydantic, typing, typingExtensions, fhirpy, types, preprocessor };
-    }
-
-    /** One `from <module> import ...` line naming the symbols used from `module`. */
-    private moduleImports(module: string, name = (key: string) => key): SectionHandle<never, string> {
-        return this.section<never, string>({
-            name,
-            render: (_definitions, usages) => {
-                if (usages.length === 0) return;
-                const names = usages.map(({ key, local }) => (key === local ? key : `${key} as ${local}`));
-                this.pyImportFrom(module, ...names.sort());
-            },
-        });
     }
 
     private generateType(imports: TypeModuleImports, schema: SpecializationTypeSchema | NestedTypeSchema): void {
@@ -724,33 +660,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         for (const subtype of schema.nested) {
             this.generateType(imports, subtype);
         }
-    }
-
-    pyImportFrom(pyPackage: string, ...entities: string[]): void {
-        const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
-
-        if (this.shouldUseSingleLineImport(oneLine, entities)) {
-            this.line(oneLine);
-        } else {
-            this.writeMultiLineImport(pyPackage, entities);
-        }
-    }
-
-    private shouldUseSingleLineImport(oneLine: string, entities: string[]): boolean {
-        return oneLine.length <= MAX_IMPORT_LINE_LENGTH || entities.length === 1;
-    }
-
-    private writeMultiLineImport(pyPackage: string, entities: string[]): void {
-        this.line(`from ${pyPackage} import (`);
-        this.indentBlock(() => {
-            let i = 0;
-            while (i < entities.length) {
-                const { line, next } = this.buildImportLine(entities, i, MAX_IMPORT_LINE_LENGTH);
-                this.line(line);
-                i = next;
-            }
-        });
-        this.line(")");
     }
 
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {

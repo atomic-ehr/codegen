@@ -1,10 +1,8 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
 import { isNestedIdentifier, isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
-
-export type TypingImports = SectionHandle<never, string>;
+import type { LibraryImports } from "./imports";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -154,7 +152,7 @@ export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
  *  (e.g. `Resource`) — a family admits any resource, so the bare `Reference`
  *  (defaulting to `str`) is the honest annotation. */
 export const pyReferenceTypeParam = (
-    tImports: TypingImports,
+    tImports: LibraryImports,
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
