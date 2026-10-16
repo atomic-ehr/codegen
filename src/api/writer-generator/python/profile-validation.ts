@@ -4,7 +4,6 @@ import {
     type FieldSlicing,
     isChoiceDeclarationField,
     isChoiceInstanceField,
-    isNotChoiceDeclarationField,
     type RegularField,
     type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
@@ -13,10 +12,6 @@ import type { ProfileImports } from "./imports";
 import { pyLiteral } from "./naming-utils";
 import { pyFieldName, pyProfileClassName } from "./profile-naming";
 import type { Python } from "./writer";
-
-// ---------------------------------------------------------------------------
-// Validation body collection
-// ---------------------------------------------------------------------------
 
 type ValidationBody = { errors: string[]; warnings: string[] };
 
@@ -156,40 +151,38 @@ const collectRegularFieldValidation = (
             `errors.extend(${fn}(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}${repeating}))`,
         );
     }
-    if (isNotChoiceDeclarationField(field)) {
-        if (field.enum) {
-            const target = field.enum.isOpen ? warnings : errors;
-            const listName = field.enum.isOpen ? "warnings" : "errors";
-            target.push(
+    if (field.enum) {
+        const target = field.enum.isOpen ? warnings : errors;
+        const listName = field.enum.isOpen ? "warnings" : "errors";
+        target.push(
+            ...buildListValidation(
+                listName,
+                imports.helpers.use("validate_enum"),
+                [JSON.stringify(pyName)],
+                field.enum.values,
+            ),
+        );
+    }
+    if (field.mustSupport && !field.required) {
+        warnings.push(
+            `warnings.extend(${imports.helpers.use("validate_must_support")}(self._resource, profile_name, ${JSON.stringify(pyName)}))`,
+        );
+    }
+    if (field.reference) {
+        const allowed = tsIndex.referenceAllowedTypes(field.reference);
+        if (allowed.length > 0) {
+            errors.push(
                 ...buildListValidation(
-                    listName,
-                    imports.helpers.use("validate_enum"),
+                    "errors",
+                    imports.helpers.use("validate_reference"),
                     [JSON.stringify(pyName)],
-                    field.enum.values,
+                    allowed,
                 ),
             );
         }
-        if (field.mustSupport && !field.required) {
-            warnings.push(
-                `warnings.extend(${imports.helpers.use("validate_must_support")}(self._resource, profile_name, ${JSON.stringify(pyName)}))`,
-            );
-        }
-        if (field.reference) {
-            const allowed = tsIndex.referenceAllowedTypes(field.reference);
-            if (allowed.length > 0) {
-                errors.push(
-                    ...buildListValidation(
-                        "errors",
-                        imports.helpers.use("validate_reference"),
-                        [JSON.stringify(pyName)],
-                        allowed,
-                    ),
-                );
-            }
-        }
-        if (fieldSlicing?.slices) {
-            errors.push(...collectSliceValidation(imports, tsIndex, name, field, fieldSlicing, formatName));
-        }
+    }
+    if (fieldSlicing) {
+        errors.push(...collectSliceValidation(imports, tsIndex, name, field, fieldSlicing, formatName));
     }
     return { errors, warnings };
 };
@@ -248,10 +241,6 @@ const collectValidateBody = (
     }
     return { errors, warnings };
 };
-
-// ---------------------------------------------------------------------------
-// Class method generators
-// ---------------------------------------------------------------------------
 
 export const generateValidateMethod = (
     w: Python,

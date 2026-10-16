@@ -18,10 +18,6 @@ import { collectSliceDefs, generateSliceMethods, generateStaticSliceFields, type
 import { generateValidateMethod } from "./profile-validation";
 import type { Python } from "./writer";
 
-// ---------------------------------------------------------------------------
-// Profile class
-// ---------------------------------------------------------------------------
-
 const generateProfileClass = (
     w: Python,
     imports: ProfileImports,
@@ -60,10 +56,6 @@ const generateProfileClass = (
     w.line();
 };
 
-// ---------------------------------------------------------------------------
-// Entry points
-// ---------------------------------------------------------------------------
-
 export const generateProfileModule = (
     w: Python,
     tsIndex: TypeSchemaIndex,
@@ -87,9 +79,9 @@ export const generateProfileIndex = (
     const seen = new Set<string>();
     for (const snapshot of profiles) {
         const className = pyProfileClassName(snapshot);
-        const moduleName = pyProfileModuleName(tsIndex, snapshot);
         if (seen.has(className)) continue;
         seen.add(className);
+        const moduleName = pyProfileModuleName(tsIndex, snapshot);
         imports(`.${moduleName}`, className);
     }
     // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.

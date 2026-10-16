@@ -1,4 +1,4 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
+import type { FhirTypeImports, SectionHandle } from "@root/api/writer-generator/section-writer";
 import { pascalCase } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
@@ -12,7 +12,7 @@ import { collectSubExtensionSlices, resolveExtensionProfile } from "./profile-ex
 import type { TypeScript } from "./writer";
 
 export type ProfileImports = {
-    types: SectionHandle<never, TypeIdentifier>;
+    types: FhirTypeImports;
     helpers: SectionHandle<never, string>;
 };
 
@@ -94,7 +94,6 @@ export const profileModuleImports = (
     // Import extension profile classes for delegation in setters
     const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
     for (const ext of snapshot.extensions ?? []) {
-        if (!ext.url) continue;
         const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext);
         if (!info) continue;
         if (!extProfileImports.has(info.className)) {

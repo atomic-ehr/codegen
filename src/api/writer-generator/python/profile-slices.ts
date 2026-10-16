@@ -9,8 +9,8 @@ import {
     type RegularField,
     type SnapshotProfileTypeSchema,
     type TypeIdentifier,
-} from "@typeschema/types.ts";
-import type { TypeSchemaIndex } from "@typeschema/utils.ts";
+} from "@root/typeschema/types";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
 import { pyLiteral } from "./naming-utils";
 import { type ProfileMethodBaseNames, pyFieldName, pyProfileClassName, pySliceStaticName } from "./profile-naming";
@@ -19,23 +19,34 @@ import type { Python } from "./writer";
 export type SliceDef = {
     fieldName: string;
     sliceName: string;
-    match: Record<string, unknown>;
-    required: string[];
-    array: boolean;
-    /** 0 = unbounded ("*"). */
-    max: number;
-    constrainedChoice: ConstrainedChoiceInfo | undefined;
-    elementTypeName: string | undefined;
-    /** True when the FieldSlicing discriminator type is "type" (resource-type discriminator). */
-    typeDiscriminated: boolean;
-    /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
-    typeDiscriminatorType: string | undefined;
-    /** Element type parameterized with the matched resource type (e.g. "BundleEntry[Patient]"); `Any` for a primitive element. */
-    typedBaseType: string;
     /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
     nameCandidates: NameCandidates;
+    /** Discriminator values that identify an element of the slice, normalized for Pydantic. */
+    match: Record<string, unknown>;
+    /** Required fields, already filtered (match keys and polymorphic base names removed) */
+    required: string[];
+    array: boolean;
+    /** 0 = unbounded ("*"), positive = exact limit. */
+    max: number;
+    constrainedChoice: ConstrainedChoiceInfo | undefined;
+    /** True when the slice uses a type discriminator (match by resourceType) */
+    typeDiscriminated: boolean;
+    /**
+     * Element type, parameterized with the matched resource type when the slice is type-discriminated
+     * (e.g. "BundleEntry[Patient]"); `Any` for a primitive element.
+     */
+    typedBaseType: string;
+    elementTypeName: string | undefined;
+    /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
+    typeDiscriminatorType: string | undefined;
 };
 
+/**
+ * Returns names of required slices with a non-empty match, which the factory auto-populates with a
+ * stub of that match. Unlike TypeScript, a slice that requires fields beyond its match keys (e.g. BP
+ * component.valueQuantity) is still included — its stub carries only the match. A field that uses a
+ * type discriminator (e.g. Bundle entry.resource) gets no stubs.
+ */
 export const collectRequiredSliceNames = (
     field: RegularField,
     fieldSlicing: FieldSlicing | undefined,
@@ -141,19 +152,19 @@ export const collectSliceDefs = (
                 return {
                     fieldName,
                     sliceName,
+                    nameCandidates: slice.nameCandidates,
                     match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
                     required,
                     array: Boolean(field.array),
                     max: slice.max ?? 0,
                     constrainedChoice,
-                    elementTypeName,
                     typeDiscriminated,
-                    typeDiscriminatorType,
                     typedBaseType:
                         elementTypeName && typeDiscriminatorType
                             ? `${elementTypeName}[${typeDiscriminatorType}]`
                             : (elementTypeName ?? imports.typing.use("Any")),
-                    nameCandidates: slice.nameCandidates,
+                    elementTypeName,
+                    typeDiscriminatorType,
                 };
             });
     });
@@ -166,10 +177,6 @@ export const generateStaticSliceFields = (w: Python, imports: ProfileImports, sl
     }
     if (sliceDefs.length > 0) w.line();
 };
-
-// ---------------------------------------------------------------------------
-// Slice getters / setters
-// ---------------------------------------------------------------------------
 
 const generateSliceGetters = (
     w: Python,
@@ -208,7 +215,7 @@ const generateSliceGetters = (
             // The flat form is always a plain dict at runtime (helpers return dict[str, Any]),
             // including constrained-choice slices where the variant wrapper is unwrapped.
             const flatRetType = `dict[str, ${imports.typing.use("Any")}]`;
-            const rawRetType = sliceDef.elementTypeName ?? imports.typing.use("Any");
+            const rawRetType = sliceDef.typedBaseType;
             w.line(`@${imports.typing.use("overload")}`);
             w.line(`def get_${baseName}(self) -> ${flatRetType} | None: ...`);
             w.line(`@${imports.typing.use("overload")}`);

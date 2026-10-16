@@ -10,10 +10,6 @@ import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
 import { type ProfileMethodBaseNames, pyProfileClassName, pyValueFieldName } from "./profile-naming";
 import type { Python } from "./writer";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 /** The extension's generated profile class; `className` is its rendered import marker. */
 type ExtensionProfileInfo = { className: string };
 
@@ -26,10 +22,6 @@ type ExtensionMethodInfo = {
     extensionType: string;
     extProfileInfo: ExtensionProfileInfo | undefined;
 };
-
-// ---------------------------------------------------------------------------
-// Extension-profile resolution
-// ---------------------------------------------------------------------------
 
 /**
  * Resolve an extension to its generated profile class (if any exists in the
@@ -52,10 +44,7 @@ const resolveExtensionProfile = (
     return schema.identifier;
 };
 
-// ---------------------------------------------------------------------------
-// Emit helpers
-// ---------------------------------------------------------------------------
-
+/** Generate the extension lookup code for getters. */
 const generateExtensionLookup = (w: Python, imports: ProfileImports, info: ExtensionMethodInfo): void => {
     const { ext, targetPath } = info;
     if (targetPath.length === 0) {
@@ -71,6 +60,7 @@ const generateExtensionLookup = (w: Python, imports: ProfileImports, info: Exten
     );
 };
 
+/** Generate the code that pushes (never upserts) an extension onto the target (root or nested path). */
 const generateExtensionPush = (
     w: Python,
     imports: ProfileImports,
@@ -86,11 +76,9 @@ const generateExtensionPush = (
     }
 };
 
-// ---------------------------------------------------------------------------
-// Unified getter skeleton
-// ---------------------------------------------------------------------------
-
 /**
+ * Getter skeleton shared by every extension kind.
+ *
  * Emit the overload signatures + concrete `def` line for a getter, then its
  * body: the ext lookup, then the mode dispatch — returns the raw Extension
  * when `mode == "raw"`, wraps in a profile class when `mode == "profile"`,
@@ -149,11 +137,9 @@ const generateExtensionGetter = (
     });
 };
 
-// ---------------------------------------------------------------------------
-// Unified setter skeleton
-// ---------------------------------------------------------------------------
-
 /**
+ * Setter skeleton shared by every extension kind.
+ *
  * Emit a setter whose `value` is the profile class (when there is one), the
  * Extension or the flat form, dispatched as: `if isinstance(value, ProfileClass)`
  * → push to_resource(); `elif is_extension(value)` → validate url, raise on
@@ -192,9 +178,7 @@ const generateExtensionSetter = (
     });
 };
 
-// ---------------------------------------------------------------------------
-// Complex extension (has sub-extensions)
-// ---------------------------------------------------------------------------
+// Complex extension — has sub-extensions (e.g., Race with ombCategory, detailed, text)
 
 const generateComplexExtensionGetter = (w: Python, imports: ProfileImports, info: ExtensionMethodInfo): void => {
     const { ext } = info;
@@ -265,9 +249,7 @@ const generateComplexExtensionSetter = (w: Python, imports: ProfileImports, info
     });
 };
 
-// ---------------------------------------------------------------------------
-// Single-value extension
-// ---------------------------------------------------------------------------
+// Single-value extension — one known value type (e.g., birthSex with valueCode)
 
 const generateSingleValueExtensionGetter = (
     w: Python,
@@ -306,9 +288,7 @@ const generateSingleValueExtensionSetter = (
     });
 };
 
-// ---------------------------------------------------------------------------
-// Generic extension (unknown value type)
-// ---------------------------------------------------------------------------
+// Generic extension — no known value type
 
 const generateGenericExtensionGetter = (w: Python, imports: ProfileImports, info: ExtensionMethodInfo): void => {
     generateExtensionGetter(w, imports, info, `dict[str, ${imports.typing.use("Any")}]`, () => {
@@ -327,10 +307,6 @@ const generateGenericExtensionSetter = (w: Python, imports: ProfileImports, info
         generateExtensionPush(w, imports, info, `{"url": ${JSON.stringify(ext.url)}, **value}`);
     });
 };
-
-// ---------------------------------------------------------------------------
-// Extension getters / setters
-// ---------------------------------------------------------------------------
 
 export const generateExtensionMethods = (
     w: Python,

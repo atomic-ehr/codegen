@@ -2,7 +2,7 @@
  * Naming utilities for Python profile generation.
  *
  * Mirrors `src/api/writer-generator/typescript/name.ts`, but emits
- * snake_case method / field names and `module_file.py` filenames.
+ * snake_case method / field names and module stems.
  *
  * Used by the Python profile generator — kept in its own file so
  * the existing `naming-utils.ts` stays focused on the core type writer.
@@ -18,10 +18,6 @@ import type {
     TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-
-// ---------------------------------------------------------------------------
-// Identifier sanitisation
-// ---------------------------------------------------------------------------
 
 /** Make a raw FHIR name safe to use as a Python identifier. */
 export const normalizePyName = (n: string): string => {
@@ -47,13 +43,10 @@ export const pyFieldName = (n: string, formatName: (s: string) => string = snake
     return PYTHON_KEYWORDS.has(out) ? `${out}_` : out;
 };
 
-// ---------------------------------------------------------------------------
-// Profile module + class names
-// ---------------------------------------------------------------------------
-
-/** PascalCase class name for a profile, suffixed with `Profile` (or
- *  `Extension` when the profile already ends in "Extension"). Mirrors
- *  `tsProfileClassName` exactly. */
+/** Class name for a profile: the PascalCase of its normalized identifier, suffixed with
+ *  `Extension` for an extension profile (base `Extension`) and with `Profile` for any
+ *  other, unless the name already ends with that suffix. Differs from `tsProfileClassName`,
+ *  which keeps the normalized identifier as is and always uses `Profile`. */
 export const pyProfileClassName = (schema: ProfileTypeSchema | SnapshotProfileTypeSchema): string => {
     const name = pascalCase(normalizePyName(schema.identifier.name));
     if (schema.base.name === "Extension") {
@@ -64,8 +57,9 @@ export const pyProfileClassName = (schema: ProfileTypeSchema | SnapshotProfileTy
 
 /** snake_case module stem: `<base>_<profile-identifier>`, mirroring TS
  *  `tsProfileModuleName`. The profile portion uses the raw identifier name
- *  (NOT the class name), so e.g. R4 `bodyweight` → `observation_bodyweight`
- *  and US Core `USCorePatientProfile` → `patient_us_core_patient_profile`. */
+ *  (NOT the class name), so e.g. R4 `observation-bodyweight` →
+ *  `observation_observation_bodyweight` and US Core `USCorePatientProfile` →
+ *  `patient_uscore_patient_profile`. */
 export const pyProfileModuleName = (
     tsIndex: TypeSchemaIndex,
     schema: ProfileTypeSchema | SnapshotProfileTypeSchema,
@@ -75,10 +69,6 @@ export const pyProfileModuleName = (
     const profileName = snakeCase(normalizePyName(schema.identifier.name));
     return `${baseName}_${profileName}`;
 };
-
-// ---------------------------------------------------------------------------
-// Slice / extension method base names + collision resolution
-// ---------------------------------------------------------------------------
 
 /** Static class attribute name for a slice's match constant. */
 export const pySliceStaticName = (name: string): string => {
@@ -109,7 +99,11 @@ export type ProfileMethodBaseNames = {
  * definition, silently shadowing the earlier accessor. Fall through the
  * remaining candidates, which are field-qualified, to find a free one.
  */
-const pyAccessorBaseName = (candidates: readonly string[], recommended: string, reserved: Set<string>): string => {
+const pyAccessorBaseName = (
+    candidates: readonly string[],
+    recommended: string,
+    reserved: ReadonlySet<string>,
+): string => {
     const preferred = snakeCase(recommended);
     if (!reserved.has(preferred)) return preferred;
     for (const candidate of candidates) {

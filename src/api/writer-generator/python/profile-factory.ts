@@ -22,14 +22,12 @@ import {
 import { collectRequiredSliceNames, type SliceDef } from "./profile-slices";
 import type { Python } from "./writer";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
+    /** Array fields with required slices — optional param with auto-merge of required stubs */
     sliceAutoFields: { name: string; pyType: string; sliceNames: string[] }[];
     params: { name: string; pyType: string; refComment?: string }[];
+    /** `choiceSiblings` names the sibling variants a choice setter sets to None. */
     accessors: {
         name: string;
         pyType: string;
@@ -38,16 +36,12 @@ export type ProfileFactoryInfo = {
     }[];
 };
 
-// ---------------------------------------------------------------------------
-// Field type utility
-// ---------------------------------------------------------------------------
-
 /** Full Python type annotation for a field (appends `list[...]` for arrays).
  *
  * A required code binding with a closed value set is emitted as a `Literal[...]`
  * union instead of a bare `str` (open value sets stay `str`, since
  * `Literal[...] | str` collapses to `str`). */
-const fieldPyType = (
+const profileFieldPyType = (
     imports: ProfileImports,
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
@@ -92,10 +86,6 @@ const pyReferenceComment = (field: RegularField | ChoiceFieldInstance): string |
     const urls = (field.reference?.profiles ?? []).map((profile) => profile.url);
     return urls.length > 0 ? `  # ${urls.join(", ")}` : undefined;
 };
-
-// ---------------------------------------------------------------------------
-// Factory info collection
-// ---------------------------------------------------------------------------
 
 /** Try to promote a required single-choice declaration to a direct param. */
 const tryPromoteChoice = (
@@ -161,7 +151,7 @@ const collectBaseRequiredParams = (
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) continue;
         if (isNotChoiceDeclarationField(field) && field.type) {
-            const pyType = fieldPyType(imports, field, tsIndex);
+            const pyType = profileFieldPyType(imports, field, tsIndex);
             params.push({ name, pyType, refComment: pyReferenceComment(field) });
         }
     }
@@ -201,7 +191,7 @@ export const collectProfileFactoryInfo = (
             const value = pyLiteral(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             if (field.type) {
-                const pyType = fieldPyType(imports, field, tsIndex);
+                const pyType = profileFieldPyType(imports, field, tsIndex);
                 autoAccessors.push({ name, pyType, refComment: pyReferenceComment(field) });
             }
             continue;
@@ -211,7 +201,7 @@ export const collectProfileFactoryInfo = (
             const sliceNames = collectRequiredSliceNames(field, snapshot.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
-                    const pyType = fieldPyType(imports, field, tsIndex);
+                    const pyType = profileFieldPyType(imports, field, tsIndex);
                     sliceAutoFields.push({ name, pyType, sliceNames });
                     autoAccessors.push({ name, pyType, refComment: pyReferenceComment(field) });
                 }
@@ -220,7 +210,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.required) {
-            const pyType = fieldPyType(imports, field, tsIndex);
+            const pyType = profileFieldPyType(imports, field, tsIndex);
             params.push({ name, pyType, refComment: pyReferenceComment(field) });
         }
     }
@@ -238,9 +228,15 @@ export const collectProfileFactoryInfo = (
     return { autoFields, sliceAutoFields, params, accessors: [...autoAccessors, ...choiceAccessors] };
 };
 
-// ---------------------------------------------------------------------------
-// Param signature / call args builders
-// ---------------------------------------------------------------------------
+type FactoryMethodContext = {
+    factoryInfo: ProfileFactoryInfo;
+    className: string;
+    baseTypeName: string;
+    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
+    annotatedBaseTypeName: string;
+    hasMeta: boolean;
+    hasParams: boolean;
+};
 
 /** Build `*, param1: Type1, param2: Type2` keyword-only signature. */
 const buildParamSignature = (factoryInfo: ProfileFactoryInfo, formatName: (s: string) => string): string => {
@@ -269,20 +265,6 @@ const buildCallArgs = (factoryInfo: ProfileFactoryInfo, formatName: (s: string) 
     return parts.join(", ");
 };
 
-// ---------------------------------------------------------------------------
-// Code generation
-// ---------------------------------------------------------------------------
-
-type FactoryMethodContext = {
-    factoryInfo: ProfileFactoryInfo;
-    className: string;
-    baseTypeName: string;
-    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
-    annotatedBaseTypeName: string;
-    isResourceBase: boolean;
-    hasParams: boolean;
-};
-
 const generateConstructor = (w: Python, ctx: FactoryMethodContext): void => {
     w.line(`def __init__(self, resource: ${ctx.annotatedBaseTypeName}) -> None:`);
     w.indentBlock(() => w.line("self._resource = resource"));
@@ -290,11 +272,11 @@ const generateConstructor = (w: Python, ctx: FactoryMethodContext): void => {
 };
 
 const generateFromResourceMethod = (w: Python, ctx: FactoryMethodContext): void => {
-    const { annotatedBaseTypeName, className, isResourceBase } = ctx;
+    const { annotatedBaseTypeName, className, hasMeta } = ctx;
     w.line("@classmethod");
     w.line(`def from_resource(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
-        if (isResourceBase) {
+        if (hasMeta) {
             w.line('meta = getattr(resource, "meta", None)');
             w.line('profiles = getattr(meta, "profile", None) if meta is not None else None');
             w.line("if profiles is None or cls.canonical_url not in profiles:");
@@ -312,18 +294,18 @@ const generateFromResourceMethod = (w: Python, ctx: FactoryMethodContext): void 
 };
 
 const generateApplyMethod = (w: Python, imports: ProfileImports, ctx: FactoryMethodContext): void => {
-    const { annotatedBaseTypeName, className, isResourceBase } = ctx;
+    const { annotatedBaseTypeName, className, hasMeta } = ctx;
     w.line("@classmethod");
     w.line(`def apply(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
-        if (isResourceBase) w.line(`${imports.helpers.use("ensure_profile")}(resource, cls.canonical_url)`);
+        if (hasMeta) w.line(`${imports.helpers.use("ensure_profile")}(resource, cls.canonical_url)`);
         w.line("return cls(resource)");
     });
     w.line();
 };
 
 const generateCreateResourceMethod = (w: Python, imports: ProfileImports, ctx: FactoryMethodContext): void => {
-    const { factoryInfo, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams } = ctx;
+    const { factoryInfo, baseTypeName, annotatedBaseTypeName, hasMeta, hasParams } = ctx;
     const fmt = w.nameFormatFunction;
     w.line("@classmethod");
     if (hasParams) {
@@ -360,7 +342,7 @@ const generateCreateResourceMethod = (w: Python, imports: ProfileImports, ctx: F
         for (const p of factoryInfo.params) {
             buildArgs.push(`${pyFieldName(p.name, fmt)}=${pyFieldName(p.name, fmt)}`);
         }
-        if (isResourceBase) {
+        if (hasMeta) {
             buildArgs.push(`meta={"profile": [cls.canonical_url]}`);
         }
 
@@ -427,7 +409,7 @@ export const generateFactoryMethods = (
         className: pyProfileClassName(snapshot),
         baseTypeName,
         annotatedBaseTypeName,
-        isResourceBase: isResourceIdentifier(snapshot.base),
+        hasMeta: isResourceIdentifier(snapshot.base),
         hasParams: factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0,
     };
     generateConstructor(w, ctx);
@@ -449,15 +431,15 @@ export const generateFieldAccessors = (
     const className = pyProfileClassName(snapshot);
     for (const p of factoryInfo.params) {
         const fieldName = pyFieldName(p.name, fmt);
-        const methodSuffix = pySnakeName(p.name);
-        w.line(`def get_${methodSuffix}(self) -> ${p.pyType} | None:${p.refComment ?? ""}`);
+        const methodBaseName = pySnakeName(p.name);
+        w.line(`def get_${methodBaseName}(self) -> ${p.pyType} | None:${p.refComment ?? ""}`);
         w.indentBlock(() => {
             w.line(
                 `return ${imports.typing.use("cast")}('${p.pyType} | None', getattr(self._resource, ${JSON.stringify(fieldName)}, None))`,
             );
         });
         w.line();
-        w.line(`def set_${methodSuffix}(self, value: ${p.pyType}) -> "${className}":${p.refComment ?? ""}`);
+        w.line(`def set_${methodBaseName}(self, value: ${p.pyType}) -> "${className}":${p.refComment ?? ""}`);
         w.indentBlock(() => {
             w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, value)`);
             w.line("return self");
@@ -466,17 +448,17 @@ export const generateFieldAccessors = (
     }
 
     for (const a of factoryInfo.accessors) {
-        const methodSuffix = pySnakeName(a.name);
-        if (methodNames.allBaseNames.has(methodSuffix)) continue;
+        const methodBaseName = pySnakeName(a.name);
+        if (methodNames.allBaseNames.has(methodBaseName)) continue;
         const fieldName = pyFieldName(a.name, fmt);
-        w.line(`def get_${methodSuffix}(self) -> ${a.pyType} | None:${a.refComment ?? ""}`);
+        w.line(`def get_${methodBaseName}(self) -> ${a.pyType} | None:${a.refComment ?? ""}`);
         w.indentBlock(() => {
             w.line(
                 `return ${imports.typing.use("cast")}('${a.pyType} | None', getattr(self._resource, ${JSON.stringify(fieldName)}, None))`,
             );
         });
         w.line();
-        w.line(`def set_${methodSuffix}(self, value: ${a.pyType}) -> "${className}":${a.refComment ?? ""}`);
+        w.line(`def set_${methodBaseName}(self, value: ${a.pyType}) -> "${className}":${a.refComment ?? ""}`);
         w.indentBlock(() => {
             if (a.choiceSiblings?.length) {
                 for (const sibling of a.choiceSiblings) {

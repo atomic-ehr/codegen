@@ -23,6 +23,7 @@ import { collectProfileFactoryInfo } from "./profile-factory";
 import { tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
+/** The extension's generated profile class; `className` is imported by name from `modulePath`. */
 type ExtensionProfileInfo = {
     className: string;
     modulePath: string;
@@ -268,16 +269,24 @@ const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): GetterMode 
 const returnTypeForMode = (
     extensionType: string,
     mode: GetterMode,
-    inputType: string,
+    flatType: string,
     profileClassName?: string,
     vFlatType?: string,
 ): string => {
     if (mode === "profile" && profileClassName) return profileClassName;
     if (mode === "raw") return extensionType;
     if (mode === "vflat" && vFlatType) return vFlatType;
-    return inputType;
+    return flatType;
 };
 
+/**
+ * Getter skeleton shared by the complex and single-value extension getters.
+ *
+ * Emit the overload signatures + implementation signature for a getter, then its
+ * body: the ext lookup, then the mode dispatch — returns the raw Extension when
+ * `mode === 'raw'`, wraps in the profile class when `mode === 'profile'`,
+ * otherwise falls through to the caller-supplied flat body.
+ */
 const generateExtensionGetter = (
     w: TypeScript,
     imports: ProfileImports,
