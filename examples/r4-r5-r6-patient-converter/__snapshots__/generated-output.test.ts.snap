@@ -137,7 +137,7 @@ exports[`generated output every emitted module, by release 1`] = `
 exports[`generated output the maritalStatus binding, by release 1`] = `
 {
   "hl7-fhir-r4-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;",
-  "hl7-fhir-r5-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;",
-  "hl7-fhir-r6-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;",
+  "hl7-fhir-r5-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "C" | "P" | "T" | "U" | "S" | "W" | "UNK" | string)>;",
+  "hl7-fhir-r6-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "C" | "P" | "T" | "U" | "S" | "W" | "UNK" | string)>;",
 }
 `;
