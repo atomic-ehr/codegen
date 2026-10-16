@@ -47,7 +47,6 @@ class UnconstrainedPatientProfile:
         return self._resource
 
     def validate(self) -> dict[str, list[str]]:
-        profile_name = "UnconstrainedPatientProfile"
         errors: list[str] = []
         warnings: list[str] = []
         return {"errors": errors, "warnings": warnings}
