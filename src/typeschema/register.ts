@@ -422,17 +422,14 @@ const enrichResolver = (resolver: PackageAwareResolver, logger?: CodegenLog) => 
     }
 };
 
-const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: CanonicalUrl, _logger?: CodegenLog) => {
-    const options = Object.values(resolver).flatMap((pkg) => pkg.canonicalResolution[url]);
-    if (!options) throw new Error(`No canonical resolution found for ${url} in any package`);
-    // if (options.length > 1)
-    //     logger?.dry_warn(
-    //         `Multiple canonical resolutions found for ${url} in: ${options
-    //             .map((e) => {
-    //                 return `\n    ${JSON.stringify({ ...e, resource: undefined, pkg: undefined })}`;
-    //             })
-    //             .join("")}`,
-    //     );
+const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: CanonicalUrl, logger?: CodegenLog) => {
+    // `flatMap` flattens arrays but keeps a returned `undefined` as an element, so a package
+    // without the canonical used to occupy slot 0 and shadow every later package that has it.
+    const options = Object.values(resolver).flatMap((pkg) => pkg.canonicalResolution[url] ?? []);
+    if (options.length === 0) {
+        logger?.dryWarn("#skipCanonical", `No canonical resolution for ${url} in any loaded package.`);
+        return undefined;
+    }
     return options[0]?.resource;
 };
 
