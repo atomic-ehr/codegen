@@ -16,6 +16,20 @@ export class LambdaMixinProvider {
             kebabCase: () => (text, render) => kebabCase(render(text)),
             lowerCase: () => (text, render) => render(text).toLowerCase(),
             upperCase: () => (text, render) => render(text).toUpperCase(),
+
+            // Trims each rendered line and keeps the first occurrence of every non-blank one,
+            // so several sections can emit the same line (e.g. an import) and it appears once.
+            uniqueLines: () => (text, render) =>
+                [
+                    ...new Set(
+                        render(text)
+                            .split("\n")
+                            .map((line) => line.trim())
+                            .filter((line) => line !== ""),
+                    ),
+                ]
+                    .map((line) => `${line}\n`)
+                    .join(""),
         };
     }
 
