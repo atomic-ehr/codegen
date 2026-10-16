@@ -3,11 +3,13 @@ import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 /** For each import, the number of generated classes that never use it, and that import it more than once.
- *  An import counts as used when its simple name occurs as a word outside the import lines. */
+ *  An import counts as used when its simple name occurs as a word outside the import lines, unless it names
+ *  the class the file declares. */
 const importDefects = (files: Record<string, string>) => {
     const unused: Record<string, number> = {};
     const duplicate: Record<string, number> = {};
-    for (const content of Object.values(files)) {
+    for (const [path, content] of Object.entries(files)) {
+        const className = path.split("/").pop()?.replace(/\.java$/, "");
         const lines = content.split("\n");
         const imports = lines.flatMap((line) => line.match(/^\s*import (?:static )?([\w.]+);/)?.[1] ?? []);
         const code = lines.filter((line) => !/^\s*import /.test(line)).join("\n");
@@ -15,7 +17,8 @@ const importDefects = (files: Record<string, string>) => {
             duplicate[name] = (duplicate[name] ?? 0) + 1;
         for (const name of new Set(imports)) {
             const simpleName = name.split(".").pop();
-            if (!new RegExp(`\\b${simpleName}\\b`).test(code)) unused[name] = (unused[name] ?? 0) + 1;
+            if (simpleName === className || !new RegExp(`\\b${simpleName}\\b`).test(code))
+                unused[name] = (unused[name] ?? 0) + 1;
         }
     }
     const sorted = (counts: Record<string, number>) =>
