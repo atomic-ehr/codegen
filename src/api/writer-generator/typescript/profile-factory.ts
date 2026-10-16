@@ -1,10 +1,13 @@
 import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
+    type ChoiceFieldInstance,
+    type Field,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isResourceIdentifier,
+    type RegularField,
     type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -29,6 +32,13 @@ export type ProfileFactoryInfo = {
     fixedFields: Set<string>;
 };
 
+/** Full TypeScript type for a field (appends `[]` for arrays). */
+const profileFieldTsType = (
+    imports: ProfileImports,
+    field: RegularField | ChoiceFieldInstance,
+    tsIndex: TypeSchemaIndex,
+): string => fieldTsType(imports.types, field, tsIndex.findLastSpecializationByIdentifier, tsIndex.isFamilyType);
+
 /** Public helper name that clears all variants of a choice group, e.g. `clearValue`. */
 const choiceClearMethodName = (choiceOf: string): string => `clear${uppercaseFirstLetter(tsCamelCase(choiceOf))}`;
 
@@ -36,20 +46,15 @@ const choiceClearMethodName = (choiceOf: string): string => `clear${uppercaseFir
 const tryPromoteChoice = (
     imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
-    field: SnapshotProfileTypeSchema["fields"][string],
-    fields: SnapshotProfileTypeSchema["fields"],
+    field: Field,
+    fields: Record<string, Field>,
 ): ProfileFactoryInfo["params"][number] | undefined => {
     if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
     const choiceName = field.choices[0];
     if (!choiceName) return;
     const choiceField = fields[choiceName];
     if (!choiceField || !isChoiceInstanceField(choiceField)) return;
-    const tsType = fieldTsType(
-        imports.types,
-        choiceField,
-        tsIndex.findLastSpecializationByIdentifier,
-        tsIndex.isFamilyType,
-    );
+    const tsType = profileFieldTsType(imports, choiceField, tsIndex);
     return { name: choiceName, tsType };
 };
 
@@ -109,12 +114,7 @@ const collectBaseRequiredParams = (
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) continue;
         if (isNotChoiceDeclarationField(field) && field.type) {
-            const tsType = fieldTsType(
-                imports.types,
-                field,
-                tsIndex.findLastSpecializationByIdentifier,
-                tsIndex.isFamilyType,
-            );
+            const tsType = profileFieldTsType(imports, field, tsIndex);
             params.push({ name, tsType });
         }
     }
@@ -165,13 +165,8 @@ export const collectProfileFactoryInfo = (
                 },
             });
             fixedFields.add(name);
-            if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = fieldTsType(
-                    imports.types,
-                    field,
-                    tsIndex.findLastSpecializationByIdentifier,
-                    tsIndex.isFamilyType,
-                );
+            if (field.type) {
+                const tsType = profileFieldTsType(imports, field, tsIndex);
                 autoAccessors.push({ name, tsType });
             }
             continue;
@@ -181,12 +176,7 @@ export const collectProfileFactoryInfo = (
             const sliceNames = collectRequiredSliceNames(field, snapshot.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
-                    const tsType = fieldTsType(
-                        imports.types,
-                        field,
-                        tsIndex.findLastSpecializationByIdentifier,
-                        tsIndex.isFamilyType,
-                    );
+                    const tsType = profileFieldTsType(imports, field, tsIndex);
                     sliceAutoFields.push({ name, tsType, sliceNames });
                     autoAccessors.push({ name, tsType });
                 }
@@ -195,12 +185,7 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.required) {
-            const tsType = fieldTsType(
-                imports.types,
-                field,
-                tsIndex.findLastSpecializationByIdentifier,
-                tsIndex.isFamilyType,
-            );
+            const tsType = profileFieldTsType(imports, field, tsIndex);
             params.push({ name, tsType });
         }
     }
@@ -305,6 +290,16 @@ type FactoryMethodContext = {
     hasParams: boolean;
     subExtensionSlices: SubExtensionSliceInfo[];
     requiresFactoryInput: boolean;
+};
+
+/** Build the `args` signature `createResource` and `create` take; empty when there is nothing to pass. */
+const buildParamSignature = (ctx: FactoryMethodContext): string => {
+    const { className, hasParams, subExtensionSlices, requiresFactoryInput } = ctx;
+    if (subExtensionSlices.length > 0) {
+        const args = requiresFactoryInput ? "args" : "args?";
+        return `${args}: ${className}Raw | ${className}Flat`;
+    }
+    return hasParams ? `args: ${className}Raw` : "";
 };
 
 const generateConstructor = (w: TypeScript, ctx: FactoryMethodContext) => {
@@ -434,7 +429,6 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
         baseTypeName,
         canonicalUrl,
         hasMeta,
-        hasParams,
         subExtensionSlices,
         requiresFactoryInput,
     } = ctx;
@@ -444,14 +438,8 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
     if (subExtensionSlices.length > 0) {
-        const rawInputTypeName = `${className}Raw`;
-        const inputTypeName = `${className}Flat`;
-
         // createResource — accepts Input | Raw
-        const createResourceSig = requiresFactoryInput
-            ? `args: ${rawInputTypeName} | ${inputTypeName}`
-            : `args?: ${rawInputTypeName} | ${inputTypeName}`;
-        w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${baseTypeName}`], () => {
+        w.curlyBlock(["static", "createResource", `(${buildParamSignature(ctx)})`, `: ${baseTypeName}`], () => {
             const inputExpression = requiresFactoryInput ? "args" : "args ?? {}";
             w.lineSM(`const resolvedExtensions = ${className}.resolveInput(${inputExpression})`);
             for (const field of factoryInfo.sliceAutoFields) {
@@ -501,9 +489,7 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
         });
     } else {
         // Standard createResource (no Input helper)
-        const createArgsTypeName = `${className}Raw`;
-        const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
-        w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${baseTypeName}`], () => {
+        w.curlyBlock(["static", "createResource", `(${buildParamSignature(ctx)})`, `: ${baseTypeName}`], () => {
             for (const f of factoryInfo.sliceAutoFields) {
                 const matchRefs = f.sliceNames.map((s) => `${className}.${tsSliceStaticName(s)}`);
                 w.line(`const ${f.name}WithDefaults = ${imports.helpers.use("ensureSliceDefaults")}(`);
@@ -545,23 +531,15 @@ const generateCreateResourceMethod = (w: TypeScript, imports: ProfileImports, ct
 };
 
 const generateCreateMethod = (w: TypeScript, ctx: FactoryMethodContext) => {
-    const { className, hasParams, subExtensionSlices, requiresFactoryInput } = ctx;
+    const { className, hasParams, subExtensionSlices } = ctx;
     if (subExtensionSlices.length > 0) {
-        const rawInputTypeName = `${className}Raw`;
-        const inputTypeName = `${className}Flat`;
-
         // create — accepts Input | Raw, delegates to createResource
-        const createSig = requiresFactoryInput
-            ? `args: ${rawInputTypeName} | ${inputTypeName}`
-            : `args?: ${rawInputTypeName} | ${inputTypeName}`;
-        w.curlyBlock(["static", "create", `(${createSig})`, `: ${className}`], () => {
+        w.curlyBlock(["static", "create", `(${buildParamSignature(ctx)})`, `: ${className}`], () => {
             w.lineSM(`return ${className}.apply(${className}.createResource(args))`);
         });
     } else {
         // Standard create (no Input helper)
-        const createArgsTypeName = `${className}Raw`;
-        const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
-        w.curlyBlock(["static", "create", `(${paramSignature})`, `: ${className}`], () => {
+        w.curlyBlock(["static", "create", `(${buildParamSignature(ctx)})`, `: ${className}`], () => {
             w.lineSM(`const resource = ${className}.createResource(${hasParams ? "args" : ""})`);
             w.lineSM(`return ${className}.apply(resource)`);
         });
@@ -610,7 +588,6 @@ export const generateFactoryMethods = (
 };
 
 export const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) => {
-    w.line("// Field accessors");
     for (const p of factoryInfo.params) {
         const methodBaseName = uppercaseFirstLetter(p.name);
         w.curlyBlock([`get${methodBaseName}`, "()", `: ${p.tsType} | undefined`], () => {

@@ -144,7 +144,7 @@ const collectRegularFieldValidation = (
             );
     }
 
-    if (fieldSlicing?.slices) errors.push(...collectSliceValidation(imports, tsIndex, name, field, fieldSlicing));
+    if (fieldSlicing) errors.push(...collectSliceValidation(imports, tsIndex, name, field, fieldSlicing));
     return { errors, warnings };
 };
 

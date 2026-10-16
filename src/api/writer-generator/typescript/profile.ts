@@ -46,25 +46,27 @@ const generateProfileClass = (
     factoryInfo: ProfileFactoryInfo,
     methodNames: ProfileMethodBaseNames,
 ) => {
-    const profileClassName = tsProfileClassName(snapshot);
+    const className = tsProfileClassName(snapshot);
     const sections: ProfileSections = { ...imports, const: profileConstants(w) };
     const canonicalUrl = snapshot.identifier.url;
     sections.const.def("canonicalUrl", JSON.stringify(canonicalUrl));
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
 
-    w.curlyBlock(["export", "class", profileClassName], () => {
+    w.curlyBlock(["export", "class", className], () => {
         const specializationBase = tsIndex.findLastSpecializationByIdentifier(snapshot.base);
         if (isResourceIdentifier(specializationBase)) {
             w.lineSM(`static readonly resourceType = ${JSON.stringify(specializationBase.name)}`);
         } else if (isProfileIdentifier(specializationBase) || isSnapshotProfileIdentifier(specializationBase)) {
             w.logger()?.error(
-                `Cannot emit static resourceType for profile '${profileClassName}': base '${snapshot.base.url}' does not resolve to a specialization`,
+                `Cannot emit static resourceType for profile '${className}': base '${snapshot.base.url}' does not resolve to a specialization`,
             );
         }
         w.lineSM(`static readonly canonicalUrl = ${sections.const.use("canonicalUrl")}`);
         w.line();
         generateStaticSliceFields(w, sliceDefs);
         generateFactoryMethods(w, sections, tsIndex, snapshot, factoryInfo);
+
+        w.line("// Field accessors");
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
@@ -101,14 +103,12 @@ export const generateProfileIndex = (
     tsIndex: TypeSchemaIndex,
     profiles: SnapshotProfileTypeSchema[],
 ) => {
-    const exports: Map<string, string> = new Map();
+    const exports: Record<string, string> = {};
     for (const snapshot of profiles) {
         const className = tsProfileClassName(snapshot);
-        if (!exports.has(className)) {
-            exports.set(className, tsProfileModuleName(tsIndex, snapshot));
-        }
+        exports[className] ??= tsProfileModuleName(tsIndex, snapshot);
     }
-    for (const className of [...exports.keys()].sort()) {
-        w.tsExport(`./${exports.get(className)}`, className);
+    for (const className of Object.keys(exports).sort()) {
+        w.tsExport(`./${exports[className]}`, className);
     }
 };

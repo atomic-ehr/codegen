@@ -135,10 +135,11 @@ export type ProfileMethodBaseNames = {
     slice: (sliceDef: SliceNaming) => string;
 };
 
+/** Allocate one accessor base name, avoiding names already taken. */
 export const tsAccessorBaseName = (
     candidates: readonly string[],
     recommended: string,
-    reserved: Set<string>,
+    reserved: ReadonlySet<string>,
 ): string => {
     if (!reserved.has(recommended)) return recommended;
     for (const candidate of candidates) {

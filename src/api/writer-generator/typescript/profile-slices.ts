@@ -27,21 +27,25 @@ import type { TypeScript } from "./writer";
 
 export type SliceDef = {
     fieldName: string;
-    /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
-    typedBaseType: string;
     sliceName: string;
     /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
     nameCandidates: NameCandidates;
+    /** Discriminator values that identify an element of the slice. */
     match: Record<string, unknown>;
     /** Required fields, already filtered (match keys and polymorphic base names removed) */
     required: string[];
-    excluded: string[];
     array: boolean;
+    /** 0 = unbounded ("*"), positive = exact limit. */
+    max: number;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     /** True when the slice uses a type discriminator (match by resourceType) */
     typeDiscriminated: boolean;
-    /** Max cardinality of the slice. 0 or undefined = unbounded ("*"), positive = exact limit. */
-    max: number;
+    /**
+     * Element type, parameterized with the matched resource type when the slice is type-discriminated
+     * (e.g. "BundleEntry<Patient>").
+     */
+    typedBaseType: string;
+    excluded: string[];
 };
 
 /**
@@ -125,16 +129,16 @@ export const collectSliceDefs = (
                 }
                 return {
                     fieldName,
-                    typedBaseType,
                     sliceName,
                     nameCandidates: slice.nameCandidates,
                     match: slice.match ?? {},
                     required,
-                    excluded: slice.excluded ?? [],
                     array: Boolean(field.array),
+                    max: slice.max ?? 0,
                     constrainedChoice,
                     typeDiscriminated,
-                    max: slice.max ?? 0,
+                    typedBaseType,
+                    excluded: slice.excluded ?? [],
                 };
             });
     });
@@ -238,19 +242,19 @@ const generateSliceGetters = (
     sliceDefs: SliceDef[],
     methodNames: ProfileMethodBaseNames,
 ) => {
-    const profileClassName = tsProfileClassName(snapshot);
+    const className = tsProfileClassName(snapshot);
     const tsProfileName = tsResourceName(snapshot.identifier);
     const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
         const baseName = methodNames.slice(sliceDef);
         const getMethodName = `get${baseName}`;
         const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}`;
+        const matchRef = `${className}.${tsSliceStaticName(sliceDef.sliceName)}`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
+        const isUnbounded = sliceDef.array && sliceDef.max === 0;
 
         if (isUnbounded) {
             // Unbounded slice: return an array or undefined
@@ -339,17 +343,17 @@ const generateSliceSetters = (
     sliceDefs: SliceDef[],
     methodNames: ProfileMethodBaseNames,
 ) => {
-    const profileClassName = tsProfileClassName(snapshot);
+    const className = tsProfileClassName(snapshot);
     const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
         const baseName = methodNames.slice(sliceDef);
         const methodName = `set${baseName}`;
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}`;
+        const matchRef = `${className}.${tsSliceStaticName(sliceDef.sliceName)}`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
+        const isUnbounded = sliceDef.array && sliceDef.max === 0;
 
         if (isUnbounded) {
             // Unbounded slice: accept an array of items
