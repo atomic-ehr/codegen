@@ -52,10 +52,10 @@ export interface BundleLink extends BackboneElement {
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle (pkg: hl7.fhir.r4.core#4.0.1)
-export interface Bundle<T extends Resource = Resource> extends Resource {
+export interface Bundle<T1 extends Resource = Resource, T2 extends Resource = Resource> extends Resource {
     resourceType: "Bundle";
 
-    entry?: BundleEntry<T>[];
+    entry?: BundleEntry<T1, T2>[];
     identifier?: Identifier;
     link?: BundleLink[];
     signature?: Signature;
@@ -79,7 +79,6 @@ exports[`TypeScript: profile nested types next to core nested types sliced choic
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
-import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 
 import {
     applySliceMatch,
@@ -94,10 +93,10 @@ import {
     wrapSliceChoice,
 } from "../../profile-helpers";
 
-export type SlicedChoiceObservation_Component_CodedFindingSliceFlat = Omit<ObservationComponent, "code">;
+export type SlicedChoiceObservation_Component_CodedFindingSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & CodeableConcept;
 export type SlicedChoiceObservation_Component_CodedFindingSliceFlatAll = SlicedChoiceObservation_Component_CodedFindingSliceFlat;
 
-export type SlicedChoiceObservation_Component_MeasuredFindingSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity"> & Quantity;
+export type SlicedChoiceObservation_Component_MeasuredFindingSliceFlat = Omit<ObservationComponent, "code">;
 export type SlicedChoiceObservation_Component_MeasuredFindingSliceFlatAll = SlicedChoiceObservation_Component_MeasuredFindingSliceFlat;
 
 export type SlicedChoiceObservationProfileRaw = {
@@ -194,7 +193,8 @@ export class SlicedChoiceObservationProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueCodeableConcept")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -205,8 +205,7 @@ export class SlicedChoiceObservationProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
-        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -219,7 +218,7 @@ export class SlicedChoiceObservationProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as SlicedChoiceObservation_Component_CodedFindingSliceFlatAll
+        return unwrapSliceChoice<SlicedChoiceObservation_Component_CodedFindingSliceFlatAll>(item, ["code"], "valueCodeableConcept")
     }
 
     public getMeasuredFinding(mode: 'flat'): SlicedChoiceObservation_Component_MeasuredFindingSliceFlatAll | undefined;
@@ -230,7 +229,7 @@ export class SlicedChoiceObservationProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<SlicedChoiceObservation_Component_MeasuredFindingSliceFlatAll>(item, ["code"], "valueQuantity")
+        return item as unknown as SlicedChoiceObservation_Component_MeasuredFindingSliceFlatAll
     }
 
     // Validation
@@ -239,9 +238,9 @@ export class SlicedChoiceObservationProfile {
         return {
             errors: [
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"coded-finding"}]}}, "codedFinding", 1, 1),
-                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"coded-finding"}]}}, "codedFinding", [], [["valueQuantity"]]),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"coded-finding"}]}}, "codedFinding", [], [["valueCodeableConcept"]]),
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"measured-finding"}]}}, "measuredFinding", 0, 1),
-                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"measured-finding"}]}}, "measuredFinding", [], [["valueQuantity"]]),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"measured-finding"}]}}, "measuredFinding", [], [["valueQuantity","valueString"]]),
                 ...validateRequired(res, profileName, "status"),
                 ...validateRequired(res, profileName, "code"),
             ],
@@ -327,7 +326,7 @@ class BundleLink(BackboneElement):
     url: str = Field(alias="url", serialization_alias="url")
 
 
-class Bundle(Resource, Generic[T]):
+class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resourceType: str = Field(
         default='Bundle',
@@ -336,7 +335,7 @@ class Bundle(Resource, Generic[T]):
         frozen=True,
         pattern='Bundle'
     )
-    entry: PyList[BundleEntry[T]] | None = Field(None, alias="entry", serialization_alias="entry")
+    entry: PyList[BundleEntry[T1, T2]] | None = Field(None, alias="entry", serialization_alias="entry")
     identifier: Identifier | None = Field(None, alias="identifier", serialization_alias="identifier")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     signature: Signature | None = Field(None, alias="signature", serialization_alias="signature")
@@ -474,7 +473,7 @@ class SlicedChoiceObservationProfile:
         if mode == "raw":
             return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
-        return strip_match_keys(item_dict, ["code"])
+        return unwrap_slice_choice(item_dict, ["code"], "valueCodeableConcept")
 
     @overload
     def get_measured_finding(self) -> dict[str, Any] | None: ...
@@ -486,11 +485,12 @@ class SlicedChoiceObservationProfile:
         if mode == "raw":
             return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
-        return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
+        return strip_match_keys(item_dict, ["code"])
 
     def set_coded_finding(self, value: dict[str, Any] | None = None) -> "SlicedChoiceObservationProfile":
         match = self.__class__._coded_finding_slice_match
-        merged = apply_slice_match((value or {}), match)
+        wrapped = wrap_slice_choice((value or {}), "valueCodeableConcept")
+        merged = apply_slice_match(wrapped, match)
         element = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
         set_array_slice(items, match, element)
@@ -499,8 +499,7 @@ class SlicedChoiceObservationProfile:
 
     def set_measured_finding(self, value: dict[str, Any] | None = None) -> "SlicedChoiceObservationProfile":
         match = self.__class__._measured_finding_slice_match
-        wrapped = wrap_slice_choice((value or {}), "valueQuantity")
-        merged = apply_slice_match(wrapped, match)
+        merged = apply_slice_match((value or {}), match)
         element = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
         set_array_slice(items, match, element)
@@ -514,12 +513,12 @@ class SlicedChoiceObservationProfile:
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"coded-finding"}]}}, "codedFinding", 1, 1))
         errors.extend(
             validate_slice_fields(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"coded-finding"}]}}, "codedFinding", [], [
-                ["valueQuantity"]
+                ["valueCodeableConcept"]
         ]))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"measured-finding"}]}}, "measuredFinding", 0, 1))
         errors.extend(
             validate_slice_fields(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://example.test/CodeSystem/component-kind","code":"measured-finding"}]}}, "measuredFinding", [], [
-                ["valueQuantity"]
+                ["valueQuantity","valueString"]
         ]))
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_required(self._resource, profile_name, "code"))

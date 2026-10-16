@@ -13,15 +13,16 @@ import {
     treeShakeTypeSchema,
 } from "@root/typeschema/ir/tree-shake";
 import { registerFromPackageMetas } from "@root/typeschema/register";
-import type {
-    CanonicalUrl,
-    Name,
-    NestedIdentifier,
-    ProfileIdentifier,
-    ProfileTypeSchema,
-    ResourceIdentifier,
-    SpecializationTypeSchema,
-    TypeIdentifier,
+import {
+    type CanonicalUrl,
+    type Name,
+    type NestedIdentifier,
+    type ProfileIdentifier,
+    type ProfileTypeSchema,
+    profileNestedIdentifier,
+    type ResourceIdentifier,
+    type SpecializationTypeSchema,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -168,6 +169,8 @@ describe("treeShake inherited nested targets", () => {
         package: "example.test.praxis",
         version: "0.101.6",
     };
+    // The profile's own copy of `item`, under the profile's url.
+    const profileItemId = profileNestedIdentifier(profileId, "item" as Name);
 
     const schemas = (includeEnableWhen: boolean): [SpecializationTypeSchema, ProfileTypeSchema] => {
         const questionnaire: SpecializationTypeSchema = {
@@ -182,7 +185,9 @@ describe("treeShake inherited nested targets", () => {
             identifier: profileId,
             base: questionnaireId,
             fields: { item: { type: itemId } },
-            nested: [{ identifier: itemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } }],
+            nested: [
+                { identifier: profileItemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } },
+            ],
         };
         return [questionnaire, profile];
     };
@@ -198,7 +203,7 @@ describe("treeShake inherited nested targets", () => {
             "example.test.praxis": { [profileUrl]: {} },
         });
 
-        expect(shaked.resolve(profileId)?.nested?.map(({ identifier }) => identifier)).toContainEqual(itemId);
+        expect(shaked.resolve(profileId)?.nested?.map(({ identifier }) => identifier)).toContainEqual(profileItemId);
         expect(shaked.resolveType(enableWhenId)?.identifier).toEqual(enableWhenId);
     });
 
