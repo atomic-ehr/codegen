@@ -78,7 +78,7 @@ public  class PatientDTO extends DomainResourceDTO{
                               
                               
                               
-                              @JsonProperty("language") @Valid LanguageDTO language;
+                              @JsonProperty("language") @Valid CodeableConceptDTO language;
                 private final @Nullable 
                               
                               
@@ -93,7 +93,7 @@ public  class PatientDTO extends DomainResourceDTO{
             }
 
 
-                public LanguageDTO language() {
+                public CodeableConceptDTO language() {
                     return this.language;
                 }
                 public Optional<Boolean> preferred() {
@@ -111,14 +111,14 @@ public  class PatientDTO extends DomainResourceDTO{
 
                 protected static abstract class AbstractPatientCommunicationDTOBuilder<T extends PatientCommunicationDTO, B extends AbstractPatientCommunicationDTOBuilder<T,B>> extends AbstractBackboneElementDTOBuilder<T,B>{
 
-                        private @Nullable LanguageDTO language = null;
+                        private @Nullable CodeableConceptDTO language = null;
                         private @Nullable Primitive<Boolean> preferred = null;
 
                     protected AbstractPatientCommunicationDTOBuilder() {
                     }
 
 
-                                public final B language(@Nullable LanguageDTO language) {
+                                public final B language(@Nullable CodeableConceptDTO language) {
                                     this.language = language;
                                     return this.self();
                                 }
@@ -767,7 +767,7 @@ public  class PatientDTO extends DomainResourceDTO{
                       
                       
                       
-                      @JsonProperty("maritalStatus") @Valid MaritalStatusDTO maritalStatus;
+                      @JsonProperty("maritalStatus") @Valid CodeableConceptDTO maritalStatus;
         private final @Nullable 
                       
                       
@@ -887,7 +887,7 @@ public  class PatientDTO extends DomainResourceDTO{
         public Optional<ReferenceDTO> managingOrganization() {
             return Optional.ofNullable(this.managingOrganization);
         }
-        public Optional<MaritalStatusDTO> maritalStatus() {
+        public Optional<CodeableConceptDTO> maritalStatus() {
             return Optional.ofNullable(this.maritalStatus);
         }
         public Optional<Boolean> multipleBirthBoolean() {
@@ -932,7 +932,7 @@ public  class PatientDTO extends DomainResourceDTO{
                 private @Nullable List<IdentifierDTO> identifier = null;
                 private @Nullable List<PatientLinkDTO> link = null;
                 private @Nullable ReferenceDTO managingOrganization = null;
-                private @Nullable MaritalStatusDTO maritalStatus = null;
+                private @Nullable CodeableConceptDTO maritalStatus = null;
                 private @Nullable Primitive<Boolean> multipleBirthBoolean = null;
                 private @Nullable Primitive<Integer> multipleBirthInteger = null;
                 private @Nullable List<HumanNameDTO> name = null;
@@ -1170,7 +1170,7 @@ public  class PatientDTO extends DomainResourceDTO{
                             this.managingOrganization = managingOrganization;
                             return this.self();
                         }
-                        public final B maritalStatus(@Nullable MaritalStatusDTO maritalStatus) {
+                        public final B maritalStatus(@Nullable CodeableConceptDTO maritalStatus) {
                             this.maritalStatus = maritalStatus;
                             return this.self();
                         }
