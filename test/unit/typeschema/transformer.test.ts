@@ -132,7 +132,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as SpecializationTypeSchema;
 
-            expect(result).toHaveLength(1);
+            expect(result).toHaveLength(2);
             expect(schema.fields?.contact).toBeDefined();
         });
 
@@ -408,7 +408,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as SpecializationTypeSchema;
 
-            expect(result).toHaveLength(1);
+            expect(result).toHaveLength(3);
             expect(schema.fields?.level1).toBeDefined();
         });
     });

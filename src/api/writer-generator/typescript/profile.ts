@@ -323,10 +323,11 @@ export const generateProfileImports = (
 ): ProfileImports => {
     const terminologyImports = w.enumTerminologyLinks(tsIndex, snapshot).imports;
     const types = w.section<never, TypeIdentifier>({
-        name: tsResourceName,
+        name: (id) => tsResourceName(tsIndex.typeForGeneration(id)),
         render: (_definitions, usages) => {
             const grouped = new Map<string, string[]>();
-            for (const { key, local } of usages) {
+            for (const { key: constraint, local } of usages) {
+                const key = tsIndex.typeForGeneration(constraint);
                 let modulePath = `../../${w.modulePath(key)}`;
                 if (isNestedIdentifier(key)) {
                     const path = tsNameFromCanonical(key.url, true);

@@ -25,17 +25,11 @@ describe("TypeSchema Processing constraint generation", async () => {
                 fields: {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
-                nested: [
-                    {
-                        identifier: { kind: "nested", name: "foo", url: "uri::A#foo" },
-                        base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
-                        fields: { bar: { type: { url: "http://hl7.org/fhir/StructureDefinition/string" } } },
-                    },
-                ],
-                dependencies: [
-                    { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
-                    { url: "http://hl7.org/fhir/StructureDefinition/string" },
-                ],
+            },
+            {
+                identifier: { kind: "nested", name: "foo", url: "uri::A#foo" },
+                base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                fields: { bar: { type: { url: "http://hl7.org/fhir/StructureDefinition/string" } } },
             },
         ]);
     });
@@ -55,7 +49,6 @@ describe("TypeSchema Processing constraint generation", async () => {
                 fields: {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
-                nested: undefined,
                 dependencies: [
                     { kind: "resource", name: "a", url: "uri::A" },
                     { kind: "nested", name: "foo", url: "uri::A#foo" },
@@ -80,7 +73,6 @@ describe("TypeSchema Processing constraint generation", async () => {
                 fields: {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
-                nested: undefined,
                 dependencies: [
                     { kind: "nested", name: "foo", url: "uri::A#foo" },
                     { kind: "profile", name: "b", url: "uri::B" },
@@ -124,22 +116,20 @@ describe("TypeSchema Processing constraint generation", async () => {
                 identifier: { kind: "profile", name: "e", url: "uri::E" },
                 base: { kind: "resource", name: "d", url: "uri::D" },
                 fields: {
-                    foo: { type: { kind: "nested", name: "foo", url: "uri::D#foo" } },
+                    foo: { type: { kind: "nested", name: "foo", url: "uri::E#foo" } },
                 },
-                nested: [
-                    {
-                        identifier: { kind: "nested", name: "foo", url: "uri::D#foo" },
-                        base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
-                        fields: {
-                            bar: {
-                                type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
-                                min: 1,
-                            },
-                            baz: { type: { url: "http://hl7.org/fhir/StructureDefinition/integer" } },
-                            qux: { type: { url: "http://hl7.org/fhir/StructureDefinition/boolean" } },
-                        },
+            },
+            {
+                identifier: { kind: "nested", name: "foo", url: "uri::E#foo" },
+                base: { url: "uri::D#foo" },
+                fields: {
+                    bar: {
+                        type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
+                        min: 1,
                     },
-                ],
+                    baz: { type: { url: "http://hl7.org/fhir/StructureDefinition/integer" } },
+                    qux: { type: { url: "http://hl7.org/fhir/StructureDefinition/boolean" } },
+                },
             },
         ]);
     });
@@ -148,39 +138,16 @@ describe("TypeSchema Processing constraint generation", async () => {
         const profile = r4.resolveFs(
             r4Package,
             "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl,
-        );
-        if (!profile) {
-            throw new Error("shareablecodesystem profile not found");
-        }
-        expect(await registerFsAndMkTs(r4, profile, logger)).toMatchObject([
-            {
-                base: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
-                identifier: { kind: "profile", url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" },
-                fields: {
-                    concept: {
-                        type: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
-                    },
-                },
-                dependencies: [
-                    { kind: "complex-type", url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
-                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/boolean" },
-                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/code" },
-                    { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
-                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
-                    {
-                        kind: "nested",
-                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation",
-                    },
-                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property" },
-                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/markdown" },
-                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
-                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },
-                    { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
-                ],
-            },
-            {
-                identifier: { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
-            },
-        ]);
+        )!;
+        const schemas = await registerFsAndMkTs(r4, profile, logger);
+        expect(schemas[0]).toMatchObject({
+            identifier: { kind: "profile", url: profile.url },
+            fields: { concept: { type: { kind: "nested", url: `${profile.url}#concept` } } },
+        });
+        expect(schemas.find((schema) => schema.identifier.url === `${profile.url}#concept`)).toMatchObject({
+            base: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
+            owner: { kind: "profile", url: profile.url },
+        });
+        expect(schemas.some((schema) => schema.identifier.kind === "binding")).toBeTrue();
     });
 });

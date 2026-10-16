@@ -42,7 +42,7 @@ const deduplicateSchemas = (
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
 
     for (const item of schemasWithSources) {
-        const key = `${item.schema.identifier.url}|${item.schema.identifier.package}`;
+        const key = `${item.schema.identifier.kind}|${item.schema.identifier.url}|${item.schema.identifier.package}`;
         const { hash } = item;
 
         groups[key] ??= {};

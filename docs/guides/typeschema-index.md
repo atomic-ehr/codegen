@@ -29,6 +29,40 @@ The `TypeSchemaIndex` is a comprehensive data structure containing all transform
 
 ## Overview
 
+Translation returns a flat collection of `TypeSchema` nodes: the root, its nested types,
+terminology bindings, and value sets. A root has no `nested` property. Each nested type has
+an `owner`, element `path`, `derivation`, structural `origin`, and direct `dependencies`.
+
+```typescript
+import { generateTypeSchemas, mkTypeSchemaIndex, registerFromPackageMetas } from "@atomic-ehr/codegen";
+
+const register = await registerFromPackageMetas([{ name: "hl7.fhir.r4.core", version: "4.0.1" }]);
+const { schemas } = await generateTypeSchemas(register);
+const index = mkTypeSchemaIndex(schemas, { register });
+const observation = index.collectResources().find((schema) => schema.identifier.name === "Observation")!;
+index.resolve(observation.identifier);          // Same resolver for every schema kind
+index.nestedTypesOf(observation.identifier);    // Group declarations for an output module
+index.reachableFrom([observation.identifier]);  // Walk direct dependencies
+index.moduleDependencies(observation);         // Dependencies across a generated module
+```
+
+`APIBuilder` uses this representation automatically. The standard translator, index,
+tree shaker, logical promotion, and all writers consume flat nodes. Writers query ownership
+to preserve the generated module layout; there is no embedded compatibility view or mode flag.
+
+A profile constraining `Observation.component` gets its own node, such as
+`MyObservationProfile#component`, based on `Observation#component`. Further profiles link to
+the nearest ancestor constraining that path. Unchanged nested types keep the ancestor's identity.
+TypeScript and Python profile writers use `typeForGeneration` to select the structural declaration
+for imports while constraint lookups resolve the profile-specific node. Nested fields contain
+resolved values from the FHIRSchema genealogy, rather than pure differentials. Constraints inside
+ordinary datatypes and slice schemas retain their existing translation behavior.
+
+`reachableFrom` reports missing dependency targets. External terminology placeholders in the
+`missing_valuesets` package have no generated definition. Tree shaking retains reachable nested
+nodes and recalculates dependencies after field selection, so removing a field also removes
+otherwise unused nested definitions.
+
 TypeSchemaIndex is created during the TypeSchema generation phase and serves as the input to all code generators (Writer implementations, Mustache templates, etc.). It organizes all FHIR schemas by canonical URL and package name, enabling efficient lookups and traversals of complex type relationships.
 
 Why TypeSchemaIndex Matters

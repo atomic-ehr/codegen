@@ -13,71 +13,72 @@ describe("TypeSchema R5 generation", async () => {
         );
         expect(fs).toBeDefined();
         if (!fs) throw new Error("fs is undefined");
-        const ts = (await registerFsAndMkTs(r5, fs, logger))[0] as SpecializationTypeSchema;
+        const schemas = await registerFsAndMkTs(r5, fs, logger);
 
-        expect(ts).toMatchObject({
-            identifier: {
-                kind: "profile",
-                package: "hl7.fhir.r5.core",
-                version: "5.0.0",
-                name: "ShareableCodeSystem",
-                url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem",
-            },
-            base: {
-                kind: "resource",
-                package: "hl7.fhir.r5.core",
-                version: "5.0.0",
-                name: "CodeSystem",
-                url: "http://hl7.org/fhir/StructureDefinition/CodeSystem",
-            },
-            fields: {
-                concept: {
-                    type: {
-                        kind: "nested",
-                        package: "hl7.fhir.r5.core",
-                        version: "5.0.0",
-                        name: "concept",
-                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
-                    },
+        expect(schemas.filter((schema) => schema.identifier.kind !== "binding")).toMatchObject([
+            {
+                identifier: {
+                    kind: "profile",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
+                    name: "ShareableCodeSystem",
+                    url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem",
                 },
-            },
-            nested: [
-                {
-                    identifier: {
-                        kind: "nested",
-                        package: "hl7.fhir.r5.core",
-                        version: "5.0.0",
-                        name: "concept",
-                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
-                    },
-                    base: {
-                        kind: "complex-type",
-                        package: "hl7.fhir.r5.core",
-                        version: "5.0.0",
-                        name: "BackboneElement",
-                        url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-                    },
-                    fields: {
-                        concept: {
-                            type: {
-                                kind: "nested",
-                                package: "hl7.fhir.r5.core",
-                                version: "5.0.0",
-                                name: "concept",
-                                url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
-                            },
+                base: {
+                    kind: "resource",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
+                    name: "CodeSystem",
+                    url: "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+                },
+                fields: {
+                    concept: {
+                        type: {
+                            kind: "nested",
+                            package: "hl7.fhir.r5.core",
+                            version: "5.0.0",
+                            name: "concept",
+                            url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
                         },
                     },
                 },
-            ],
-        });
+            },
+            {
+                identifier: {
+                    kind: "nested",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
+                    name: "concept",
+                    url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
+                },
+                base: {
+                    kind: "nested",
+                    name: "concept",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
+                    url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
+                },
+                fields: {
+                    concept: {
+                        type: {
+                            kind: "nested",
+                            package: "hl7.fhir.r5.core",
+                            version: "5.0.0",
+                            name: "concept",
+                            url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
+                        },
+                    },
+                },
+            },
+        ]);
     });
 
     it("Extension", async () => {
         const fs = r5.resolveFs(r5Package, "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl);
         expect(fs).toBeDefined();
         if (!fs) throw new Error("Failed to resolve fs");
-        const ts = (await registerFsAndMkTs(r5, fs, logger))[0] as SpecializationTypeSchema;
+        const schemas = await registerFsAndMkTs(r5, fs, logger);
+        const ts = schemas[0] as SpecializationTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "complex-type",

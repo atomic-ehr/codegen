@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import type { CodegenLog } from "@root/utils/log";
-import { extractDependencies, extractProfileDependencies } from "../core/transformer";
+import { extractDependencies, extractProfileDependencies } from "../core/dependencies";
 import {
     type CanonicalUrl,
     concatIdentifiers,
@@ -81,7 +81,10 @@ export const packageTreeShakeReadme = (report: TypeSchemaIndex | IrReport, pkgNa
     return lines.join("\n");
 };
 
-const mutableSelectFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, selectFields: string[]) => {
+const mutableSelectFields = (
+    schema: SpecializationTypeSchema | ProfileTypeSchema | import("../types").NestedTypeSchema,
+    selectFields: string[],
+) => {
     const selectedFields: Record<string, Field> = {};
 
     const selectPolimorphic: Record<string, { declaration?: string[]; instances?: string[] }> = {};
@@ -116,7 +119,10 @@ const mutableSelectFields = (schema: SpecializationTypeSchema | ProfileTypeSchem
     schema.fields = selectedFields;
 };
 
-const mutableIgnoreFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, ignoreFields: string[]) => {
+const mutableIgnoreFields = (
+    schema: SpecializationTypeSchema | ProfileTypeSchema | import("../types").NestedTypeSchema,
+    ignoreFields: string[],
+) => {
     for (const fieldName of ignoreFields) {
         const field = schema.fields?.[fieldName];
         if (!schema.fields || !field) throw new Error(`Field ${fieldName} not found`);
@@ -190,11 +196,7 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
     }
 };
 
-const treeShakeTypeSchemaWithResolver = (
-    schema: TypeSchema,
-    rule: TreeShakeRule,
-    resolveType?: TypeSchemaIndex["resolveType"],
-): TypeSchema => {
+export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: CodegenLog): TypeSchema => {
     schema = JSON.parse(JSON.stringify(schema));
     if (
         isPrimitiveTypeSchema(schema) ||
@@ -224,55 +226,22 @@ const treeShakeTypeSchemaWithResolver = (
         schema.slicing = Object.keys(kept).length > 0 ? kept : undefined;
     }
 
-    if (schema.nested) {
-        const nestedIdentity = (identifier: { package: PkgName; url: CanonicalUrl }) =>
-            JSON.stringify([identifier.package, identifier.url]);
-        const usedTypes = new Set<string>();
-        const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
-            Object.values(s.fields ?? {})
-                .filter(isNotChoiceDeclarationField)
-                .filter((f) => isNestedIdentifier(f.type))
-                .forEach((f) => {
-                    const identity = nestedIdentity(f.type);
-                    if (!usedTypes.has(identity)) {
-                        usedTypes.add(identity);
-                        const nestedTypeDef = schema.nested?.find(
-                            (nested) => nestedIdentity(nested.identifier) === identity,
-                        );
-                        if (nestedTypeDef) {
-                            collectUsedNestedTypes(nestedTypeDef);
-                        } else if (!resolveType || !isNestedTypeSchema(resolveType(f.type))) {
-                            throw new Error(
-                                `Nested schema ${JSON.stringify(f.type)} not found for ${JSON.stringify(schema.identifier)}`,
-                            );
-                        }
-                    }
-                });
-        };
-        collectUsedNestedTypes(schema);
-        schema.nested = schema.nested.filter((nested) => usedTypes.has(nestedIdentity(nested.identifier)));
-    }
-
     if (isProfileTypeSchema(schema)) {
         const extDeps = schema.extensions?.flatMap(extractExtensionDeps);
         schema.dependencies = concatIdentifiers(
-            extractProfileDependencies(schema.identifier, schema.base, schema.fields, schema.nested),
+            extractProfileDependencies(schema.identifier, schema.base, schema.fields),
             extDeps,
         );
     } else {
-        assert(!isNestedIdentifier(schema.identifier));
-        schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
+        schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields);
     }
     return schema;
 };
 
-export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: CodegenLog): TypeSchema =>
-    treeShakeTypeSchemaWithResolver(schema, rule);
-
 /** Reference target identifiers (base resources and target profiles) of a schema's fields, including nested types. */
 const collectReferenceTargets = (schema: TypeSchema): Identifier[] => {
-    if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) return [];
-    const fieldSets = [schema.fields, ...(schema.nested ?? []).map((n) => n.fields)];
+    if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema) && !isNestedTypeSchema(schema)) return [];
+    const fieldSets = [schema.fields];
     return fieldSets.flatMap((fields) =>
         Object.values(fields ?? {})
             .filter(isNotChoiceDeclarationField)
@@ -293,7 +262,7 @@ const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | 
 };
 
 const collectSliceMatchResourceTargets = (schema: TypeSchema, tsIndex: TypeSchemaIndex): TypeSchema[] => {
-    if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) return [];
+    if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema) && !isNestedTypeSchema(schema)) return [];
     return Object.values(schema.slicing ?? {})
         .filter(isTypeDiscriminated)
         .flatMap((slicing) => Object.values(slicing.slices ?? {}))
@@ -348,6 +317,23 @@ const collectSliceMatchResourceTargets = (schema: TypeSchema, tsIndex: TypeSchem
         });
 };
 
+const nestedReferenceCarriers = (root: TypeSchema, index: TypeSchemaIndex): TypeSchema[] => {
+    const carriers = [root];
+    const seen = new Set<string>();
+    for (const carrier of carriers) {
+        for (const field of Object.values("fields" in carrier ? (carrier.fields ?? {}) : {})) {
+            if (!isNotChoiceDeclarationField(field) || !isNestedIdentifier(field.type)) continue;
+            const key = JSON.stringify(field.type);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const nested = index.resolve(field.type);
+            if (!nested) throw new Error(`Nested schema ${key} not found`);
+            carriers.push(nested);
+        }
+    }
+    return carriers;
+};
+
 export const treeShake = (
     tsIndex: TypeSchemaIndex,
     treeShake: TreeShakeConf,
@@ -358,11 +344,12 @@ export const treeShake = (
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
             const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema || isNestedTypeSchema(schema)) throw new Error(`Schema not found for ${pkgId} ${url}`);
-            const shaked = treeShakeTypeSchemaWithResolver(schema, rule, tsIndex.resolveType);
+            if (!schema) throw new Error(`Schema not found for ${pkgId} ${url}`);
+            const shaked = treeShakeTypeSchema(schema, rule);
             focusedSchemas.push(shaked);
             if (rule.followReferences ?? defaults?.followReferences) {
-                for (const refId of collectReferenceTargets(shaked)) {
+                const referenceCarriers = nestedReferenceCarriers(shaked, tsIndex);
+                for (const refId of referenceCarriers.flatMap(collectReferenceTargets)) {
                     const refSchema = tsIndex.resolve(refId);
                     if (!refSchema)
                         throw new Error(`Reference target ${JSON.stringify(refId)} not found for ${pkgId} ${url}`);
@@ -386,13 +373,12 @@ export const treeShake = (
         const newSchemas: TypeSchema[] = [];
 
         for (const schema of schemas) {
-            if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
+            if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema) || isNestedTypeSchema(schema)) {
                 const dependencies = [
                     ...(schema.dependencies ?? []),
                     ...collectSliceMatchResourceTargets(schema, tsIndex).map(({ identifier }) => identifier),
                 ];
                 dependencies.forEach((dep) => {
-                    if (isNestedIdentifier(dep)) return;
                     const depSchema = tsIndex.resolve(dep);
                     if (!depSchema)
                         throw new Error(
@@ -401,8 +387,6 @@ export const treeShake = (
                     const id = JSON.stringify(depSchema.identifier);
                     if (!acc[id]) newSchemas.push(depSchema);
                 });
-                // NOTE: nested types' deps are already included in the parent's dependencies
-                // via extractNestedDependencies, so no need to collect them separately.
             }
         }
         return collectDeps(newSchemas, acc);

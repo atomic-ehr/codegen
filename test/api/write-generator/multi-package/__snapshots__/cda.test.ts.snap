@@ -78,17 +78,41 @@ exports[`CDA Python Generation should generate ClinicalDocument type (promoted l
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Generic, Literal
+from typing import Any as Any_1
+from typing import List as PyList
+
 from pydantic import ConfigDict, Field, model_validator
-from typing import Any as Any_1, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_cda_uv_core import (
-    Any, Authenticator, Author, Authorization, Cd, Ce, Component, ComponentOf, Cs, Custodian, DataEnterer, \\
-    DocumentationOf, Ii, InFulfillmentOf, Informant, InformationRecipient, Int, LegalAuthenticator, Participant1, \\
-    RecordTarget, RelatedDocument, St, Ts
+    Any,
+    Authenticator,
+    Author,
+    Authorization,
+    Cd,
+    Ce,
+    Component,
+    ComponentOf,
+    Cs,
+    Custodian,
+    DataEnterer,
+    DocumentationOf,
+    Ii,
+    Informant,
+    InformationRecipient,
+    InFulfillmentOf,
+    Int,
+    LegalAuthenticator,
+    Participant1,
+    RecordTarget,
+    RelatedDocument,
+    St,
+    Ts,
 )
-from fhir_types.hl7_fhir_r5_core.base import Base
 from fhir_types.hl7_cda_uv_core.resource_preprocessor import preprocess_resource_fields
+from fhir_types.hl7_fhir_r5_core.base import Base
 
 T1 = TypeVar('T1', bound=Base, default=Base, covariant=True)
 T2 = TypeVar('T2', bound=Any, default=Any, covariant=True)

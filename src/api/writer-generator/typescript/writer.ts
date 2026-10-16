@@ -222,7 +222,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         this.lineSM(`export * from "${specifier}"`);
     }
 
-    generateFhirPackageIndexFile(schemas: TypeSchema[], hasTerminology = false) {
+    generateFhirPackageIndexFile(tsIndex: TypeSchemaIndex, schemas: TypeSchema[], hasTerminology = false) {
         this.cat("index.ts", () => {
             if (hasTerminology) this.tsExportAll("./terminology");
             const profiles = schemas.filter(isSnapshotProfileTypeSchema);
@@ -237,9 +237,8 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                         ? []
                         : [
                               resourceName,
-                              ...((isResourceTypeSchema(schema) && schema.nested) ||
-                              (isLogicalTypeSchema(schema) && schema.nested)
-                                  ? schema.nested.map((n) => tsResourceName(n.identifier))
+                              ...(isResourceTypeSchema(schema) || isLogicalTypeSchema(schema)
+                                  ? tsIndex.nestedTypesOf(schema.identifier).map((n) => tsResourceName(n.identifier))
                                   : []),
                           ];
                     const valueExports = isResourceTypeSchema(schema) ? [`is${resourceName}`] : [];
@@ -291,8 +290,8 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    generateComplexTypeReexports(schema: SpecializationTypeSchema) {
-        const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier);
+    generateComplexTypeReexports(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
+        const complexTypeDeps = tsIndex.moduleDependencies(schema).filter(isComplexTypeIdentifier);
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.debugComment(dep);
@@ -449,8 +448,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         schema: SpecializationTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
     ): void {
-        if (!schema.nested) return;
-        for (const subtype of schema.nested) {
+        for (const subtype of tsIndex.nestedTypesOf(schema.identifier)) {
             this.generateType(tsIndex, tImport, subtype, isFamilyType);
             this.line();
         }
@@ -470,7 +468,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
                 const tImport = this.typeModuleImports(schema);
-                this.generateComplexTypeReexports(schema);
+                this.generateComplexTypeReexports(tsIndex, schema);
                 this.generateNestedTypes(tsIndex, tImport, schema, isFamilyType);
                 this.comment(
                     "CanonicalURL:",
@@ -836,7 +834,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                     }
                     generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isSnapshotProfileTypeSchema));
                     if (terminology) this.generateTerminologyModule(packageDir);
-                    this.generateFhirPackageIndexFile(packageSchemas, terminology !== undefined);
+                    this.generateFhirPackageIndexFile(tsIndex, packageSchemas, terminology !== undefined);
                 });
             }
         });

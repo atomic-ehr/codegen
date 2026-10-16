@@ -4,11 +4,11 @@ import {
     type Identifier,
     isChoiceDeclarationField,
     isLogicalTypeSchema,
+    isNestedTypeSchema,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedTypeSchema,
     type PkgName,
     type TypeIdentifier,
 } from "@root/typeschema/types";
@@ -49,15 +49,12 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         const cloned = JSON.parse(JSON.stringify(schema));
         cloned.identifier = replace(cloned.identifier);
         cloned.dependencies = cloned.dependencies?.map(replace);
-        if (isSpecializationTypeSchema(cloned) || isProfileTypeSchema(cloned)) {
+        if (isSpecializationTypeSchema(cloned) || isProfileTypeSchema(cloned) || isNestedTypeSchema(cloned)) {
             cloned.fields = replaceInFields(cloned.fields);
-            cloned.nested = cloned.nested?.map((n: NestedTypeSchema) => {
-                return {
-                    ...n,
-                    base: n.base ? replace(n.base) : undefined,
-                    fields: replaceInFields(n.fields),
-                };
-            });
+            if (isNestedTypeSchema(cloned)) {
+                cloned.owner = replace(cloned.owner);
+                cloned.base = cloned.base ? replace(cloned.base) : undefined;
+            }
         }
         return cloned;
     });

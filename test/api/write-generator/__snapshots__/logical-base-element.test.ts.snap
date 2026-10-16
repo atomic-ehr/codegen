@@ -6,6 +6,13 @@ exports[`a logical model with elements typed as the virtual R4 Base the transfor
     "base": undefined,
     "dependencies": [
       {
+        "kind": "nested",
+        "name": "part",
+        "package": "example.org",
+        "url": "http://example.org/StructureDefinition/BaseElementDocument#part",
+        "version": "0.0.1",
+      },
+      {
         "kind": "primitive-type",
         "name": "string",
         "package": "hl7.fhir.r4.core",
@@ -71,43 +78,69 @@ exports[`a logical model with elements typed as the virtual R4 Base the transfor
       "url": "http://example.org/StructureDefinition/BaseElementDocument",
       "version": "0.0.1",
     },
-    "nested": [
-      {
-        "fields": {
-          "label": {
-            "array": false,
-            "binding": undefined,
-            "choiceOf": undefined,
-            "choices": undefined,
-            "enum": undefined,
-            "excluded": false,
-            "max": undefined,
-            "min": undefined,
-            "mustSupport": undefined,
-            "reference": undefined,
-            "required": false,
-            "type": {
-              "kind": "primitive-type",
-              "name": "string",
-              "package": "hl7.fhir.r4.core",
-              "url": "http://hl7.org/fhir/StructureDefinition/string",
-              "version": "4.0.1",
-            },
-            "valueConstraint": undefined,
-          },
-        },
-        "identifier": {
-          "kind": "nested",
-          "name": "part",
-          "package": "example.org",
-          "url": "http://example.org/StructureDefinition/BaseElementDocument#part",
-          "version": "0.0.1",
-        },
-        "slicing": undefined,
-      },
-    ],
     "slicing": undefined,
     "typeFamily": undefined,
+  },
+  {
+    "base": undefined,
+    "dependencies": [
+      {
+        "kind": "primitive-type",
+        "name": "string",
+        "package": "hl7.fhir.r4.core",
+        "url": "http://hl7.org/fhir/StructureDefinition/string",
+        "version": "4.0.1",
+      },
+    ],
+    "derivation": "specialization",
+    "fields": {
+      "label": {
+        "array": false,
+        "binding": undefined,
+        "choiceOf": undefined,
+        "choices": undefined,
+        "enum": undefined,
+        "excluded": false,
+        "max": undefined,
+        "min": undefined,
+        "mustSupport": undefined,
+        "reference": undefined,
+        "required": false,
+        "type": {
+          "kind": "primitive-type",
+          "name": "string",
+          "package": "hl7.fhir.r4.core",
+          "url": "http://hl7.org/fhir/StructureDefinition/string",
+          "version": "4.0.1",
+        },
+        "valueConstraint": undefined,
+      },
+    },
+    "identifier": {
+      "kind": "nested",
+      "name": "part",
+      "package": "example.org",
+      "url": "http://example.org/StructureDefinition/BaseElementDocument#part",
+      "version": "0.0.1",
+    },
+    "origin": {
+      "kind": "nested",
+      "name": "part",
+      "package": "example.org",
+      "url": "http://example.org/StructureDefinition/BaseElementDocument#part",
+      "version": "0.0.1",
+    },
+    "owner": {
+      "kind": "logical",
+      "name": "BaseElementDocument",
+      "package": "example.org",
+      "url": "http://example.org/StructureDefinition/BaseElementDocument",
+      "version": "0.0.1",
+    },
+    "path": [
+      "part",
+    ],
+    "slicing": undefined,
   },
 ]
 `;

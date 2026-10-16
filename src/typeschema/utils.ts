@@ -24,7 +24,6 @@ import {
     isComplexTypeIdentifier,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
-    isNestedIdentifier,
     isNestedTypeSchema,
     isProfileTypeSchema,
     isResourceIdentifier,
@@ -222,9 +221,6 @@ const populateEffectiveReferences = (
     for (const schema of schemas) {
         if (!("fields" in schema)) continue;
         populateFields(schema.fields);
-        if ("nested" in schema) {
-            for (const nested of schema.nested ?? []) populateFields(nested.fields);
-        }
     }
 };
 
@@ -304,17 +300,9 @@ const populateGeneric = (
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
 ): void => {
     type Carrier = SpecializationTypeSchema | NestedTypeSchema;
-    const carriers: Carrier[] = [];
-    for (const schema of schemas) {
-        if (isSpecializationTypeSchema(schema)) {
-            carriers.push(schema);
-            for (const nested of schema.nested ?? []) carriers.push(nested);
-        } else if (isProfileTypeSchema(schema)) {
-            // Profiles aren't generic-bearing themselves (deliberately out of scope), but their
-            // nested types follow the same rules as specializations'.
-            for (const nested of schema.nested ?? []) carriers.push(nested);
-        }
-    }
+    const carriers: Carrier[] = schemas.filter(
+        (schema): schema is Carrier => isSpecializationTypeSchema(schema) || isNestedTypeSchema(schema),
+    );
 
     // Clear stale data — schemas may be mutated by a previous index build (replaceSchemas).
     for (const c of carriers) c.generic = undefined;
@@ -344,23 +332,10 @@ const populateGeneric = (
         }
     }
 
-    // Ensure each schema's dependency list includes its generic constraint types so writers
-    // emit the corresponding imports. Top-level specializations have a `dependencies` array;
-    // nested types don't (their imports come via the parent schema's dependencies).
-    for (const schema of schemas) {
-        if (!isSpecializationTypeSchema(schema)) continue;
-        const constraints: Identifier[] = [];
-        const collect = (params: GenericParam[]) => {
-            for (const p of params) {
-                if (!isNestedIdentifier(p.constraint)) constraints.push(p.constraint);
-            }
-        };
-        if (schema.generic) collect(schema.generic.params);
-        for (const nested of schema.nested ?? []) {
-            if (nested.generic) collect(nested.generic.params);
-        }
-        if (constraints.length === 0) continue;
-        schema.dependencies = concatIdentifiers(schema.dependencies, constraints) ?? schema.dependencies;
+    // Constraints are direct dependencies of each carrier, including standalone nested types.
+    for (const schema of carriers) {
+        const constraints = schema.generic?.params.map((param) => param.constraint);
+        schema.dependencies = concatIdentifiers(schema.dependencies, constraints);
     }
 };
 
@@ -369,6 +344,7 @@ const populateGeneric = (
 
 /** Overloaded `resolve` — passing a specific identifier kind narrows the return type. */
 type ResolveFn = {
+    (id: NestedIdentifier): NestedTypeSchema | undefined;
     (id: PrimitiveIdentifier): PrimitiveTypeSchema | undefined;
     (id: ComplexTypeIdentifier): ComplexTypeTypeSchema | undefined;
     (id: ResourceIdentifier): ResourceTypeSchema | undefined;
@@ -406,6 +382,11 @@ export type TypeSchemaIndex = {
     collectSnapshotProfiles: () => SnapshotProfileTypeSchema[];
     resolve: ResolveFn;
     resolveType: ResolveTypeFn;
+    reachableFrom: (roots: TypeIdentifier[]) => TypeSchema[];
+    nestedTypesOf: (owner: TypeIdentifier) => NestedTypeSchema[];
+    moduleDependencies: (schema: TypeSchema) => TypeIdentifier[];
+    /** Map a constrained nested node to its emitted structural declaration. */
+    typeForGeneration: (id: TypeIdentifier) => TypeIdentifier;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | NestedTypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
@@ -530,7 +511,6 @@ export const mkTypeSchemaIndex = (
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
     const snapshotIndex: Record<CanonicalUrl, Record<PkgName, SnapshotProfileTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
@@ -541,23 +521,9 @@ export const mkTypeSchemaIndex = (
             const r1 = JSON.stringify(schema.identifier, undefined, 2);
             const r2 = JSON.stringify(index[url][pkg]?.identifier, undefined, 2);
             if (r1 !== r2) throw new Error(`Duplicate schema: ${r1} and ${r2}`);
-            return;
+            throw new Error(`Duplicate schema: ${url} (${pkg})`);
         }
         index[url][pkg] = schema;
-
-        if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
-            if (schema.nested) {
-                schema.nested.forEach((nschema) => {
-                    const nurl = nschema.identifier.url;
-                    const npkg = nschema.identifier.package;
-                    nestedIndex[nurl] ??= {};
-                    // A constraint profile's nested type reuses its specialization's
-                    // identifier; the specialization's nested type wins whenever it is indexed.
-                    if (isProfileTypeSchema(schema) && nestedIndex[nurl][npkg]) return;
-                    nestedIndex[nurl][npkg] = nschema;
-                });
-            }
-        }
     };
     for (const schema of schemas) {
         append(schema);
@@ -569,7 +535,6 @@ export const mkTypeSchemaIndex = (
         return index[id.url]?.[id.package];
     }) as ResolveFn;
     const resolveType = ((id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
-        if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     }) as ResolveTypeFn;
@@ -585,7 +550,6 @@ export const mkTypeSchemaIndex = (
             }
         }
         if (index[url]?.[pkgName]) return index[url]?.[pkgName];
-        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
         // Fallback: search across all packages when type exists elsewhere
@@ -594,13 +558,6 @@ export const mkTypeSchemaIndex = (
             if (anyPkg) {
                 logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
                 return index[url]?.[anyPkg];
-            }
-        }
-        if (nestedIndex[url]) {
-            const anyPkg = Object.keys(nestedIndex[url])[0];
-            if (anyPkg) {
-                logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
-                return nestedIndex[url]?.[anyPkg];
             }
         }
         return undefined;
@@ -613,7 +570,6 @@ export const mkTypeSchemaIndex = (
             res.push(cur);
             const base: TypeIdentifier | undefined = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
-            if (isNestedIdentifier(base)) break;
             const resolved: TypeSchema | undefined = resolve(base);
             if (!resolved) {
                 logger?.warn(
@@ -648,6 +604,7 @@ export const mkTypeSchemaIndex = (
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const resolved = resolveType(id);
         if (!resolved) return id;
+        if (isNestedTypeSchema(resolved) && resolved.origin) return resolved.origin;
         if (isNestedTypeSchema(resolved))
             return resolved.base ? findLastSpecializationByIdentifier(resolved.base) : resolved.identifier;
         return findLastSpecialization(resolved).identifier;
@@ -826,7 +783,6 @@ export const mkTypeSchemaIndex = (
             inheritedRequiredFields: inheritedRequiredFields.length > 0 ? inheritedRequiredFields : undefined,
             extensions: flat.extensions,
             dependencies: flat.dependencies,
-            nested: flat.nested,
         };
     };
 
@@ -923,6 +879,23 @@ export const mkTypeSchemaIndex = (
         await afs.writeFile(filename, raw);
     };
 
+    const owned = new Map<string, NestedTypeSchema[]>();
+    const ownerKey = (id: TypeIdentifier) => JSON.stringify([id.package, id.url]);
+    for (const schema of schemas) {
+        if (!isNestedTypeSchema(schema)) continue;
+        const key = ownerKey(schema.owner);
+        const nodes = owned.get(key) ?? [];
+        nodes.push(schema);
+        owned.set(key, nodes);
+    }
+    for (const nodes of owned.values()) nodes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
+    const nestedTypesOf = (owner: TypeIdentifier): NestedTypeSchema[] => [...(owned.get(ownerKey(owner)) ?? [])];
+    const moduleDependencies = (schema: TypeSchema): TypeIdentifier[] =>
+        concatIdentifiers(
+            "dependencies" in schema ? schema.dependencies : undefined,
+            ...nestedTypesOf(schema.identifier).map((nested) => nested.dependencies),
+        ) ?? [];
+
     return {
         _schemaIndex: index,
         schemas,
@@ -935,6 +908,27 @@ export const mkTypeSchemaIndex = (
         collectSnapshotProfiles,
         resolve,
         resolveType,
+        nestedTypesOf,
+        reachableFrom: (roots) => {
+            const seen = new Set<string>();
+            const reached: TypeSchema[] = [];
+            const pending = [...roots];
+            for (const id of pending) {
+                const key = JSON.stringify([id.package, id.kind, id.url]);
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const schema = resolve(id);
+                if (!schema) throw new Error(`Schema not found: ${key}`);
+                reached.push(schema);
+                if ("dependencies" in schema) pending.push(...(schema.dependencies ?? []));
+            }
+            return reached;
+        },
+        moduleDependencies,
+        typeForGeneration: (id) => {
+            const schema = resolveType(id);
+            return isNestedTypeSchema(schema) ? (schema.origin ?? id) : id;
+        },
         resolveByUrl,
         tryHierarchy,
         hierarchy,

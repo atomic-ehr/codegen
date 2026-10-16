@@ -62,6 +62,7 @@ const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
+    nestedTypes: NestedTypeSchema[],
 ): { typeVar: string; constraint: TypeIdentifier }[] => {
     const all: Record<string, TypeIdentifier> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
@@ -70,7 +71,7 @@ const collectResourceGenericTypeVars = (
         }
     };
     addParams(schema);
-    for (const nested of schema.nested ?? []) addParams(nested);
+    for (const nested of nestedTypes) addParams(nested);
     return Object.entries(all)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
@@ -130,6 +131,11 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     /** Resolve which client integration to emit. `client` wins; `fhirpyClient` is the deprecated fallback; default is fhirpy. */
+    private index(): TypeSchemaIndex {
+        assert(this.tsIndex !== undefined);
+        return this.tsIndex;
+    }
+
     private resolveClient(options: PythonGeneratorOptions): boolean {
         if (options.client !== undefined) return options.client === "fhirpy";
         if (options.fhirpyClient !== undefined) {
@@ -161,7 +167,9 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                     const hasResources = resources.length > 0;
                     const hasProfiles = profiles.length > 0;
                     const needsResourcePreprocessor = resources.some(
-                        (schema) => collectResourceGenericTypeVars(schema).length > 0,
+                        (schema) =>
+                            collectResourceGenericTypeVars(schema, this.index().nestedTypesOf(schema.identifier))
+                                .length > 0,
                     );
                     if (hasComplexTypes) {
                         this.cat("base.py", () => this.generateBasePy(packageName, complexTypes));
@@ -325,7 +333,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private collectResourceImportNames(resource: SpecializationTypeSchema): string[] {
         const names = [deriveResourceName(resource.identifier)];
 
-        for (const nested of resource.nested ?? []) {
+        for (const nested of this.index().nestedTypesOf(resource.identifier)) {
             const nestedName = deriveResourceName(nested.identifier);
             names.push(nestedName);
         }
@@ -350,7 +358,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private generateResourceModule(schema: SpecializationTypeSchema): void {
-        const typeVars = collectResourceGenericTypeVars(schema);
+        const typeVars = collectResourceGenericTypeVars(schema, this.index().nestedTypesOf(schema.identifier));
 
         this.generateDisclaimer();
         const module = pyPackage(this.opts.rootPackageName, schema.identifier);
@@ -658,10 +666,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private generateNestedTypes(imports: TypeModuleImports, schema: SpecializationTypeSchema): void {
-        if (!schema.nested) return;
-
+        const nested = this.index().nestedTypesOf(schema.identifier);
+        if (!nested.length) return;
         this.line();
-        for (const subtype of schema.nested) {
+        for (const subtype of nested) {
             this.generateType(imports, subtype);
         }
     }
