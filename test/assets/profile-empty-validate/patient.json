@@ -1,0 +1,23 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "unconstrained-patient",
+  "url": "http://example.test/StructureDefinition/unconstrained-patient",
+  "version": "0.1.0",
+  "name": "UnconstrainedPatient",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "short": "Any name the patient is known by"
+      }
+    ]
+  }
+}
