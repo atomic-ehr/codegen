@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import * as Path from "node:path";
 import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
@@ -9,7 +10,7 @@ const importDefects = (files: Record<string, string>) => {
     const unused: Record<string, number> = {};
     const duplicate: Record<string, number> = {};
     for (const [path, content] of Object.entries(files)) {
-        const className = path.split("/").pop()?.replace(/\.java$/, "");
+        const className = Path.basename(path, ".java");
         const lines = content.split("\n");
         const imports = lines.flatMap((line) => line.match(/^\s*import (?:static )?([\w.]+);/)?.[1] ?? []);
         const code = lines.filter((line) => !/^\s*import /.test(line)).join("\n");
