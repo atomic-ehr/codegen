@@ -22,6 +22,7 @@ import type {
     ResourceIdentifier,
     SpecializationTypeSchema,
     TypeIdentifier,
+    TypeSchema,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -169,22 +170,45 @@ describe("treeShake inherited nested targets", () => {
         version: "0.101.6",
     };
 
-    const schemas = (includeEnableWhen: boolean): [SpecializationTypeSchema, ProfileTypeSchema] => {
+    const schemas = (includeEnableWhen: boolean): TypeSchema[] => {
+        const item: import("@typeschema/types").NestedTypeSchema = {
+            identifier: itemId,
+            owner: questionnaireId,
+            path: ["item"],
+            derivation: "specialization",
+            base: questionnaireId,
+            fields: { enableWhen: { type: enableWhenId } },
+            dependencies: [questionnaireId, enableWhenId],
+        };
         const questionnaire: SpecializationTypeSchema = {
             identifier: questionnaireId,
             fields: { item: { type: itemId } },
-            nested: [
-                { identifier: itemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } },
-                ...(includeEnableWhen ? [{ identifier: enableWhenId, base: questionnaireId, fields: {} }] : []),
-            ],
+            dependencies: [itemId],
         };
         const profile: ProfileTypeSchema = {
             identifier: profileId,
             base: questionnaireId,
             fields: { item: { type: itemId } },
-            nested: [{ identifier: itemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } }],
+            dependencies: [questionnaireId, itemId],
         };
-        return [questionnaire, profile];
+        return [
+            questionnaire,
+            profile,
+            item,
+            ...(includeEnableWhen
+                ? [
+                      {
+                          identifier: enableWhenId,
+                          owner: questionnaireId,
+                          path: ["item", "enableWhen"],
+                          derivation: "specialization" as const,
+                          base: questionnaireId,
+                          fields: {},
+                          dependencies: [questionnaireId],
+                      },
+                  ]
+                : []),
+        ];
     };
 
     /**
@@ -198,7 +222,7 @@ describe("treeShake inherited nested targets", () => {
             "example.test.praxis": { [profileUrl]: {} },
         });
 
-        expect(shaked.resolve(profileId)?.nested?.map(({ identifier }) => identifier)).toContainEqual(itemId);
+        expect(shaked.resolve(itemId)?.identifier).toEqual(itemId);
         expect(shaked.resolveType(enableWhenId)?.identifier).toEqual(enableWhenId);
     });
 
@@ -241,15 +265,30 @@ describe("treeShake inherited nested targets", () => {
                 valid: { type: coreNested },
                 missing: { type: missingNested },
             },
-            nested: [{ identifier: coreNested, base: rootId, fields: {} }],
         };
 
         expect(() =>
-            treeShake(mkTypeSchemaIndex([root], {}), {
-                fixture: { "http://r": {} },
-            }),
+            treeShake(
+                mkTypeSchemaIndex(
+                    [
+                        root,
+                        {
+                            identifier: coreNested,
+                            owner: rootId,
+                            path: ["n"],
+                            derivation: "specialization",
+                            base: rootId,
+                            fields: {},
+                        },
+                    ],
+                    {},
+                ),
+                {
+                    fixture: { "http://r": {} },
+                },
+            ),
         ).toThrowError(
-            'Nested schema {"kind":"nested","name":"n","url":"http://r#n","package":"absent","version":"1.0.0"}',
+            'Dependent schema {"kind":"nested","name":"n","url":"http://r#n","package":"absent","version":"1.0.0"}',
         );
     });
 });
@@ -315,8 +354,7 @@ describe("treeShake inherited slice match targets", () => {
             identifier: bundleId,
             base: resourceBaseId,
             fields: { entry: { type: entryId, array: true } },
-            nested: [{ identifier: entryId, base: bundleId, fields: { resource: { type: resourceBaseId } } }],
-            dependencies: [resourceBaseId],
+            dependencies: [resourceBaseId, entryId],
         };
         const epsBundle: ProfileTypeSchema = {
             identifier: epsBundleId,
@@ -356,6 +394,15 @@ describe("treeShake inherited slice match targets", () => {
             [
                 { identifier: resourceBaseId },
                 bundle,
+                {
+                    identifier: entryId,
+                    owner: bundleId,
+                    path: ["entry"],
+                    derivation: "specialization",
+                    base: bundleId,
+                    fields: { resource: { type: resourceBaseId } },
+                    dependencies: [bundleId, resourceBaseId],
+                },
                 { identifier: patientId, base: resourceBaseId, dependencies: [resourceBaseId] },
                 { identifier: practitionerId, base: resourceBaseId, dependencies: [resourceBaseId] },
                 { identifier: r5PatientId },

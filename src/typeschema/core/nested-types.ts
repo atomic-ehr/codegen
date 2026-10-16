@@ -23,6 +23,7 @@ import type {
     TypeIdentifier,
 } from "../types";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
+import { mkIdentifier } from "./identifier";
 
 /**
  * Check whether the specialization chain defines structural sub-elements at `path`.
@@ -221,6 +222,9 @@ export function mkNestedTypes(
 
         const nestedType: NestedTypeSchema = {
             identifier,
+            owner: mkIdentifier(fhirSchema),
+            path,
+            derivation: fhirSchema.derivation,
             ...(base ? { base } : {}),
             fields,
             slicing,
@@ -231,24 +235,4 @@ export function mkNestedTypes(
     nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
 
     return nestedTypes.length === 0 ? undefined : nestedTypes;
-}
-
-export function extractNestedDependencies(nestedTypes: NestedTypeSchema[]): TypeIdentifier[] {
-    const deps: TypeIdentifier[] = [];
-
-    for (const nested of nestedTypes) {
-        if (nested.base) {
-            deps.push(nested.base);
-        }
-
-        for (const field of Object.values(nested.fields || {})) {
-            if ("type" in field && field.type) {
-                deps.push(field.type);
-            }
-            if ("binding" in field && field.binding) {
-                deps.push(field.binding);
-            }
-        }
-    }
-    return deps;
 }

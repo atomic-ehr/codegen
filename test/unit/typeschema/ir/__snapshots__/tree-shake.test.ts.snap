@@ -29,196 +29,663 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/11179-permitted-value-conceptmap",
       "http://hl7.org/fhir/StructureDefinition/11179-permitted-value-valueset",
       "http://hl7.org/fhir/StructureDefinition/Account",
+      "http://hl7.org/fhir/StructureDefinition/Account#coverage",
+      "http://hl7.org/fhir/StructureDefinition/Account#guarantor",
       "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
+      "http://hl7.org/fhir/StructureDefinition/ActivityDefinition#dynamicValue",
+      "http://hl7.org/fhir/StructureDefinition/ActivityDefinition#participant",
       "http://hl7.org/fhir/StructureDefinition/Address",
       "http://hl7.org/fhir/StructureDefinition/AdverseEvent",
+      "http://hl7.org/fhir/StructureDefinition/AdverseEvent#suspectEntity",
+      "http://hl7.org/fhir/StructureDefinition/AdverseEvent#suspectEntity.causality",
       "http://hl7.org/fhir/StructureDefinition/Age",
       "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
+      "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance#reaction",
       "http://hl7.org/fhir/StructureDefinition/Annotation",
       "http://hl7.org/fhir/StructureDefinition/Appointment",
+      "http://hl7.org/fhir/StructureDefinition/Appointment#participant",
       "http://hl7.org/fhir/StructureDefinition/AppointmentResponse",
       "http://hl7.org/fhir/StructureDefinition/Attachment",
       "http://hl7.org/fhir/StructureDefinition/AuditEvent",
+      "http://hl7.org/fhir/StructureDefinition/AuditEvent#agent",
+      "http://hl7.org/fhir/StructureDefinition/AuditEvent#agent.network",
+      "http://hl7.org/fhir/StructureDefinition/AuditEvent#entity",
+      "http://hl7.org/fhir/StructureDefinition/AuditEvent#entity.detail",
+      "http://hl7.org/fhir/StructureDefinition/AuditEvent#source",
       "http://hl7.org/fhir/StructureDefinition/BackboneElement",
       "http://hl7.org/fhir/StructureDefinition/Basic",
       "http://hl7.org/fhir/StructureDefinition/Binary",
       "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct",
+      "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#collection",
+      "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#manipulation",
+      "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#processing",
+      "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#storage",
       "http://hl7.org/fhir/StructureDefinition/BodyStructure",
       "http://hl7.org/fhir/StructureDefinition/Bundle",
       "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#document",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#implementation",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.endpoint",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.supportedMessage",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.interaction",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.interaction",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.security",
+      "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#software",
       "http://hl7.org/fhir/StructureDefinition/CarePlan",
+      "http://hl7.org/fhir/StructureDefinition/CarePlan#activity",
+      "http://hl7.org/fhir/StructureDefinition/CarePlan#activity.detail",
       "http://hl7.org/fhir/StructureDefinition/CareTeam",
+      "http://hl7.org/fhir/StructureDefinition/CareTeam#participant",
       "http://hl7.org/fhir/StructureDefinition/CatalogEntry",
+      "http://hl7.org/fhir/StructureDefinition/CatalogEntry#relatedEntry",
       "http://hl7.org/fhir/StructureDefinition/ChargeItem",
+      "http://hl7.org/fhir/StructureDefinition/ChargeItem#performer",
       "http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition",
+      "http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#applicability",
+      "http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#propertyGroup",
+      "http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#propertyGroup.priceComponent",
       "http://hl7.org/fhir/StructureDefinition/Claim",
+      "http://hl7.org/fhir/StructureDefinition/Claim#accident",
+      "http://hl7.org/fhir/StructureDefinition/Claim#careTeam",
+      "http://hl7.org/fhir/StructureDefinition/Claim#diagnosis",
+      "http://hl7.org/fhir/StructureDefinition/Claim#insurance",
+      "http://hl7.org/fhir/StructureDefinition/Claim#item",
+      "http://hl7.org/fhir/StructureDefinition/Claim#item.detail",
+      "http://hl7.org/fhir/StructureDefinition/Claim#item.detail.subDetail",
+      "http://hl7.org/fhir/StructureDefinition/Claim#payee",
+      "http://hl7.org/fhir/StructureDefinition/Claim#procedure",
+      "http://hl7.org/fhir/StructureDefinition/Claim#related",
+      "http://hl7.org/fhir/StructureDefinition/Claim#supportingInfo",
       "http://hl7.org/fhir/StructureDefinition/ClaimResponse",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem.detail",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem.detail.subDetail",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#error",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#insurance",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#item",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.adjudication",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.detail",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.detail.subDetail",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#payment",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#processNote",
+      "http://hl7.org/fhir/StructureDefinition/ClaimResponse#total",
       "http://hl7.org/fhir/StructureDefinition/ClinicalImpression",
+      "http://hl7.org/fhir/StructureDefinition/ClinicalImpression#finding",
+      "http://hl7.org/fhir/StructureDefinition/ClinicalImpression#investigation",
       "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation",
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property",
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem#filter",
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem#property",
       "http://hl7.org/fhir/StructureDefinition/Communication",
+      "http://hl7.org/fhir/StructureDefinition/Communication#payload",
       "http://hl7.org/fhir/StructureDefinition/CommunicationRequest",
+      "http://hl7.org/fhir/StructureDefinition/CommunicationRequest#payload",
       "http://hl7.org/fhir/StructureDefinition/CompartmentDefinition",
+      "http://hl7.org/fhir/StructureDefinition/CompartmentDefinition#resource",
       "http://hl7.org/fhir/StructureDefinition/Composition",
+      "http://hl7.org/fhir/StructureDefinition/Composition#attester",
+      "http://hl7.org/fhir/StructureDefinition/Composition#event",
+      "http://hl7.org/fhir/StructureDefinition/Composition#relatesTo",
+      "http://hl7.org/fhir/StructureDefinition/Composition#section",
       "http://hl7.org/fhir/StructureDefinition/ConceptMap",
+      "http://hl7.org/fhir/StructureDefinition/ConceptMap#group",
+      "http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element",
+      "http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element.target",
+      "http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element.target.dependsOn",
+      "http://hl7.org/fhir/StructureDefinition/ConceptMap#group.unmapped",
       "http://hl7.org/fhir/StructureDefinition/Condition",
+      "http://hl7.org/fhir/StructureDefinition/Condition#evidence",
+      "http://hl7.org/fhir/StructureDefinition/Condition#stage",
       "http://hl7.org/fhir/StructureDefinition/Consent",
+      "http://hl7.org/fhir/StructureDefinition/Consent#policy",
+      "http://hl7.org/fhir/StructureDefinition/Consent#provision",
+      "http://hl7.org/fhir/StructureDefinition/Consent#provision.actor",
+      "http://hl7.org/fhir/StructureDefinition/Consent#provision.data",
+      "http://hl7.org/fhir/StructureDefinition/Consent#verification",
       "http://hl7.org/fhir/StructureDefinition/ContactDetail",
       "http://hl7.org/fhir/StructureDefinition/ContactPoint",
       "http://hl7.org/fhir/StructureDefinition/Contract",
+      "http://hl7.org/fhir/StructureDefinition/Contract#contentDefinition",
+      "http://hl7.org/fhir/StructureDefinition/Contract#friendly",
+      "http://hl7.org/fhir/StructureDefinition/Contract#legal",
+      "http://hl7.org/fhir/StructureDefinition/Contract#rule",
+      "http://hl7.org/fhir/StructureDefinition/Contract#signer",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.action",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.action.subject",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.asset",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.asset.context",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.asset.valuedItem",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.offer",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.offer.answer",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.offer.party",
+      "http://hl7.org/fhir/StructureDefinition/Contract#term.securityLabel",
       "http://hl7.org/fhir/StructureDefinition/Contributor",
       "http://hl7.org/fhir/StructureDefinition/Count",
       "http://hl7.org/fhir/StructureDefinition/Coverage",
+      "http://hl7.org/fhir/StructureDefinition/Coverage#class",
+      "http://hl7.org/fhir/StructureDefinition/Coverage#costToBeneficiary",
+      "http://hl7.org/fhir/StructureDefinition/Coverage#costToBeneficiary.exception",
       "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#insurance",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#item",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#item.diagnosis",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#supportingInfo",
       "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#error",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance.item",
+      "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance.item.benefit",
       "http://hl7.org/fhir/StructureDefinition/DataRequirement",
+      "http://hl7.org/fhir/StructureDefinition/DataRequirement#codeFilter",
+      "http://hl7.org/fhir/StructureDefinition/DataRequirement#dateFilter",
+      "http://hl7.org/fhir/StructureDefinition/DataRequirement#sort",
       "http://hl7.org/fhir/StructureDefinition/Definition",
       "http://hl7.org/fhir/StructureDefinition/DetectedIssue",
+      "http://hl7.org/fhir/StructureDefinition/DetectedIssue#evidence",
+      "http://hl7.org/fhir/StructureDefinition/DetectedIssue#mitigation",
       "http://hl7.org/fhir/StructureDefinition/Device",
+      "http://hl7.org/fhir/StructureDefinition/Device#deviceName",
+      "http://hl7.org/fhir/StructureDefinition/Device#property",
+      "http://hl7.org/fhir/StructureDefinition/Device#specialization",
+      "http://hl7.org/fhir/StructureDefinition/Device#udiCarrier",
+      "http://hl7.org/fhir/StructureDefinition/Device#version",
       "http://hl7.org/fhir/StructureDefinition/DeviceDefinition",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#capability",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#deviceName",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#material",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#property",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#specialization",
+      "http://hl7.org/fhir/StructureDefinition/DeviceDefinition#udiDeviceIdentifier",
       "http://hl7.org/fhir/StructureDefinition/DeviceMetric",
+      "http://hl7.org/fhir/StructureDefinition/DeviceMetric#calibration",
       "http://hl7.org/fhir/StructureDefinition/DeviceRequest",
+      "http://hl7.org/fhir/StructureDefinition/DeviceRequest#parameter",
       "http://hl7.org/fhir/StructureDefinition/DeviceUseStatement",
       "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
+      "http://hl7.org/fhir/StructureDefinition/DiagnosticReport#media",
       "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis",
       "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition",
       "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory",
       "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences",
       "http://hl7.org/fhir/StructureDefinition/Distance",
       "http://hl7.org/fhir/StructureDefinition/DocumentManifest",
+      "http://hl7.org/fhir/StructureDefinition/DocumentManifest#related",
       "http://hl7.org/fhir/StructureDefinition/DocumentReference",
+      "http://hl7.org/fhir/StructureDefinition/DocumentReference#content",
+      "http://hl7.org/fhir/StructureDefinition/DocumentReference#context",
+      "http://hl7.org/fhir/StructureDefinition/DocumentReference#relatesTo",
       "http://hl7.org/fhir/StructureDefinition/DomainResource",
       "http://hl7.org/fhir/StructureDefinition/Dosage",
+      "http://hl7.org/fhir/StructureDefinition/Dosage#doseAndRate",
       "http://hl7.org/fhir/StructureDefinition/Duration",
       "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#certainty",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#certainty.certaintySubcomponent",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#effectEstimate",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#effectEstimate.precisionEstimate",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#resultsByExposure",
+      "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#sampleSize",
       "http://hl7.org/fhir/StructureDefinition/Element",
       "http://hl7.org/fhir/StructureDefinition/ElementDefinition",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#base",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#binding",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#constraint",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#example",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#mapping",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#slicing",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#slicing.discriminator",
+      "http://hl7.org/fhir/StructureDefinition/ElementDefinition#type",
       "http://hl7.org/fhir/StructureDefinition/Encounter",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#classHistory",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#diagnosis",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#hospitalization",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#location",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#participant",
+      "http://hl7.org/fhir/StructureDefinition/Encounter#statusHistory",
       "http://hl7.org/fhir/StructureDefinition/Endpoint",
       "http://hl7.org/fhir/StructureDefinition/EnrollmentRequest",
       "http://hl7.org/fhir/StructureDefinition/EnrollmentResponse",
       "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare",
+      "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare#diagnosis",
+      "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare#statusHistory",
       "http://hl7.org/fhir/StructureDefinition/Event",
       "http://hl7.org/fhir/StructureDefinition/EventDefinition",
       "http://hl7.org/fhir/StructureDefinition/Evidence",
       "http://hl7.org/fhir/StructureDefinition/EvidenceVariable",
+      "http://hl7.org/fhir/StructureDefinition/EvidenceVariable#characteristic",
       "http://hl7.org/fhir/StructureDefinition/ExampleScenario",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#actor",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance.containedInstance",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance.version",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#process",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step.alternative",
+      "http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step.operation",
       "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#accident",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem.detail",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem.detail.subDetail",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#benefitBalance",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#benefitBalance.financial",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#careTeam",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#diagnosis",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#insurance",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.adjudication",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.detail",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.detail.subDetail",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#payee",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#payment",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#procedure",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#processNote",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#related",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#supportingInfo",
+      "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#total",
       "http://hl7.org/fhir/StructureDefinition/Expression",
       "http://hl7.org/fhir/StructureDefinition/Extension",
       "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory",
+      "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory#condition",
       "http://hl7.org/fhir/StructureDefinition/FiveWs",
       "http://hl7.org/fhir/StructureDefinition/Flag",
       "http://hl7.org/fhir/StructureDefinition/Goal",
+      "http://hl7.org/fhir/StructureDefinition/Goal#target",
       "http://hl7.org/fhir/StructureDefinition/GraphDefinition",
+      "http://hl7.org/fhir/StructureDefinition/GraphDefinition#link",
+      "http://hl7.org/fhir/StructureDefinition/GraphDefinition#link.target",
+      "http://hl7.org/fhir/StructureDefinition/GraphDefinition#link.target.compartment",
       "http://hl7.org/fhir/StructureDefinition/Group",
+      "http://hl7.org/fhir/StructureDefinition/Group#characteristic",
+      "http://hl7.org/fhir/StructureDefinition/Group#member",
       "http://hl7.org/fhir/StructureDefinition/GuidanceResponse",
       "http://hl7.org/fhir/StructureDefinition/HealthcareService",
+      "http://hl7.org/fhir/StructureDefinition/HealthcareService#availableTime",
+      "http://hl7.org/fhir/StructureDefinition/HealthcareService#eligibility",
+      "http://hl7.org/fhir/StructureDefinition/HealthcareService#notAvailable",
       "http://hl7.org/fhir/StructureDefinition/HumanName",
       "http://hl7.org/fhir/StructureDefinition/ImagingStudy",
+      "http://hl7.org/fhir/StructureDefinition/ImagingStudy#series",
+      "http://hl7.org/fhir/StructureDefinition/ImagingStudy#series.instance",
+      "http://hl7.org/fhir/StructureDefinition/ImagingStudy#series.performer",
       "http://hl7.org/fhir/StructureDefinition/Immunization",
+      "http://hl7.org/fhir/StructureDefinition/Immunization#education",
+      "http://hl7.org/fhir/StructureDefinition/Immunization#performer",
+      "http://hl7.org/fhir/StructureDefinition/Immunization#protocolApplied",
+      "http://hl7.org/fhir/StructureDefinition/Immunization#reaction",
       "http://hl7.org/fhir/StructureDefinition/ImmunizationEvaluation",
       "http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation",
+      "http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation#recommendation",
+      "http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation#recommendation.dateCriterion",
       "http://hl7.org/fhir/StructureDefinition/ImplementationGuide",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.grouping",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.page",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.parameter",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.resource",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.template",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#dependsOn",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#global",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest.page",
+      "http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest.resource",
       "http://hl7.org/fhir/StructureDefinition/InsurancePlan",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#contact",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage.benefit",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage.benefit.limit",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.generalCost",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost.benefit",
+      "http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost.benefit.cost",
       "http://hl7.org/fhir/StructureDefinition/Invoice",
+      "http://hl7.org/fhir/StructureDefinition/Invoice#lineItem",
+      "http://hl7.org/fhir/StructureDefinition/Invoice#lineItem.priceComponent",
+      "http://hl7.org/fhir/StructureDefinition/Invoice#participant",
       "http://hl7.org/fhir/StructureDefinition/Library",
       "http://hl7.org/fhir/StructureDefinition/Linkage",
+      "http://hl7.org/fhir/StructureDefinition/Linkage#item",
       "http://hl7.org/fhir/StructureDefinition/List",
+      "http://hl7.org/fhir/StructureDefinition/List#entry",
       "http://hl7.org/fhir/StructureDefinition/Location",
+      "http://hl7.org/fhir/StructureDefinition/Location#hoursOfOperation",
+      "http://hl7.org/fhir/StructureDefinition/Location#position",
       "http://hl7.org/fhir/StructureDefinition/MarketingStatus",
       "http://hl7.org/fhir/StructureDefinition/Measure",
+      "http://hl7.org/fhir/StructureDefinition/Measure#group",
+      "http://hl7.org/fhir/StructureDefinition/Measure#group.population",
+      "http://hl7.org/fhir/StructureDefinition/Measure#group.stratifier",
+      "http://hl7.org/fhir/StructureDefinition/Measure#group.stratifier.component",
+      "http://hl7.org/fhir/StructureDefinition/Measure#supplementalData",
       "http://hl7.org/fhir/StructureDefinition/MeasureReport",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group.population",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum.component",
+      "http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum.population",
       "http://hl7.org/fhir/StructureDefinition/Media",
       "http://hl7.org/fhir/StructureDefinition/Medication",
+      "http://hl7.org/fhir/StructureDefinition/Medication#batch",
+      "http://hl7.org/fhir/StructureDefinition/Medication#ingredient",
       "http://hl7.org/fhir/StructureDefinition/MedicationAdministration",
+      "http://hl7.org/fhir/StructureDefinition/MedicationAdministration#dosage",
+      "http://hl7.org/fhir/StructureDefinition/MedicationAdministration#performer",
       "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
+      "http://hl7.org/fhir/StructureDefinition/MedicationDispense#performer",
+      "http://hl7.org/fhir/StructureDefinition/MedicationDispense#substitution",
       "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines.dosage",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines.patientCharacteristics",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#cost",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#drugCharacteristic",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#ingredient",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#kinetics",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#medicineClassification",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#monitoringProgram",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#monograph",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#packaging",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.maxDispense",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.schedule",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.substitution",
+      "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#relatedMedicationKnowledge",
       "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
+      "http://hl7.org/fhir/StructureDefinition/MedicationRequest#dispenseRequest",
+      "http://hl7.org/fhir/StructureDefinition/MedicationRequest#dispenseRequest.initialFill",
+      "http://hl7.org/fhir/StructureDefinition/MedicationRequest#substitution",
       "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProduct",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProduct#manufacturingBusinessOperation",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name.countryLanguage",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name.namePart",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProduct#specialDesignation",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization#jurisdictionalAuthorization",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization#procedure",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductContraindication",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductContraindication#otherTherapy",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication#otherTherapy",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance.strength",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance.strength.referenceStrength",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#substance",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction#interactant",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductManufactured",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged#batchIdentifier",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged#packageItem",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#characteristics",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration.targetSpecies",
+      "http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration.targetSpecies.withdrawalPeriod",
       "http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect",
       "http://hl7.org/fhir/StructureDefinition/MessageDefinition",
+      "http://hl7.org/fhir/StructureDefinition/MessageDefinition#allowedResponse",
+      "http://hl7.org/fhir/StructureDefinition/MessageDefinition#focus",
       "http://hl7.org/fhir/StructureDefinition/MessageHeader",
+      "http://hl7.org/fhir/StructureDefinition/MessageHeader#destination",
+      "http://hl7.org/fhir/StructureDefinition/MessageHeader#response",
+      "http://hl7.org/fhir/StructureDefinition/MessageHeader#source",
       "http://hl7.org/fhir/StructureDefinition/MetadataResource",
       "http://hl7.org/fhir/StructureDefinition/MolecularSequence",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#quality",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#quality.roc",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#referenceSeq",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#repository",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant.inner",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant.outer",
+      "http://hl7.org/fhir/StructureDefinition/MolecularSequence#variant",
       "http://hl7.org/fhir/StructureDefinition/Money",
       "http://hl7.org/fhir/StructureDefinition/MoneyQuantity",
       "http://hl7.org/fhir/StructureDefinition/NamingSystem",
+      "http://hl7.org/fhir/StructureDefinition/NamingSystem#uniqueId",
       "http://hl7.org/fhir/StructureDefinition/NutritionOrder",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#enteralFormula",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#enteralFormula.administration",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet.nutrient",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet.texture",
+      "http://hl7.org/fhir/StructureDefinition/NutritionOrder#supplement",
       "http://hl7.org/fhir/StructureDefinition/Observation",
+      "http://hl7.org/fhir/StructureDefinition/Observation#component",
+      "http://hl7.org/fhir/StructureDefinition/Observation#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/ObservationDefinition",
+      "http://hl7.org/fhir/StructureDefinition/ObservationDefinition#qualifiedInterval",
+      "http://hl7.org/fhir/StructureDefinition/ObservationDefinition#quantitativeDetails",
       "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
+      "http://hl7.org/fhir/StructureDefinition/OperationDefinition#overload",
+      "http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter",
+      "http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter.binding",
+      "http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter.referencedFrom",
       "http://hl7.org/fhir/StructureDefinition/OperationOutcome",
       "http://hl7.org/fhir/StructureDefinition/Organization",
+      "http://hl7.org/fhir/StructureDefinition/Organization#contact",
       "http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation",
       "http://hl7.org/fhir/StructureDefinition/ParameterDefinition",
       "http://hl7.org/fhir/StructureDefinition/Parameters",
+      "http://hl7.org/fhir/StructureDefinition/Parameters#parameter",
       "http://hl7.org/fhir/StructureDefinition/Patient",
+      "http://hl7.org/fhir/StructureDefinition/Patient#communication",
+      "http://hl7.org/fhir/StructureDefinition/Patient#contact",
+      "http://hl7.org/fhir/StructureDefinition/Patient#link",
       "http://hl7.org/fhir/StructureDefinition/PaymentNotice",
       "http://hl7.org/fhir/StructureDefinition/PaymentReconciliation",
+      "http://hl7.org/fhir/StructureDefinition/PaymentReconciliation#detail",
+      "http://hl7.org/fhir/StructureDefinition/PaymentReconciliation#processNote",
       "http://hl7.org/fhir/StructureDefinition/Person",
+      "http://hl7.org/fhir/StructureDefinition/Person#link",
       "http://hl7.org/fhir/StructureDefinition/PlanDefinition",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#action",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.condition",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.dynamicValue",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.participant",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.relatedAction",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#goal",
+      "http://hl7.org/fhir/StructureDefinition/PlanDefinition#goal.target",
       "http://hl7.org/fhir/StructureDefinition/Population",
       "http://hl7.org/fhir/StructureDefinition/Practitioner",
+      "http://hl7.org/fhir/StructureDefinition/Practitioner#qualification",
       "http://hl7.org/fhir/StructureDefinition/PractitionerRole",
+      "http://hl7.org/fhir/StructureDefinition/PractitionerRole#availableTime",
+      "http://hl7.org/fhir/StructureDefinition/PractitionerRole#notAvailable",
       "http://hl7.org/fhir/StructureDefinition/Procedure",
+      "http://hl7.org/fhir/StructureDefinition/Procedure#focalDevice",
+      "http://hl7.org/fhir/StructureDefinition/Procedure#performer",
       "http://hl7.org/fhir/StructureDefinition/ProdCharacteristic",
       "http://hl7.org/fhir/StructureDefinition/ProductShelfLife",
       "http://hl7.org/fhir/StructureDefinition/Provenance",
+      "http://hl7.org/fhir/StructureDefinition/Provenance#agent",
+      "http://hl7.org/fhir/StructureDefinition/Provenance#entity",
       "http://hl7.org/fhir/StructureDefinition/Quantity",
       "http://hl7.org/fhir/StructureDefinition/Questionnaire",
+      "http://hl7.org/fhir/StructureDefinition/Questionnaire#item",
+      "http://hl7.org/fhir/StructureDefinition/Questionnaire#item.answerOption",
+      "http://hl7.org/fhir/StructureDefinition/Questionnaire#item.enableWhen",
+      "http://hl7.org/fhir/StructureDefinition/Questionnaire#item.initial",
       "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse",
+      "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse#item",
+      "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse#item.answer",
       "http://hl7.org/fhir/StructureDefinition/Range",
       "http://hl7.org/fhir/StructureDefinition/Ratio",
       "http://hl7.org/fhir/StructureDefinition/RelatedArtifact",
       "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
+      "http://hl7.org/fhir/StructureDefinition/RelatedPerson#communication",
       "http://hl7.org/fhir/StructureDefinition/Request",
       "http://hl7.org/fhir/StructureDefinition/RequestGroup",
+      "http://hl7.org/fhir/StructureDefinition/RequestGroup#action",
+      "http://hl7.org/fhir/StructureDefinition/RequestGroup#action.condition",
+      "http://hl7.org/fhir/StructureDefinition/RequestGroup#action.relatedAction",
       "http://hl7.org/fhir/StructureDefinition/ResearchDefinition",
       "http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition",
+      "http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition#characteristic",
       "http://hl7.org/fhir/StructureDefinition/ResearchStudy",
+      "http://hl7.org/fhir/StructureDefinition/ResearchStudy#arm",
+      "http://hl7.org/fhir/StructureDefinition/ResearchStudy#objective",
       "http://hl7.org/fhir/StructureDefinition/ResearchSubject",
       "http://hl7.org/fhir/StructureDefinition/RiskAssessment",
+      "http://hl7.org/fhir/StructureDefinition/RiskAssessment#prediction",
       "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis",
+      "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#certainty",
+      "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#certainty.certaintySubcomponent",
+      "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#riskEstimate",
+      "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#riskEstimate.precisionEstimate",
+      "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#sampleSize",
       "http://hl7.org/fhir/StructureDefinition/SampledData",
       "http://hl7.org/fhir/StructureDefinition/Schedule",
       "http://hl7.org/fhir/StructureDefinition/SearchParameter",
+      "http://hl7.org/fhir/StructureDefinition/SearchParameter#component",
       "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
       "http://hl7.org/fhir/StructureDefinition/SimpleQuantity",
       "http://hl7.org/fhir/StructureDefinition/Slot",
       "http://hl7.org/fhir/StructureDefinition/Specimen",
+      "http://hl7.org/fhir/StructureDefinition/Specimen#collection",
+      "http://hl7.org/fhir/StructureDefinition/Specimen#container",
+      "http://hl7.org/fhir/StructureDefinition/Specimen#processing",
       "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition",
+      "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested",
+      "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.container",
+      "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.container.additive",
+      "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.handling",
       "http://hl7.org/fhir/StructureDefinition/StructureDefinition",
+      "http://hl7.org/fhir/StructureDefinition/StructureDefinition#context",
+      "http://hl7.org/fhir/StructureDefinition/StructureDefinition#differential",
+      "http://hl7.org/fhir/StructureDefinition/StructureDefinition#mapping",
+      "http://hl7.org/fhir/StructureDefinition/StructureDefinition#snapshot",
       "http://hl7.org/fhir/StructureDefinition/StructureMap",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.input",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.dependent",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.source",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.target",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.target.parameter",
+      "http://hl7.org/fhir/StructureDefinition/StructureMap#structure",
       "http://hl7.org/fhir/StructureDefinition/Subscription",
+      "http://hl7.org/fhir/StructureDefinition/Subscription#channel",
       "http://hl7.org/fhir/StructureDefinition/Substance",
+      "http://hl7.org/fhir/StructureDefinition/Substance#ingredient",
+      "http://hl7.org/fhir/StructureDefinition/Substance#instance",
       "http://hl7.org/fhir/StructureDefinition/SubstanceAmount",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceAmount#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit.linkage",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit.sugar",
       "http://hl7.org/fhir/StructureDefinition/SubstancePolymer",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#monomerSet",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#monomerSet.startingMaterial",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit.degreeOfPolymerisation",
+      "http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit.structuralRepresentation",
       "http://hl7.org/fhir/StructureDefinition/SubstanceProtein",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceProtein#subunit",
       "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#classification",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#gene",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#geneElement",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#target",
       "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#fractionDescription",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.author",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.hybrid",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.organismGeneral",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#partDescription",
       "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#code",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#moiety",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#name",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#name.official",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#property",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#relationship",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.isotope",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.isotope.molecularWeight",
+      "http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.representation",
       "http://hl7.org/fhir/StructureDefinition/SupplyDelivery",
+      "http://hl7.org/fhir/StructureDefinition/SupplyDelivery#suppliedItem",
       "http://hl7.org/fhir/StructureDefinition/SupplyRequest",
+      "http://hl7.org/fhir/StructureDefinition/SupplyRequest#parameter",
       "http://hl7.org/fhir/StructureDefinition/Task",
+      "http://hl7.org/fhir/StructureDefinition/Task#input",
+      "http://hl7.org/fhir/StructureDefinition/Task#output",
+      "http://hl7.org/fhir/StructureDefinition/Task#restriction",
       "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#closure",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem.version",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem.version.filter",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#expansion",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#expansion.parameter",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#implementation",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#software",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#translation",
+      "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#validateCode",
       "http://hl7.org/fhir/StructureDefinition/TestReport",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#participant",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#setup",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#setup.action",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#setup.action.assert",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#setup.action.operation",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#teardown",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#teardown.action",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#test",
+      "http://hl7.org/fhir/StructureDefinition/TestReport#test.action",
       "http://hl7.org/fhir/StructureDefinition/TestScript",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#destination",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#fixture",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#metadata",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#metadata.capability",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#metadata.link",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#origin",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#setup",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#setup.action",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.assert",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.operation",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.operation.requestHeader",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#teardown",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#teardown.action",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#test",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#test.action",
+      "http://hl7.org/fhir/StructureDefinition/TestScript#variable",
       "http://hl7.org/fhir/StructureDefinition/Timing",
+      "http://hl7.org/fhir/StructureDefinition/Timing#repeat",
       "http://hl7.org/fhir/StructureDefinition/TriggerDefinition",
       "http://hl7.org/fhir/StructureDefinition/UsageContext",
       "http://hl7.org/fhir/StructureDefinition/ValueSet",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#compose",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.concept",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.concept.designation",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.filter",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#expansion",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#expansion.contains",
+      "http://hl7.org/fhir/StructureDefinition/ValueSet#expansion.parameter",
       "http://hl7.org/fhir/StructureDefinition/VerificationResult",
+      "http://hl7.org/fhir/StructureDefinition/VerificationResult#attestation",
+      "http://hl7.org/fhir/StructureDefinition/VerificationResult#primarySource",
+      "http://hl7.org/fhir/StructureDefinition/VerificationResult#validator",
       "http://hl7.org/fhir/StructureDefinition/VisionPrescription",
+      "http://hl7.org/fhir/StructureDefinition/VisionPrescription#lensSpecification",
+      "http://hl7.org/fhir/StructureDefinition/VisionPrescription#lensSpecification.prism",
       "http://hl7.org/fhir/StructureDefinition/actualgroup",
       "http://hl7.org/fhir/StructureDefinition/allergyintolerance-assertedDate",
       "http://hl7.org/fhir/StructureDefinition/allergyintolerance-certainty",
@@ -247,10 +714,14 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/capabilitystatement-websocket",
       "http://hl7.org/fhir/StructureDefinition/careplan-activity-title",
       "http://hl7.org/fhir/StructureDefinition/catalog",
+      "http://hl7.org/fhir/StructureDefinition/catalog#section",
       "http://hl7.org/fhir/StructureDefinition/cdshooksguidanceresponse",
       "http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup",
+      "http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup#action",
       "http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition",
+      "http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition#action",
       "http://hl7.org/fhir/StructureDefinition/cholesterol",
+      "http://hl7.org/fhir/StructureDefinition/cholesterol#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/clinicaldocument",
       "http://hl7.org/fhir/StructureDefinition/codesystem-alternate",
       "http://hl7.org/fhir/StructureDefinition/codesystem-author",
@@ -330,12 +801,18 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/diagnosticreport-genetics",
       "http://hl7.org/fhir/StructureDefinition/display",
       "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent",
+      "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#agent",
+      "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#agent.network",
+      "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#entity",
+      "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#source",
       "http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance",
+      "http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance#agent",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-allowedUnits",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-bestpractice",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-bestpractice-explanation",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-de",
+      "http://hl7.org/fhir/StructureDefinition/elementdefinition-de#type",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-equivalence",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-identifier",
       "http://hl7.org/fhir/StructureDefinition/elementdefinition-inheritedExtensibleValueSet",
@@ -375,6 +852,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/goal-relationship",
       "http://hl7.org/fhir/StructureDefinition/groupdefinition",
       "http://hl7.org/fhir/StructureDefinition/hdlcholesterol",
+      "http://hl7.org/fhir/StructureDefinition/hdlcholesterol#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/headcircum",
       "http://hl7.org/fhir/StructureDefinition/heartrate",
       "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-allele-database",
@@ -427,6 +905,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType",
       "http://hl7.org/fhir/StructureDefinition/language",
       "http://hl7.org/fhir/StructureDefinition/ldlcholesterol",
+      "http://hl7.org/fhir/StructureDefinition/ldlcholesterol#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/lipidprofile",
       "http://hl7.org/fhir/StructureDefinition/list-changeBase",
       "http://hl7.org/fhir/StructureDefinition/location-boundary-geojson",
@@ -504,6 +983,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/patient-relatedPerson",
       "http://hl7.org/fhir/StructureDefinition/patient-religion",
       "http://hl7.org/fhir/StructureDefinition/picoelement",
+      "http://hl7.org/fhir/StructureDefinition/picoelement#characteristic",
       "http://hl7.org/fhir/StructureDefinition/positiveInt",
       "http://hl7.org/fhir/StructureDefinition/practitioner-animalSpecies",
       "http://hl7.org/fhir/StructureDefinition/practitionerrole-primaryInd",
@@ -516,6 +996,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/procedure-schedule",
       "http://hl7.org/fhir/StructureDefinition/procedure-targetBodyStructure",
       "http://hl7.org/fhir/StructureDefinition/provenance-relevant-history",
+      "http://hl7.org/fhir/StructureDefinition/provenance-relevant-history#agent",
       "http://hl7.org/fhir/StructureDefinition/quantity-precision",
       "http://hl7.org/fhir/StructureDefinition/questionnaire-baseType",
       "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation",
@@ -568,6 +1049,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/servicerequest-questionnaireRequest",
       "http://hl7.org/fhir/StructureDefinition/shareableactivitydefinition",
       "http://hl7.org/fhir/StructureDefinition/shareablecodesystem",
+      "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
       "http://hl7.org/fhir/StructureDefinition/shareablelibrary",
       "http://hl7.org/fhir/StructureDefinition/shareablemeasure",
       "http://hl7.org/fhir/StructureDefinition/shareableplandefinition",
@@ -605,6 +1087,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/timing-exact",
       "http://hl7.org/fhir/StructureDefinition/translation",
       "http://hl7.org/fhir/StructureDefinition/triglyceride",
+      "http://hl7.org/fhir/StructureDefinition/triglyceride#referenceRange",
       "http://hl7.org/fhir/StructureDefinition/tz-code",
       "http://hl7.org/fhir/StructureDefinition/tz-offset",
       "http://hl7.org/fhir/StructureDefinition/url",
@@ -647,6 +1130,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/valueset-workflowStatus",
       "http://hl7.org/fhir/StructureDefinition/variable",
       "http://hl7.org/fhir/StructureDefinition/vitalsigns",
+      "http://hl7.org/fhir/StructureDefinition/vitalsigns#component",
       "http://hl7.org/fhir/StructureDefinition/vitalspanel",
       "http://hl7.org/fhir/StructureDefinition/workflow-episodeOfCare",
       "http://hl7.org/fhir/StructureDefinition/workflow-instantiatesCanonical",
@@ -2967,196 +3451,663 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/11179-permitted-value-conceptmap>
 - <http://hl7.org/fhir/StructureDefinition/11179-permitted-value-valueset>
 - <http://hl7.org/fhir/StructureDefinition/Account>
+- <http://hl7.org/fhir/StructureDefinition/Account#coverage>
+- <http://hl7.org/fhir/StructureDefinition/Account#guarantor>
 - <http://hl7.org/fhir/StructureDefinition/ActivityDefinition>
+- <http://hl7.org/fhir/StructureDefinition/ActivityDefinition#dynamicValue>
+- <http://hl7.org/fhir/StructureDefinition/ActivityDefinition#participant>
 - <http://hl7.org/fhir/StructureDefinition/Address>
 - <http://hl7.org/fhir/StructureDefinition/AdverseEvent>
+- <http://hl7.org/fhir/StructureDefinition/AdverseEvent#suspectEntity>
+- <http://hl7.org/fhir/StructureDefinition/AdverseEvent#suspectEntity.causality>
 - <http://hl7.org/fhir/StructureDefinition/Age>
 - <http://hl7.org/fhir/StructureDefinition/AllergyIntolerance>
+- <http://hl7.org/fhir/StructureDefinition/AllergyIntolerance#reaction>
 - <http://hl7.org/fhir/StructureDefinition/Annotation>
 - <http://hl7.org/fhir/StructureDefinition/Appointment>
+- <http://hl7.org/fhir/StructureDefinition/Appointment#participant>
 - <http://hl7.org/fhir/StructureDefinition/AppointmentResponse>
 - <http://hl7.org/fhir/StructureDefinition/Attachment>
 - <http://hl7.org/fhir/StructureDefinition/AuditEvent>
+- <http://hl7.org/fhir/StructureDefinition/AuditEvent#agent>
+- <http://hl7.org/fhir/StructureDefinition/AuditEvent#agent.network>
+- <http://hl7.org/fhir/StructureDefinition/AuditEvent#entity>
+- <http://hl7.org/fhir/StructureDefinition/AuditEvent#entity.detail>
+- <http://hl7.org/fhir/StructureDefinition/AuditEvent#source>
 - <http://hl7.org/fhir/StructureDefinition/BackboneElement>
 - <http://hl7.org/fhir/StructureDefinition/Basic>
 - <http://hl7.org/fhir/StructureDefinition/Binary>
 - <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct>
+- <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#collection>
+- <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#manipulation>
+- <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#processing>
+- <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct#storage>
 - <http://hl7.org/fhir/StructureDefinition/BodyStructure>
 - <http://hl7.org/fhir/StructureDefinition/Bundle>
 - <http://hl7.org/fhir/StructureDefinition/CapabilityStatement>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#document>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#implementation>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.endpoint>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.supportedMessage>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.interaction>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.interaction>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.security>
+- <http://hl7.org/fhir/StructureDefinition/CapabilityStatement#software>
 - <http://hl7.org/fhir/StructureDefinition/CarePlan>
+- <http://hl7.org/fhir/StructureDefinition/CarePlan#activity>
+- <http://hl7.org/fhir/StructureDefinition/CarePlan#activity.detail>
 - <http://hl7.org/fhir/StructureDefinition/CareTeam>
+- <http://hl7.org/fhir/StructureDefinition/CareTeam#participant>
 - <http://hl7.org/fhir/StructureDefinition/CatalogEntry>
+- <http://hl7.org/fhir/StructureDefinition/CatalogEntry#relatedEntry>
 - <http://hl7.org/fhir/StructureDefinition/ChargeItem>
+- <http://hl7.org/fhir/StructureDefinition/ChargeItem#performer>
 - <http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition>
+- <http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#applicability>
+- <http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#propertyGroup>
+- <http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition#propertyGroup.priceComponent>
 - <http://hl7.org/fhir/StructureDefinition/Claim>
+- <http://hl7.org/fhir/StructureDefinition/Claim#accident>
+- <http://hl7.org/fhir/StructureDefinition/Claim#careTeam>
+- <http://hl7.org/fhir/StructureDefinition/Claim#diagnosis>
+- <http://hl7.org/fhir/StructureDefinition/Claim#insurance>
+- <http://hl7.org/fhir/StructureDefinition/Claim#item>
+- <http://hl7.org/fhir/StructureDefinition/Claim#item.detail>
+- <http://hl7.org/fhir/StructureDefinition/Claim#item.detail.subDetail>
+- <http://hl7.org/fhir/StructureDefinition/Claim#payee>
+- <http://hl7.org/fhir/StructureDefinition/Claim#procedure>
+- <http://hl7.org/fhir/StructureDefinition/Claim#related>
+- <http://hl7.org/fhir/StructureDefinition/Claim#supportingInfo>
 - <http://hl7.org/fhir/StructureDefinition/ClaimResponse>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem.detail>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#addItem.detail.subDetail>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#error>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#insurance>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#item>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.adjudication>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.detail>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#item.detail.subDetail>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#payment>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#processNote>
+- <http://hl7.org/fhir/StructureDefinition/ClaimResponse#total>
 - <http://hl7.org/fhir/StructureDefinition/ClinicalImpression>
+- <http://hl7.org/fhir/StructureDefinition/ClinicalImpression#finding>
+- <http://hl7.org/fhir/StructureDefinition/ClinicalImpression#investigation>
 - <http://hl7.org/fhir/StructureDefinition/CodeSystem>
+- <http://hl7.org/fhir/StructureDefinition/CodeSystem#concept>
+- <http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation>
+- <http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property>
+- <http://hl7.org/fhir/StructureDefinition/CodeSystem#filter>
+- <http://hl7.org/fhir/StructureDefinition/CodeSystem#property>
 - <http://hl7.org/fhir/StructureDefinition/Communication>
+- <http://hl7.org/fhir/StructureDefinition/Communication#payload>
 - <http://hl7.org/fhir/StructureDefinition/CommunicationRequest>
+- <http://hl7.org/fhir/StructureDefinition/CommunicationRequest#payload>
 - <http://hl7.org/fhir/StructureDefinition/CompartmentDefinition>
+- <http://hl7.org/fhir/StructureDefinition/CompartmentDefinition#resource>
 - <http://hl7.org/fhir/StructureDefinition/Composition>
+- <http://hl7.org/fhir/StructureDefinition/Composition#attester>
+- <http://hl7.org/fhir/StructureDefinition/Composition#event>
+- <http://hl7.org/fhir/StructureDefinition/Composition#relatesTo>
+- <http://hl7.org/fhir/StructureDefinition/Composition#section>
 - <http://hl7.org/fhir/StructureDefinition/ConceptMap>
+- <http://hl7.org/fhir/StructureDefinition/ConceptMap#group>
+- <http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element>
+- <http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element.target>
+- <http://hl7.org/fhir/StructureDefinition/ConceptMap#group.element.target.dependsOn>
+- <http://hl7.org/fhir/StructureDefinition/ConceptMap#group.unmapped>
 - <http://hl7.org/fhir/StructureDefinition/Condition>
+- <http://hl7.org/fhir/StructureDefinition/Condition#evidence>
+- <http://hl7.org/fhir/StructureDefinition/Condition#stage>
 - <http://hl7.org/fhir/StructureDefinition/Consent>
+- <http://hl7.org/fhir/StructureDefinition/Consent#policy>
+- <http://hl7.org/fhir/StructureDefinition/Consent#provision>
+- <http://hl7.org/fhir/StructureDefinition/Consent#provision.actor>
+- <http://hl7.org/fhir/StructureDefinition/Consent#provision.data>
+- <http://hl7.org/fhir/StructureDefinition/Consent#verification>
 - <http://hl7.org/fhir/StructureDefinition/ContactDetail>
 - <http://hl7.org/fhir/StructureDefinition/ContactPoint>
 - <http://hl7.org/fhir/StructureDefinition/Contract>
+- <http://hl7.org/fhir/StructureDefinition/Contract#contentDefinition>
+- <http://hl7.org/fhir/StructureDefinition/Contract#friendly>
+- <http://hl7.org/fhir/StructureDefinition/Contract#legal>
+- <http://hl7.org/fhir/StructureDefinition/Contract#rule>
+- <http://hl7.org/fhir/StructureDefinition/Contract#signer>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.action>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.action.subject>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.asset>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.asset.context>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.asset.valuedItem>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.offer>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.offer.answer>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.offer.party>
+- <http://hl7.org/fhir/StructureDefinition/Contract#term.securityLabel>
 - <http://hl7.org/fhir/StructureDefinition/Contributor>
 - <http://hl7.org/fhir/StructureDefinition/Count>
 - <http://hl7.org/fhir/StructureDefinition/Coverage>
+- <http://hl7.org/fhir/StructureDefinition/Coverage#class>
+- <http://hl7.org/fhir/StructureDefinition/Coverage#costToBeneficiary>
+- <http://hl7.org/fhir/StructureDefinition/Coverage#costToBeneficiary.exception>
 - <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#insurance>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#item>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#item.diagnosis>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest#supportingInfo>
 - <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#error>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance.item>
+- <http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse#insurance.item.benefit>
 - <http://hl7.org/fhir/StructureDefinition/DataRequirement>
+- <http://hl7.org/fhir/StructureDefinition/DataRequirement#codeFilter>
+- <http://hl7.org/fhir/StructureDefinition/DataRequirement#dateFilter>
+- <http://hl7.org/fhir/StructureDefinition/DataRequirement#sort>
 - <http://hl7.org/fhir/StructureDefinition/Definition>
 - <http://hl7.org/fhir/StructureDefinition/DetectedIssue>
+- <http://hl7.org/fhir/StructureDefinition/DetectedIssue#evidence>
+- <http://hl7.org/fhir/StructureDefinition/DetectedIssue#mitigation>
 - <http://hl7.org/fhir/StructureDefinition/Device>
+- <http://hl7.org/fhir/StructureDefinition/Device#deviceName>
+- <http://hl7.org/fhir/StructureDefinition/Device#property>
+- <http://hl7.org/fhir/StructureDefinition/Device#specialization>
+- <http://hl7.org/fhir/StructureDefinition/Device#udiCarrier>
+- <http://hl7.org/fhir/StructureDefinition/Device#version>
 - <http://hl7.org/fhir/StructureDefinition/DeviceDefinition>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#capability>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#deviceName>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#material>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#property>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#specialization>
+- <http://hl7.org/fhir/StructureDefinition/DeviceDefinition#udiDeviceIdentifier>
 - <http://hl7.org/fhir/StructureDefinition/DeviceMetric>
+- <http://hl7.org/fhir/StructureDefinition/DeviceMetric#calibration>
 - <http://hl7.org/fhir/StructureDefinition/DeviceRequest>
+- <http://hl7.org/fhir/StructureDefinition/DeviceRequest#parameter>
 - <http://hl7.org/fhir/StructureDefinition/DeviceUseStatement>
 - <http://hl7.org/fhir/StructureDefinition/DiagnosticReport>
+- <http://hl7.org/fhir/StructureDefinition/DiagnosticReport#media>
 - <http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis>
 - <http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition>
 - <http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory>
 - <http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences>
 - <http://hl7.org/fhir/StructureDefinition/Distance>
 - <http://hl7.org/fhir/StructureDefinition/DocumentManifest>
+- <http://hl7.org/fhir/StructureDefinition/DocumentManifest#related>
 - <http://hl7.org/fhir/StructureDefinition/DocumentReference>
+- <http://hl7.org/fhir/StructureDefinition/DocumentReference#content>
+- <http://hl7.org/fhir/StructureDefinition/DocumentReference#context>
+- <http://hl7.org/fhir/StructureDefinition/DocumentReference#relatesTo>
 - <http://hl7.org/fhir/StructureDefinition/DomainResource>
 - <http://hl7.org/fhir/StructureDefinition/Dosage>
+- <http://hl7.org/fhir/StructureDefinition/Dosage#doseAndRate>
 - <http://hl7.org/fhir/StructureDefinition/Duration>
 - <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#certainty>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#certainty.certaintySubcomponent>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#effectEstimate>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#effectEstimate.precisionEstimate>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#resultsByExposure>
+- <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis#sampleSize>
 - <http://hl7.org/fhir/StructureDefinition/Element>
 - <http://hl7.org/fhir/StructureDefinition/ElementDefinition>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#base>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#binding>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#constraint>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#example>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#mapping>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#slicing>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#slicing.discriminator>
+- <http://hl7.org/fhir/StructureDefinition/ElementDefinition#type>
 - <http://hl7.org/fhir/StructureDefinition/Encounter>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#classHistory>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#diagnosis>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#hospitalization>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#location>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#participant>
+- <http://hl7.org/fhir/StructureDefinition/Encounter#statusHistory>
 - <http://hl7.org/fhir/StructureDefinition/Endpoint>
 - <http://hl7.org/fhir/StructureDefinition/EnrollmentRequest>
 - <http://hl7.org/fhir/StructureDefinition/EnrollmentResponse>
 - <http://hl7.org/fhir/StructureDefinition/EpisodeOfCare>
+- <http://hl7.org/fhir/StructureDefinition/EpisodeOfCare#diagnosis>
+- <http://hl7.org/fhir/StructureDefinition/EpisodeOfCare#statusHistory>
 - <http://hl7.org/fhir/StructureDefinition/Event>
 - <http://hl7.org/fhir/StructureDefinition/EventDefinition>
 - <http://hl7.org/fhir/StructureDefinition/Evidence>
 - <http://hl7.org/fhir/StructureDefinition/EvidenceVariable>
+- <http://hl7.org/fhir/StructureDefinition/EvidenceVariable#characteristic>
 - <http://hl7.org/fhir/StructureDefinition/ExampleScenario>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#actor>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance.containedInstance>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#instance.version>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#process>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step.alternative>
+- <http://hl7.org/fhir/StructureDefinition/ExampleScenario#process.step.operation>
 - <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#accident>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem.detail>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#addItem.detail.subDetail>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#benefitBalance>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#benefitBalance.financial>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#careTeam>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#diagnosis>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#insurance>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.adjudication>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.detail>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#item.detail.subDetail>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#payee>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#payment>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#procedure>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#processNote>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#related>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#supportingInfo>
+- <http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit#total>
 - <http://hl7.org/fhir/StructureDefinition/Expression>
 - <http://hl7.org/fhir/StructureDefinition/Extension>
 - <http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory>
+- <http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory#condition>
 - <http://hl7.org/fhir/StructureDefinition/FiveWs>
 - <http://hl7.org/fhir/StructureDefinition/Flag>
 - <http://hl7.org/fhir/StructureDefinition/Goal>
+- <http://hl7.org/fhir/StructureDefinition/Goal#target>
 - <http://hl7.org/fhir/StructureDefinition/GraphDefinition>
+- <http://hl7.org/fhir/StructureDefinition/GraphDefinition#link>
+- <http://hl7.org/fhir/StructureDefinition/GraphDefinition#link.target>
+- <http://hl7.org/fhir/StructureDefinition/GraphDefinition#link.target.compartment>
 - <http://hl7.org/fhir/StructureDefinition/Group>
+- <http://hl7.org/fhir/StructureDefinition/Group#characteristic>
+- <http://hl7.org/fhir/StructureDefinition/Group#member>
 - <http://hl7.org/fhir/StructureDefinition/GuidanceResponse>
 - <http://hl7.org/fhir/StructureDefinition/HealthcareService>
+- <http://hl7.org/fhir/StructureDefinition/HealthcareService#availableTime>
+- <http://hl7.org/fhir/StructureDefinition/HealthcareService#eligibility>
+- <http://hl7.org/fhir/StructureDefinition/HealthcareService#notAvailable>
 - <http://hl7.org/fhir/StructureDefinition/HumanName>
 - <http://hl7.org/fhir/StructureDefinition/ImagingStudy>
+- <http://hl7.org/fhir/StructureDefinition/ImagingStudy#series>
+- <http://hl7.org/fhir/StructureDefinition/ImagingStudy#series.instance>
+- <http://hl7.org/fhir/StructureDefinition/ImagingStudy#series.performer>
 - <http://hl7.org/fhir/StructureDefinition/Immunization>
+- <http://hl7.org/fhir/StructureDefinition/Immunization#education>
+- <http://hl7.org/fhir/StructureDefinition/Immunization#performer>
+- <http://hl7.org/fhir/StructureDefinition/Immunization#protocolApplied>
+- <http://hl7.org/fhir/StructureDefinition/Immunization#reaction>
 - <http://hl7.org/fhir/StructureDefinition/ImmunizationEvaluation>
 - <http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation>
+- <http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation#recommendation>
+- <http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation#recommendation.dateCriterion>
 - <http://hl7.org/fhir/StructureDefinition/ImplementationGuide>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.grouping>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.page>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.parameter>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.resource>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#definition.template>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#dependsOn>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#global>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest.page>
+- <http://hl7.org/fhir/StructureDefinition/ImplementationGuide#manifest.resource>
 - <http://hl7.org/fhir/StructureDefinition/InsurancePlan>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#contact>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage.benefit>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#coverage.benefit.limit>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.generalCost>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost.benefit>
+- <http://hl7.org/fhir/StructureDefinition/InsurancePlan#plan.specificCost.benefit.cost>
 - <http://hl7.org/fhir/StructureDefinition/Invoice>
+- <http://hl7.org/fhir/StructureDefinition/Invoice#lineItem>
+- <http://hl7.org/fhir/StructureDefinition/Invoice#lineItem.priceComponent>
+- <http://hl7.org/fhir/StructureDefinition/Invoice#participant>
 - <http://hl7.org/fhir/StructureDefinition/Library>
 - <http://hl7.org/fhir/StructureDefinition/Linkage>
+- <http://hl7.org/fhir/StructureDefinition/Linkage#item>
 - <http://hl7.org/fhir/StructureDefinition/List>
+- <http://hl7.org/fhir/StructureDefinition/List#entry>
 - <http://hl7.org/fhir/StructureDefinition/Location>
+- <http://hl7.org/fhir/StructureDefinition/Location#hoursOfOperation>
+- <http://hl7.org/fhir/StructureDefinition/Location#position>
 - <http://hl7.org/fhir/StructureDefinition/MarketingStatus>
 - <http://hl7.org/fhir/StructureDefinition/Measure>
+- <http://hl7.org/fhir/StructureDefinition/Measure#group>
+- <http://hl7.org/fhir/StructureDefinition/Measure#group.population>
+- <http://hl7.org/fhir/StructureDefinition/Measure#group.stratifier>
+- <http://hl7.org/fhir/StructureDefinition/Measure#group.stratifier.component>
+- <http://hl7.org/fhir/StructureDefinition/Measure#supplementalData>
 - <http://hl7.org/fhir/StructureDefinition/MeasureReport>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group.population>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum.component>
+- <http://hl7.org/fhir/StructureDefinition/MeasureReport#group.stratifier.stratum.population>
 - <http://hl7.org/fhir/StructureDefinition/Media>
 - <http://hl7.org/fhir/StructureDefinition/Medication>
+- <http://hl7.org/fhir/StructureDefinition/Medication#batch>
+- <http://hl7.org/fhir/StructureDefinition/Medication#ingredient>
 - <http://hl7.org/fhir/StructureDefinition/MedicationAdministration>
+- <http://hl7.org/fhir/StructureDefinition/MedicationAdministration#dosage>
+- <http://hl7.org/fhir/StructureDefinition/MedicationAdministration#performer>
 - <http://hl7.org/fhir/StructureDefinition/MedicationDispense>
+- <http://hl7.org/fhir/StructureDefinition/MedicationDispense#performer>
+- <http://hl7.org/fhir/StructureDefinition/MedicationDispense#substitution>
 - <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines.dosage>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#administrationGuidelines.patientCharacteristics>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#cost>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#drugCharacteristic>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#ingredient>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#kinetics>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#medicineClassification>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#monitoringProgram>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#monograph>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#packaging>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.maxDispense>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.schedule>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#regulatory.substitution>
+- <http://hl7.org/fhir/StructureDefinition/MedicationKnowledge#relatedMedicationKnowledge>
 - <http://hl7.org/fhir/StructureDefinition/MedicationRequest>
+- <http://hl7.org/fhir/StructureDefinition/MedicationRequest#dispenseRequest>
+- <http://hl7.org/fhir/StructureDefinition/MedicationRequest#dispenseRequest.initialFill>
+- <http://hl7.org/fhir/StructureDefinition/MedicationRequest#substitution>
 - <http://hl7.org/fhir/StructureDefinition/MedicationStatement>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProduct>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProduct#manufacturingBusinessOperation>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name.countryLanguage>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProduct#name.namePart>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProduct#specialDesignation>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization#jurisdictionalAuthorization>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization#procedure>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductContraindication>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductContraindication#otherTherapy>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication#otherTherapy>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance.strength>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#specifiedSubstance.strength.referenceStrength>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient#substance>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction#interactant>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductManufactured>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged#batchIdentifier>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged#packageItem>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#characteristics>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration.targetSpecies>
+- <http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical#routeOfAdministration.targetSpecies.withdrawalPeriod>
 - <http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect>
 - <http://hl7.org/fhir/StructureDefinition/MessageDefinition>
+- <http://hl7.org/fhir/StructureDefinition/MessageDefinition#allowedResponse>
+- <http://hl7.org/fhir/StructureDefinition/MessageDefinition#focus>
 - <http://hl7.org/fhir/StructureDefinition/MessageHeader>
+- <http://hl7.org/fhir/StructureDefinition/MessageHeader#destination>
+- <http://hl7.org/fhir/StructureDefinition/MessageHeader#response>
+- <http://hl7.org/fhir/StructureDefinition/MessageHeader#source>
 - <http://hl7.org/fhir/StructureDefinition/MetadataResource>
 - <http://hl7.org/fhir/StructureDefinition/MolecularSequence>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#quality>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#quality.roc>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#referenceSeq>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#repository>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant.inner>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#structureVariant.outer>
+- <http://hl7.org/fhir/StructureDefinition/MolecularSequence#variant>
 - <http://hl7.org/fhir/StructureDefinition/Money>
 - <http://hl7.org/fhir/StructureDefinition/MoneyQuantity>
 - <http://hl7.org/fhir/StructureDefinition/NamingSystem>
+- <http://hl7.org/fhir/StructureDefinition/NamingSystem#uniqueId>
 - <http://hl7.org/fhir/StructureDefinition/NutritionOrder>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#enteralFormula>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#enteralFormula.administration>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet.nutrient>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#oralDiet.texture>
+- <http://hl7.org/fhir/StructureDefinition/NutritionOrder#supplement>
 - <http://hl7.org/fhir/StructureDefinition/Observation>
+- <http://hl7.org/fhir/StructureDefinition/Observation#component>
+- <http://hl7.org/fhir/StructureDefinition/Observation#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/ObservationDefinition>
+- <http://hl7.org/fhir/StructureDefinition/ObservationDefinition#qualifiedInterval>
+- <http://hl7.org/fhir/StructureDefinition/ObservationDefinition#quantitativeDetails>
 - <http://hl7.org/fhir/StructureDefinition/OperationDefinition>
+- <http://hl7.org/fhir/StructureDefinition/OperationDefinition#overload>
+- <http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter>
+- <http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter.binding>
+- <http://hl7.org/fhir/StructureDefinition/OperationDefinition#parameter.referencedFrom>
 - <http://hl7.org/fhir/StructureDefinition/OperationOutcome>
 - <http://hl7.org/fhir/StructureDefinition/Organization>
+- <http://hl7.org/fhir/StructureDefinition/Organization#contact>
 - <http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation>
 - <http://hl7.org/fhir/StructureDefinition/ParameterDefinition>
 - <http://hl7.org/fhir/StructureDefinition/Parameters>
+- <http://hl7.org/fhir/StructureDefinition/Parameters#parameter>
 - <http://hl7.org/fhir/StructureDefinition/Patient>
+- <http://hl7.org/fhir/StructureDefinition/Patient#communication>
+- <http://hl7.org/fhir/StructureDefinition/Patient#contact>
+- <http://hl7.org/fhir/StructureDefinition/Patient#link>
 - <http://hl7.org/fhir/StructureDefinition/PaymentNotice>
 - <http://hl7.org/fhir/StructureDefinition/PaymentReconciliation>
+- <http://hl7.org/fhir/StructureDefinition/PaymentReconciliation#detail>
+- <http://hl7.org/fhir/StructureDefinition/PaymentReconciliation#processNote>
 - <http://hl7.org/fhir/StructureDefinition/Person>
+- <http://hl7.org/fhir/StructureDefinition/Person#link>
 - <http://hl7.org/fhir/StructureDefinition/PlanDefinition>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#action>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.condition>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.dynamicValue>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.participant>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#action.relatedAction>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#goal>
+- <http://hl7.org/fhir/StructureDefinition/PlanDefinition#goal.target>
 - <http://hl7.org/fhir/StructureDefinition/Population>
 - <http://hl7.org/fhir/StructureDefinition/Practitioner>
+- <http://hl7.org/fhir/StructureDefinition/Practitioner#qualification>
 - <http://hl7.org/fhir/StructureDefinition/PractitionerRole>
+- <http://hl7.org/fhir/StructureDefinition/PractitionerRole#availableTime>
+- <http://hl7.org/fhir/StructureDefinition/PractitionerRole#notAvailable>
 - <http://hl7.org/fhir/StructureDefinition/Procedure>
+- <http://hl7.org/fhir/StructureDefinition/Procedure#focalDevice>
+- <http://hl7.org/fhir/StructureDefinition/Procedure#performer>
 - <http://hl7.org/fhir/StructureDefinition/ProdCharacteristic>
 - <http://hl7.org/fhir/StructureDefinition/ProductShelfLife>
 - <http://hl7.org/fhir/StructureDefinition/Provenance>
+- <http://hl7.org/fhir/StructureDefinition/Provenance#agent>
+- <http://hl7.org/fhir/StructureDefinition/Provenance#entity>
 - <http://hl7.org/fhir/StructureDefinition/Quantity>
 - <http://hl7.org/fhir/StructureDefinition/Questionnaire>
+- <http://hl7.org/fhir/StructureDefinition/Questionnaire#item>
+- <http://hl7.org/fhir/StructureDefinition/Questionnaire#item.answerOption>
+- <http://hl7.org/fhir/StructureDefinition/Questionnaire#item.enableWhen>
+- <http://hl7.org/fhir/StructureDefinition/Questionnaire#item.initial>
 - <http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse>
+- <http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse#item>
+- <http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse#item.answer>
 - <http://hl7.org/fhir/StructureDefinition/Range>
 - <http://hl7.org/fhir/StructureDefinition/Ratio>
 - <http://hl7.org/fhir/StructureDefinition/RelatedArtifact>
 - <http://hl7.org/fhir/StructureDefinition/RelatedPerson>
+- <http://hl7.org/fhir/StructureDefinition/RelatedPerson#communication>
 - <http://hl7.org/fhir/StructureDefinition/Request>
 - <http://hl7.org/fhir/StructureDefinition/RequestGroup>
+- <http://hl7.org/fhir/StructureDefinition/RequestGroup#action>
+- <http://hl7.org/fhir/StructureDefinition/RequestGroup#action.condition>
+- <http://hl7.org/fhir/StructureDefinition/RequestGroup#action.relatedAction>
 - <http://hl7.org/fhir/StructureDefinition/ResearchDefinition>
 - <http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition>
+- <http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition#characteristic>
 - <http://hl7.org/fhir/StructureDefinition/ResearchStudy>
+- <http://hl7.org/fhir/StructureDefinition/ResearchStudy#arm>
+- <http://hl7.org/fhir/StructureDefinition/ResearchStudy#objective>
 - <http://hl7.org/fhir/StructureDefinition/ResearchSubject>
 - <http://hl7.org/fhir/StructureDefinition/RiskAssessment>
+- <http://hl7.org/fhir/StructureDefinition/RiskAssessment#prediction>
 - <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis>
+- <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#certainty>
+- <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#certainty.certaintySubcomponent>
+- <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#riskEstimate>
+- <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#riskEstimate.precisionEstimate>
+- <http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis#sampleSize>
 - <http://hl7.org/fhir/StructureDefinition/SampledData>
 - <http://hl7.org/fhir/StructureDefinition/Schedule>
 - <http://hl7.org/fhir/StructureDefinition/SearchParameter>
+- <http://hl7.org/fhir/StructureDefinition/SearchParameter#component>
 - <http://hl7.org/fhir/StructureDefinition/ServiceRequest>
 - <http://hl7.org/fhir/StructureDefinition/SimpleQuantity>
 - <http://hl7.org/fhir/StructureDefinition/Slot>
 - <http://hl7.org/fhir/StructureDefinition/Specimen>
+- <http://hl7.org/fhir/StructureDefinition/Specimen#collection>
+- <http://hl7.org/fhir/StructureDefinition/Specimen#container>
+- <http://hl7.org/fhir/StructureDefinition/Specimen#processing>
 - <http://hl7.org/fhir/StructureDefinition/SpecimenDefinition>
+- <http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested>
+- <http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.container>
+- <http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.container.additive>
+- <http://hl7.org/fhir/StructureDefinition/SpecimenDefinition#typeTested.handling>
 - <http://hl7.org/fhir/StructureDefinition/StructureDefinition>
+- <http://hl7.org/fhir/StructureDefinition/StructureDefinition#context>
+- <http://hl7.org/fhir/StructureDefinition/StructureDefinition#differential>
+- <http://hl7.org/fhir/StructureDefinition/StructureDefinition#mapping>
+- <http://hl7.org/fhir/StructureDefinition/StructureDefinition#snapshot>
 - <http://hl7.org/fhir/StructureDefinition/StructureMap>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.input>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.dependent>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.source>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.target>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#group.rule.target.parameter>
+- <http://hl7.org/fhir/StructureDefinition/StructureMap#structure>
 - <http://hl7.org/fhir/StructureDefinition/Subscription>
+- <http://hl7.org/fhir/StructureDefinition/Subscription#channel>
 - <http://hl7.org/fhir/StructureDefinition/Substance>
+- <http://hl7.org/fhir/StructureDefinition/Substance#ingredient>
+- <http://hl7.org/fhir/StructureDefinition/Substance#instance>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceAmount>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceAmount#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit.linkage>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid#subunit.sugar>
 - <http://hl7.org/fhir/StructureDefinition/SubstancePolymer>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#monomerSet>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#monomerSet.startingMaterial>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit.degreeOfPolymerisation>
+- <http://hl7.org/fhir/StructureDefinition/SubstancePolymer#repeat.repeatUnit.structuralRepresentation>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceProtein>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceProtein#subunit>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#classification>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#gene>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#geneElement>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation#target>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#fractionDescription>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.author>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.hybrid>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#organism.organismGeneral>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial#partDescription>
 - <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#code>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#moiety>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#name>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#name.official>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#property>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#relationship>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.isotope>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.isotope.molecularWeight>
+- <http://hl7.org/fhir/StructureDefinition/SubstanceSpecification#structure.representation>
 - <http://hl7.org/fhir/StructureDefinition/SupplyDelivery>
+- <http://hl7.org/fhir/StructureDefinition/SupplyDelivery#suppliedItem>
 - <http://hl7.org/fhir/StructureDefinition/SupplyRequest>
+- <http://hl7.org/fhir/StructureDefinition/SupplyRequest#parameter>
 - <http://hl7.org/fhir/StructureDefinition/Task>
+- <http://hl7.org/fhir/StructureDefinition/Task#input>
+- <http://hl7.org/fhir/StructureDefinition/Task#output>
+- <http://hl7.org/fhir/StructureDefinition/Task#restriction>
 - <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#closure>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem.version>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#codeSystem.version.filter>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#expansion>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#expansion.parameter>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#implementation>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#software>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#translation>
+- <http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities#validateCode>
 - <http://hl7.org/fhir/StructureDefinition/TestReport>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#participant>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#setup>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#setup.action>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#setup.action.assert>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#setup.action.operation>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#teardown>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#teardown.action>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#test>
+- <http://hl7.org/fhir/StructureDefinition/TestReport#test.action>
 - <http://hl7.org/fhir/StructureDefinition/TestScript>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#destination>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#fixture>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#metadata>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#metadata.capability>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#metadata.link>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#origin>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#setup>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#setup.action>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.assert>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.operation>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#setup.action.operation.requestHeader>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#teardown>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#teardown.action>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#test>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#test.action>
+- <http://hl7.org/fhir/StructureDefinition/TestScript#variable>
 - <http://hl7.org/fhir/StructureDefinition/Timing>
+- <http://hl7.org/fhir/StructureDefinition/Timing#repeat>
 - <http://hl7.org/fhir/StructureDefinition/TriggerDefinition>
 - <http://hl7.org/fhir/StructureDefinition/UsageContext>
 - <http://hl7.org/fhir/StructureDefinition/ValueSet>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#compose>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.concept>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.concept.designation>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#compose.include.filter>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#expansion>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#expansion.contains>
+- <http://hl7.org/fhir/StructureDefinition/ValueSet#expansion.parameter>
 - <http://hl7.org/fhir/StructureDefinition/VerificationResult>
+- <http://hl7.org/fhir/StructureDefinition/VerificationResult#attestation>
+- <http://hl7.org/fhir/StructureDefinition/VerificationResult#primarySource>
+- <http://hl7.org/fhir/StructureDefinition/VerificationResult#validator>
 - <http://hl7.org/fhir/StructureDefinition/VisionPrescription>
+- <http://hl7.org/fhir/StructureDefinition/VisionPrescription#lensSpecification>
+- <http://hl7.org/fhir/StructureDefinition/VisionPrescription#lensSpecification.prism>
 - <http://hl7.org/fhir/StructureDefinition/actualgroup>
 - <http://hl7.org/fhir/StructureDefinition/allergyintolerance-assertedDate>
 - <http://hl7.org/fhir/StructureDefinition/allergyintolerance-certainty>
@@ -3185,10 +4136,14 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/capabilitystatement-websocket>
 - <http://hl7.org/fhir/StructureDefinition/careplan-activity-title>
 - <http://hl7.org/fhir/StructureDefinition/catalog>
+- <http://hl7.org/fhir/StructureDefinition/catalog#section>
 - <http://hl7.org/fhir/StructureDefinition/cdshooksguidanceresponse>
 - <http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup>
+- <http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup#action>
 - <http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition>
+- <http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition#action>
 - <http://hl7.org/fhir/StructureDefinition/cholesterol>
+- <http://hl7.org/fhir/StructureDefinition/cholesterol#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/clinicaldocument>
 - <http://hl7.org/fhir/StructureDefinition/codesystem-alternate>
 - <http://hl7.org/fhir/StructureDefinition/codesystem-author>
@@ -3268,12 +4223,18 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/diagnosticreport-genetics>
 - <http://hl7.org/fhir/StructureDefinition/display>
 - <http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent>
+- <http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#agent>
+- <http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#agent.network>
+- <http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#entity>
+- <http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent#source>
 - <http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance>
+- <http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance#agent>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-allowedUnits>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-bestpractice>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-bestpractice-explanation>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-de>
+- <http://hl7.org/fhir/StructureDefinition/elementdefinition-de#type>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-equivalence>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-identifier>
 - <http://hl7.org/fhir/StructureDefinition/elementdefinition-inheritedExtensibleValueSet>
@@ -3313,6 +4274,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/goal-relationship>
 - <http://hl7.org/fhir/StructureDefinition/groupdefinition>
 - <http://hl7.org/fhir/StructureDefinition/hdlcholesterol>
+- <http://hl7.org/fhir/StructureDefinition/hdlcholesterol#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/headcircum>
 - <http://hl7.org/fhir/StructureDefinition/heartrate>
 - <http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-allele-database>
@@ -3365,6 +4327,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/iso21090-uncertaintyType>
 - <http://hl7.org/fhir/StructureDefinition/language>
 - <http://hl7.org/fhir/StructureDefinition/ldlcholesterol>
+- <http://hl7.org/fhir/StructureDefinition/ldlcholesterol#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/lipidprofile>
 - <http://hl7.org/fhir/StructureDefinition/list-changeBase>
 - <http://hl7.org/fhir/StructureDefinition/location-boundary-geojson>
@@ -3442,6 +4405,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/patient-relatedPerson>
 - <http://hl7.org/fhir/StructureDefinition/patient-religion>
 - <http://hl7.org/fhir/StructureDefinition/picoelement>
+- <http://hl7.org/fhir/StructureDefinition/picoelement#characteristic>
 - <http://hl7.org/fhir/StructureDefinition/positiveInt>
 - <http://hl7.org/fhir/StructureDefinition/practitioner-animalSpecies>
 - <http://hl7.org/fhir/StructureDefinition/practitionerrole-primaryInd>
@@ -3454,6 +4418,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/procedure-schedule>
 - <http://hl7.org/fhir/StructureDefinition/procedure-targetBodyStructure>
 - <http://hl7.org/fhir/StructureDefinition/provenance-relevant-history>
+- <http://hl7.org/fhir/StructureDefinition/provenance-relevant-history#agent>
 - <http://hl7.org/fhir/StructureDefinition/quantity-precision>
 - <http://hl7.org/fhir/StructureDefinition/questionnaire-baseType>
 - <http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation>
@@ -3506,6 +4471,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/servicerequest-questionnaireRequest>
 - <http://hl7.org/fhir/StructureDefinition/shareableactivitydefinition>
 - <http://hl7.org/fhir/StructureDefinition/shareablecodesystem>
+- <http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept>
 - <http://hl7.org/fhir/StructureDefinition/shareablelibrary>
 - <http://hl7.org/fhir/StructureDefinition/shareablemeasure>
 - <http://hl7.org/fhir/StructureDefinition/shareableplandefinition>
@@ -3543,6 +4509,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/timing-exact>
 - <http://hl7.org/fhir/StructureDefinition/translation>
 - <http://hl7.org/fhir/StructureDefinition/triglyceride>
+- <http://hl7.org/fhir/StructureDefinition/triglyceride#referenceRange>
 - <http://hl7.org/fhir/StructureDefinition/tz-code>
 - <http://hl7.org/fhir/StructureDefinition/tz-offset>
 - <http://hl7.org/fhir/StructureDefinition/url>
@@ -3585,6 +4552,7 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/valueset-workflowStatus>
 - <http://hl7.org/fhir/StructureDefinition/variable>
 - <http://hl7.org/fhir/StructureDefinition/vitalsigns>
+- <http://hl7.org/fhir/StructureDefinition/vitalsigns#component>
 - <http://hl7.org/fhir/StructureDefinition/vitalspanel>
 - <http://hl7.org/fhir/StructureDefinition/workflow-episodeOfCare>
 - <http://hl7.org/fhir/StructureDefinition/workflow-instantiatesCanonical>
@@ -4930,7 +5898,14 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/Signature": {},
     },
     "logical": {},
-    "nested": {},
+    "nested": {
+      "http://hl7.org/fhir/StructureDefinition/Bundle#entry": {},
+      "http://hl7.org/fhir/StructureDefinition/Bundle#entry.request": {},
+      "http://hl7.org/fhir/StructureDefinition/Bundle#entry.response": {},
+      "http://hl7.org/fhir/StructureDefinition/Bundle#entry.search": {},
+      "http://hl7.org/fhir/StructureDefinition/Bundle#link": {},
+      "http://hl7.org/fhir/StructureDefinition/OperationOutcome#issue": {},
+    },
     "primitive-type": {
       "http://hl7.org/fhir/StructureDefinition/base64Binary": {},
       "http://hl7.org/fhir/StructureDefinition/boolean": {},
@@ -5316,330 +6291,6 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
       "excluded": false
     }
   },
-  "nested": [
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "communication",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#communication"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "language": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": true,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "Language",
-            "url": "urn:fhir:binding:Language"
-          },
-          "enum": {
-            "isOpen": true,
-            "values": [
-              "ar",
-              "bn",
-              "cs",
-              "da",
-              "de",
-              "de-AT",
-              "de-CH",
-              "de-DE",
-              "el",
-              "en",
-              "en-AU",
-              "en-CA",
-              "en-GB",
-              "en-IN",
-              "en-NZ",
-              "en-SG",
-              "en-US",
-              "es",
-              "es-AR",
-              "es-ES",
-              "es-UY",
-              "fi",
-              "fr",
-              "fr-BE",
-              "fr-CH",
-              "fr-FR",
-              "fy",
-              "fy-NL",
-              "hi",
-              "hr",
-              "it",
-              "it-CH",
-              "it-IT",
-              "ja",
-              "ko",
-              "nl",
-              "nl-BE",
-              "nl-NL",
-              "no",
-              "no-NO",
-              "pa",
-              "pl",
-              "pt",
-              "pt-BR",
-              "ru",
-              "ru-RU",
-              "sr",
-              "sr-RS",
-              "sv",
-              "sv-SE",
-              "te",
-              "zh",
-              "zh-CN",
-              "zh-HK",
-              "zh-SG",
-              "zh-TW"
-            ]
-          }
-        },
-        "preferred": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "boolean",
-            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        }
-      }
-    },
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "contact",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#contact"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "relationship": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": true,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ContactRelationship",
-            "url": "urn:fhir:binding:ContactRelationship"
-          }
-        },
-        "name": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "HumanName",
-            "url": "http://hl7.org/fhir/StructureDefinition/HumanName"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        },
-        "telecom": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "ContactPoint",
-            "url": "http://hl7.org/fhir/StructureDefinition/ContactPoint"
-          },
-          "required": false,
-          "excluded": false,
-          "array": true
-        },
-        "address": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Address",
-            "url": "http://hl7.org/fhir/StructureDefinition/Address"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        },
-        "gender": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "code",
-            "url": "http://hl7.org/fhir/StructureDefinition/code"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "AdministrativeGender",
-            "url": "urn:fhir:binding:AdministrativeGender"
-          },
-          "enum": {
-            "isOpen": false,
-            "values": [
-              "male",
-              "female",
-              "other",
-              "unknown"
-            ]
-          }
-        },
-        "organization": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Organization",
-                "url": "http://hl7.org/fhir/StructureDefinition/Organization"
-              }
-            ]
-          },
-          "array": false
-        },
-        "period": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Period",
-            "url": "http://hl7.org/fhir/StructureDefinition/Period"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        }
-      }
-    },
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "link",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#link"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "other": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": true,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Patient",
-                "url": "http://hl7.org/fhir/StructureDefinition/Patient"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "RelatedPerson",
-                "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
-              }
-            ]
-          },
-          "array": false
-        },
-        "type": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "code",
-            "url": "http://hl7.org/fhir/StructureDefinition/code"
-          },
-          "required": true,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "LinkType",
-            "url": "urn:fhir:binding:LinkType"
-          },
-          "enum": {
-            "isOpen": false,
-            "values": [
-              "replaced-by",
-              "replaces",
-              "refer",
-              "seealso"
-            ]
-          }
-        }
-      }
-    }
-  ],
   "description": "Demographics and other administrative information about an individual or animal receiving care or other health-related services.",
   "dependencies": [
     {
@@ -5655,13 +6306,6 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
       "version": "4.0.1",
       "name": "Attachment",
       "url": "http://hl7.org/fhir/StructureDefinition/Attachment"
-    },
-    {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "BackboneElement",
-      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
     },
     {
       "kind": "primitive-type",
@@ -5734,11 +6378,25 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
       "url": "http://hl7.org/fhir/StructureDefinition/integer"
     },
     {
-      "kind": "complex-type",
+      "kind": "nested",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
-      "name": "Period",
-      "url": "http://hl7.org/fhir/StructureDefinition/Period"
+      "name": "communication",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#communication"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "contact",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#contact"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "link",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#link"
     },
     {
       "kind": "complex-type",
@@ -5753,27 +6411,6 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
       "version": "1.0.0",
       "name": "AdministrativeGender",
       "url": "urn:fhir:binding:AdministrativeGender"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ContactRelationship",
-      "url": "urn:fhir:binding:ContactRelationship"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "Language",
-      "url": "urn:fhir:binding:Language"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "LinkType",
-      "url": "urn:fhir:binding:LinkType"
     },
     {
       "kind": "binding",
@@ -6089,330 +6726,6 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
       "excluded": false
     }
   },
-  "nested": [
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "communication",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#communication"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "language": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": true,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "Language",
-            "url": "urn:fhir:binding:Language"
-          },
-          "enum": {
-            "isOpen": true,
-            "values": [
-              "ar",
-              "bn",
-              "cs",
-              "da",
-              "de",
-              "de-AT",
-              "de-CH",
-              "de-DE",
-              "el",
-              "en",
-              "en-AU",
-              "en-CA",
-              "en-GB",
-              "en-IN",
-              "en-NZ",
-              "en-SG",
-              "en-US",
-              "es",
-              "es-AR",
-              "es-ES",
-              "es-UY",
-              "fi",
-              "fr",
-              "fr-BE",
-              "fr-CH",
-              "fr-FR",
-              "fy",
-              "fy-NL",
-              "hi",
-              "hr",
-              "it",
-              "it-CH",
-              "it-IT",
-              "ja",
-              "ko",
-              "nl",
-              "nl-BE",
-              "nl-NL",
-              "no",
-              "no-NO",
-              "pa",
-              "pl",
-              "pt",
-              "pt-BR",
-              "ru",
-              "ru-RU",
-              "sr",
-              "sr-RS",
-              "sv",
-              "sv-SE",
-              "te",
-              "zh",
-              "zh-CN",
-              "zh-HK",
-              "zh-SG",
-              "zh-TW"
-            ]
-          }
-        },
-        "preferred": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "boolean",
-            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        }
-      }
-    },
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "contact",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#contact"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "relationship": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": true,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ContactRelationship",
-            "url": "urn:fhir:binding:ContactRelationship"
-          }
-        },
-        "name": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "HumanName",
-            "url": "http://hl7.org/fhir/StructureDefinition/HumanName"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        },
-        "telecom": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "ContactPoint",
-            "url": "http://hl7.org/fhir/StructureDefinition/ContactPoint"
-          },
-          "required": false,
-          "excluded": false,
-          "array": true
-        },
-        "address": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Address",
-            "url": "http://hl7.org/fhir/StructureDefinition/Address"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        },
-        "gender": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "code",
-            "url": "http://hl7.org/fhir/StructureDefinition/code"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "AdministrativeGender",
-            "url": "urn:fhir:binding:AdministrativeGender"
-          },
-          "enum": {
-            "isOpen": false,
-            "values": [
-              "male",
-              "female",
-              "other",
-              "unknown"
-            ]
-          }
-        },
-        "organization": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Organization",
-                "url": "http://hl7.org/fhir/StructureDefinition/Organization"
-              }
-            ]
-          },
-          "array": false
-        },
-        "period": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Period",
-            "url": "http://hl7.org/fhir/StructureDefinition/Period"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false
-        }
-      }
-    },
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "link",
-        "url": "http://hl7.org/fhir/StructureDefinition/Patient#link"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "other": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": true,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Patient",
-                "url": "http://hl7.org/fhir/StructureDefinition/Patient"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "RelatedPerson",
-                "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson"
-              }
-            ]
-          },
-          "array": false
-        },
-        "type": {
-          "type": {
-            "kind": "primitive-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "code",
-            "url": "http://hl7.org/fhir/StructureDefinition/code"
-          },
-          "required": true,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "LinkType",
-            "url": "urn:fhir:binding:LinkType"
-          },
-          "enum": {
-            "isOpen": false,
-            "values": [
-              "replaced-by",
-              "replaces",
-              "refer",
-              "seealso"
-            ]
-          }
-        }
-      }
-    }
-  ],
   "description": "Demographics and other administrative information about an individual or animal receiving care or other health-related services.",
   "dependencies": [
     {
@@ -6430,25 +6743,11 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
       "url": "http://hl7.org/fhir/StructureDefinition/Attachment"
     },
     {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "BackboneElement",
-      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-    },
-    {
       "kind": "primitive-type",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
       "name": "boolean",
       "url": "http://hl7.org/fhir/StructureDefinition/boolean"
-    },
-    {
-      "kind": "primitive-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "code",
-      "url": "http://hl7.org/fhir/StructureDefinition/code"
     },
     {
       "kind": "complex-type",
@@ -6507,11 +6806,25 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
       "url": "http://hl7.org/fhir/StructureDefinition/integer"
     },
     {
-      "kind": "complex-type",
+      "kind": "nested",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
-      "name": "Period",
-      "url": "http://hl7.org/fhir/StructureDefinition/Period"
+      "name": "communication",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#communication"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "contact",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#contact"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "link",
+      "url": "http://hl7.org/fhir/StructureDefinition/Patient#link"
     },
     {
       "kind": "complex-type",
@@ -6519,34 +6832,6 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
       "version": "4.0.1",
       "name": "Reference",
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "AdministrativeGender",
-      "url": "urn:fhir:binding:AdministrativeGender"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ContactRelationship",
-      "url": "urn:fhir:binding:ContactRelationship"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "Language",
-      "url": "urn:fhir:binding:Language"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "LinkType",
-      "url": "urn:fhir:binding:LinkType"
     },
     {
       "kind": "binding",
@@ -6605,7 +6890,6 @@ exports[`treeShake specific TypeSchema selectFields regular field 1`] = `
       }
     }
   },
-  "nested": [],
   "description": "Demographics and other administrative information about an individual or animal receiving care or other health-related services.",
   "dependencies": [
     {
@@ -6703,7 +6987,6 @@ exports[`treeShake specific TypeSchema selectFields multiple regular fields 1`] 
       "array": false
     }
   },
-  "nested": [],
   "description": "Demographics and other administrative information about an individual or animal receiving care or other health-related services.",
   "dependencies": [
     {

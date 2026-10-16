@@ -14,7 +14,8 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("workflow-protectiveFactor not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
+        const schemas = await registerFsAndMkTs(ccda, resource, logger);
+        const ts = schemas[0] as SpecializationTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "profile",
@@ -73,88 +74,82 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("ON StructureDefinition not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
-        expect(ts).toMatchObject({
-            identifier: {
-                kind: "logical",
-                package: "hl7.cda.uv.core",
-                version: "2.0.1-sd",
-                name: "ON",
-                url: "http://hl7.org/cda/stds/core/StructureDefinition/ON",
-            },
-            base: {
-                kind: "logical",
-                package: "hl7.cda.uv.core",
-                version: "2.0.1-sd",
-                name: "EN",
-                url: "http://hl7.org/cda/stds/core/StructureDefinition/EN",
-            },
-            fields: {
-                item: {
-                    type: {
-                        kind: "nested",
-                        package: "hl7.cda.uv.core",
-                        version: "2.0.1-sd",
-                        name: "item",
-                        url: "http://hl7.org/cda/stds/core/StructureDefinition/ON#item",
-                    },
-                    required: false,
-                    excluded: false,
-                    array: true,
+        const schemas = await registerFsAndMkTs(ccda, resource, logger);
+        expect(schemas.filter((schema) => schema.identifier.kind !== "binding")).toMatchObject([
+            {
+                identifier: {
+                    kind: "logical",
+                    package: "hl7.cda.uv.core",
+                    version: "2.0.1-sd",
+                    name: "ON",
+                    url: "http://hl7.org/cda/stds/core/StructureDefinition/ON",
                 },
-            },
-            nested: [
-                {
-                    identifier: {
-                        kind: "nested",
-                        package: "hl7.cda.uv.core",
-                        version: "2.0.1-sd",
-                        name: "item",
-                        url: "http://hl7.org/cda/stds/core/StructureDefinition/ON#item",
-                    },
-                    base: {
-                        kind: "complex-type",
-                        package: "hl7.fhir.r5.core",
-                        version: "5.0.0",
-                        name: "BackboneElement",
-                        url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-                    },
-                    fields: {
-                        delimiter: {
-                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                            array: true,
+                base: {
+                    kind: "logical",
+                    package: "hl7.cda.uv.core",
+                    version: "2.0.1-sd",
+                    name: "EN",
+                    url: "http://hl7.org/cda/stds/core/StructureDefinition/EN",
+                },
+                fields: {
+                    item: {
+                        type: {
+                            kind: "nested",
+                            package: "hl7.cda.uv.core",
+                            version: "2.0.1-sd",
+                            name: "item",
+                            url: "http://hl7.org/cda/stds/core/StructureDefinition/ON#item",
                         },
-                        family: {
-                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                            array: true,
-                        },
-                        given: {
-                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                            array: true,
-                        },
-                        prefix: {
-                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                            array: true,
-                        },
-                        suffix: {
-                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                            array: true,
-                        },
-                        xmlText: {
-                            type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
-                        },
+                        required: false,
+                        excluded: false,
+                        array: true,
                     },
                 },
-            ],
-            description:
-                'A name for an organization. A sequence of name parts. Examples for organization name values are "Health Level Seven, Inc.", "Hospital", etc. An organization name may be as simple as a character string or may consist of several person name parts, such as, "Health Level 7", "Inc.". ON differs from EN because certain person related name parts are not possible.',
-            dependencies: [
-                { kind: "complex-type", url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
-                { kind: "logical", url: "http://hl7.org/cda/stds/core/StructureDefinition/EN" },
-                { kind: "logical", url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
-                { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
-            ],
-        });
+                description:
+                    'A name for an organization. A sequence of name parts. Examples for organization name values are "Health Level Seven, Inc.", "Hospital", etc. An organization name may be as simple as a character string or may consist of several person name parts, such as, "Health Level 7", "Inc.". ON differs from EN because certain person related name parts are not possible.',
+            },
+            {
+                identifier: {
+                    kind: "nested",
+                    package: "hl7.cda.uv.core",
+                    version: "2.0.1-sd",
+                    name: "item",
+                    url: "http://hl7.org/cda/stds/core/StructureDefinition/ON#item",
+                },
+                base: {
+                    kind: "complex-type",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
+                    name: "BackboneElement",
+                    url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
+                },
+                fields: {
+                    delimiter: {
+                        type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                        array: true,
+                    },
+                    family: {
+                        type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                        array: true,
+                    },
+                    given: {
+                        type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                        array: true,
+                    },
+                    prefix: {
+                        type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                        array: true,
+                    },
+                    suffix: {
+                        type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                        array: true,
+                    },
+                    xmlText: {
+                        type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
+                    },
+                },
+            },
+        ]);
     });
 
     it("http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent", async () => {
@@ -165,7 +160,8 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("ehrsrle-auditevent not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
+        const schemas = await registerFsAndMkTs(ccda, resource, logger);
+        const ts = schemas[0] as SpecializationTypeSchema;
         // console.log(JSON.stringify(ts, null, 2));
         // NOTE: problem: canonical manager recomend us to use R5, but we failing on R4 AuditEvent.
         expect(ts).toMatchObject({

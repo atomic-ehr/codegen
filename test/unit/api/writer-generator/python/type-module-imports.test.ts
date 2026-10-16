@@ -70,13 +70,25 @@ describe("Python type module imports", () => {
         const other = complexType("Other");
         const resource: ResourceTypeSchema = {
             identifier: identifier("resource", "TestResource"),
-            nested: [{ identifier: part, base: other.identifier, fields: { value: { type: other.identifier } } }],
             fields: {
                 part: { type: part },
                 other: { type: other.identifier },
             },
         };
-        const module = (await generate([resource, other]))["generated/codegen_test/test_resource.py"];
+        const module = (
+            await generate([
+                resource,
+                other,
+                {
+                    identifier: part,
+                    owner: resource.identifier,
+                    path: ["part"],
+                    derivation: "specialization",
+                    base: other.identifier,
+                    fields: { value: { type: other.identifier } },
+                },
+            ])
+        )["generated/codegen_test/test_resource.py"];
 
         expect(module?.match(/^from fhir_types\.codegen_test\.base import Other$/gm)).toHaveLength(1);
         expect(module).toContain("class TestResourcePart(Other):");

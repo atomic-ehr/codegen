@@ -58,7 +58,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 
     it("generates the expected number of files successfully", () => {
         expect(result.success).toBeTrue();
-        expect(Object.keys(files).length).toMatchInlineSnapshot(`61`);
+        expect(Object.keys(files).length).toMatchInlineSnapshot(`67`);
     });
 
     it("Generated file list", () => {

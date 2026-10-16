@@ -44,7 +44,6 @@ exports[`TypeSchema: logical model specializing FHIR Base (R4, virtual root) ver
       "url": "http://example.org/StructureDefinition/DocumentVersioned",
       "version": "0.0.0",
     },
-    "nested": undefined,
     "slicing": undefined,
     "typeFamily": undefined,
   },
@@ -95,7 +94,6 @@ exports[`TypeSchema: logical model specializing FHIR Base (R4, virtual root) unv
       "url": "http://example.org/StructureDefinition/DocumentPlain",
       "version": "0.0.0",
     },
-    "nested": undefined,
     "slicing": undefined,
     "typeFamily": undefined,
   },
@@ -158,7 +156,6 @@ exports[`TypeSchema: logical model specializing FHIR Base (R5, physical root) ac
     "url": "http://example.org/StructureDefinition/DocumentPlain",
     "version": "0.0.0",
   },
-  "nested": undefined,
   "slicing": undefined,
   "typeFamily": undefined,
 }

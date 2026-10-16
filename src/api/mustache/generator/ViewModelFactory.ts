@@ -252,8 +252,9 @@ export class ViewModelFactory {
                     dependencies.resources.push(dependency);
                 });
         }
-        if ("nested" in schema && schema.nested) {
-            schema.nested
+        if (this.tsIndex.nestedTypesOf(schema.identifier).length > 0) {
+            this.tsIndex
+                .nestedTypesOf(schema.identifier)
                 .map((nested) => this._collectDependencies(nested))
                 .forEach((d) => {
                     d.complexTypes
@@ -274,6 +275,8 @@ export class ViewModelFactory {
                         });
                 });
         }
+        dependencies.complexTypes.sort((a, b) => a.name.localeCompare(b.name));
+        dependencies.resources.sort((a, b) => a.name.localeCompare(b.name));
         return dependencies;
     }
 
@@ -319,8 +322,9 @@ export class ViewModelFactory {
         cache: ViewModelCache,
     ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
-        if ("nested" in schema && schema.nested) {
-            schema.nested
+        if (this.tsIndex.nestedTypesOf(schema.identifier).length > 0) {
+            this.tsIndex
+                .nestedTypesOf(schema.identifier)
                 .map((nested) => this._createForNestedType(nested, cache, schema))
                 .forEach((n) => {
                     nested.push(n);

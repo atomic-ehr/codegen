@@ -129,6 +129,7 @@ export const profileModuleImports = (
     const tImports = moduleImports(w, render, "typing");
     const pImports = moduleImports(w, render, "pydantic");
     const typeInfo = (id: TypeIdentifier): { module: string; name: string } => {
+        id = tsIndex.typeForGeneration(id);
         const schema = tsIndex.resolveType(id);
         if (schema && (isProfileTypeSchema(schema) || isSnapshotProfileTypeSchema(schema))) {
             return {

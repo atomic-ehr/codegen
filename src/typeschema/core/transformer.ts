@@ -15,23 +15,24 @@ import {
     type FieldSlicing,
     type Identifier,
     isNestedIdentifier,
-    type NestedTypeSchema,
-    type ProfileIdentifier,
     type ProfileTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
-
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
+import { finalizeDeclarations } from "./declarations";
+import { extractDependencies, extractProfileDependencies } from "./dependencies";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
+
+export { extractDependencies, extractProfileDependencies } from "./dependencies";
+
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 import { assignRecommendedBaseNames } from "./name-candidates";
-import { extractNestedDependencies, isNestedElement, mkNestedTypes } from "./nested-types";
+import { isNestedElement, mkNestedTypes } from "./nested-types";
 import { extractProfileExtensions } from "./profile-extensions";
 
 export function mkFields(
@@ -60,21 +61,6 @@ export function mkFields(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-function extractFieldDependencies(fields: Record<string, Field>): TypeIdentifier[] {
-    const deps: TypeIdentifier[] = [];
-
-    for (const field of Object.values(fields)) {
-        if ("type" in field && field.type) {
-            deps.push(field.type);
-        }
-        if ("binding" in field && field.binding) {
-            deps.push(field.binding);
-        }
-    }
-
-    return deps;
-}
-
 export async function transformValueSet(
     register: Register,
     valueSet: RichValueSet,
@@ -92,47 +78,11 @@ export async function transformValueSet(
     };
 }
 
-const collectRawDeps = (
-    base: TypeIdentifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
-): TypeIdentifier[] => {
-    const deps: TypeIdentifier[] = [];
-    if (base) deps.push(base);
-    if (fields) deps.push(...extractFieldDependencies(fields));
-    if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
-    return deps;
-};
+export function transformFhirSchema(register: Register, fs: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
+    return finalizeDeclarations(register, fs, transformDeclarations(register, fs, logger), logger);
+}
 
-export const extractDependencies = (
-    identifier: Identifier,
-    base: TypeIdentifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
-): Identifier[] | undefined => {
-    const deps = collectRawDeps(base, fields, nestedTypes);
-
-    const filtered = deps.filter((dep): dep is Identifier => {
-        if (dep.url === identifier.url) return false;
-        if (isNestedIdentifier(dep)) return false;
-        return true;
-    });
-
-    return concatIdentifiers(filtered);
-};
-
-export const extractProfileDependencies = (
-    identifier: ProfileIdentifier,
-    base: TypeIdentifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
-): TypeIdentifier[] | undefined => {
-    const deps = collectRawDeps(base, fields, nestedTypes);
-    const filtered = deps.filter((dep) => dep.url !== identifier.url);
-    return concatIdentifiers(filtered);
-};
-
-export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
+function transformDeclarations(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
     let base: Identifier | undefined;
     if (fhirSchema.base) {
         const baseUrl = register.ensureSpecializationCanonicalUrl(fhirSchema.base);
@@ -161,19 +111,18 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
-        const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
+        const rawDeps = extractProfileDependencies(identifier, base, fields);
         const profileSchema: ProfileTypeSchema = {
             identifier,
             base,
             fields,
             slicing,
-            nested,
             description: fhirSchema.description,
             dependencies: concatIdentifiers(rawDeps, extensionDeps),
             extensions,
         };
         assignRecommendedBaseNames(profileSchema);
-        return [profileSchema, ...bindingSchemas];
+        return [profileSchema, ...(nested ?? []), ...bindingSchemas];
     }
 
     if (fhirSchema.kind === "primitive-type") {
@@ -184,7 +133,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
                 identifier,
                 description: fhirSchema.description,
                 base,
-                dependencies: extractDependencies(identifier, base, fields, nested),
+                dependencies: extractDependencies(identifier, base, fields),
             },
             ...bindingSchemas,
         ];
@@ -196,11 +145,10 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         base,
         fields,
         slicing,
-        nested,
         description: fhirSchema.description,
         ...(fhirSchema.abstract === true ? { abstractResource: true } : {}),
-        dependencies: extractDependencies(identifier, base, fields, nested),
+        dependencies: extractDependencies(identifier, base, fields),
         typeFamily: undefined,
     } as SpecializationTypeSchema;
-    return [schema, ...bindingSchemas];
+    return [schema, ...(nested ?? []), ...bindingSchemas];
 }

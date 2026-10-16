@@ -123,9 +123,10 @@ export type Identifier =
     | ValueSetIdentifier
     | ProfileIdentifier
     | SnapshotProfileIdentifier
-    | LogicalIdentifier;
+    | LogicalIdentifier
+    | NestedIdentifier;
 
-export type TypeIdentifier = Identifier | NestedIdentifier;
+export type TypeIdentifier = Identifier;
 
 export const isResourceIdentifier = (id: TypeIdentifier | undefined): id is ResourceIdentifier => {
     return id?.kind === "resource";
@@ -183,9 +184,10 @@ export type TypeSchema =
     | ValueSetTypeSchema
     | BindingTypeSchema
     | ProfileTypeSchema
-    | SnapshotProfileTypeSchema;
+    | SnapshotProfileTypeSchema
+    | NestedTypeSchema;
 
-type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | undefined;
+type TypeSchemaGuardInput = TypeSchema | undefined;
 
 export const isNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is NestedTypeSchema => {
     return schema !== undefined && isNestedIdentifier(schema.identifier);
@@ -254,7 +256,13 @@ export type GenericInfo = {
 };
 
 export interface NestedTypeSchema {
+    owner: Identifier;
+    path: string[];
+    derivation: "specialization" | "constraint";
+    dependencies?: TypeIdentifier[];
     identifier: NestedIdentifier;
+    /** Structural declaration used by writers for a profile-owned nested constraint. */
+    origin?: NestedIdentifier;
     base?: TypeIdentifier;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
@@ -271,7 +279,6 @@ export interface ProfileTypeSchema {
     slicing?: Record<string, FieldSlicing>;
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedTypeSchema[];
 }
 
 /** Flattened profile. */
@@ -292,7 +299,6 @@ export interface SnapshotProfileTypeSchema {
     inheritedRequiredFields?: string[];
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedTypeSchema[];
 }
 
 export const isSnapshotProfileTypeSchema = (s: TypeSchemaGuardInput): s is SnapshotProfileTypeSchema => {
@@ -372,8 +378,7 @@ type SpecializationTypeSchemaBody = {
     fields?: { [k: string]: Field };
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
-    nested?: NestedTypeSchema[];
-    dependencies?: Identifier[];
+    dependencies?: TypeIdentifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: TypeFamily;
     generic?: GenericInfo;

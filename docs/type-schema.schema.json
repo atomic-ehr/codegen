@@ -14,6 +14,8 @@
 				{ "$ref": "#/definitions/with-complex-type-kind" },
 				{ "$ref": "#/definitions/with-resource-kind" },
 				{ "$ref": "#/definitions/with-nested-kind" },
+				{ "$ref": "#/definitions/with-profile-kind" },
+				{ "$ref": "#/definitions/with-profile-snapshot-kind" },
 				{ "$ref": "#/definitions/with-logical-kind" },
 				{ "$ref": "#/definitions/with-binding-kind" }
 			],
@@ -77,6 +79,8 @@
 				"kind": { "const": "resource" }
 			}
 		},
+		"with-profile-kind": { "properties": { "kind": { "const": "profile" } } },
+		"with-profile-snapshot-kind": { "properties": { "kind": { "const": "profile-snapshot" } } },
 		"with-nested-kind": {
 			"type": "object",
 			"description": "Constraint helper to ensure the kind is nested",
@@ -249,6 +253,72 @@
 			"items": {
 				"$ref": "#/definitions/type-schema-identifier"
 			}
+		},
+		"nested-type-schema": {
+			"type": "object",
+			"properties": {
+				"identifier": {
+					"allOf": [
+						{
+							"$ref": "#/definitions/type-schema-identifier"
+						},
+						{
+							"$ref": "#/definitions/with-nested-kind"
+						}
+					],
+					"description": "The unique identifier for this nested type"
+				},
+				"base": {
+					"$ref": "#/definitions/type-schema-identifier",
+					"description": "The base type this nested type extends (typically BackboneElement)"
+				},
+				"fields": {
+					"type": "object",
+					"description": "The fields contained in this nested type",
+					"additionalProperties": {
+						"anyOf": [
+							{
+								"$ref": "#/definitions/field.regular"
+							},
+							{
+								"$ref": "#/definitions/field.polymorphic-declaration"
+							},
+							{
+								"$ref": "#/definitions/field.polymorphic-instance"
+							}
+						]
+					}
+				},
+				"owner": {
+					"$ref": "#/definitions/type-schema-identifier"
+				},
+				"path": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"derivation": {
+					"enum": [
+						"specialization",
+						"constraint"
+					]
+				},
+				"origin": {
+					"$ref": "#/definitions/type-schema-identifier"
+				},
+				"dependencies": {
+					"$ref": "#/definitions/dependencies"
+				}
+			},
+			"required": [
+				"identifier",
+				"owner",
+				"path",
+				"derivation",
+				"fields"
+			],
+			"additionalProperties": false
 		}
 	},
 
@@ -317,39 +387,6 @@
 							{ "$ref": "#/definitions/field.polymorphic-declaration" },
 							{ "$ref": "#/definitions/field.polymorphic-instance" }
 						]
-					}
-				},
-				"nested": {
-					"type": "array",
-					"description": "BackboneElement types nested within this resource or type",
-					"items": {
-						"type": "object",
-						"properties": {
-							"identifier": {
-								"allOf": [
-									{ "$ref": "#/definitions/type-schema-identifier" },
-									{ "$ref": "#/definitions/with-nested-kind" }
-								],
-								"description": "The unique identifier for this nested type"
-							},
-							"base": {
-								"$ref": "#/definitions/type-schema-identifier",
-								"description": "The base type this nested type extends (typically BackboneElement)"
-							},
-							"fields": {
-								"type": "object",
-								"description": "The fields contained in this nested type",
-								"additionalProperties": {
-									"anyOf": [
-										{ "$ref": "#/definitions/field.regular" },
-										{ "$ref": "#/definitions/field.polymorphic-declaration" },
-										{ "$ref": "#/definitions/field.polymorphic-instance" }
-									]
-								}
-							}
-						},
-						"required": ["identifier", "base"],
-						"additionalProperties": false
 					}
 				},
 				"dependencies": {
@@ -457,6 +494,7 @@
 			},
 			"required": ["identifier"],
 			"additionalProperties": false
-		}
+		},
+		{ "$ref": "#/definitions/nested-type-schema" }
 	]
 }
