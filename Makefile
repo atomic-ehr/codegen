@@ -128,12 +128,19 @@ python-r4-us-core-test-setup:
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt; \
 	fi
+	@if [ ! -x "$(PYTHON_R4_US_CORE_EXAMPLE)/venv/bin/ruff" ]; then \
+		$(PYTHON_R4_US_CORE_EXAMPLE)/venv/bin/pip install -r $(PYTHON_R4_US_CORE_EXAMPLE)/requirements-test.txt; \
+	fi
 
-# Offline: mypy + profile/bundle/extension/serialization tests (no Aidbox required).
+# Offline: mypy + ruff on generated code and Python assets + profile/bundle/extension/serialization tests (no Aidbox required).
 test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-r4-us-core-test-setup
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
 	     mypy .
+
+	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     ruff check --isolated --select F401,F811,F841,I fhir_types ../../assets/api/writer-generator/python
 
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
