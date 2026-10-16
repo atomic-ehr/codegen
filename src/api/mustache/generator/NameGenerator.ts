@@ -80,7 +80,8 @@ export class NameGenerator {
     }
 
     public generateFieldType(schema: Field): string {
-        if ((schema as any).enum) {
+        // Only closed bindings get an enum class; an open binding keeps the field's own type.
+        if ("enum" in schema && schema.enum && !schema.enum.isOpen) {
             return this.generateEnumType((schema as any).binding?.name ?? (schema as any).type.name);
         }
         return this._generateTypeFromTypeRef((schema as any).type);
