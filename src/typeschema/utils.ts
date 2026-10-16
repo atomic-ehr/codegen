@@ -551,6 +551,9 @@ export const mkTypeSchemaIndex = (
                     const nurl = nschema.identifier.url;
                     const npkg = nschema.identifier.package;
                     nestedIndex[nurl] ??= {};
+                    // A constraint profile's nested type reuses its specialization's
+                    // identifier; the specialization's nested type wins whenever it is indexed.
+                    if (isProfileTypeSchema(schema) && nestedIndex[nurl][npkg]) return;
                     nestedIndex[nurl][npkg] = nschema;
                 });
             }

@@ -45,6 +45,17 @@ describe("TypeScript: profile nested types next to core nested types", async () 
         expect(slicedFile).toBeDefined();
     });
 
+    it("keeps both type parameters of core Bundle", () => {
+        expect(bundleFile).toContain(
+            "export interface Bundle<T1 extends Resource = Resource, T2 extends Resource = Resource> extends Resource {",
+        );
+    });
+
+    it("validates slices against the sliced profile's own value[x] types", () => {
+        expect(slicedFile).toContain('"codedFinding", [], [["valueCodeableConcept"]])');
+        expect(slicedFile).toContain('"measuredFinding", [], [["valueQuantity","valueString"]])');
+    });
+
     it("core Bundle matches snapshot", () => {
         expect(bundleFile).toMatchSnapshot();
     });
@@ -59,11 +70,21 @@ describe("Python: profile nested types next to core nested types", async () => {
     const files = result.filesGenerated.python ?? {};
     const bundleFile = files["generated/hl7_fhir_r4_core/bundle.py"];
     const slicedFile = files["generated/example_test_slicedchoice/profiles/observation_sliced_choice_observation.py"];
+    const dedented = (slicedFile ?? "").replace(/^[ \t]+/gm, "");
 
     it("should succeed", () => {
         expect(result.success).toBeTrue();
         expect(bundleFile).toBeDefined();
         expect(slicedFile).toBeDefined();
+    });
+
+    it("keeps both type parameters of core Bundle", () => {
+        expect(bundleFile).toContain("class Bundle(Resource, Generic[T1, T2]):");
+    });
+
+    it("validates slices against the sliced profile's own value[x] types", () => {
+        expect(dedented).toContain('"codedFinding", [], [\n["valueCodeableConcept"]');
+        expect(dedented).toContain('"measuredFinding", [], [\n["valueQuantity","valueString"]');
     });
 
     it("core Bundle matches snapshot", () => {
