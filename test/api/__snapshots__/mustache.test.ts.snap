@@ -1416,3 +1416,46 @@ public  class PatientDTO extends DomainResourceDTO{
 
 }"
 `;
+
+exports[`Mustache Template Based Generation unused and duplicate imports 1`] = `
+{
+  "duplicate": {
+    "de.solutio.fhir.models.complex_types.ElementDTO": 32,
+    "de.solutio.fhir.models.complex_types.ReferenceDTO": 127,
+    "jakarta.annotation.Generated": 189,
+  },
+  "unused": {
+    "com.fasterxml.jackson.annotation.JsonCreator": 54,
+    "com.fasterxml.jackson.annotation.JsonFormat": 77,
+    "com.fasterxml.jackson.annotation.JsonProperty": 4,
+    "com.fasterxml.jackson.annotation.JsonSubTypes": 187,
+    "com.fasterxml.jackson.annotation.JsonTypeInfo": 188,
+    "com.fasterxml.jackson.annotation.JsonTypeName": 41,
+    "com.fasterxml.jackson.annotation.JsonValue": 54,
+    "de.solutio.fhir.models.Primitive": 15,
+    "de.solutio.fhir.models.ResourceName": 40,
+    "de.solutio.fhir.models.complex_types.ElementDTO": 11,
+    "jakarta.annotation.Nullable": 4,
+    "jakarta.validation.Valid": 12,
+    "jakarta.validation.constraints.Max": 189,
+    "jakarta.validation.constraints.Min": 189,
+    "jakarta.validation.constraints.NotNull": 44,
+    "jakarta.validation.constraints.Size": 117,
+    "java.math.BigDecimal": 158,
+    "java.net.URI": 114,
+    "java.time.LocalDateTime": 77,
+    "java.time.LocalTime": 176,
+    "java.time.OffsetDateTime": 77,
+    "java.time.ZoneId": 77,
+    "java.util.ArrayList": 27,
+    "java.util.Arrays": 189,
+    "java.util.Collections": 54,
+    "java.util.HashMap": 54,
+    "java.util.List": 27,
+    "java.util.Map": 54,
+    "java.util.Optional": 4,
+    "java.util.UUID": 182,
+    "java.util.stream.IntStream": 124,
+  },
+}
+`;

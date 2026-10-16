@@ -2,6 +2,27 @@ import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
+/** For each import, the number of generated classes that never use it, and that import it more than once.
+ *  An import counts as used when its simple name occurs as a word outside the import lines. */
+const importDefects = (files: Record<string, string>) => {
+    const unused: Record<string, number> = {};
+    const duplicate: Record<string, number> = {};
+    for (const content of Object.values(files)) {
+        const lines = content.split("\n");
+        const imports = lines.flatMap((line) => line.match(/^\s*import (?:static )?([\w.]+);/)?.[1] ?? []);
+        const code = lines.filter((line) => !/^\s*import /.test(line)).join("\n");
+        for (const name of new Set(imports.filter((name, i) => imports.indexOf(name) !== i)))
+            duplicate[name] = (duplicate[name] ?? 0) + 1;
+        for (const name of new Set(imports)) {
+            const simpleName = name.split(".").pop();
+            if (!new RegExp(`\\b${simpleName}\\b`).test(code)) unused[name] = (unused[name] ?? 0) + 1;
+        }
+    }
+    const sorted = (counts: Record<string, number>) =>
+        Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+    return { unused: sorted(unused), duplicate: sorted(duplicate) };
+};
+
 describe("Mustache Template Based Generation", async () => {
     const report = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .mustache("./examples/mustache/java", {
@@ -25,5 +46,9 @@ describe("Mustache Template Based Generation", async () => {
         expect(
             files["generated/model/src/main/java/de/solutio/fhir/models/resources/PatientDTO.java"],
         ).toMatchSnapshot();
+    });
+
+    it("unused and duplicate imports", () => {
+        expect(importDefects(files)).toMatchSnapshot();
     });
 });
