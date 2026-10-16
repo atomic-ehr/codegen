@@ -23,6 +23,7 @@ This guide explains how to build a custom code generator using Mustache template
       - [Template Syntax](#template-syntax)
       - [Case Conversion Lambdas](#case-conversion-lambdas)
       - [Name Safety Lambdas](#name-safety-lambdas)
+      - [Unique Lines Lambda](#unique-lines-lambda)
       - [Special Variables](#special-variables)
     - [Static Files](#static-files)
   - [Debugging & Testing](#debugging--testing)
@@ -368,6 +369,7 @@ Represents a FHIR resource or complex type:
   schema: TypeSchema;                    // Original FHIR definition
 
   fields: FieldViewModel[];              // Properties/fields
+  fieldsIncludingNested: FieldViewModel[]; // `fields`, then the fields of every nested type
   dependencies: {
     resources: NamedViewModel[];         // Referenced resources
     complexTypes: NamedViewModel[];      // Referenced types
@@ -520,6 +522,21 @@ Apply name transformations and keyword escaping:
 
 {{#lambda.saveEnumValueName}}{{value.name}}{{/lambda.saveEnumValueName}}
 {{! Creates safe enum value identifiers }}
+```
+
+#### Unique Lines Lambda
+
+`uniqueLines` trims each rendered line and keeps the first occurrence of every non-blank one. Use it to emit an import from every place that needs it and still get it once:
+
+```mustache
+{{#lambda.uniqueLines}}
+{{#model.fieldsIncludingNested}}
+{{#isPrimitive.isDecimal}}
+import java.math.BigDecimal;
+{{/isPrimitive.isDecimal}}
+{{/model.fieldsIncludingNested}}
+{{/lambda.uniqueLines}}
+{{! One import, however many decimal fields the type and its nested types have }}
 ```
 
 #### Special Variables

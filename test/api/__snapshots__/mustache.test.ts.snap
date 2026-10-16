@@ -7,59 +7,42 @@ import static java.util.Objects.requireNonNull;
 
 import jakarta.annotation.Generated;
 import jakarta.annotation.Nullable;
-import jakarta.annotation.Generated;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import de.solutio.fhir.models.Primitive;
 import de.solutio.fhir.models.ResourceName;
+import de.solutio.fhir.models.complex_types.ReferenceDTO;
 import de.solutio.fhir.models.Utils;
-
-    import de.solutio.fhir.models.complex_types.ReferenceDTO;
+import de.solutio.fhir.models.Primitive;
 import de.solutio.fhir.models.complex_types.ElementDTO;
+import de.solutio.fhir.models.complex_types.AddressDTO;
+import de.solutio.fhir.models.complex_types.AttachmentDTO;
+import de.solutio.fhir.models.complex_types.BackboneElementDTO;
+import de.solutio.fhir.models.complex_types.CodeableConceptDTO;
+import de.solutio.fhir.models.complex_types.ContactPointDTO;
+import de.solutio.fhir.models.complex_types.HumanNameDTO;
+import de.solutio.fhir.models.complex_types.IdentifierDTO;
+import de.solutio.fhir.models.complex_types.PeriodDTO;
+import de.solutio.fhir.models.resources.DomainResourceDTO;
 
-        import de.solutio.fhir.models.complex_types.AddressDTO;
-        import de.solutio.fhir.models.complex_types.AttachmentDTO;
-        import de.solutio.fhir.models.complex_types.BackboneElementDTO;
-        import de.solutio.fhir.models.complex_types.CodeableConceptDTO;
-        import de.solutio.fhir.models.complex_types.ContactPointDTO;
-        import de.solutio.fhir.models.complex_types.HumanNameDTO;
-        import de.solutio.fhir.models.complex_types.IdentifierDTO;
-        import de.solutio.fhir.models.complex_types.PeriodDTO;
-        import de.solutio.fhir.models.complex_types.ReferenceDTO;
-
-        import de.solutio.fhir.models.resources.DomainResourceDTO;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.net.URI;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.UUID;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.stream.IntStream;
 
 @Generated(value="@atomic-ehr/codegen mustache generator", date="2025-12-24T00:00:00.000Z")
 @JsonTypeName("Patient")
@@ -1419,43 +1402,7 @@ public  class PatientDTO extends DomainResourceDTO{
 
 exports[`Mustache Template Based Generation unused and duplicate imports 1`] = `
 {
-  "duplicate": {
-    "de.solutio.fhir.models.complex_types.ElementDTO": 32,
-    "de.solutio.fhir.models.complex_types.ReferenceDTO": 127,
-    "jakarta.annotation.Generated": 189,
-  },
-  "unused": {
-    "com.fasterxml.jackson.annotation.JsonCreator": 54,
-    "com.fasterxml.jackson.annotation.JsonFormat": 77,
-    "com.fasterxml.jackson.annotation.JsonProperty": 4,
-    "com.fasterxml.jackson.annotation.JsonSubTypes": 187,
-    "com.fasterxml.jackson.annotation.JsonTypeInfo": 188,
-    "com.fasterxml.jackson.annotation.JsonTypeName": 41,
-    "com.fasterxml.jackson.annotation.JsonValue": 54,
-    "de.solutio.fhir.models.Primitive": 15,
-    "de.solutio.fhir.models.ResourceName": 40,
-    "de.solutio.fhir.models.complex_types.ElementDTO": 12,
-    "jakarta.annotation.Nullable": 4,
-    "jakarta.validation.Valid": 12,
-    "jakarta.validation.constraints.Max": 189,
-    "jakarta.validation.constraints.Min": 189,
-    "jakarta.validation.constraints.NotNull": 44,
-    "jakarta.validation.constraints.Size": 117,
-    "java.math.BigDecimal": 158,
-    "java.net.URI": 114,
-    "java.time.LocalDateTime": 77,
-    "java.time.LocalTime": 176,
-    "java.time.OffsetDateTime": 77,
-    "java.time.ZoneId": 77,
-    "java.util.ArrayList": 27,
-    "java.util.Arrays": 189,
-    "java.util.Collections": 54,
-    "java.util.HashMap": 54,
-    "java.util.List": 27,
-    "java.util.Map": 54,
-    "java.util.Optional": 4,
-    "java.util.UUID": 182,
-    "java.util.stream.IntStream": 124,
-  },
+  "duplicate": {},
+  "unused": {},
 }
 `;

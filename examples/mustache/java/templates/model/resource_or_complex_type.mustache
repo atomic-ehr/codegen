@@ -1,62 +1,201 @@
 package {{{properties.package}}};
+{{! Each import is emitted under the same condition as the code that uses it; uniqueLines drops the repeats. }}
+{{#model}}
 
+{{#lambda.uniqueLines}}
+{{#properties.features.builder}}
 import static java.util.Objects.requireNonNull;
+{{/properties.features.builder}}
+{{#isResource.isDomainResource}}
+import static java.util.Objects.requireNonNull;
+{{/isResource.isDomainResource}}
+{{#isComplexType.isElement}}
+import static java.util.Objects.requireNonNull;
+{{/isComplexType.isElement}}
+{{#isComplexType.isCodeableConcept}}
+import static java.util.Objects.requireNonNull;
+{{/isComplexType.isCodeableConcept}}
+{{#fieldsIncludingNested}}
+{{#isEnum}}
+import static java.util.Objects.requireNonNull;
+{{/isEnum}}
+{{/fieldsIncludingNested}}
+{{/lambda.uniqueLines}}
 
+{{#lambda.uniqueLines}}
 import jakarta.annotation.Generated;
+{{#fieldsIncludingNested}}
+{{^isRequired}}
 import jakarta.annotation.Nullable;
-import jakarta.annotation.Generated;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
+{{/isRequired}}
+{{#isPrimitive}}
+import jakarta.annotation.Nullable;
+{{/isPrimitive}}
+{{#properties.features.builder}}
+import jakarta.annotation.Nullable;
+{{/properties.features.builder}}
+{{#isRequired}}
 import jakarta.validation.constraints.NotNull;
+{{/isRequired}}
+{{^isArray}}
+{{#min}}
+import jakarta.validation.constraints.Min;
+{{/min}}
+{{#max}}
+import jakarta.validation.constraints.Max;
+{{/max}}
+{{/isArray}}
+{{#isArray}}
+{{#isSizeConstrained}}
 import jakarta.validation.constraints.Size;
+{{/isSizeConstrained}}
+{{/isArray}}
+{{#isResource}}
 import jakarta.validation.Valid;
+{{/isResource}}
+{{#isComplexType}}
+import jakarta.validation.Valid;
+{{/isComplexType}}
+{{/fieldsIncludingNested}}
+{{/lambda.uniqueLines}}
 
-{{#properties.additional_imports}}
-import {{{.}}};
-{{/properties.additional_imports}}
-
-{{#model.isResource}}
-    import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}};
-{{/model.isResource}}
+{{#lambda.uniqueLines}}
+{{#isResource}}
+import {{{properties.utilityPackage}}}.ResourceName;
+import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}};
+{{/isResource}}
+{{#isComplexType.isReference}}
+import {{{properties.utilityPackage}}}.ResourceName;
+{{/isComplexType.isReference}}
+{{#properties.features.to_string}}
+import {{{properties.utilityPackage}}}.Utils;
+{{/properties.features.to_string}}
+{{#fieldsIncludingNested}}
+{{#properties.features.hash_code_equals}}
+import {{{properties.utilityPackage}}}.Utils;
+{{/properties.features.hash_code_equals}}
+{{#isPrimitive}}
+{{#properties.features.builder}}
+import {{{properties.utilityPackage}}}.Primitive;
+{{/properties.features.builder}}
+{{/isPrimitive}}
+{{/fieldsIncludingNested}}
+{{^isComplexType.isElement}}
+{{#fieldsIncludingNested}}
+{{#isPrimitive}}
 import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}};
+{{/isPrimitive}}
+{{/fieldsIncludingNested}}
+{{/isComplexType.isElement}}
+{{#dependencies}}
+{{#complexTypes}}
+import {{{properties.complexTypePackage}}}.{{{saveName}}};
+{{/complexTypes}}
+{{#resources}}
+import {{{properties.resourcePackage}}}.{{{saveName}}};
+{{/resources}}
+{{/dependencies}}
+{{/lambda.uniqueLines}}
 
-{{#model.dependencies}}
-    {{#complexTypes}}
-        import {{{properties.complexTypePackage}}}.{{{saveName}}};
-    {{/complexTypes}}
-
-    {{#resources}}
-        import {{{properties.resourcePackage}}}.{{{saveName}}};
-    {{/resources}}
-{{/model.dependencies}}
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+{{#lambda.uniqueLines}}
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+{{#isResource}}
+import com.fasterxml.jackson.annotation.JsonTypeName;
+{{#children.0}}
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+{{/children.0}}
+{{/isResource}}
+{{#isResource.isResource}}
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+{{/isResource.isResource}}
+{{#fieldsIncludingNested}}
+import com.fasterxml.jackson.annotation.JsonProperty;
+{{#isPrimitive.isDateTime}}
+import com.fasterxml.jackson.annotation.JsonFormat;
+{{/isPrimitive.isDateTime}}
+{{#isPrimitive.isInstant}}
+import com.fasterxml.jackson.annotation.JsonFormat;
+{{/isPrimitive.isInstant}}
+{{#isEnum}}
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+{{/isEnum}}
+{{/fieldsIncludingNested}}
+{{/lambda.uniqueLines}}
 
-import java.net.URI;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.UUID;
-import java.util.Collections;
+{{#lambda.uniqueLines}}
+{{#properties.features.hash_code_equals}}
 import java.util.Objects;
+{{/properties.features.hash_code_equals}}
+{{#isResource.isDomainResource}}
+import java.net.URI;
+import java.util.List;
 import java.util.Optional;
+{{/isResource.isDomainResource}}
+{{#isComplexType.isElement}}
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+{{/isComplexType.isElement}}
+{{#isComplexType.isCodeableConcept}}
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+{{/isComplexType.isCodeableConcept}}
+{{#isComplexType.isReference}}
+import java.util.Optional;
+import java.util.UUID;
+{{/isComplexType.isReference}}
+{{#fieldsIncludingNested}}
+{{^isRequired}}
+import java.util.Optional;
+{{/isRequired}}
+{{#isArray}}
+import java.util.List;
+{{#properties.features.builder}}
+import java.util.ArrayList;
+{{#isPrimitive}}
+import java.util.stream.IntStream;
+{{/isPrimitive}}
+{{/properties.features.builder}}
+{{/isArray}}
+{{#isPrimitive}}
+import java.util.Optional;
+{{#isDateTime}}
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+{{/isDateTime}}
+{{#isInstant}}
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+{{/isInstant}}
+{{#isTime}}
+import java.time.LocalTime;
+{{/isTime}}
+{{#isDecimal}}
+import java.math.BigDecimal;
+{{/isDecimal}}
+{{#isUri}}
+import java.net.URI;
+{{/isUri}}
+{{#isUrl}}
+import java.net.URI;
+{{/isUrl}}
+{{#isUuid}}
+import java.util.UUID;
+{{/isUuid}}
+{{/isPrimitive}}
+{{#isEnum}}
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.stream.IntStream;
+{{/isEnum}}
+{{/fieldsIncludingNested}}
+{{/lambda.uniqueLines}}
+{{/model}}
 
 @Generated(value="{{{meta.generator}}}", date="{{{meta.timestamp}}}")
 {{#model}}

@@ -187,7 +187,7 @@ export class ViewModelFactory {
             name: schema.identifier.name,
             saveName: this.nameGenerator.generateType(schema),
         };
-        return {
+        const typeViewModel = {
             nestedComplexTypes,
             nestedEnums,
             dependencies,
@@ -230,6 +230,10 @@ export class ViewModelFactory {
                         isReference: field.type?.name === "Reference",
                     };
                 }),
+        };
+        return {
+            ...typeViewModel,
+            fieldsIncludingNested: [...typeViewModel.fields, ...nestedComplexTypes.flatMap((nested) => nested.fields)],
         };
     }
 

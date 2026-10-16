@@ -62,6 +62,8 @@ export type LambdaMixin = {
         kebabCase: () => (text: string, render: (input: string) => string) => string;
         lowerCase: () => (text: string, render: (input: string) => string) => string;
         upperCase: () => (text: string, render: (input: string) => string) => string;
+
+        uniqueLines: () => (text: string, render: (input: string) => string) => string;
     };
 };
 
@@ -133,6 +135,8 @@ export type RootViewModel<T> = T & {
 export type TypeViewModel = NamedViewModel & {
     schema: TypeSchema | NestedTypeSchema;
     fields: FieldViewModel[];
+    /** `fields` followed by the fields of every nested type, i.e. every field rendered into the type's file. */
+    fieldsIncludingNested: FieldViewModel[];
 
     dependencies: {
         resources: NamedViewModel[];
