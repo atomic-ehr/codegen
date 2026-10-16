@@ -15,25 +15,8 @@ import {
     resolveProfileMethodBaseNames,
 } from "./profile-naming";
 import { collectSliceDefs, generateSliceMethods, generateStaticSliceFields, type SliceDef } from "./profile-slices";
-import { collectValidateBody } from "./profile-validation";
+import { generateValidateMethod } from "./profile-validation";
 import type { Python } from "./writer";
-
-// ---------------------------------------------------------------------------
-// Class method generators
-// ---------------------------------------------------------------------------
-
-const generateValidateMethod = (w: Python, className: string, errorLines: string[], warningLines: string[]): void => {
-    w.line("def validate(self) -> dict[str, list[str]]:");
-    w.indentBlock(() => {
-        // Every check passes `profile_name`; without checks it would be unused.
-        if (errorLines.length > 0 || warningLines.length > 0) w.line(`profile_name = "${className}"`);
-        w.line("errors: list[str] = []");
-        w.line("warnings: list[str] = []");
-        for (const expr of errorLines) w.line(expr);
-        for (const expr of warningLines) w.line(expr);
-        w.line('return {"errors": errors, "warnings": warnings}');
-    });
-};
 
 // ---------------------------------------------------------------------------
 // Profile class
@@ -72,9 +55,7 @@ const generateProfileClass = (
         generateFieldAccessors(w, imports, snapshot, factoryInfo, methodNames);
         generateExtensionMethods(w, imports, tsIndex, snapshot, methodNames);
         generateSliceMethods(w, imports, snapshot, sliceDefs, methodNames);
-
-        const { errorLines, warningLines } = collectValidateBody(imports, tsIndex, snapshot, w.nameFormatFunction);
-        generateValidateMethod(w, className, errorLines, warningLines);
+        generateValidateMethod(w, imports, tsIndex, snapshot);
     });
     w.line();
 };
