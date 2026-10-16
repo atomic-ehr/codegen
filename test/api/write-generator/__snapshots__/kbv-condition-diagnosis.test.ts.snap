@@ -3872,7 +3872,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -3881,7 +3881,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
     }
 
     setSubject (value: Reference<"Group" | "Patient">) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -3891,7 +3891,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setOnsetPeriod (value: Period) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetPeriod: value });
+        this.resource.onsetPeriod = value;
         return this;
     }
 
@@ -3901,7 +3901,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setOnsetRange (value: Range) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetRange: value });
+        this.resource.onsetRange = value;
         return this;
     }
 
@@ -3911,7 +3911,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -3921,7 +3921,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -3931,7 +3931,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setAbatementPeriod (value: Period) : this {
         this.clearAbatement();
-        Object.assign(this.resource, { abatementPeriod: value });
+        this.resource.abatementPeriod = value;
         return this;
     }
 
@@ -3941,7 +3941,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setAbatementRange (value: Range) : this {
         this.clearAbatement();
-        Object.assign(this.resource, { abatementRange: value });
+        this.resource.abatementRange = value;
         return this;
     }
 
@@ -3951,7 +3951,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setAbatementDateTime (value: string) : this {
         this.clearAbatement();
-        Object.assign(this.resource, { abatementDateTime: value });
+        this.resource.abatementDateTime = value;
         return this;
     }
 
@@ -3961,7 +3961,7 @@ export class KBV_PR_Base_Condition_DiagnosisProfile {
 
     setAbatementAge (value: Age) : this {
         this.clearAbatement();
-        Object.assign(this.resource, { abatementAge: value });
+        this.resource.abatementAge = value;
         return this;
     }
 

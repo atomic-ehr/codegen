@@ -103,7 +103,7 @@ export class RequiredValueObservationProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -112,7 +112,7 @@ export class RequiredValueObservationProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -122,7 +122,7 @@ export class RequiredValueObservationProfile {
 
     setValueQuantity (value: Quantity) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueQuantity: value });
+        this.resource.valueQuantity = value;
         return this;
     }
 
@@ -132,7 +132,7 @@ export class RequiredValueObservationProfile {
 
     setValueReference (value: Reference<"MolecularSequence">) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueReference: value });
+        this.resource.valueReference = value;
         return this;
     }
 

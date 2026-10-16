@@ -124,7 +124,7 @@ export class ExampleTypedBundleProfile {
     }
 
     setType (value: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection")) : this {
-        Object.assign(this.resource, { type: value });
+        this.resource.type = value;
         return this;
     }
 

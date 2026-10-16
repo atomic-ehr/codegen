@@ -75,7 +75,7 @@ export class ReferenceTargetTaskProfile {
     }
 
     setStatus (value: ("draft" | "requested" | "received" | "accepted" | "rejected" | "ready" | "cancelled" | "in-progress" | "on-hold" | "failed" | "completed" | "entered-in-error")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -84,7 +84,7 @@ export class ReferenceTargetTaskProfile {
     }
 
     setIntent (value: ("unknown" | "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option")) : this {
-        Object.assign(this.resource, { intent: value });
+        this.resource.intent = value;
         return this;
     }
 

@@ -93,7 +93,7 @@ export class SystemOnlyCodingObservationProfile {
     }
 
     setBodySite (value: CodeableConcept) : this {
-        Object.assign(this.resource, { bodySite: value });
+        this.resource.bodySite = value;
         return this;
     }
 
@@ -102,7 +102,7 @@ export class SystemOnlyCodingObservationProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -111,7 +111,7 @@ export class SystemOnlyCodingObservationProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -240,7 +240,7 @@ export class CollidingSliceObservationProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -249,7 +249,7 @@ export class CollidingSliceObservationProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -258,7 +258,7 @@ export class CollidingSliceObservationProfile {
     }
 
     setComponent (value: ObservationComponent[]) : this {
-        Object.assign(this.resource, { component: value });
+        this.resource.component = value;
         return this;
     }
 
@@ -409,7 +409,7 @@ export class InheritedCollisionObservationProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -418,7 +418,7 @@ export class InheritedCollisionObservationProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -427,7 +427,7 @@ export class InheritedCollisionObservationProfile {
     }
 
     setComponent (value: ObservationComponent[]) : this {
-        Object.assign(this.resource, { component: value });
+        this.resource.component = value;
         return this;
     }
 

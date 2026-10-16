@@ -650,7 +650,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
         });
         w.line();
         w.curlyBlock([`set${methodBaseName}`, `(value: ${p.tsType})`, ": this"], () => {
-            w.lineSM(`Object.assign(this.resource, { ${p.name}: value })`);
+            w.lineSM(`this.resource.${p.name} = value`);
             w.lineSM("return this");
         });
         w.line();
@@ -666,7 +666,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
         if (!factoryInfo.fixedFields.has(a.name)) {
             w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
                 if (a.choiceClearMethod) w.lineSM(`this.${a.choiceClearMethod}()`);
-                w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
+                w.lineSM(`${tsGet("this.resource", fieldAccess)} = value`);
                 w.lineSM("return this");
             });
             w.line();

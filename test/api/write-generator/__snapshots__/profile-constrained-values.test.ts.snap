@@ -90,7 +90,7 @@ export class ConstrainedValuesServiceRequestProfile {
     }
 
     setStatus (value: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -99,7 +99,7 @@ export class ConstrainedValuesServiceRequestProfile {
     }
 
     setSubject (value: Reference<"Device" | "Group" | "Location" | "Patient">) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 

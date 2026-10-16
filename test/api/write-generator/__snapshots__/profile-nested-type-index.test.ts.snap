@@ -172,7 +172,7 @@ export class SlicedChoiceObservationProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -181,7 +181,7 @@ export class SlicedChoiceObservationProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
