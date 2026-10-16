@@ -1,0 +1,19 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "patient-bundle",
+  "url": "http://example.test/StructureDefinition/patient-bundle",
+  "version": "0.0.1",
+  "name": "PatientBundle",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Bundle",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Bundle",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Bundle.entry.resource", "path": "Bundle.entry.resource", "type": [{ "code": "Patient" }] }
+    ]
+  }
+}

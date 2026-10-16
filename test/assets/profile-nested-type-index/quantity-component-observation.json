@@ -1,0 +1,19 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "quantity-component-observation",
+  "url": "http://example.test/StructureDefinition/quantity-component-observation",
+  "version": "0.0.1",
+  "name": "QuantityComponentObservation",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Observation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Observation",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "id": "Observation.component.value[x]", "path": "Observation.component.value[x]", "type": [{ "code": "Quantity" }] }
+    ]
+  }
+}
