@@ -48,7 +48,7 @@ describe("TypeSchema R5 generation", async () => {
                         package: "hl7.fhir.r5.core",
                         version: "5.0.0",
                         name: "concept",
-                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
+                        url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
                     },
                     base: {
                         kind: "complex-type",
