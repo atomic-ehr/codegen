@@ -1,4 +1,4 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
+import type { FhirTypeImports } from "@root/api/writer-generator/section-writer";
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
@@ -8,8 +8,6 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import { tsResourceName } from "./name";
-
-export type FhirTypeImports = SectionHandle<never, TypeIdentifier>;
 
 const primitiveType2tsType: Record<string, string> = {
     boolean: "boolean",

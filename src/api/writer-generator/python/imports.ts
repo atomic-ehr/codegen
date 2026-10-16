@@ -1,4 +1,4 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
+import type { FhirTypeImports, SectionHandle } from "@root/api/writer-generator/section-writer";
 import { snakeCase } from "@root/api/writer-generator/utils";
 import type { Writer } from "@root/api/writer-generator/writer";
 import {
@@ -26,7 +26,6 @@ export type ImportRenderer = (module: string, ...entities: string[]) => void;
 
 export type LibraryImports = SectionHandle<never, string>;
 
-export type FhirTypeImports = SectionHandle<never, TypeIdentifier>;
 export type ProfileImports = {
     types: FhirTypeImports;
     typing: LibraryImports;
