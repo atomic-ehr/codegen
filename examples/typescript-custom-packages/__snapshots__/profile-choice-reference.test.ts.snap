@@ -125,11 +125,11 @@ export class RequiredValueObservationProfile {
         return this;
     }
 
-    getValueReference () : Reference | undefined {
-        return this.resource.valueReference as Reference | undefined;
+    getValueReference () : Reference<"MolecularSequence"> | undefined {
+        return this.resource.valueReference as Reference<"MolecularSequence"> | undefined;
     }
 
-    setValueReference (value: Reference) : this {
+    setValueReference (value: Reference<"MolecularSequence">) : this {
         this.clearValue();
         Object.assign(this.resource, { valueReference: value });
         return this;
