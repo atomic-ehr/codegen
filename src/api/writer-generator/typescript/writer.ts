@@ -43,7 +43,7 @@ import {
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
-import { generateProfileClass, generateProfileImports, generateProfileIndexFile } from "./profile";
+import { generateProfileIndex, generateProfileModule } from "./profile";
 import { resolveFieldTsType } from "./utils";
 
 export const resolveTsAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "typescript", fn);
@@ -460,9 +460,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         if (isSnapshotProfileTypeSchema(schema)) {
             this.cd("profiles", () => {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
-                    this.generateDisclaimer();
-                    const imports = generateProfileImports(this, tsIndex, schema);
-                    generateProfileClass(this, imports, tsIndex, schema);
+                    generateProfileModule(this, tsIndex, schema);
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
@@ -834,7 +832,12 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
-                    generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isSnapshotProfileTypeSchema));
+                    const profiles = packageSchemas.filter(isSnapshotProfileTypeSchema);
+                    if (profiles.length > 0) {
+                        this.cd("profiles", () => {
+                            this.cat("index.ts", () => generateProfileIndex(this, tsIndex, profiles));
+                        });
+                    }
                     if (terminology) this.generateTerminologyModule(packageDir);
                     this.generateFhirPackageIndexFile(packageSchemas, terminology !== undefined);
                 });
