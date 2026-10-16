@@ -28,6 +28,16 @@ describe("demo: an observation whose value is a molecular sequence", () => {
     });
 });
 
+test("validate() rejects a valueReference outside the base's targets", () => {
+    const fromWire: Observation = JSON.parse(
+        '{"resourceType":"Observation","status":"final","code":{"text":"Sequenced variant"},"valueReference":{"reference":"Patient/pt-1"}}',
+    );
+
+    expect(RequiredValueObservationProfile.apply(fromWire).validate().errors).toEqual([
+        "RequiredValueObservation: field 'valueReference' references 'Patient' but only MolecularSequence are allowed",
+    ]);
+});
+
 // Type-level assertions: never executed, checked by the example's `tsc --project` run —
 // a `@ts-expect-error` directive that stops erroring fails the build.
 export const _choiceReferenceTypes = (observation: Observation) => {

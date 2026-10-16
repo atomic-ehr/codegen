@@ -33,6 +33,7 @@ import {
     ensureProfile,
     validateChoiceProhibited,
     validateChoiceRequired,
+    validateReference,
     validateRequired,
 } from "../../profile-helpers";
 
@@ -149,6 +150,7 @@ export class RequiredValueObservationProfile {
             errors: [
                 ...validateChoiceRequired(res, profileName, ["valueQuantity","valueReference"]),
                 ...validateChoiceProhibited(res, profileName, ["valueCodeableConcept","valueString","valueBoolean","valueInteger","valueRange","valueRatio","valueSampledData","valueTime","valueDateTime","valuePeriod","valueAttachment"]),
+                ...validateReference(res, profileName, "valueReference", ["MolecularSequence"]),
                 ...validateRequired(res, profileName, "status"),
                 ...validateRequired(res, profileName, "code"),
             ],
