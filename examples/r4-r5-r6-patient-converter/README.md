@@ -18,17 +18,15 @@ make test-r4-r5-r6-patient-converter-example
 
 The identical type names (`Patient`, `HumanName`, `Coding`, …) do not collide, because the writer already emits one directory per package.
 
-## Current state: only R4 comes out
+## Current state: three releases, but one release's codes
 
-The generated tree is gitignored, so `generated-output.test.ts` snapshots what was emitted — and today that is R4 alone. Generation reports success while the R5 and R6 roots quietly resolve to nothing:
+The generated tree is gitignored, so `generated-output.test.ts` snapshots what was emitted and the `maritalStatus` binding per release. All three releases are emitted now, and all three carry R4's codes:
 
-```
-! ts: Type '…/StructureDefinition/Patient' not found in 'hl7.fhir.r4.core#4.0.1'
-! ts: Type '…/StructureDefinition/Patient' fallback to package hl7.fhir.r4.core
-! ts: Type '…/StructureDefinition/Patient' not found in 'hl7.fhir.r5.core#5.0.0'
-! ts: Type '…/StructureDefinition/Patient' not found in 'hl7.fhir.r6.core#6.0.0-ballot2'
+```ts
+// all of R4, R5 and R6
+maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;
 ```
 
-All three releases provide that canonical, so each tree-shake key has to say which release roots it — and the documented `name#version` form never matches the schema index, which is keyed by bare package name. The key misses, the resolver falls back to whichever package sorts first, and R4 answers for everyone.
+R5 retired `P` (polygamous) and added `C` (common law), so only the first line is right. R4 core bundles the HL7 terminology CodeSystems; R5 and R6 moved them out to `hl7.terminology`, and with every release loaded at once the binding resolves its CodeSystem globally — R4 is loaded too, ships its own older copy, and answers for everyone.
 
-The snapshots in this directory are the measure of the fixes that follow: each one should show another release, or another release's own codes, appearing in the output.
+The snapshots in this directory are the measure of the fixes that follow: each one should show another release's own codes appearing in the output.
