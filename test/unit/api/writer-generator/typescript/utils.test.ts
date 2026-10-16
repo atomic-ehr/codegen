@@ -59,3 +59,35 @@ describe("fieldTsType reference targets", () => {
         );
     });
 });
+
+describe("fieldTsType bindings", () => {
+    test.each(["Quantity", "Duration", "CodeableReference"])(
+        "preserves the object type of a bound %s choice",
+        (name) => {
+            const field = {
+                type: makeIdentifier("complex-type", name),
+                choiceOf: "value" as Name,
+                enum: { isOpen: false, values: ["s", "min", "h"] },
+            };
+            expect(fieldTsType(tImport, field)).toBe(name);
+            expect(fieldTsType(tImport, { ...field, array: true })).toBe(`${name}[]`);
+            expect(fieldTsType(tImport, { ...field, enum: { ...field.enum, isOpen: true } })).toBe(name);
+        },
+    );
+
+    test.each(["code", "string", "uri"])("keeps code unions for a bound primitive %s", (name) => {
+        const field: RegularField = {
+            type: makeIdentifier("primitive-type", name),
+            enum: { isOpen: false, values: ["a", "b"] },
+        };
+        expect(fieldTsType(tImport, field)).toBe('("a" | "b")');
+    });
+
+    test.each(["Coding", "CodeableConcept"])("keeps code generics for a bound %s", (name) => {
+        const field: RegularField = {
+            type: makeIdentifier("complex-type", name),
+            enum: { isOpen: false, values: ["a", "b"] },
+        };
+        expect(fieldTsType(tImport, field)).toBe(`${name}<("a" | "b")>`);
+    });
+});

@@ -128,6 +128,28 @@ describe("TypeScript profile writer resourceType descriptor", () => {
     });
 });
 
+test("a bound Quantity choice keeps object accessors and validates its code", () => {
+    const quantityBase = makeBase("complex-type", "Quantity");
+    const snapshot = makeSnapshot("BoundQuantityObservation", resourceBase);
+    snapshot.fields = {
+        value: { choices: ["valueQuantity" as Name], required: false },
+        valueQuantity: {
+            choiceOf: "value" as Name,
+            type: quantityBase,
+            enum: { isOpen: false, values: ["s", "min", "h"] },
+        },
+    };
+    const { generated } = generateProfile(snapshot, [
+        resourceSchema,
+        { identifier: quantityBase as ComplexTypeTypeSchema["identifier"] },
+    ]);
+
+    expect(generated).toContain("getValueQuantity () : Quantity | undefined");
+    expect(generated).toContain("setValueQuantity (value: Quantity) : this");
+    expect(generated).toContain("this.resource.valueQuantity = value;");
+    expect(generated).toContain('validateEnum(res, profileName, "valueQuantity", ["s","min","h"])');
+});
+
 describe("TypeScript profile helper imports", () => {
     test("omits the helper import when the profile emits no helper calls", () => {
         const snapshot = makeSnapshot("OptionalAddress", datatypeBase);
