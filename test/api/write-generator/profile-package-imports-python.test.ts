@@ -11,15 +11,7 @@ const profileImportLines = (init: string | undefined): string[] =>
         .map((line) => line.trim())
         .filter((line) => line.startsWith("import ") && line.includes(".profiles"));
 
-/**
- * Regression for the root `__init__.py` profile imports. They used to be driven
- * by the resource-package list alone: every package with resources got an
- * `import <pkg>.profiles` whether or not a `profiles/` module was emitted for
- * it (the import then failed with `ModuleNotFoundError`), and packages carrying
- * only profiles were never imported at all. The list has to cover exactly the
- * packages the writer produced a `profiles/` module for.
- */
-describe("Python root package profile imports", async () => {
+describe("Python profile package exports", async () => {
     describe("resource package without profiles, plus a profile-only package", async () => {
         const result = await new APIBuilder({ logger: mkSilentLogger() })
             .localStructureDefinitions({
@@ -52,15 +44,16 @@ describe("Python root package profile imports", async () => {
             expect(init).not.toContain("fhir_types.hl7_fhir_r4_core.profiles");
         });
 
-        it("imports the profiles module of a profile-only package", () => {
+        it("exports profiles from their own package", () => {
             expect(files["generated/example_test_optionalconstraint/profiles/__init__.py"]).toBeDefined();
-            expect(init).toContain("import fhir_types.example_test_optionalconstraint.profiles  # noqa: F401");
+            const packageInit = files["generated/example_test_optionalconstraint/__init__.py"];
+            expect(packageInit).toContain("from .profiles import OptionalCategoryServiceRequestProfile");
+            expect(packageInit).toContain("'OptionalCategoryServiceRequestProfile'");
         });
 
-        it("imports exactly the emitted profiles modules", () => {
-            expect(profileImportLines(init)).toEqual([
-                "import fhir_types.example_test_optionalconstraint.profiles  # noqa: F401",
-            ]);
+        it("does not eagerly import profile-only packages from the root", () => {
+            expect(profileImportLines(init)).toEqual([]);
+            expect(init).not.toContain("# noqa: F401");
         });
     });
 

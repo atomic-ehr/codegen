@@ -3,16 +3,26 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Any, List as PyList, Literal
+
+from typing import Any, Literal
+from typing import List as PyList
+
+from pydantic import ConfigDict, Field
 from typing_extensions import Self
-from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
 from fhir_types.hl7_fhir_r4_core.base import (
-    Address, Attachment, BackboneElement, CodeableConcept, ContactPoint, HumanName, Identifier, Period, Reference
+    Address,
+    Attachment,
+    BackboneElement,
+    CodeableConcept,
+    ContactPoint,
+    Element,
+    HumanName,
+    Identifier,
+    Period,
+    Reference,
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
-from fhir_types.hl7_fhir_r4_core.base import Element
 
 
 class PatientCommunication(BackboneElement):

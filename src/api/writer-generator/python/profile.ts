@@ -1,15 +1,13 @@
-import { snakeCase } from "@root/api/writer-generator/utils";
-import {
-    isNestedIdentifier,
-    isPrimitiveIdentifier,
-    isResourceIdentifier,
-    type ProfileExtension,
-    type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
-} from "@root/typeschema/types";
+import { isResourceIdentifier, type SnapshotProfileTypeSchema } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName } from "./naming-utils";
-import { type ExtensionProfileInfo, generateExtensionMethods, resolveExtensionProfile } from "./profile-extensions";
+import {
+    createImportRenderer,
+    type ProfileImports,
+    profileModuleImports,
+    profilePyType,
+    resolveFhirType,
+} from "./imports";
+import { generateExtensionMethods } from "./profile-extensions";
 import {
     buildCallArgs,
     buildParamSignature,
@@ -40,10 +38,11 @@ import type { Python } from "./writer";
 
 type ProfileGenContext = {
     w: Python;
+    imports: ProfileImports;
     tsIndex: TypeSchemaIndex;
     flatProfile: SnapshotProfileTypeSchema;
     baseTypeName: string;
-    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Any]`). Equals `baseTypeName` when no type params apply. */
+    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Resource]`). Equals `baseTypeName` when no type params apply. */
     annotatedBaseTypeName: string;
     className: string;
     isResourceBase: boolean;
@@ -52,208 +51,6 @@ type ProfileGenContext = {
     resolvedNames: ResolvedProfileMethods;
     errorLines: string[];
     warningLines: string[];
-};
-
-// ---------------------------------------------------------------------------
-// Import utilities
-// ---------------------------------------------------------------------------
-
-const modulePathForTypeId = (rootPackageName: string, typeId: TypeIdentifier): string => {
-    const pkg = pyFhirPackageByName(rootPackageName, typeId.package);
-    if (isResourceIdentifier(typeId)) return `${pkg}.${snakeCase(typeId.name)}`;
-    if (isNestedIdentifier(typeId)) {
-        const path = canonicalToName(typeId.url, false);
-        const parentName = path?.split("#")[0];
-        return parentName ? `${pkg}.${snakeCase(parentName)}` : `${pkg}.base`;
-    }
-    return `${pkg}.base`;
-};
-
-const addExactTypeImport = (
-    typeImports: Record<string, Set<string>>,
-    rootPackageName: string,
-    skipName: string,
-    typeId: TypeIdentifier,
-): void => {
-    if (isPrimitiveIdentifier(typeId) || PRIMITIVE_TYPE_MAP[typeId.name] !== undefined) return;
-    const name = deriveResourceName(typeId);
-    if (!name || name === skipName) return;
-    const modulePath = modulePathForTypeId(rootPackageName, typeId);
-    (typeImports[modulePath] ??= new Set<string>()).add(name);
-};
-
-const addTypeImport = (
-    typeImports: Record<string, Set<string>>,
-    rootPackageName: string,
-    skipName: string,
-    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
-    typeId: TypeIdentifier,
-): void => {
-    const ids: TypeIdentifier[] = [typeId];
-    // A nested backbone element is annotated as itself, not as its base, so the
-    // base would be an unused import. Everything else may be annotated either
-    // way (a reference target resolves to its base resource), so both are needed.
-    if (!isNestedIdentifier(typeId)) {
-        const resolved = resolveRef(typeId);
-        if (resolved !== typeId) ids.push(resolved);
-    }
-    for (const id of ids) {
-        if (isPrimitiveIdentifier(id) || PRIMITIVE_TYPE_MAP[id.name] !== undefined) continue;
-        const name = deriveResourceName(id);
-        if (name === skipName) continue;
-        const modulePath = modulePathForTypeId(rootPackageName, id);
-        (typeImports[modulePath] ??= new Set<string>()).add(name);
-    }
-};
-
-// ---------------------------------------------------------------------------
-// Import collection
-// ---------------------------------------------------------------------------
-
-const collectHelperImports = (
-    isResourceBase: boolean,
-    factoryInfo: ProfileFactoryInfo,
-    sliceDefs: SliceDef[],
-    extensions: ProfileExtension[],
-    validationHelpers: Set<string>,
-): string[] => {
-    const imports = ["build_resource"];
-    if (isResourceBase) imports.push("ensure_profile");
-    if (factoryInfo.sliceAutoFields.length > 0) imports.push("ensure_slice_defaults");
-    if (sliceDefs.length > 0) {
-        const hasNonTyped = sliceDefs.some((s) => !s.isTypeDiscriminated);
-        const hasTypedBounded = sliceDefs.some((s) => s.isTypeDiscriminated && !(s.array && s.max === 0));
-        const hasTypedUnbounded = sliceDefs.some((s) => s.isTypeDiscriminated && s.array && s.max === 0);
-        if (hasNonTyped) imports.push("apply_slice_match", "matches_value", "strip_match_keys");
-        if (hasTypedBounded || hasNonTyped) imports.push("get_array_slice", "set_array_slice");
-        if (hasTypedUnbounded) imports.push("get_array_slices", "set_array_slices");
-        if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrap_slice_choice", "unwrap_slice_choice");
-    }
-    if (extensions.length > 0) {
-        imports.push("validate_extension_url", "is_extension", "get_extension_value", "push_extension");
-        if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extract_complex_extension");
-        if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensure_path");
-        // Complex/generic (non single-value) extension setters assert `is_record(value)` in the else branch.
-        const hasDictFormSetter = extensions.some(
-            (ext) =>
-                (ext.isComplex && ext.subExtensions) || !(ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]),
-        );
-        if (hasDictFormSetter) imports.push("is_record");
-    }
-    imports.push(...validationHelpers);
-    imports.sort();
-    return imports;
-};
-
-const collectTypeImports = (
-    rootPackageName: string,
-    baseTypeName: string,
-    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
-    factoryInfo: ProfileFactoryInfo,
-    sliceDefs: SliceDef[],
-    extensions: ProfileExtension[],
-    schemas: TypeSchemaIndex["schemas"],
-): Record<string, Set<string>> => {
-    const typeImports: Record<string, Set<string>> = {};
-    for (const p of factoryInfo.params) addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, p.typeId);
-    for (const f of factoryInfo.sliceAutoFields)
-        addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, f.typeId);
-    for (const a of factoryInfo.accessors)
-        addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, a.typeId);
-    for (const s of sliceDefs) {
-        // The element type is referenced by both the setter (`ElementType(**merged)`) and the
-        // raw getter overload, for type-discriminated and plain slices alike.
-        if (s.elementTypeId) addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.elementTypeId);
-        if (!s.isTypeDiscriminated) continue;
-        if (!s.typeDiscriminatorResource) continue;
-        const resourceId = schemas.find(
-            (schema) => schema.identifier.kind === "resource" && schema.identifier.name === s.typeDiscriminatorResource,
-        )?.identifier;
-        if (resourceId) addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, resourceId);
-    }
-    // Single-value extension getters reference the value type in their return annotation.
-    for (const ext of extensions) {
-        if (ext.isComplex && ext.subExtensions) continue;
-        if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0])
-            addExactTypeImport(typeImports, rootPackageName, baseTypeName, ext.valueFieldTypes[0]);
-    }
-    return typeImports;
-};
-
-const collectExtProfileImports = (
-    tsIndex: TypeSchemaIndex,
-    flatProfile: SnapshotProfileTypeSchema,
-    extensions: ProfileExtension[],
-): Record<string, ExtensionProfileInfo> => {
-    const extProfileImports: Record<string, ExtensionProfileInfo> = {};
-    for (const ext of extensions) {
-        if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext);
-        if (info && !Object.hasOwn(extProfileImports, info.className)) extProfileImports[info.className] = info;
-    }
-    return extProfileImports;
-};
-
-// ---------------------------------------------------------------------------
-// Import emission
-// ---------------------------------------------------------------------------
-
-const emitModuleImports = (
-    w: Python,
-    flatProfile: SnapshotProfileTypeSchema,
-    isResourceBase: boolean,
-    extensions: ProfileExtension[],
-    factoryInfo: ProfileFactoryInfo,
-    typeImports: Record<string, Set<string>>,
-    extProfileImports: Record<string, ExtensionProfileInfo>,
-    helperImports: string[],
-    sliceDefs: SliceDef[],
-): void => {
-    w.line("from __future__ import annotations");
-    w.line();
-
-    const usesLiteral = [...factoryInfo.params, ...factoryInfo.accessors, ...factoryInfo.sliceAutoFields].some((f) =>
-        f.pyType.includes("Literal["),
-    );
-    // Non-type-discriminated slice getters emit `@overload`s with a `Literal["raw"]` mode.
-    const hasNonTypedSlice = sliceDefs.some((s) => !s.isTypeDiscriminated);
-    const needsOverload = extensions.length > 0 || hasNonTypedSlice;
-    // `Any` is needed for extension setter inputs (`X | Extension | Any`) and for the
-    // `dict[str, Any]` slice match fields / flat getters / setters.
-    const needsAny = extensions.length > 0 || sliceDefs.length > 0;
-    // `cast` wraps `getattr`/helper results (which return `Any`) in accessor and slice getters.
-    const needsCast =
-        factoryInfo.params.length > 0 ||
-        factoryInfo.accessors.length > 0 ||
-        sliceDefs.length > 0 ||
-        extensions.length > 0;
-    const typingNames: string[] = [];
-    if (needsAny) typingNames.push("Any");
-    if (needsCast) typingNames.push("cast");
-    if (needsOverload || usesLiteral) typingNames.push("Literal");
-    if (needsOverload) typingNames.push("overload");
-    if (typingNames.length > 0) {
-        w.pyImportFrom("typing", ...[...typingNames].sort());
-        w.line();
-    }
-
-    const baseTypeName = flatProfile.base.name;
-    const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
-    if (isResourceBase) {
-        w.pyImportFrom(`${basePkg}.${snakeCase(baseTypeName)}`, baseTypeName);
-    } else {
-        w.pyImportFrom(`${basePkg}.base`, baseTypeName);
-    }
-    if (extensions.length > 0) w.pyImportFrom(`${basePkg}.base`, "Extension");
-    for (const [modulePath, names] of Object.entries(typeImports).sort(([a], [b]) => a.localeCompare(b))) {
-        w.pyImportFrom(modulePath, ...[...names].sort());
-    }
-    for (const [extClassName, info] of Object.entries(extProfileImports).sort(([a], [b]) => a.localeCompare(b))) {
-        w.pyImportFrom(`.${info.moduleName}`, extClassName);
-    }
-    w.pyImportFrom(`${w.opts.rootPackageName}.profile_helpers`, ...helperImports);
-    w.line();
-    w.line();
 };
 
 // ---------------------------------------------------------------------------
@@ -288,6 +85,7 @@ const generateFromResourceMethod = (
 
 const generateApplyMethod = (
     w: Python,
+    imports: ProfileImports,
     annotatedBaseTypeName: string,
     className: string,
     isResourceBase: boolean,
@@ -295,7 +93,7 @@ const generateApplyMethod = (
     w.line("@classmethod");
     w.line(`def apply(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
-        if (isResourceBase) w.line("ensure_profile(resource, cls.canonical_url)");
+        if (isResourceBase) w.line(`${imports.helpers.use("ensure_profile")}(resource, cls.canonical_url)`);
         w.line("return cls(resource)");
     });
     w.line();
@@ -339,6 +137,7 @@ const generateValidateMethod = (w: Python, className: string, errorLines: string
 const generateClassBody = (ctx: ProfileGenContext): void => {
     const {
         w,
+        imports,
         tsIndex,
         flatProfile,
         baseTypeName,
@@ -358,8 +157,8 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     w.line();
 
     generateFromResourceMethod(w, annotatedBaseTypeName, className, isResourceBase);
-    generateApplyMethod(w, annotatedBaseTypeName, className, isResourceBase);
-    generateCreateResource(w, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
+    generateApplyMethod(w, imports, annotatedBaseTypeName, className, isResourceBase);
+    generateCreateResource(w, imports, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
     w.line();
     generateCreateMethod(w, className, hasParams, factoryInfo);
 
@@ -368,14 +167,15 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     w.line();
 
     if (factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0)
-        generateFieldAccessors(w, className, factoryInfo, resolvedNames.allBaseNames);
+        generateFieldAccessors(w, imports, className, factoryInfo, resolvedNames.allBaseNames);
 
     const extensions = flatProfile.extensions ?? [];
-    if (extensions.length > 0) generateExtensionMethods(w, tsIndex, flatProfile, className, resolvedNames.extensions);
+    if (extensions.length > 0)
+        generateExtensionMethods(w, imports, tsIndex, flatProfile, className, resolvedNames.extensions);
 
     if (sliceDefs.length > 0) {
-        generateSliceGetters(w, sliceDefs, resolvedNames.slices);
-        generateSliceSetters(w, className, sliceDefs, resolvedNames.slices);
+        generateSliceGetters(w, imports, sliceDefs, resolvedNames.slices);
+        generateSliceSetters(w, imports, className, sliceDefs, resolvedNames.slices);
     }
 
     generateValidateMethod(w, className, errorLines, warningLines);
@@ -387,58 +187,30 @@ export const generateProfileModule = (
     flatProfile: SnapshotProfileTypeSchema,
 ): void => {
     w.generateDisclaimer();
+    w.line("from __future__ import annotations");
+    w.line();
+    const imports = profileModuleImports(w, tsIndex, flatProfile);
     const className = pyProfileClassName(flatProfile);
-    const baseTypeName = flatProfile.base.name;
+    const baseTypeName = profilePyType(imports, flatProfile.base);
     const isResourceBase = isResourceIdentifier(flatProfile.base);
     const canonicalUrl = flatProfile.identifier.url ?? "";
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
-    const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
+    const factoryInfo = collectProfileFactoryInfo(imports, tsIndex, flatProfile);
+    const sliceDefs = collectSliceDefs(imports, tsIndex, flatProfile);
     const typedResources = [
         ...new Set(
             sliceDefs
                 .filter((s) => s.isTypeDiscriminated)
-                .map((s) => s.typeDiscriminatorResource)
+                .map((s) => s.typeDiscriminatorType)
                 .filter((resource): resource is string => resource !== undefined),
         ),
     ];
     const annotatedBaseTypeName =
-        typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Resource]` : baseTypeName;
+        typedResources.length > 0
+            ? `${baseTypeName}[${typedResources.join(" | ")}, ${imports.types.use(resolveFhirType(tsIndex, flatProfile, "Resource"))}]`
+            : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
     const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs, Object.keys(flatProfile.fields));
-    const errorLines: string[] = [];
-    const warningLines: string[] = [];
-    const validationHelpers = collectValidateBody(flatProfile, tsIndex, errorLines, warningLines, w.nameFormatFunction);
-
-    const helperImports = collectHelperImports(isResourceBase, factoryInfo, sliceDefs, extensions, validationHelpers);
-    const typeImports = collectTypeImports(
-        w.opts.rootPackageName,
-        baseTypeName,
-        tsIndex.findLastSpecializationByIdentifier,
-        factoryInfo,
-        sliceDefs,
-        extensions,
-        tsIndex.schemas,
-    );
-    const extProfileImports = collectExtProfileImports(tsIndex, flatProfile, extensions);
-
-    // Type-discriminated base types fill their resource generic params with `Resource` (the param bound/default).
-    if (typedResources.length > 0) {
-        const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
-        const resourceModule = `${basePkg}.resource`;
-        (typeImports[resourceModule] ??= new Set<string>()).add("Resource");
-    }
-
-    emitModuleImports(
-        w,
-        flatProfile,
-        isResourceBase,
-        extensions,
-        factoryInfo,
-        typeImports,
-        extProfileImports,
-        helperImports,
-        sliceDefs,
-    );
+    const { errorLines, warningLines } = collectValidateBody(imports, flatProfile, tsIndex, w.nameFormatFunction);
 
     w.line(`class ${className}:`);
     w.indentBlock(() => {
@@ -452,12 +224,13 @@ export const generateProfileModule = (
         // The snapshot's base is the nearest non-profile schema in the hierarchy
         // (see buildProfileSnapshot), so no further resolution is needed: an
         // extension profile bases on Extension and gets no resource type.
-        if (isResourceBase) w.line(`resource_type: str = ${JSON.stringify(baseTypeName)}`);
+        if (isResourceBase) w.line(`resource_type: str = ${JSON.stringify(flatProfile.base.name)}`);
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
-        generateStaticSliceFields(w, sliceDefs);
+        generateStaticSliceFields(w, imports, sliceDefs);
         generateClassBody({
             w,
+            imports,
             tsIndex,
             flatProfile,
             baseTypeName,
@@ -484,13 +257,14 @@ export const generateProfilesInit = (
     profiles: SnapshotProfileTypeSchema[],
 ): void => {
     w.generateDisclaimer();
+    const imports = createImportRenderer(w);
     const seen = new Set<string>();
     for (const profile of profiles) {
         const className = pyProfileClassName(profile);
         const moduleName = pyProfileModuleName(tsIndex, profile);
         if (seen.has(className)) continue;
         seen.add(className);
-        w.pyImportFrom(`.${moduleName}`, className);
+        imports(`.${moduleName}`, className);
     }
     // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
     w.line();

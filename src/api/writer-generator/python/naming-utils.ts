@@ -2,6 +2,7 @@ import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/wri
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
 import { isNestedIdentifier, isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
+import type { LibraryImports } from "./imports";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -151,6 +152,7 @@ export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
  *  (e.g. `Resource`) — a family admits any resource, so the bare `Reference`
  *  (defaulting to `str`) is the honest annotation. */
 export const pyReferenceTypeParam = (
+    tImports: LibraryImports,
     field: RegularField | ChoiceFieldInstance,
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
@@ -158,7 +160,8 @@ export const pyReferenceTypeParam = (
     const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
     if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
-    return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
+    const literal = tImports.use("Literal");
+    return `${literal}[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
 };
 
 /** The family a reference's targets were widened to, when they were.

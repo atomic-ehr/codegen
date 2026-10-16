@@ -6,12 +6,17 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast, overload
 
-from fhir_types.hl7_fhir_r4_core.provenance import Provenance
 from fhir_types.hl7_fhir_r4_core.base import Reference
-from fhir_types.hl7_fhir_r4_core.provenance import ProvenanceAgent
+from fhir_types.hl7_fhir_r4_core.provenance import Provenance, ProvenanceAgent
 from fhir_types.profile_helpers import (
-    apply_slice_match, build_resource, ensure_profile, get_array_slice, matches_value, set_array_slice, strip_match_keys, \
-    validate_reference, validate_required
+    apply_slice_match,
+    build_resource,
+    ensure_profile,
+    get_array_slice,
+    set_array_slice,
+    strip_match_keys,
+    validate_reference,
+    validate_required,
 )
 
 

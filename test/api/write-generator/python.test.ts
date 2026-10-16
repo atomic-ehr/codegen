@@ -31,7 +31,7 @@ describe("Python Writer Generator", async () => {
             expect(basePy).toContain("coding: PyList[Coding[T]] | None");
         });
         it("generates TypeVar import and declaration", () => {
-            expect(basePy).toContain("from typing import Any, Generic, List as PyList, Literal");
+            expect(basePy).toContain("from typing import Generic, Literal\nfrom typing import List as PyList");
             expect(basePy).toContain("from typing_extensions import TypeVar");
             expect(basePy).toContain("T = TypeVar('T', bound=str, default=str, covariant=True)");
         });
@@ -139,6 +139,28 @@ describe("Python R4 Example (with generateProfile)", async () => {
 
     it("generates successfully", () => {
         expect(result.success).toBeTrue();
+    });
+
+    it("imports Extension once and omits Any for single-value extension methods", () => {
+        const module = files["generated/hl7_fhir_r4_core/profiles/extension_nationality.py"]!;
+        expect(module.match(/^from .* import .*\bExtension\b/gm)).toHaveLength(1);
+        expect(module).not.toMatch(/^from typing import .*\bAny\b/m);
+        expect(module).toContain("get_extension_value(ext,");
+        expect(module).toContain("from typing import Literal, cast, overload");
+    });
+
+    it("keeps the Extension model distinct from a profile named Extension", () => {
+        const module = files["generated/hl7_fhir_r4_core/profiles/extension_extension.py"]!;
+        expect(module).toContain("from fhir_types.hl7_fhir_r4_core.base import Extension as ExtensionType");
+        expect(module).toContain("class Extension:");
+        expect(module).toContain("resource: ExtensionType");
+        expect(module).toContain("build_resource(ExtensionType,");
+    });
+
+    it("omits matches_value when profile slices only use array lookup", () => {
+        const module = files["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"]!;
+        expect(module).toContain("get_array_slice(");
+        expect(module).not.toContain("matches_value");
     });
 
     it("generates bodyweight profile with validate()", () => {

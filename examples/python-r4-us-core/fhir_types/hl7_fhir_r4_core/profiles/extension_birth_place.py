@@ -6,10 +6,13 @@ from __future__ import annotations
 
 from typing import cast
 
-from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import Address
+from fhir_types.hl7_fhir_r4_core.base import Address, Extension
 from fhir_types.profile_helpers import (
-    build_resource, validate_choice_prohibited, validate_choice_required, validate_fixed_value, validate_required
+    build_resource,
+    validate_choice_prohibited,
+    validate_choice_required,
+    validate_fixed_value,
+    validate_required,
 )
 
 

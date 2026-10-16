@@ -6,10 +6,11 @@ exports[`Python logical model promoted from a virtual FHIR Base matches snapshot
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Any, List as PyList, Literal
-from typing_extensions import Self
 
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+from typing_extensions import Self
 
 
 class Document(BaseModel):

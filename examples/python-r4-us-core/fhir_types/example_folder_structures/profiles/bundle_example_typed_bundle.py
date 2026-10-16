@@ -6,14 +6,19 @@ from __future__ import annotations
 
 from typing import Any, Literal, cast
 
-from fhir_types.hl7_fhir_r4_core.bundle import Bundle
-from fhir_types.hl7_fhir_r4_core.bundle import BundleEntry
+from fhir_types.hl7_fhir_r4_core.bundle import Bundle, BundleEntry
 from fhir_types.hl7_fhir_r4_core.organization import Organization
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.profile_helpers import (
-    build_resource, ensure_profile, get_array_slice, get_array_slices, set_array_slice, set_array_slices, \
-    validate_required, validate_slice_cardinality
+    build_resource,
+    ensure_profile,
+    get_array_slice,
+    get_array_slices,
+    set_array_slice,
+    set_array_slices,
+    validate_required,
+    validate_slice_cardinality,
 )
 
 

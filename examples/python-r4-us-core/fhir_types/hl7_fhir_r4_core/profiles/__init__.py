@@ -2,11 +2,11 @@
 # GitHub: https://github.com/atomic-ehr/codegen
 # Any manual changes made to this file may be overwritten.
 
-from .observation_observation_bodyweight import ObservationBodyweightProfile
 from .extension_birth_place import BirthPlaceExtension
+from .extension_birth_time import BirthTimeExtension
 from .extension_nationality import NationalityExtension
 from .extension_own_prefix import OwnPrefixExtension
-from .extension_birth_time import BirthTimeExtension
+from .observation_observation_bodyweight import ObservationBodyweightProfile
 from .observation_observation_vitalsigns import ObservationVitalsignsProfile
 
 __all__ = [

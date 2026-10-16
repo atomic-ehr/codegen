@@ -1,7 +1,7 @@
-from typing import Any, Union, Optional, Iterator, Tuple, Dict
+from typing import Any, Dict, Iterator, Optional, Protocol, Tuple, Union
+
 from pydantic import BaseModel, Field
 from pydantic_core import PydanticUndefined
-from typing import Protocol
 
 
 class ResourceProtocol(Protocol):

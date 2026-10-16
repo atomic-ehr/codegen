@@ -8,10 +8,10 @@ import {
     type NameCandidates,
     type RegularField,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
-import { pyLiteral, pyTypeFromIdentifier } from "./naming-utils";
+import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
+import { pyLiteral } from "./naming-utils";
 import { pyFieldName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
@@ -25,12 +25,10 @@ export type SliceDef = {
     max: number;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     elementTypeName: string | undefined;
-    /** The type identifier of the array element, used for import resolution. */
-    elementTypeId: TypeIdentifier | undefined;
     /** True when the FieldSlicing discriminator type is "type" (resource-type discriminator). */
     isTypeDiscriminated: boolean;
     /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
-    typeDiscriminatorResource: string | undefined;
+    typeDiscriminatorType: string | undefined;
     /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
     nameCandidates: NameCandidates;
 };
@@ -48,10 +46,10 @@ export const collectRequiredSliceNames = (
     return names.length > 0 ? names : undefined;
 };
 
-export const generateStaticSliceFields = (w: Python, sliceDefs: SliceDef[]): void => {
+export const generateStaticSliceFields = (w: Python, imports: ProfileImports, sliceDefs: SliceDef[]): void => {
     for (const sliceDef of sliceDefs) {
         const staticName = pySliceStaticName(sliceDef.sliceName);
-        w.line(`${staticName}: dict[str, Any] = ${pyLiteral(sliceDef.match)}`);
+        w.line(`${staticName}: dict[str, ${imports.typing.use("Any")}] = ${pyLiteral(sliceDef.match)}`);
     }
     if (sliceDefs.length > 0) w.line();
 };
@@ -107,7 +105,11 @@ const extractTypeDiscriminatorResource = (
     return undefined;
 };
 
-export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): SliceDef[] => {
+export const collectSliceDefs = (
+    imports: ProfileImports,
+    tsIndex: TypeSchemaIndex,
+    flatProfile: SnapshotProfileTypeSchema,
+): SliceDef[] => {
     const pkgName = flatProfile.identifier.package;
     return Object.entries(flatProfile.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
         const field = flatProfile.fields[fieldName];
@@ -143,10 +145,13 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: Snapshot
                     max: slice.max ?? 0,
                     constrainedChoice,
                     elementTypeName:
-                        field.type && !isPrimitiveIdentifier(field.type) ? pyTypeFromIdentifier(field.type) : undefined,
-                    elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
+                        field.type && !isPrimitiveIdentifier(field.type)
+                            ? profilePyType(imports, field.type)
+                            : undefined,
                     isTypeDiscriminated: typeDiscriminated,
-                    typeDiscriminatorResource,
+                    typeDiscriminatorType: typeDiscriminatorResource
+                        ? profilePyType(imports, resolveFhirType(tsIndex, flatProfile, typeDiscriminatorResource))
+                        : undefined,
                     nameCandidates: slice.nameCandidates,
                 };
             });
@@ -157,13 +162,14 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: Snapshot
 // Slice getters / setters
 // ---------------------------------------------------------------------------
 
-const sliceElementRetType = (sliceDef: SliceDef): string =>
-    sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
-        ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
-        : (sliceDef.elementTypeName ?? "Any");
+const sliceElementRetType = (imports: ProfileImports, sliceDef: SliceDef): string =>
+    sliceDef.elementTypeName && sliceDef.typeDiscriminatorType
+        ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorType}]`
+        : (sliceDef.elementTypeName ?? imports.typing.use("Any"));
 
 export const generateSliceGetters = (
     w: Python,
+    imports: ProfileImports,
     sliceDefs: SliceDef[],
     sliceBaseNames: Record<string, string>,
 ): void => {
@@ -175,63 +181,65 @@ export const generateSliceGetters = (
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
         if (sliceDef.isTypeDiscriminated) {
-            const retType = sliceElementRetType(sliceDef);
+            const retType = sliceElementRetType(imports, sliceDef);
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> list[${retType}] | None:`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
                     w.line(
-                        `result = get_array_slices(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                        `result = ${imports.helpers.use("get_array_slices")}(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
                     );
-                    w.line(`return cast('list[${retType}] | None', result or None)`);
+                    w.line(`return ${imports.typing.use("cast")}('list[${retType}] | None', result or None)`);
                 });
             } else {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> ${retType} | None:`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
                     w.line(
-                        `return cast('${retType} | None', get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match))`,
+                        `return ${imports.typing.use("cast")}('${retType} | None', ${imports.helpers.use("get_array_slice")}(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match))`,
                     );
                 });
             }
         } else {
             // The flat form is always a plain dict at runtime (helpers return dict[str, Any]),
             // including constrained-choice slices where the variant wrapper is unwrapped.
-            const flatRetType = "dict[str, Any]";
-            const rawRetType = sliceDef.elementTypeName ?? "Any";
-            w.line("@overload");
+            const flatRetType = `dict[str, ${imports.typing.use("Any")}]`;
+            const rawRetType = sliceDef.elementTypeName ?? imports.typing.use("Any");
+            w.line(`@${imports.typing.use("overload")}`);
             w.line(`def get_${baseName}(self) -> ${flatRetType} | None: ...`);
-            w.line("@overload");
-            w.line(`def get_${baseName}(self, mode: Literal["raw"]) -> ${rawRetType} | None: ...`);
+            w.line(`@${imports.typing.use("overload")}`);
             w.line(
-                `def get_${baseName}(self, mode: Literal["raw"] | None = None) -> ${flatRetType} | ${rawRetType} | None:`,
+                `def get_${baseName}(self, mode: ${imports.typing.use("Literal")}["raw"]) -> ${rawRetType} | None: ...`,
+            );
+            w.line(
+                `def get_${baseName}(self, mode: ${imports.typing.use("Literal")}["raw"] | None = None) -> ${flatRetType} | ${rawRetType} | None:`,
             );
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);
                 if (sliceDef.array) {
                     w.line(
-                        `item = get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                        `item = ${imports.helpers.use("get_array_slice")}(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
                     );
                 } else {
                     w.line(`item = getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
-                    w.line("if item is None or not matches_value(item, match):");
+                    w.line(`if item is None or not ${imports.helpers.use("matches_value")}(item, match):`);
                     w.indentBlock(() => {
                         w.line("return None");
                     });
                 }
                 w.line('if mode == "raw":');
                 w.indentBlock(() => {
-                    w.line(`return cast('${rawRetType} | None', item)`);
+                    w.line(`return ${imports.typing.use("cast")}('${rawRetType} | None', item)`);
                 });
                 w.line(
                     "item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)",
                 );
                 if (sliceDef.constrainedChoice) {
                     const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
-                    w.line(`return unwrap_slice_choice(item_dict, ${matchKeys}, ${variant})`);
+                    w.line(`return ${imports.helpers.use("unwrap_slice_choice")}(item_dict, ${matchKeys}, ${variant})`);
                 } else {
-                    w.line(`return strip_match_keys(item_dict, ${matchKeys})`);
+                    w.line(`return ${imports.helpers.use("strip_match_keys")}(item_dict, ${matchKeys})`);
                 }
             });
         }
@@ -241,6 +249,7 @@ export const generateSliceGetters = (
 
 export const generateSliceSetters = (
     w: Python,
+    imports: ProfileImports,
     className: string,
     sliceDefs: SliceDef[],
     sliceBaseNames: Record<string, string>,
@@ -251,14 +260,14 @@ export const generateSliceSetters = (
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         if (sliceDef.isTypeDiscriminated) {
-            const retType = sliceElementRetType(sliceDef);
+            const retType = sliceElementRetType(imports, sliceDef);
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def set_${baseName}(self, values: list[${retType}]) -> "${className}":`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
                     w.line(`items = list(getattr(self._resource, ${JSON.stringify(fieldName)}, None) or [])`);
-                    w.line("set_array_slices(items, match, values)");
+                    w.line(`${imports.helpers.use("set_array_slices")}(items, match, values)`);
                     w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
                     w.line("return self");
                 });
@@ -267,7 +276,7 @@ export const generateSliceSetters = (
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
                     w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
-                    w.line("set_array_slice(items, match, value)");
+                    w.line(`${imports.helpers.use("set_array_slice")}(items, match, value)`);
                     w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
                     w.line("return self");
                 });
@@ -277,18 +286,18 @@ export const generateSliceSetters = (
             // A slice that requires nothing of its element accepts no input.
             const inputOptional = sliceDef.required.length === 0;
             const sig = inputOptional
-                ? `def set_${baseName}(self, value: dict[str, Any] | None = None) -> "${className}":`
-                : `def set_${baseName}(self, value: dict[str, Any]) -> "${className}":`;
+                ? `def set_${baseName}(self, value: dict[str, ${imports.typing.use("Any")}] | None = None) -> "${className}":`
+                : `def set_${baseName}(self, value: dict[str, ${imports.typing.use("Any")}]) -> "${className}":`;
             w.line(sig);
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);
                 const inputExpr = inputOptional ? "(value or {})" : "value";
                 if (sliceDef.constrainedChoice) {
                     const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
-                    w.line(`wrapped = wrap_slice_choice(${inputExpr}, ${variant})`);
-                    w.line("merged = apply_slice_match(wrapped, match)");
+                    w.line(`wrapped = ${imports.helpers.use("wrap_slice_choice")}(${inputExpr}, ${variant})`);
+                    w.line(`merged = ${imports.helpers.use("apply_slice_match")}(wrapped, match)`);
                 } else {
-                    w.line(`merged = apply_slice_match(${inputExpr}, match)`);
+                    w.line(`merged = ${imports.helpers.use("apply_slice_match")}(${inputExpr}, match)`);
                 }
                 // Wrap into the element model under a fresh name: `merged` is typed
                 // `dict[str, Any]`, so rebinding it to a model would trip mypy's assignment check.
@@ -299,7 +308,7 @@ export const generateSliceSetters = (
                 }
                 if (sliceDef.array) {
                     w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
-                    w.line(`set_array_slice(items, match, ${elementExpr})`);
+                    w.line(`${imports.helpers.use("set_array_slice")}(items, match, ${elementExpr})`);
                     w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
                 } else {
                     w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, ${elementExpr})`);

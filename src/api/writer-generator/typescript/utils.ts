@@ -1,4 +1,4 @@
-import type { SectionHandle } from "@root/api/writer-generator/section-writer";
+import type { FhirTypeImports } from "@root/api/writer-generator/section-writer";
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
@@ -75,7 +75,7 @@ const rewriteFieldTypeDefs: Record<
 };
 
 export const resolveFieldTsType = (
-    tImport: SectionHandle<never, TypeIdentifier>,
+    tImport: FhirTypeImports,
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
@@ -122,7 +122,7 @@ export const resolveFieldTsType = (
 };
 
 export const fieldTsType = (
-    tImport: SectionHandle<never, TypeIdentifier>,
+    tImport: FhirTypeImports,
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     isFamilyType?: (ref: TypeIdentifier) => boolean,
@@ -135,14 +135,11 @@ export const fieldTsType = (
     return type + (field.array ? "[]" : "");
 };
 
-export const tsTypeFromIdentifier = (
-    tImport: SectionHandle<never, TypeIdentifier> | undefined,
-    id: TypeIdentifier,
-): string => {
-    if (isNestedIdentifier(id)) return tImport?.use(id) ?? tsResourceName(id);
+export const tsTypeFromIdentifier = (tImport: FhirTypeImports, id: TypeIdentifier): string => {
+    if (isNestedIdentifier(id)) return tImport.use(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set
     const primitiveType = primitiveType2tsType[id.name];
     if (primitiveType !== undefined) return primitiveType;
-    return tImport?.use(id) ?? id.name;
+    return tImport.use(id);
 };

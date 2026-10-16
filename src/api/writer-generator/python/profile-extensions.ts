@@ -4,20 +4,16 @@ import {
     isProfileTypeSchema,
     type ProfileExtension,
     type SnapshotProfileTypeSchema,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { pyTypeFromIdentifier } from "./naming-utils";
-import { pyProfileClassName, pyProfileModuleName, pyValueFieldName } from "./profile-naming";
+import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
+import { pyValueFieldName } from "./profile-naming";
 import type { Python } from "./writer";
 
 // ---------------------------------------------------------------------------
 // Extension-profile resolution
 // ---------------------------------------------------------------------------
-
-export type ExtensionProfileInfo = {
-    className: string;
-    moduleName: string;
-};
 
 /**
  * Resolve an extension to its generated profile class (if any exists in the
@@ -28,24 +24,18 @@ export const resolveExtensionProfile = (
     tsIndex: TypeSchemaIndex,
     pkgName: string,
     ext: ProfileExtension,
-): ExtensionProfileInfo | undefined => {
+): TypeIdentifier | undefined => {
     if (ext.profile) {
         const schema = tsIndex.resolve(ext.profile);
         if (schema) {
-            return {
-                className: pyProfileClassName(schema),
-                moduleName: pyProfileModuleName(tsIndex, schema),
-            };
+            return schema.identifier;
         }
     }
     if (!ext.url) return undefined;
     const schema = tsIndex.resolveByUrl(pkgName, ext.url as CanonicalUrl);
     if (!schema || !isProfileTypeSchema(schema)) return undefined;
     if (schema.identifier.package !== pkgName) return undefined;
-    return {
-        className: pyProfileClassName(schema),
-        moduleName: pyProfileModuleName(tsIndex, schema),
-    };
+    return schema.identifier;
 };
 
 // ---------------------------------------------------------------------------
@@ -54,39 +44,72 @@ export const resolveExtensionProfile = (
 
 export const generateExtensionMethods = (
     w: Python,
+    imports: ProfileImports,
     tsIndex: TypeSchemaIndex,
     flatProfile: SnapshotProfileTypeSchema,
     className: string,
     extensionBaseNames: Record<string, string>,
 ): void => {
     const pkgName = flatProfile.identifier.package;
+    const extensionType = imports.types.use(resolveFhirType(tsIndex, flatProfile, "Extension"));
     for (const ext of flatProfile.extensions ?? []) {
         if (!ext.url) continue;
         const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended);
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-        const extProfileInfo = resolveExtensionProfile(tsIndex, pkgName, ext);
+        const profileId = resolveExtensionProfile(tsIndex, pkgName, ext);
+        const profileClass = profileId ? imports.types.use(profileId) : undefined;
 
         if (ext.isComplex && ext.subExtensions) {
-            generateComplexExtensionGetter(w, ext, baseName, targetPath, extProfileInfo);
-            generateComplexExtensionSetter(w, ext, className, baseName, targetPath, extProfileInfo);
+            generateComplexExtensionGetter(w, imports, extensionType, ext, baseName, targetPath, profileClass);
+            generateComplexExtensionSetter(
+                w,
+                imports,
+                extensionType,
+                ext,
+                className,
+                baseName,
+                targetPath,
+                profileClass,
+            );
         } else if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]) {
             const valueType = ext.valueFieldTypes[0];
             const valueField = pyValueFieldName(valueType, w.nameFormatFunction);
-            const pyType = pyTypeFromIdentifier(valueType);
-            generateSingleValueExtensionGetter(w, ext, baseName, targetPath, valueField, pyType, extProfileInfo);
+            const pyType = profilePyType(imports, valueType);
+            generateSingleValueExtensionGetter(
+                w,
+                imports,
+                extensionType,
+                ext,
+                baseName,
+                targetPath,
+                valueField,
+                pyType,
+                profileClass,
+            );
             generateSingleValueExtensionSetter(
                 w,
+                imports,
+                extensionType,
                 ext,
                 className,
                 baseName,
                 targetPath,
                 valueField,
                 pyType,
-                extProfileInfo,
+                profileClass,
             );
         } else {
-            generateGenericExtensionGetter(w, ext, baseName, targetPath, extProfileInfo);
-            generateGenericExtensionSetter(w, ext, className, baseName, targetPath, extProfileInfo);
+            generateGenericExtensionGetter(w, imports, extensionType, ext, baseName, targetPath, profileClass);
+            generateGenericExtensionSetter(
+                w,
+                imports,
+                extensionType,
+                ext,
+                className,
+                baseName,
+                targetPath,
+                profileClass,
+            );
         }
     }
 };
@@ -95,24 +118,26 @@ export const generateExtensionMethods = (
 // Emit helpers
 // ---------------------------------------------------------------------------
 
-const emitExtLookup = (w: Python, ext: ProfileExtension, targetPath: string[]): void => {
+const emitExtLookup = (w: Python, imports: ProfileImports, ext: ProfileExtension, targetPath: string[]): void => {
     if (targetPath.length === 0) {
         w.line(`exts = getattr(self._resource, "extension", None) or []`);
     } else {
         w.line(
-            `target = ensure_path(self._resource.model_dump(by_alias=True, exclude_none=True) if hasattr(self._resource, "model_dump") else self._resource, ${JSON.stringify(targetPath)})`,
+            `target = ${imports.helpers.use("ensure_path")}(self._resource.model_dump(by_alias=True, exclude_none=True) if hasattr(self._resource, "model_dump") else self._resource, ${JSON.stringify(targetPath)})`,
         );
         w.line(`exts = target.get("extension", []) if isinstance(target, dict) else []`);
     }
-    w.line(`ext = next((e for e in exts if is_extension(e, ${JSON.stringify(ext.url)})), None)`);
+    w.line(
+        `ext = next((e for e in exts if ${imports.helpers.use("is_extension")}(e, ${JSON.stringify(ext.url)})), None)`,
+    );
 };
 
-const emitExtPush = (w: Python, targetPath: string[], extExpr: string): void => {
+const emitExtPush = (w: Python, imports: ProfileImports, targetPath: string[], extExpr: string): void => {
     if (targetPath.length === 0) {
-        w.line(`push_extension(self._resource, ${extExpr})`);
+        w.line(`${imports.helpers.use("push_extension")}(self._resource, ${extExpr})`);
     } else {
-        w.line(`target = ensure_path(self._resource, ${JSON.stringify(targetPath)})`);
-        w.line(`push_extension(target, ${extExpr})`);
+        w.line(`target = ${imports.helpers.use("ensure_path")}(self._resource, ${JSON.stringify(targetPath)})`);
+        w.line(`${imports.helpers.use("push_extension")}(target, ${extExpr})`);
     }
 };
 
@@ -122,36 +147,39 @@ const emitExtPush = (w: Python, targetPath: string[], extExpr: string): void => 
  */
 const emitGetterOverloads = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     methodName: string,
     flatPyType: string,
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
     withVFlat = false,
 ): void => {
-    const profileClass = extProfileInfo?.className;
     // `vflat` validates through the extension's profile class before extracting,
     // so it exists only where that class does.
     const hasVFlat = withVFlat && profileClass !== undefined;
 
-    w.line("@overload");
+    w.line(`@${imports.typing.use("overload")}`);
     w.line(`def ${methodName}(self) -> ${flatPyType} | None: ...`);
     if (hasVFlat) {
-        w.line("@overload");
-        w.line(`def ${methodName}(self, mode: Literal["vflat"]) -> ${flatPyType} | None: ...`);
+        w.line(`@${imports.typing.use("overload")}`);
+        w.line(`def ${methodName}(self, mode: ${imports.typing.use("Literal")}["vflat"]) -> ${flatPyType} | None: ...`);
     }
-    w.line("@overload");
-    w.line(`def ${methodName}(self, mode: Literal["raw"]) -> Extension | None: ...`);
+    w.line(`@${imports.typing.use("overload")}`);
+    w.line(`def ${methodName}(self, mode: ${imports.typing.use("Literal")}["raw"]) -> ${extensionType} | None: ...`);
     if (profileClass) {
-        w.line("@overload");
-        w.line(`def ${methodName}(self, mode: Literal["profile"]) -> ${profileClass} | None: ...`);
+        w.line(`@${imports.typing.use("overload")}`);
+        w.line(
+            `def ${methodName}(self, mode: ${imports.typing.use("Literal")}["profile"]) -> ${profileClass} | None: ...`,
+        );
     }
 
     const modes = ['"raw"'];
     if (hasVFlat) modes.unshift('"vflat"');
     if (profileClass) modes.push('"profile"');
-    const modeType = `Literal[${modes.join(", ")}] | None`;
+    const modeType = `${imports.typing.use("Literal")}[${modes.join(", ")}] | None`;
     const returnUnion = profileClass
-        ? `${flatPyType} | Extension | ${profileClass} | None`
-        : `${flatPyType} | Extension | None`;
+        ? `${flatPyType} | ${extensionType} | ${profileClass} | None`
+        : `${flatPyType} | ${extensionType} | None`;
     w.line(`def ${methodName}(self, mode: ${modeType} = None) -> ${returnUnion}:`);
 };
 
@@ -161,13 +189,13 @@ const emitGetterOverloads = (
  * `mode == "profile"`, otherwise falls through to the caller-supplied flat
  * body.
  */
-const emitGetterModeDispatch = (w: Python, extProfileInfo: ExtensionProfileInfo | undefined): void => {
-    w.line("ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)");
+const emitGetterModeDispatch = (w: Python, extensionType: string, profileClass: string | undefined): void => {
+    w.line(`ext_obj = ext if not isinstance(ext, dict) else ${extensionType}(**ext)`);
     w.line(`if mode == "raw":`);
     w.indentBlock(() => w.line("return ext_obj"));
-    if (extProfileInfo) {
+    if (profileClass) {
         w.line(`if mode == "profile":`);
-        w.indentBlock(() => w.line(`return ${extProfileInfo.className}.apply(ext_obj)`));
+        w.indentBlock(() => w.line(`return ${profileClass}.apply(ext_obj)`));
     }
 };
 
@@ -178,29 +206,30 @@ const emitGetterModeDispatch = (w: Python, extProfileInfo: ExtensionProfileInfo 
  */
 const emitSetterDispatchPreamble = (
     w: Python,
+    imports: ProfileImports,
     ext: ProfileExtension,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
     let startedChain = false;
-    if (extProfileInfo) {
-        w.line(`if isinstance(value, ${extProfileInfo.className}):`);
-        w.indentBlock(() => emitExtPush(w, targetPath, "value.to_resource()"));
+    if (profileClass) {
+        w.line(`if isinstance(value, ${profileClass}):`);
+        w.indentBlock(() => emitExtPush(w, imports, targetPath, "value.to_resource()"));
         startedChain = true;
     }
     const keyword = startedChain ? "elif" : "if";
-    w.line(`${keyword} is_extension(value):`);
+    w.line(`${keyword} ${imports.helpers.use("is_extension")}(value):`);
     w.indentBlock(() => {
-        w.line(`validate_extension_url(value, ${JSON.stringify(ext.url)})`);
-        emitExtPush(w, targetPath, "value");
+        w.line(`${imports.helpers.use("validate_extension_url")}(value, ${JSON.stringify(ext.url)})`);
+        emitExtPush(w, imports, targetPath, "value");
     });
 };
 
 /** Build the Python type string for the `value` parameter of a setter. */
-const buildSetterParamType = (flatType: string, extProfileInfo: ExtensionProfileInfo | undefined): string => {
+const buildSetterParamType = (extensionType: string, flatType: string, profileClass: string | undefined): string => {
     const parts: string[] = [];
-    if (extProfileInfo) parts.push(extProfileInfo.className);
-    parts.push("Extension", flatType);
+    if (profileClass) parts.push(profileClass);
+    parts.push(`${extensionType}`, flatType);
     return `"${parts.join(" | ")}"`;
 };
 
@@ -210,20 +239,22 @@ const buildSetterParamType = (flatType: string, extProfileInfo: ExtensionProfile
 
 const generateExtensionGetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     baseName: string,
     flatPyType: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
     emitFlatReturn: () => void,
     withVFlat = false,
 ): void => {
-    emitGetterOverloads(w, `get_${baseName}`, flatPyType, extProfileInfo, withVFlat);
+    emitGetterOverloads(w, imports, extensionType, `get_${baseName}`, flatPyType, profileClass, withVFlat);
     w.indentBlock(() => {
-        emitExtLookup(w, ext, targetPath);
+        emitExtLookup(w, imports, ext, targetPath);
         w.line("if ext is None:");
         w.indentBlock(() => w.line("return None"));
-        emitGetterModeDispatch(w, extProfileInfo);
+        emitGetterModeDispatch(w, extensionType, profileClass);
         emitFlatReturn();
     });
     w.line();
@@ -235,18 +266,22 @@ const generateExtensionGetter = (
 
 const generateComplexExtensionGetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     baseName: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
     generateExtensionGetter(
         w,
+        imports,
+        extensionType,
         ext,
         baseName,
-        "dict[str, Any]",
+        `dict[str, ${imports.typing.use("Any")}]`,
         targetPath,
-        extProfileInfo,
+        profileClass,
         () => {
             const configItems = (ext.subExtensions ?? []).map((sub) => {
                 const valueField = sub.valueFieldType
@@ -260,17 +295,17 @@ const generateComplexExtensionGetter = (
             // for a sub-extension it finds, so a non-conformant extension otherwise
             // comes back as a dict quietly missing its required members, and the
             // caller meets a KeyError with no FHIR context.
-            if (extProfileInfo) {
+            if (profileClass) {
                 w.line(`if mode == "vflat":`);
                 w.indentBlock(() => {
-                    w.line(`result = ${extProfileInfo.className}.apply(ext_obj).validate()`);
+                    w.line(`result = ${profileClass}.apply(ext_obj).validate()`);
                     w.line(`if result["errors"]:`);
                     w.indentBlock(() => w.line(`raise ValueError("; ".join(result["errors"]))`));
                 });
             }
-            w.line("return extract_complex_extension(ext, config)");
+            w.line(`return ${imports.helpers.use("extract_complex_extension")}(ext, config)`);
         },
-        extProfileInfo !== undefined,
+        profileClass !== undefined,
     );
 };
 
@@ -280,18 +315,20 @@ const generateComplexExtensionGetter = (
 
 const generateExtensionSetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     className: string,
     baseName: string,
     flatParamType: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
     emitElseBody: () => void,
 ): void => {
-    const paramType = buildSetterParamType(flatParamType, extProfileInfo);
+    const paramType = buildSetterParamType(extensionType, flatParamType, profileClass);
     w.line(`def set_${baseName}(self, value: ${paramType}) -> "${className}":`);
     w.indentBlock(() => {
-        emitSetterDispatchPreamble(w, ext, targetPath, extProfileInfo);
+        emitSetterDispatchPreamble(w, imports, ext, targetPath, profileClass);
         w.line("else:");
         w.indentBlock(emitElseBody);
         w.line("return self");
@@ -301,42 +338,55 @@ const generateExtensionSetter = (
 
 const generateComplexExtensionSetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     className: string,
     baseName: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
-    generateExtensionSetter(w, ext, className, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
-        // In the else branch `value` is the flat dict form (models/profile classes were
-        // handled above); assert it so field access below type-checks and misuse fails loudly.
-        w.line("assert is_record(value)");
-        w.line("sub_extensions = []");
-        for (const sub of ext.subExtensions ?? []) {
-            const valueField = sub.valueFieldType
-                ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
-                : "value";
-            if (sub.max === "*") {
-                w.line(`for item in value.get(${JSON.stringify(sub.url)}, []):`);
-                w.indentBlock(() => {
-                    w.line(
-                        `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: item})`,
-                    );
-                });
-            } else {
-                w.line(`if value.get(${JSON.stringify(sub.url)}) is not None:`);
-                w.indentBlock(() => {
-                    w.line(
-                        `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: value[${JSON.stringify(sub.url)}]})`,
-                    );
-                });
+    generateExtensionSetter(
+        w,
+        imports,
+        extensionType,
+        ext,
+        className,
+        baseName,
+        `dict[str, ${imports.typing.use("Any")}]`,
+        targetPath,
+        profileClass,
+        () => {
+            // In the else branch `value` is the flat dict form (models/profile classes were
+            // handled above); assert it so field access below type-checks and misuse fails loudly.
+            w.line(`assert ${imports.helpers.use("is_record")}(value)`);
+            w.line("sub_extensions = []");
+            for (const sub of ext.subExtensions ?? []) {
+                const valueField = sub.valueFieldType
+                    ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
+                    : "value";
+                if (sub.max === "*") {
+                    w.line(`for item in value.get(${JSON.stringify(sub.url)}, []):`);
+                    w.indentBlock(() => {
+                        w.line(
+                            `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: item})`,
+                        );
+                    });
+                } else {
+                    w.line(`if value.get(${JSON.stringify(sub.url)}) is not None:`);
+                    w.indentBlock(() => {
+                        w.line(
+                            `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: value[${JSON.stringify(sub.url)}]})`,
+                        );
+                    });
+                }
             }
-        }
-        // Wrap in an Extension model so Pydantic coerces the sub-extension dicts and
-        // serializes their value fields with FHIR aliases (valueCoding, not value_coding).
-        const extObj = `Extension(url=${JSON.stringify(ext.url)}, extension=sub_extensions)`;
-        emitExtPush(w, targetPath, extObj);
-    });
+            // Wrap in an Extension model so Pydantic coerces the sub-extension dicts and
+            // serializes their value fields with FHIR aliases (valueCoding, not value_coding).
+            const extObj = `${extensionType}(url=${JSON.stringify(ext.url)}, extension=sub_extensions)`;
+            emitExtPush(w, imports, targetPath, extObj);
+        },
+    );
 };
 
 // ---------------------------------------------------------------------------
@@ -345,36 +395,58 @@ const generateComplexExtensionSetter = (
 
 const generateSingleValueExtensionGetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     baseName: string,
     targetPath: string[],
     valueField: string,
     pyType: string,
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
-    generateExtensionGetter(w, ext, baseName, pyType, targetPath, extProfileInfo, () => {
-        w.line(`return cast('${pyType} | None', get_extension_value(ext, ${JSON.stringify(valueField)}))`);
+    generateExtensionGetter(w, imports, extensionType, ext, baseName, pyType, targetPath, profileClass, () => {
+        w.line(
+            `return ${imports.typing.use("cast")}('${pyType} | None', ${imports.helpers.use("get_extension_value")}(ext, ${JSON.stringify(valueField)}))`,
+        );
     });
 };
 
 const generateSingleValueExtensionSetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     className: string,
     baseName: string,
     targetPath: string[],
     valueField: string,
     pyType: string,
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
     // Type the input as the value's own type (symmetric with the getter) instead of `Any`.
-    generateExtensionSetter(w, ext, className, baseName, pyType, targetPath, extProfileInfo, () => {
-        // The profile-class arm is handled by isinstance above and the Extension arm by
-        // is_extension; assert the remainder so the value type-checks and misuse fails loudly.
-        w.line("assert not isinstance(value, Extension)");
-        // Wrap in an Extension model so the value field serializes with its FHIR alias.
-        emitExtPush(w, targetPath, `Extension(url=${JSON.stringify(ext.url)}, ${valueField}=value)`);
-    });
+    generateExtensionSetter(
+        w,
+        imports,
+        extensionType,
+        ext,
+        className,
+        baseName,
+        pyType,
+        targetPath,
+        profileClass,
+        () => {
+            // The profile-class arm is handled by isinstance above and the Extension arm by
+            // is_extension; assert the remainder so the value type-checks and misuse fails loudly.
+            w.line(`assert not isinstance(value, ${extensionType})`);
+            // Wrap in an Extension model so the value field serializes with its FHIR alias.
+            emitExtPush(
+                w,
+                imports,
+                targetPath,
+                `${extensionType}(url=${JSON.stringify(ext.url)}, ${valueField}=value)`,
+            );
+        },
+    );
 };
 
 // ---------------------------------------------------------------------------
@@ -383,30 +455,55 @@ const generateSingleValueExtensionSetter = (
 
 const generateGenericExtensionGetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     baseName: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
-    generateExtensionGetter(w, ext, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
-        w.line(
-            'return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))',
-        );
-    });
+    generateExtensionGetter(
+        w,
+        imports,
+        extensionType,
+        ext,
+        baseName,
+        `dict[str, ${imports.typing.use("Any")}]`,
+        targetPath,
+        profileClass,
+        () => {
+            w.line(
+                `return ${imports.typing.use("cast")}("dict[str, ${imports.typing.use("Any")}] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))`,
+            );
+        },
+    );
 };
 
 const generateGenericExtensionSetter = (
     w: Python,
+    imports: ProfileImports,
+    extensionType: string,
     ext: ProfileExtension,
     className: string,
     baseName: string,
     targetPath: string[],
-    extProfileInfo: ExtensionProfileInfo | undefined,
+    profileClass: string | undefined,
 ): void => {
-    generateExtensionSetter(w, ext, className, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
-        // In the else branch `value` is the flat dict form (models/profile classes were
-        // handled above); assert it so `**value` type-checks and misuse fails loudly.
-        w.line("assert is_record(value)");
-        emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
-    });
+    generateExtensionSetter(
+        w,
+        imports,
+        extensionType,
+        ext,
+        className,
+        baseName,
+        `dict[str, ${imports.typing.use("Any")}]`,
+        targetPath,
+        profileClass,
+        () => {
+            // In the else branch `value` is the flat dict form (models/profile classes were
+            // handled above); assert it so `**value` type-checks and misuse fails loudly.
+            w.line(`assert ${imports.helpers.use("is_record")}(value)`);
+            emitExtPush(w, imports, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
+        },
+    );
 };

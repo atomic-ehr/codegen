@@ -3,8 +3,11 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
+
+from typing import Generic, Literal
+from typing import List as PyList
+
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import TypeVar
 
 T = TypeVar('T', bound=str, default=str, covariant=True)
