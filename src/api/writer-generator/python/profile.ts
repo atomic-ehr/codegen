@@ -121,7 +121,8 @@ const generateCreateMethod = (
 const generateValidateMethod = (w: Python, className: string, errorLines: string[], warningLines: string[]): void => {
     w.line("def validate(self) -> dict[str, list[str]]:");
     w.indentBlock(() => {
-        w.line(`profile_name = "${className}"`);
+        // Every check passes `profile_name`; without checks it would be unused.
+        if (errorLines.length > 0 || warningLines.length > 0) w.line(`profile_name = "${className}"`);
         w.line("errors: list[str] = []");
         w.line("warnings: list[str] = []");
         for (const expr of errorLines) w.line(expr);
