@@ -115,7 +115,7 @@ export class USCoreVitalSignsProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -124,7 +124,7 @@ export class USCoreVitalSignsProfile {
     }
 
     setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -133,7 +133,7 @@ export class USCoreVitalSignsProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -142,7 +142,7 @@ export class USCoreVitalSignsProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -152,7 +152,7 @@ export class USCoreVitalSignsProfile {
 
     setEffectiveDateTime (value: string) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectiveDateTime: value });
+        this.resource.effectiveDateTime = value;
         return this;
     }
 
@@ -162,7 +162,7 @@ export class USCoreVitalSignsProfile {
 
     setEffectivePeriod (value: Period) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectivePeriod: value });
+        this.resource.effectivePeriod = value;
         return this;
     }
 
@@ -172,7 +172,7 @@ export class USCoreVitalSignsProfile {
 
     setValueQuantity (value: Quantity) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueQuantity: value });
+        this.resource.valueQuantity = value;
         return this;
     }
 
@@ -182,7 +182,7 @@ export class USCoreVitalSignsProfile {
 
     setValueCodeableConcept (value: CodeableConcept) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueCodeableConcept: value });
+        this.resource.valueCodeableConcept = value;
         return this;
     }
 
@@ -192,7 +192,7 @@ export class USCoreVitalSignsProfile {
 
     setValueString (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueString: value });
+        this.resource.valueString = value;
         return this;
     }
 
@@ -202,7 +202,7 @@ export class USCoreVitalSignsProfile {
 
     setValueBoolean (value: boolean) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueBoolean: value });
+        this.resource.valueBoolean = value;
         return this;
     }
 
@@ -212,7 +212,7 @@ export class USCoreVitalSignsProfile {
 
     setValueInteger (value: number) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueInteger: value });
+        this.resource.valueInteger = value;
         return this;
     }
 
@@ -222,7 +222,7 @@ export class USCoreVitalSignsProfile {
 
     setValueRange (value: Range) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRange: value });
+        this.resource.valueRange = value;
         return this;
     }
 
@@ -232,7 +232,7 @@ export class USCoreVitalSignsProfile {
 
     setValueRatio (value: Ratio) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRatio: value });
+        this.resource.valueRatio = value;
         return this;
     }
 
@@ -242,7 +242,7 @@ export class USCoreVitalSignsProfile {
 
     setValueSampledData (value: SampledData) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueSampledData: value });
+        this.resource.valueSampledData = value;
         return this;
     }
 
@@ -252,7 +252,7 @@ export class USCoreVitalSignsProfile {
 
     setValueTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueTime: value });
+        this.resource.valueTime = value;
         return this;
     }
 
@@ -262,7 +262,7 @@ export class USCoreVitalSignsProfile {
 
     setValueDateTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -272,7 +272,7 @@ export class USCoreVitalSignsProfile {
 
     setValuePeriod (value: Period) : this {
         this.clearValue();
-        Object.assign(this.resource, { valuePeriod: value });
+        this.resource.valuePeriod = value;
         return this;
     }
 

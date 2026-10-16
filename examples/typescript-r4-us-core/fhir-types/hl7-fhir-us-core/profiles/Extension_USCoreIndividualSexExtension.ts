@@ -71,7 +71,7 @@ export class USCoreIndividualSexExtensionProfile {
     }
 
     setValueCoding (value: Coding) : this {
-        Object.assign(this.resource, { valueCoding: value });
+        this.resource.valueCoding = value;
         return this;
     }
 

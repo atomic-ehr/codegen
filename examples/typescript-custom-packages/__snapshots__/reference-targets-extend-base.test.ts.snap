@@ -89,7 +89,7 @@ export class WidenedRelatedPersonProfile {
     }
 
     setPatient (value: Reference<"Patient" | "Person">) : this {
-        Object.assign(this.resource, { patient: value });
+        this.resource.patient = value;
         return this;
     }
 

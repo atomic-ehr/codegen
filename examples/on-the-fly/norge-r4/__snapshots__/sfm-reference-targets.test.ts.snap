@@ -97,7 +97,7 @@ export class SfmMedicationDispenseProfile {
     }
 
     setStatus (value: ("preparation" | "in-progress" | "cancelled" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "declined" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -106,7 +106,7 @@ export class SfmMedicationDispenseProfile {
     }
 
     setMedicationReference (value: Reference<"Medication" /* http://ehelse.no/fhir/StructureDefinition/sfm-Magistrell-Medication, http://ehelse.no/fhir/StructureDefinition/sfm-Medication */>) : this {
-        Object.assign(this.resource, { medicationReference: value });
+        this.resource.medicationReference = value;
         return this;
     }
 
@@ -183,6 +183,7 @@ export class SfmMedicationDispenseProfile {
                 ...validateEnum(res, profileName, "status", ["preparation","in-progress","cancelled","on-hold","completed","entered-in-error","stopped","declined","unknown"]),
                 ...validateChoiceRequired(res, profileName, ["medicationReference"]),
                 ...validateChoiceProhibited(res, profileName, ["medicationCodeableConcept"]),
+                ...validateReference(res, profileName, "medicationReference", ["Medication"]),
                 ...validateReference(res, profileName, "subject", ["Group","Patient"]),
                 ...validateReference(res, profileName, "authorizingPrescription", ["MedicationRequest"]),
             ],
@@ -351,7 +352,7 @@ export class SfmMedicationStatementProfile {
     }
 
     setStatus (value: ("active" | "completed" | "entered-in-error" | "intended" | "stopped" | "on-hold" | "unknown" | "not-taken")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -360,7 +361,7 @@ export class SfmMedicationStatementProfile {
     }
 
     setMedicationReference (value: Reference<"Medication" /* http://ehelse.no/fhir/StructureDefinition/sfm-Magistrell-Medication, http://ehelse.no/fhir/StructureDefinition/sfm-Medication */>) : this {
-        Object.assign(this.resource, { medicationReference: value });
+        this.resource.medicationReference = value;
         return this;
     }
 
@@ -369,7 +370,7 @@ export class SfmMedicationStatementProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://ehelse.no/fhir/StructureDefinition/sfm-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -378,7 +379,7 @@ export class SfmMedicationStatementProfile {
     }
 
     setDosage (value: Dosage[]) : this {
-        Object.assign(this.resource, { dosage: value });
+        this.resource.dosage = value;
         return this;
     }
 
@@ -756,6 +757,7 @@ export class SfmMedicationStatementProfile {
                 ...validateEnum(res, profileName, "status", ["active","completed","entered-in-error","intended","stopped","on-hold","unknown","not-taken"]),
                 ...validateChoiceRequired(res, profileName, ["medicationReference"]),
                 ...validateChoiceProhibited(res, profileName, ["medicationCodeableConcept"]),
+                ...validateReference(res, profileName, "medicationReference", ["Medication"]),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateReference(res, profileName, "basedOn", ["CarePlan","MedicationRequest","ServiceRequest"]),

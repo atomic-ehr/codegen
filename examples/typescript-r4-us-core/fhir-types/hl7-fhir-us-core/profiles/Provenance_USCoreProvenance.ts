@@ -96,7 +96,7 @@ export class USCoreProvenanceProfile {
     }
 
     setTarget (value: Reference<string /* Resource */>[]) : this {
-        Object.assign(this.resource, { target: value });
+        this.resource.target = value;
         return this;
     }
 
@@ -105,7 +105,7 @@ export class USCoreProvenanceProfile {
     }
 
     setRecorded (value: string) : this {
-        Object.assign(this.resource, { recorded: value });
+        this.resource.recorded = value;
         return this;
     }
 
@@ -114,7 +114,7 @@ export class USCoreProvenanceProfile {
     }
 
     setAgent (value: ProvenanceAgent[]) : this {
-        Object.assign(this.resource, { agent: value });
+        this.resource.agent = value;
         return this;
     }
 

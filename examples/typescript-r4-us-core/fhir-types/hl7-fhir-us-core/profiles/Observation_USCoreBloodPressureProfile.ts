@@ -144,7 +144,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -153,7 +153,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -162,7 +162,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -175,7 +175,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setComponent (value: ObservationComponent[]) : this {
-        Object.assign(this.resource, { component: value });
+        this.resource.component = value;
         return this;
     }
 
@@ -185,7 +185,7 @@ export class USCoreBloodPressureProfile {
 
     setEffectiveDateTime (value: string) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectiveDateTime: value });
+        this.resource.effectiveDateTime = value;
         return this;
     }
 
@@ -195,7 +195,7 @@ export class USCoreBloodPressureProfile {
 
     setEffectivePeriod (value: Period) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectivePeriod: value });
+        this.resource.effectivePeriod = value;
         return this;
     }
 
@@ -205,7 +205,7 @@ export class USCoreBloodPressureProfile {
 
     setValueQuantity (value: Quantity) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueQuantity: value });
+        this.resource.valueQuantity = value;
         return this;
     }
 
@@ -215,7 +215,7 @@ export class USCoreBloodPressureProfile {
 
     setValueCodeableConcept (value: CodeableConcept) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueCodeableConcept: value });
+        this.resource.valueCodeableConcept = value;
         return this;
     }
 
@@ -225,7 +225,7 @@ export class USCoreBloodPressureProfile {
 
     setValueString (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueString: value });
+        this.resource.valueString = value;
         return this;
     }
 
@@ -235,7 +235,7 @@ export class USCoreBloodPressureProfile {
 
     setValueBoolean (value: boolean) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueBoolean: value });
+        this.resource.valueBoolean = value;
         return this;
     }
 
@@ -245,7 +245,7 @@ export class USCoreBloodPressureProfile {
 
     setValueInteger (value: number) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueInteger: value });
+        this.resource.valueInteger = value;
         return this;
     }
 
@@ -255,7 +255,7 @@ export class USCoreBloodPressureProfile {
 
     setValueRange (value: Range) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRange: value });
+        this.resource.valueRange = value;
         return this;
     }
 
@@ -265,7 +265,7 @@ export class USCoreBloodPressureProfile {
 
     setValueRatio (value: Ratio) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRatio: value });
+        this.resource.valueRatio = value;
         return this;
     }
 
@@ -275,7 +275,7 @@ export class USCoreBloodPressureProfile {
 
     setValueSampledData (value: SampledData) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueSampledData: value });
+        this.resource.valueSampledData = value;
         return this;
     }
 
@@ -285,7 +285,7 @@ export class USCoreBloodPressureProfile {
 
     setValueTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueTime: value });
+        this.resource.valueTime = value;
         return this;
     }
 
@@ -295,7 +295,7 @@ export class USCoreBloodPressureProfile {
 
     setValueDateTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -305,7 +305,7 @@ export class USCoreBloodPressureProfile {
 
     setValuePeriod (value: Period) : this {
         this.clearValue();
-        Object.assign(this.resource, { valuePeriod: value });
+        this.resource.valuePeriod = value;
         return this;
     }
 

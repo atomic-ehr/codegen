@@ -117,7 +117,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -126,7 +126,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -135,7 +135,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -149,7 +149,7 @@ export class USCoreBodyWeightProfile {
 
     setEffectiveDateTime (value: string) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectiveDateTime: value });
+        this.resource.effectiveDateTime = value;
         return this;
     }
 
@@ -159,7 +159,7 @@ export class USCoreBodyWeightProfile {
 
     setEffectivePeriod (value: Period) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectivePeriod: value });
+        this.resource.effectivePeriod = value;
         return this;
     }
 
@@ -169,7 +169,7 @@ export class USCoreBodyWeightProfile {
 
     setValueQuantity (value: Quantity) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueQuantity: value });
+        this.resource.valueQuantity = value;
         return this;
     }
 
@@ -179,7 +179,7 @@ export class USCoreBodyWeightProfile {
 
     setValueCodeableConcept (value: CodeableConcept) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueCodeableConcept: value });
+        this.resource.valueCodeableConcept = value;
         return this;
     }
 
@@ -189,7 +189,7 @@ export class USCoreBodyWeightProfile {
 
     setValueString (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueString: value });
+        this.resource.valueString = value;
         return this;
     }
 
@@ -199,7 +199,7 @@ export class USCoreBodyWeightProfile {
 
     setValueBoolean (value: boolean) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueBoolean: value });
+        this.resource.valueBoolean = value;
         return this;
     }
 
@@ -209,7 +209,7 @@ export class USCoreBodyWeightProfile {
 
     setValueInteger (value: number) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueInteger: value });
+        this.resource.valueInteger = value;
         return this;
     }
 
@@ -219,7 +219,7 @@ export class USCoreBodyWeightProfile {
 
     setValueRange (value: Range) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRange: value });
+        this.resource.valueRange = value;
         return this;
     }
 
@@ -229,7 +229,7 @@ export class USCoreBodyWeightProfile {
 
     setValueRatio (value: Ratio) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueRatio: value });
+        this.resource.valueRatio = value;
         return this;
     }
 
@@ -239,7 +239,7 @@ export class USCoreBodyWeightProfile {
 
     setValueSampledData (value: SampledData) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueSampledData: value });
+        this.resource.valueSampledData = value;
         return this;
     }
 
@@ -249,7 +249,7 @@ export class USCoreBodyWeightProfile {
 
     setValueTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueTime: value });
+        this.resource.valueTime = value;
         return this;
     }
 
@@ -259,7 +259,7 @@ export class USCoreBodyWeightProfile {
 
     setValueDateTime (value: string) : this {
         this.clearValue();
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -269,7 +269,7 @@ export class USCoreBodyWeightProfile {
 
     setValuePeriod (value: Period) : this {
         this.clearValue();
-        Object.assign(this.resource, { valuePeriod: value });
+        this.resource.valuePeriod = value;
         return this;
     }
 

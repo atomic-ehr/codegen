@@ -106,7 +106,7 @@ export class USCorePatientProfile {
     }
 
     setIdentifier (value: Identifier[]) : this {
-        Object.assign(this.resource, { identifier: value });
+        this.resource.identifier = value;
         return this;
     }
 
@@ -115,7 +115,7 @@ export class USCorePatientProfile {
     }
 
     setName (value: HumanName[]) : this {
-        Object.assign(this.resource, { name: value });
+        this.resource.name = value;
         return this;
     }
 
