@@ -44,11 +44,7 @@
           "package": "de.solutio.fhir.models.resources",
           "complexTypePackage": "de.solutio.fhir.models.complex_types",
           "resourcePackage": "de.solutio.fhir.models.resources",
-          "additional_imports": [
-            "de.solutio.fhir.models.Primitive",
-            "de.solutio.fhir.models.ResourceName",
-            "de.solutio.fhir.models.Utils"
-          ],
+          "utilityPackage": "de.solutio.fhir.models",
           "features": {
             "hash_code_equals": true,
             "builder": true,
@@ -66,11 +62,7 @@
           "package": "de.solutio.fhir.models.complex_types",
           "complexTypePackage": "de.solutio.fhir.models.complex_types",
           "resourcePackage": "de.solutio.fhir.models.resources",
-          "additional_imports": [
-            "de.solutio.fhir.models.Primitive",
-            "de.solutio.fhir.models.ResourceName",
-            "de.solutio.fhir.models.Utils"
-          ],
+          "utilityPackage": "de.solutio.fhir.models",
           "features": {
             "hash_code_equals": true,
             "builder": true,
