@@ -128,7 +128,7 @@ describe("TypeSchema Processing constraint generation", async () => {
                 },
                 nested: [
                     {
-                        identifier: { kind: "nested", name: "foo", url: "uri::D#foo" },
+                        identifier: { kind: "nested", name: "foo", url: "uri::E#foo" },
                         base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
                         fields: {
                             bar: {

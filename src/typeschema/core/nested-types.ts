@@ -12,15 +12,16 @@ import {
     resolveFsElementGenealogy,
 } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
-import type {
-    CanonicalUrl,
-    Field,
-    FieldSlicing,
-    Name,
-    NestedIdentifier,
-    NestedTypeSchema,
-    RichFHIRSchema,
-    TypeIdentifier,
+import {
+    type CanonicalUrl,
+    type Field,
+    type FieldSlicing,
+    type Name,
+    type NestedIdentifier,
+    type NestedTypeSchema,
+    profileNestedIdentifier,
+    type RichFHIRSchema,
+    type TypeIdentifier,
 } from "../types";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
 
@@ -191,7 +192,17 @@ export function mkNestedTypes(
 
     const nestedTypes = [] as NestedTypeSchema[];
     for (const [path, element] of nested) {
-        const identifier = mkNestedIdentifier(register, fhirSchema, path);
+        const identifier =
+            fhirSchema.derivation === "constraint"
+                ? profileNestedIdentifier(
+                      {
+                          package: fhirSchema.package_meta.name,
+                          version: fhirSchema.package_meta.version,
+                          url: fhirSchema.url,
+                      },
+                      path.join(".") as Name,
+                  )
+                : mkNestedIdentifier(register, fhirSchema, path);
 
         let baseName: Name;
         if (element.type === "BackboneElement" || !element.type) {
