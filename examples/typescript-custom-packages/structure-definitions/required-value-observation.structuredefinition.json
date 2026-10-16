@@ -1,0 +1,32 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "required-value-observation",
+  "url": "http://example.test/StructureDefinition/required-value-observation",
+  "version": "0.1.0",
+  "name": "RequiredValueObservation",
+  "status": "active",
+  "fhirVersion": "5.0.0",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Observation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Observation",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Observation.value[x]",
+        "path": "Observation.value[x]",
+        "min": 1,
+        "type": [
+          { "code": "Quantity" },
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/MolecularSequence"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
