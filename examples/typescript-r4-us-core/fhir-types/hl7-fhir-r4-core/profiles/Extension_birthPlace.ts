@@ -71,7 +71,7 @@ export class birthPlaceProfile {
     }
 
     setValueAddress (value: Address) : this {
-        Object.assign(this.resource, { valueAddress: value });
+        this.resource.valueAddress = value;
         return this;
     }
 

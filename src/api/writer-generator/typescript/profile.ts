@@ -87,6 +87,8 @@ const collectChoiceAccessors = (
     imports: ProfileImports,
     snapshot: SnapshotProfileTypeSchema,
     promotedChoices: ReadonlySet<string>,
+    resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
+    isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): Pick<ProfileFactoryInfo, "accessors" | "choiceClearMethods"> => {
     // Group every choice-instance field by its declaration (choiceOf). A profile
     // that constrains value[x] narrows the declaration's `choices` list, but the
@@ -104,7 +106,7 @@ const collectChoiceAccessors = (
         if (field.excluded) continue;
         if (!isChoiceInstanceField(field)) continue;
         if (promotedChoices.has(name)) continue;
-        const tsType = tsTypeFromIdentifier(imports.types, field.type) + (field.array ? "[]" : "");
+        const tsType = fieldTsType(imports.types, field, resolveRef, isFamilyType);
         // value[x] variants are mutually exclusive — a single-variant group has
         // nothing to clear, so only multi-variant groups get a clear helper.
         const hasSiblings = (variantsByChoice[field.choiceOf]?.length ?? 0) > 1;
@@ -235,6 +237,8 @@ export const collectProfileFactoryInfo = (
         imports,
         snapshot,
         promotedChoices,
+        resolveRef,
+        isFamilyType,
     );
     const accessors = [...autoAccessors, ...choiceAccessors];
     return { autoFields, sliceAutoFields, params, accessors, choiceClearMethods, fixedFields };
@@ -646,7 +650,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
         });
         w.line();
         w.curlyBlock([`set${methodBaseName}`, `(value: ${p.tsType})`, ": this"], () => {
-            w.lineSM(`Object.assign(this.resource, { ${p.name}: value })`);
+            w.lineSM(`this.resource.${p.name} = value`);
             w.lineSM("return this");
         });
         w.line();
@@ -662,7 +666,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
         if (!factoryInfo.fixedFields.has(a.name)) {
             w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
                 if (a.choiceClearMethod) w.lineSM(`this.${a.choiceClearMethod}()`);
-                w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
+                w.lineSM(`${tsGet("this.resource", fieldAccess)} = value`);
                 w.lineSM("return this");
             });
             w.line();

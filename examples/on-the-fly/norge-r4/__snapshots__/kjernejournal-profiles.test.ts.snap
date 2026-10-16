@@ -140,7 +140,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setClinicalStatus (value: CodeableConcept<("active" | "inactive")>) : this {
-        Object.assign(this.resource, { clinicalStatus: value });
+        this.resource.clinicalStatus = value;
         return this;
     }
 
@@ -149,7 +149,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setVerificationStatus (value: CodeableConcept<("unconfirmed" | "confirmed" | "refuted" | "entered-in-error")>) : this {
-        Object.assign(this.resource, { verificationStatus: value });
+        this.resource.verificationStatus = value;
         return this;
     }
 
@@ -158,7 +158,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setCategory (value: ("food" | "medication" | "environment" | "biologic")[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -167,7 +167,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setCriticality (value: ("low" | "high")) : this {
-        Object.assign(this.resource, { criticality: value });
+        this.resource.criticality = value;
         return this;
     }
 
@@ -176,7 +176,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -185,7 +185,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setPatient (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { patient: value });
+        this.resource.patient = value;
         return this;
     }
 
@@ -194,7 +194,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setRecordedDate (value: string) : this {
-        Object.assign(this.resource, { recordedDate: value });
+        this.resource.recordedDate = value;
         return this;
     }
 
@@ -203,7 +203,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -212,7 +212,7 @@ export class KjAllergyIntoleranceProfile {
     }
 
     setReaction (value: AllergyIntoleranceReaction[]) : this {
-        Object.assign(this.resource, { reaction: value });
+        this.resource.reaction = value;
         return this;
     }
 
@@ -222,7 +222,7 @@ export class KjAllergyIntoleranceProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -232,7 +232,7 @@ export class KjAllergyIntoleranceProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -571,7 +571,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setClinicalStatus (value: CodeableConcept<("active" | "inactive")>) : this {
-        Object.assign(this.resource, { clinicalStatus: value });
+        this.resource.clinicalStatus = value;
         return this;
     }
 
@@ -580,7 +580,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setVerificationStatus (value: CodeableConcept<("confirmed" | "refuted" | "entered-in-error")>) : this {
-        Object.assign(this.resource, { verificationStatus: value });
+        this.resource.verificationStatus = value;
         return this;
     }
 
@@ -589,7 +589,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setCategory (value: CodeableConcept<("4" | "5")>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -598,7 +598,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setCode (value: CodeableConcept<("4" | "5" | string)>) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -607,7 +607,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -616,7 +616,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setRecordedDate (value: string) : this {
-        Object.assign(this.resource, { recordedDate: value });
+        this.resource.recordedDate = value;
         return this;
     }
 
@@ -625,7 +625,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -635,7 +635,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -645,7 +645,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -654,7 +654,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
     }
 
     setAbatementDateTime (value: string) : this {
-        Object.assign(this.resource, { abatementDateTime: value });
+        this.resource.abatementDateTime = value;
         return this;
     }
 
@@ -947,7 +947,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setClinicalStatus (value: CodeableConcept<("active" | "inactive")>) : this {
-        Object.assign(this.resource, { clinicalStatus: value });
+        this.resource.clinicalStatus = value;
         return this;
     }
 
@@ -956,7 +956,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setVerificationStatus (value: CodeableConcept<("confirmed" | "refuted" | "entered-in-error")>) : this {
-        Object.assign(this.resource, { verificationStatus: value });
+        this.resource.verificationStatus = value;
         return this;
     }
 
@@ -965,7 +965,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setCategory (value: CodeableConcept<("3" | "4" | "5" | "7" | "10")>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -974,7 +974,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -983,7 +983,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -992,7 +992,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setRecordedDate (value: string) : this {
-        Object.assign(this.resource, { recordedDate: value });
+        this.resource.recordedDate = value;
         return this;
     }
 
@@ -1001,7 +1001,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -1011,7 +1011,7 @@ export class KjConditionCriticalMedicalConditionProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -1021,7 +1021,7 @@ export class KjConditionCriticalMedicalConditionProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -1030,7 +1030,7 @@ export class KjConditionCriticalMedicalConditionProfile {
     }
 
     setAbatementDateTime (value: string) : this {
-        Object.assign(this.resource, { abatementDateTime: value });
+        this.resource.abatementDateTime = value;
         return this;
     }
 
@@ -1299,7 +1299,7 @@ export class KjConditionInfectionProfile {
     }
 
     setClinicalStatus (value: CodeableConcept<("active" | "inactive")>) : this {
-        Object.assign(this.resource, { clinicalStatus: value });
+        this.resource.clinicalStatus = value;
         return this;
     }
 
@@ -1308,7 +1308,7 @@ export class KjConditionInfectionProfile {
     }
 
     setVerificationStatus (value: CodeableConcept<("confirmed" | "refuted" | "entered-in-error")>) : this {
-        Object.assign(this.resource, { verificationStatus: value });
+        this.resource.verificationStatus = value;
         return this;
     }
 
@@ -1317,7 +1317,7 @@ export class KjConditionInfectionProfile {
     }
 
     setCategory (value: CodeableConcept<("3" | "4" | "5" | "7" | "10")>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -1326,7 +1326,7 @@ export class KjConditionInfectionProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -1335,7 +1335,7 @@ export class KjConditionInfectionProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -1344,7 +1344,7 @@ export class KjConditionInfectionProfile {
     }
 
     setRecordedDate (value: string) : this {
-        Object.assign(this.resource, { recordedDate: value });
+        this.resource.recordedDate = value;
         return this;
     }
 
@@ -1353,7 +1353,7 @@ export class KjConditionInfectionProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -1363,7 +1363,7 @@ export class KjConditionInfectionProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -1373,7 +1373,7 @@ export class KjConditionInfectionProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -1382,7 +1382,7 @@ export class KjConditionInfectionProfile {
     }
 
     setAbatementDateTime (value: string) : this {
-        Object.assign(this.resource, { abatementDateTime: value });
+        this.resource.abatementDateTime = value;
         return this;
     }
 
@@ -1675,7 +1675,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setClinicalStatus (value: CodeableConcept<("active" | "inactive")>) : this {
-        Object.assign(this.resource, { clinicalStatus: value });
+        this.resource.clinicalStatus = value;
         return this;
     }
 
@@ -1684,7 +1684,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setVerificationStatus (value: CodeableConcept<("confirmed" | "refuted" | "entered-in-error")>) : this {
-        Object.assign(this.resource, { verificationStatus: value });
+        this.resource.verificationStatus = value;
         return this;
     }
 
@@ -1693,7 +1693,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setCategory (value: CodeableConcept<("problem-list-item" | "encounter-diagnosis" | string)>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -1702,7 +1702,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -1711,7 +1711,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -1720,7 +1720,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setRecordedDate (value: string) : this {
-        Object.assign(this.resource, { recordedDate: value });
+        this.resource.recordedDate = value;
         return this;
     }
 
@@ -1729,7 +1729,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -1739,7 +1739,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
 
     setOnsetDateTime (value: string) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetDateTime: value });
+        this.resource.onsetDateTime = value;
         return this;
     }
 
@@ -1749,7 +1749,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
 
     setOnsetAge (value: Age) : this {
         this.clearOnset();
-        Object.assign(this.resource, { onsetAge: value });
+        this.resource.onsetAge = value;
         return this;
     }
 
@@ -1758,7 +1758,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
     }
 
     setAbatementDateTime (value: string) : this {
-        Object.assign(this.resource, { abatementDateTime: value });
+        this.resource.abatementDateTime = value;
         return this;
     }
 
@@ -2049,7 +2049,7 @@ export class KjConsentProfile {
     }
 
     setStatus (value: ("active" | "inactive" | "entered-in-error")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -2058,7 +2058,7 @@ export class KjConsentProfile {
     }
 
     setScope (value: CodeableConcept<("adr" | "research" | "patient-privacy" | "treatment" | string)>) : this {
-        Object.assign(this.resource, { scope: value });
+        this.resource.scope = value;
         return this;
     }
 
@@ -2067,7 +2067,7 @@ export class KjConsentProfile {
     }
 
     setCategory (value: CodeableConcept<("8" | "9")>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -2076,7 +2076,7 @@ export class KjConsentProfile {
     }
 
     setPatient (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { patient: value });
+        this.resource.patient = value;
         return this;
     }
 
@@ -2085,7 +2085,7 @@ export class KjConsentProfile {
     }
 
     setDateTime (value: string) : this {
-        Object.assign(this.resource, { dateTime: value });
+        this.resource.dateTime = value;
         return this;
     }
 
@@ -2094,7 +2094,7 @@ export class KjConsentProfile {
     }
 
     setPerformer (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>[]) : this {
-        Object.assign(this.resource, { performer: value });
+        this.resource.performer = value;
         return this;
     }
 
@@ -2103,7 +2103,7 @@ export class KjConsentProfile {
     }
 
     setPolicyRule (value: CodeableConcept) : this {
-        Object.assign(this.resource, { policyRule: value });
+        this.resource.policyRule = value;
         return this;
     }
 
@@ -2405,7 +2405,7 @@ export class KjDeviceUseStatementProfile {
     }
 
     setStatus (value: ("active" | "completed" | "entered-in-error")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -2414,7 +2414,7 @@ export class KjDeviceUseStatementProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -2423,7 +2423,7 @@ export class KjDeviceUseStatementProfile {
     }
 
     setRecordedOn (value: string) : this {
-        Object.assign(this.resource, { recordedOn: value });
+        this.resource.recordedOn = value;
         return this;
     }
 
@@ -2432,7 +2432,7 @@ export class KjDeviceUseStatementProfile {
     }
 
     setSource (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { source: value });
+        this.resource.source = value;
         return this;
     }
 
@@ -2441,7 +2441,7 @@ export class KjDeviceUseStatementProfile {
     }
 
     setDevice (value: Reference<"Device" /* http://nhn.no/kj/fhir/StructureDefinition/KjDevice */>) : this {
-        Object.assign(this.resource, { device: value });
+        this.resource.device = value;
         return this;
     }
 
@@ -2700,7 +2700,7 @@ export class KjDeviceProfile {
     }
 
     setType (value: CodeableConcept<("1" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "27" | "28" | "29" | string)>) : this {
-        Object.assign(this.resource, { type: value });
+        this.resource.type = value;
         return this;
     }
 
@@ -2806,7 +2806,7 @@ export class KjAbatementDateTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -2908,7 +2908,7 @@ export class KjInactiveIngredientProfile {
     }
 
     setValueBoolean (value: boolean) : this {
-        Object.assign(this.resource, { valueBoolean: value });
+        this.resource.valueBoolean = value;
         return this;
     }
 
@@ -3010,7 +3010,7 @@ export class KjRecordedDateTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -3106,7 +3106,7 @@ export class KjSourceOfInformationProfile {
     }
 
     setValueCoding (value: Coding) : this {
-        Object.assign(this.resource, { valueCoding: value });
+        this.resource.valueCoding = value;
         return this;
     }
 
@@ -3203,7 +3203,7 @@ export class KjTextProfile {
     }
 
     setValueString (value: string) : this {
-        Object.assign(this.resource, { valueString: value });
+        this.resource.valueString = value;
         return this;
     }
 
@@ -3305,7 +3305,7 @@ export class KjUpdatedDateTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -3347,6 +3347,7 @@ import {
     validateChoiceProhibited,
     validateChoiceRequired,
     validateFixedValue,
+    validateReference,
     validateRequired,
 } from "../../profile-helpers";
 
@@ -3408,7 +3409,7 @@ export class KjUpdaterProfile {
     }
 
     setValueReference (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { valueReference: value });
+        this.resource.valueReference = value;
         return this;
     }
 
@@ -3427,6 +3428,7 @@ export class KjUpdaterProfile {
                 ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueReference"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
+                ...validateReference(res, profileName, "valueReference", ["PractitionerRole"]),
             ],
             warnings: [],
         }
@@ -3510,7 +3512,7 @@ export class KjValidUntilProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -3612,7 +3614,7 @@ export class KjVerificationDateTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
@@ -3654,6 +3656,7 @@ import {
     validateChoiceProhibited,
     validateChoiceRequired,
     validateFixedValue,
+    validateReference,
     validateRequired,
 } from "../../profile-helpers";
 
@@ -3715,7 +3718,7 @@ export class KjVerifierProfile {
     }
 
     setValueReference (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { valueReference: value });
+        this.resource.valueReference = value;
         return this;
     }
 
@@ -3734,6 +3737,7 @@ export class KjVerifierProfile {
                 ...validateFixedValue(res, profileName, "url", canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueReference"]),
                 ...validateChoiceProhibited(res, profileName, ["valueBase64Binary","valueBoolean","valueCanonical","valueCode","valueDate","valueDateTime","valueDecimal","valueId","valueInstant","valueInteger","valueMarkdown","valueOid","valuePositiveInt","valueString","valueTime","valueUnsignedInt","valueUri","valueUrl","valueUuid","valueAddress","valueAge","valueAnnotation","valueAttachment","valueCodeableConcept","valueCoding","valueContactPoint","valueCount","valueDistance","valueDuration","valueHumanName","valueIdentifier","valueMoney","valuePeriod","valueQuantity","valueRange","valueRatio","valueSampledData","valueSignature","valueTiming","valueContactDetail","valueContributor","valueDataRequirement","valueExpression","valueParameterDefinition","valueRelatedArtifact","valueTriggerDefinition","valueUsageContext","valueDosage","valueMeta"]),
+                ...validateReference(res, profileName, "valueReference", ["PractitionerRole"]),
             ],
             warnings: [],
         }
@@ -3870,7 +3874,7 @@ export class KjFlagProfile {
     }
 
     setStatus (value: ("active" | "inactive" | "entered-in-error")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -3879,7 +3883,7 @@ export class KjFlagProfile {
     }
 
     setCode (value: CodeableConcept<("2" | "3" | "4" | "5" | string)>) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -3888,7 +3892,7 @@ export class KjFlagProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -3897,7 +3901,7 @@ export class KjFlagProfile {
     }
 
     setPeriod (value: Period) : this {
-        Object.assign(this.resource, { period: value });
+        this.resource.period = value;
         return this;
     }
 
@@ -3906,7 +3910,7 @@ export class KjFlagProfile {
     }
 
     setAuthor (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { author: value });
+        this.resource.author = value;
         return this;
     }
 
@@ -3915,7 +3919,7 @@ export class KjFlagProfile {
     }
 
     setCategory (value: CodeableConcept[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -4200,7 +4204,7 @@ export class KjPractitionerRoleProfile {
     }
 
     setPractitioner (value: Reference<"Practitioner" /* http://hl7.no/fhir/StructureDefinition/no-basis-Practitioner */>) : this {
-        Object.assign(this.resource, { practitioner: value });
+        this.resource.practitioner = value;
         return this;
     }
 
@@ -4209,7 +4213,7 @@ export class KjPractitionerRoleProfile {
     }
 
     setOrganization (value: Reference<"Organization" /* http://hl7.no/fhir/StructureDefinition/no-basis-Organization */>) : this {
-        Object.assign(this.resource, { organization: value });
+        this.resource.organization = value;
         return this;
     }
 
@@ -4218,7 +4222,7 @@ export class KjPractitionerRoleProfile {
     }
 
     setCode (value: CodeableConcept[]) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -4356,7 +4360,7 @@ export class KjProcedureProfile {
     }
 
     setStatus (value: ("in-progress" | "entered-in-error" | "completed")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -4365,7 +4369,7 @@ export class KjProcedureProfile {
     }
 
     setCategory (value: CodeableConcept) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -4374,7 +4378,7 @@ export class KjProcedureProfile {
     }
 
     setCode (value: CodeableConcept) : this {
-        Object.assign(this.resource, { code: value });
+        this.resource.code = value;
         return this;
     }
 
@@ -4383,7 +4387,7 @@ export class KjProcedureProfile {
     }
 
     setSubject (value: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -4392,7 +4396,7 @@ export class KjProcedureProfile {
     }
 
     setRecorder (value: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>) : this {
-        Object.assign(this.resource, { recorder: value });
+        this.resource.recorder = value;
         return this;
     }
 
@@ -4402,7 +4406,7 @@ export class KjProcedureProfile {
 
     setPerformedDateTime (value: string) : this {
         this.clearPerformed();
-        Object.assign(this.resource, { performedDateTime: value });
+        this.resource.performedDateTime = value;
         return this;
     }
 
@@ -4412,7 +4416,7 @@ export class KjProcedureProfile {
 
     setPerformedAge (value: Age) : this {
         this.clearPerformed();
-        Object.assign(this.resource, { performedAge: value });
+        this.resource.performedAge = value;
         return this;
     }
 

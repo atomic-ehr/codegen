@@ -140,7 +140,7 @@ export class NotedComplexExtensionProfile {
     }
 
     setId (value: string) : this {
-        Object.assign(this.resource, { id: value });
+        this.resource.id = value;
         return this;
     }
 
@@ -351,7 +351,7 @@ export class IdentifiedComplexExtensionProfile {
     }
 
     setId (value: string) : this {
-        Object.assign(this.resource, { id: value });
+        this.resource.id = value;
         return this;
     }
 

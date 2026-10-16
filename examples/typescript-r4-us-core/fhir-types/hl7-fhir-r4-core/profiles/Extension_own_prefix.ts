@@ -70,7 +70,7 @@ export class own_prefixProfile {
     }
 
     setValueString (value: string) : this {
-        Object.assign(this.resource, { valueString: value });
+        this.resource.valueString = value;
         return this;
     }
 

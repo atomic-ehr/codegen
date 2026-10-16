@@ -93,7 +93,9 @@ export const resolveFieldTsType = (
     if (field.enum) {
         if (field.type.name === "Coding" || field.type.name === "CodeableConcept")
             return `${typeRef(field.type)}<${tsEnumType(field.enum)}>`;
-        return tsEnumType(field.enum);
+        // Bindings on Quantity and other objects constrain a code within the
+        // object; they do not replace the whole value with a code string.
+        if (isPrimitiveIdentifier(field.type)) return tsEnumType(field.enum);
     }
     if (field.reference && field.reference.resource.length > 0) {
         // Profile targets are replaced by their base resource type; keep the

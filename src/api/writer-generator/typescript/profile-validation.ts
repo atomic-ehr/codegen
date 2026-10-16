@@ -46,6 +46,33 @@ const collectSliceRequirements = (
     return { requiredFields, choiceGroups };
 };
 
+/** A bound field must carry a listed code: an error for a closed binding, a warning for an open one. */
+const collectEnumValidation = (
+    imports: ProfileSections,
+    name: string,
+    field: RegularField | ChoiceFieldInstance,
+    enumExprs?: ReadonlyMap<string, string>,
+): { errors: string[]; warnings: string[] } => {
+    if (!field.enum) return { errors: [], warnings: [] };
+    const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
+    const check = `...${imports.helper.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`;
+    return field.enum.isOpen ? { errors: [], warnings: [check] } : { errors: [check], warnings: [] };
+};
+
+/** A reference must point at one of the field's allowed targets. */
+const collectReferenceValidation = (
+    imports: ProfileSections,
+    name: string,
+    field: RegularField | ChoiceFieldInstance,
+    tsIndex?: TypeSchemaIndex,
+): string[] => {
+    const allowed = field.reference ? (tsIndex?.referenceAllowedTypes(field.reference) ?? []) : [];
+    if (allowed.length === 0) return [];
+    return [
+        `...${imports.helper.use("validateReference")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
+    ];
+};
+
 export const collectRegularFieldValidation = (
     imports: ProfileSections,
     name: string,
@@ -86,26 +113,16 @@ export const collectRegularFieldValidation = (
         );
     }
 
-    if (field.enum) {
-        const target = field.enum.isOpen ? warnings : errors;
-        const valuesExpr = enumExprs?.get(name) ?? JSON.stringify(field.enum.values);
-        target.push(
-            `...${imports.helper.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`,
-        );
-    }
+    const enumChecks = collectEnumValidation(imports, name, field, enumExprs);
+    errors.push(...enumChecks.errors);
+    warnings.push(...enumChecks.warnings);
 
     if (field.mustSupport && !field.required)
         warnings.push(
             `...${imports.helper.use("validateMustSupport")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)})`,
         );
 
-    if (field.reference) {
-        const allowed = tsIndex?.referenceAllowedTypes(field.reference) ?? [];
-        if (allowed.length > 0)
-            errors.push(
-                `...${imports.helper.use("validateReference")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${JSON.stringify(allowed)})`,
-            );
-    }
+    errors.push(...collectReferenceValidation(imports, name, field, tsIndex));
 
     if (fieldSlicing?.slices) {
         for (const [sliceName, slice] of Object.entries(fieldSlicing.slices)) {
@@ -151,7 +168,14 @@ export const generateValidateMethod = (
         const errors: string[] = [];
         const warnings: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
-            if (isChoiceInstanceField(field)) continue;
+            // A choice variant's accessors carry its reference targets and binding, so
+            // validate those; presence is the choice declaration's check.
+            if (isChoiceInstanceField(field)) {
+                const enumChecks = collectEnumValidation(imports, name, field, enumLinks.exprs);
+                errors.push(...enumChecks.errors, ...collectReferenceValidation(imports, name, field, tsIndex));
+                warnings.push(...enumChecks.warnings);
+                continue;
+            }
 
             if (isChoiceDeclarationField(field)) {
                 if (field.required)

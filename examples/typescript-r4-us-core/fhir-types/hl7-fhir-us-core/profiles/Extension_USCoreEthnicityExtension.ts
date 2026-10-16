@@ -125,7 +125,7 @@ export class USCoreEthnicityExtensionProfile {
     }
 
     setExtension (value: Extension[]) : this {
-        Object.assign(this.resource, { extension: value });
+        this.resource.extension = value;
         return this;
     }
 

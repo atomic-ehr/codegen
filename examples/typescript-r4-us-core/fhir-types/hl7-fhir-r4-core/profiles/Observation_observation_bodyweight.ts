@@ -114,7 +114,7 @@ export class observation_bodyweightProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value });
+        this.resource.status = value;
         return this;
     }
 
@@ -123,7 +123,7 @@ export class observation_bodyweightProfile {
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        Object.assign(this.resource, { subject: value });
+        this.resource.subject = value;
         return this;
     }
 
@@ -132,7 +132,7 @@ export class observation_bodyweightProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value });
+        this.resource.category = value;
         return this;
     }
 
@@ -146,7 +146,7 @@ export class observation_bodyweightProfile {
 
     setEffectiveDateTime (value: string) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectiveDateTime: value });
+        this.resource.effectiveDateTime = value;
         return this;
     }
 
@@ -156,7 +156,7 @@ export class observation_bodyweightProfile {
 
     setEffectivePeriod (value: Period) : this {
         this.clearEffective();
-        Object.assign(this.resource, { effectivePeriod: value });
+        this.resource.effectivePeriod = value;
         return this;
     }
 
@@ -165,7 +165,7 @@ export class observation_bodyweightProfile {
     }
 
     setValueQuantity (value: Quantity) : this {
-        Object.assign(this.resource, { valueQuantity: value });
+        this.resource.valueQuantity = value;
         return this;
     }
 

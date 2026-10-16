@@ -70,7 +70,7 @@ export class birthTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value });
+        this.resource.valueDateTime = value;
         return this;
     }
 
