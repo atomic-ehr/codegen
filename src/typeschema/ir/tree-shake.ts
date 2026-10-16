@@ -365,8 +365,7 @@ export const treeShake = (
     const followedSchemas: TypeSchema[] = [];
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
-            const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema) throw new Error(`Schema not found for ${pkgId} ${url}`);
+            const schema = tsIndex.resolveRoot(pkgId, url as CanonicalUrl);
             if (isNestedTypeSchema(schema) || isProfileNestedTypeSchema(schema))
                 throw new Error(
                     `Nested type ${url} can't be a tree-shake root: shake ${schema.declaredIn.url}, which declares it`,

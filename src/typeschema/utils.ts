@@ -393,6 +393,10 @@ export type TypeSchemaIndex = {
      *  writers name and import its specialization; constraint lookups read the copy via `resolveType`. */
     specializationOf: (id: Identifier) => Identifier;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
+    /** Resolve a tree-shake root exactly. `pkgKey` is `"name"` or `"name#version"`.
+     *  Unlike `resolveByUrl` there is no cross-package fallback: a root that the named
+     *  package neither owns nor reaches through its dependencies is an error. */
+    resolveRoot: (pkgKey: string, url: CanonicalUrl) => TypeSchema;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
@@ -566,6 +570,25 @@ export const mkTypeSchemaIndex = (
             }
         }
         return undefined;
+    };
+
+    const resolveRoot = (pkgKey: string, url: CanonicalUrl): TypeSchema => {
+        const name = (pkgKey.split("#")[0] ?? pkgKey) as PkgName;
+        const byPkg = index[url];
+        // A version in the key is an assertion, not a selector: the index holds one version per name.
+        const versionMatches = !pkgKey.includes("#") || !register || register.resolver[pkgKey] !== undefined;
+        const viaDependency = register?.resolutionTree()[name]?.[url]?.[0]?.pkg.name;
+        const schema = versionMatches
+            ? (byPkg?.[name] ?? (viaDependency ? byPkg?.[viaDependency] : undefined))
+            : undefined;
+        if (schema) return schema;
+        const owners = Object.keys(byPkg ?? {});
+        throw new Error(
+            `Tree-shake root '${url}' does not resolve in package '${pkgKey}'. ` +
+                (owners.length > 0
+                    ? `It is provided by: ${owners.join(", ")}. Package keys are names, optionally 'name#version'.`
+                    : "No loaded package provides this canonical URL."),
+        );
     };
 
     const tryHierarchy = (schema: TypeSchema): TypeSchema[] | undefined => {
@@ -944,6 +967,7 @@ export const mkTypeSchemaIndex = (
             return isProfileNestedTypeSchema(schema) ? schema.specialization : id;
         },
         resolveByUrl,
+        resolveRoot,
         tryHierarchy,
         hierarchy,
         findLastSpecialization,
