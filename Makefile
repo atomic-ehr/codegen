@@ -106,6 +106,7 @@ test-typescript-custom-packages-example: typecheck
 test-mustache-java-r4-example: typecheck
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	$(TYPECHECK) --project examples/mustache/tsconfig.examples-mustache.json
+	mvn -f examples/mustache/mustache-java-r4-output/pom.xml clean test --batch-mode --no-transfer-progress
 
 test-csharp-sdk: typecheck prepare-aidbox-runme
 	$(TYPECHECK) --project examples/csharp/tsconfig.json
