@@ -98,7 +98,46 @@ const safePackageDir = (source: string): string => {
     return normalized.replace(INVALID_PACKAGE_DIR_RUN_RE, "-").replace(PACKAGE_DIR_EDGE_RE, "") || "package";
 };
 
+/** Schemas and terminology of one `name@version` package, written to one output directory. */
+type TsPackage = {
+    identity: string;
+    packageMeta: PackageMeta;
+    packageSchemas: TypeSchema[];
+    terminology?: PackageTerminology;
+};
+
+/** Output directory per package: the package name, or `name@version` when several versions of
+ *  one package are generated. Packages whose directories still collide get `--1`, `--2`, … in
+ *  identity order. */
+const assignPackageDirs = (packages: TsPackage[]): Record<string, TsPackage> => {
+    const versionCounts: Record<string, number> = {};
+    for (const { packageMeta: pkg } of packages) versionCounts[pkg.name] = (versionCounts[pkg.name] ?? 0) + 1;
+    const packagesByBaseDir: Record<string, TsPackage[]> = {};
+    for (const tsPackage of packages) {
+        const { name } = tsPackage.packageMeta;
+        const baseDir = safePackageDir((versionCounts[name] ?? 0) > 1 ? tsPackage.identity : name);
+        (packagesByBaseDir[baseDir] ??= []).push(tsPackage);
+    }
+
+    const packagesByDir: Record<string, TsPackage> = {};
+    for (const [baseDir, [tsPackage, ...others]] of Object.entries(packagesByBaseDir))
+        if (tsPackage && others.length === 0) packagesByDir[baseDir] = tsPackage;
+    const sharedBaseDirs = Object.entries(packagesByBaseDir)
+        .filter(([, claimants]) => claimants.length > 1)
+        .sort(([left], [right]) => left.localeCompare(right));
+    for (const [baseDir, claimants] of sharedBaseDirs) {
+        let suffix = 1;
+        for (const tsPackage of claimants.sort((left, right) => left.identity.localeCompare(right.identity))) {
+            while (packagesByDir[`${baseDir}--${suffix}`]) suffix += 1;
+            packagesByDir[`${baseDir}--${suffix}`] = tsPackage;
+            suffix += 1;
+        }
+    }
+    return packagesByDir;
+};
+
 const CODE_SYSTEM_SUFFIX_RE = /CodeSystem$/;
+const CODE_SYSTEM_SD_URL = "http://hl7.org/fhir/StructureDefinition/CodeSystem";
 const CHOICE_SUFFIX_RE = /\[x\]/g;
 const INVALID_TS_IDENTIFIER_RUN_RE = /[^A-Za-z0-9_$]+/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
@@ -710,127 +749,67 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    override async generate(tsIndex: TypeSchemaIndex) {
-        // Only generate code for schemas from focused packages
-        const typesToGenerate = [
+    /** Schemas of the focused packages and the enabled terminology, one entry per
+     *  `name@version`; schemas deduped by identifier and sorted by name. */
+    private collectPackages(tsIndex: TypeSchemaIndex): TsPackage[] {
+        const schemas = [
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
             ...tsIndex.collectLogicalModels(),
             ...(this.opts.generateProfile ? tsIndex.collectSnapshotProfiles() : []),
         ];
-        const terminologyPackages = this.opts.terminology?.packages;
-        const terminology = this.opts.terminology?.enabled
+        const { enabled, packages: allowed } = this.opts.terminology ?? {};
+        const terminology = enabled
             ? (tsIndex.register?.allTerminology() ?? []).filter(
                   ({ packageMeta: pkg, resources }) =>
-                      resources.length > 0 &&
-                      (terminologyPackages === undefined || terminologyPackages.includes(packageMetaToNpm(pkg))),
+                      resources.length > 0 && (allowed === undefined || allowed.includes(packageMetaToNpm(pkg))),
               )
             : [];
-        const logicalUnits: Record<
-            string,
-            { packageMeta: PackageMeta; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }
-        > = {};
-        for (const schema of typesToGenerate) {
-            const pkg = packageMeta(schema);
+
+        const packages: Record<string, TsPackage> = {};
+        const packageOf = (pkg: PackageMeta): TsPackage => {
             const identity = packageMetaToNpm(pkg);
-            (logicalUnits[identity] ??= { packageMeta: pkg, packageSchemas: [] }).packageSchemas.push(schema);
-        }
-        for (const packageTerminology of terminology) {
-            const identity = packageMetaToNpm(packageTerminology.packageMeta);
-            const unit = (logicalUnits[identity] ??= {
-                packageMeta: packageTerminology.packageMeta,
-                packageSchemas: [],
-            });
-            unit.terminology = packageTerminology;
-        }
-
-        const identitiesByPackageName: Record<string, string[]> = {};
-        for (const [identity, { packageMeta: pkg }] of Object.entries(logicalUnits)) {
-            (identitiesByPackageName[pkg.name] ??= []).push(identity);
-        }
-
-        const unitsByBaseDir: Record<
-            string,
-            { identity: string; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }[]
-        > = {};
-        for (const [identity, { packageMeta: pkg, packageSchemas, terminology: packageTerminology }] of Object.entries(
-            logicalUnits,
-        )) {
-            const directorySource =
-                (identitiesByPackageName[pkg.name]?.length ?? 0) > 1 ? packageMetaToNpm(pkg) : pkg.name;
-            const baseDir = safePackageDir(directorySource);
-            const schemasByIdentity = Object.fromEntries(
-                packageSchemas.map((schema) => [JSON.stringify(schema.identifier), schema]),
+            return (packages[identity] ??= { identity, packageMeta: pkg, packageSchemas: [] });
+        };
+        for (const schema of schemas) packageOf(packageMeta(schema)).packageSchemas.push(schema);
+        for (const packageTerminology of terminology)
+            packageOf(packageTerminology.packageMeta).terminology = packageTerminology;
+        for (const tsPackage of Object.values(packages)) {
+            const byIdentifier = Object.fromEntries(
+                tsPackage.packageSchemas.map((schema) => [JSON.stringify(schema.identifier), schema]),
             );
-            const sortedSchemas = Object.values(schemasByIdentity).sort((left, right) =>
+            tsPackage.packageSchemas = Object.values(byIdentifier).sort((left, right) =>
                 left.identifier.name.localeCompare(right.identifier.name),
             );
-            (unitsByBaseDir[baseDir] ??= []).push({
-                identity,
-                packageSchemas: sortedSchemas,
-                terminology: packageTerminology,
-            });
         }
+        return Object.values(packages);
+    }
 
-        const generationUnits: Record<string, { packageSchemas: TypeSchema[]; terminology?: PackageTerminology }> = {};
-        const usedPackageDirs = new Set<string>();
-        for (const [baseDir, units] of Object.entries(unitsByBaseDir)) {
-            if (units.length !== 1) continue;
-            const unit = units[0];
-            if (!unit) continue;
-            generationUnits[baseDir] = unit;
-            usedPackageDirs.add(baseDir);
-        }
-        for (const [baseDir, units] of Object.entries(unitsByBaseDir).sort(([left], [right]) =>
-            left.localeCompare(right),
-        )) {
-            if (units.length < 2) continue;
-            let suffix = 1;
-            for (const unit of units.sort((left, right) => left.identity.localeCompare(right.identity))) {
-                let packageDir = `${baseDir}--${suffix}`;
-                while (usedPackageDirs.has(packageDir)) {
-                    suffix += 1;
-                    packageDir = `${baseDir}--${suffix}`;
-                }
-                generationUnits[packageDir] = unit;
-                usedPackageDirs.add(packageDir);
-                suffix += 1;
-            }
-        }
+    override async generate(tsIndex: TypeSchemaIndex) {
+        const packages = assignPackageDirs(this.collectPackages(tsIndex));
         this.packageDirectories = Object.fromEntries(
-            Object.entries(generationUnits).flatMap(([packageDir, unit]) => {
-                if (unit.terminology) {
-                    return [[packageMetaToNpm(unit.terminology.packageMeta), packageDir] as const];
-                }
-                const schema = unit.packageSchemas[0];
-                return schema ? [[packageMetaToNpm(packageMeta(schema)), packageDir] as const] : [];
-            }),
+            Object.entries(packages).map(([packageDir, { identity }]) => [identity, packageDir]),
         );
-
-        const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isSnapshotProfileTypeSchema);
-
-        this.prepareTerminology(generationUnits);
+        this.prepareTerminology(packages);
+        const hasProfiles = Object.values(packages).some(({ packageSchemas }) =>
+            packageSchemas.some(isSnapshotProfileTypeSchema),
+        );
+        const hasTerminology = Object.values(packages).some(({ terminology }) => terminology !== undefined);
 
         this.cd("/", () => {
-            if (hasProfiles) {
-                this.cp("profile-helpers.ts", "profile-helpers.ts");
-            }
-            if (terminology.length > 0) {
-                const codeSystemSchema = typesToGenerate.find(
-                    (schema) => schema.identifier.url === "http://hl7.org/fhir/StructureDefinition/CodeSystem",
-                );
+            if (hasProfiles) this.cp("profile-helpers.ts", "profile-helpers.ts");
+            if (hasTerminology) {
+                const codeSystem = tsIndex
+                    .collectResources()
+                    .find(({ identifier }) => identifier.url === CODE_SYSTEM_SD_URL);
                 this.generateTerminologyTypes(
-                    codeSystemSchema ? `./${this.packageDir(codeSystemSchema.identifier)}/CodeSystem` : undefined,
+                    codeSystem ? `./${this.packageDir(codeSystem.identifier)}/CodeSystem` : undefined,
                 );
             }
-
-            for (const [packageDir, { packageSchemas, terminology }] of Object.entries(generationUnits).sort(
-                ([left], [right]) => left.localeCompare(right),
-            )) {
+            const sortedPackages = Object.entries(packages).sort(([left], [right]) => left.localeCompare(right));
+            for (const [packageDir, { packageSchemas, terminology }] of sortedPackages) {
                 this.cd(packageDir, () => {
-                    for (const schema of packageSchemas) {
-                        this.generateResourceModule(tsIndex, schema);
-                    }
+                    for (const schema of packageSchemas) this.generateResourceModule(tsIndex, schema);
                     const profiles = packageSchemas.filter(isSnapshotProfileTypeSchema);
                     if (profiles.length > 0) {
                         this.cd("profiles", () => {
