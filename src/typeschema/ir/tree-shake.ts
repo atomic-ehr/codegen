@@ -22,7 +22,9 @@ import {
     isValueSetTypeSchema,
     type PkgName,
     type ProfileTypeSchema,
+    profileNestedIdentifier,
     type SpecializationTypeSchema,
+    type TypeIdentifier,
     type TypeSchema,
 } from "../types";
 import type { TypeSchemaIndex } from "../utils";
@@ -227,13 +229,16 @@ const treeShakeTypeSchemaWithResolver = (
     if (schema.nested) {
         const nestedIdentity = (identifier: { package: PkgName; url: CanonicalUrl }) =>
             JSON.stringify([identifier.package, identifier.url]);
+        // A profile's fields point at the base's nested types; its own copies live under its url.
+        const ownNested = (type: TypeIdentifier) =>
+            isProfileTypeSchema(schema) ? profileNestedIdentifier(schema.identifier, type.name) : type;
         const usedTypes = new Set<string>();
         const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
             Object.values(s.fields ?? {})
                 .filter(isNotChoiceDeclarationField)
                 .filter((f) => isNestedIdentifier(f.type))
                 .forEach((f) => {
-                    const identity = nestedIdentity(f.type);
+                    const identity = nestedIdentity(ownNested(f.type));
                     if (!usedTypes.has(identity)) {
                         usedTypes.add(identity);
                         const nestedTypeDef = schema.nested?.find(

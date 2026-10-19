@@ -160,6 +160,14 @@ export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdenti
     kind: "profile-snapshot",
 });
 
+export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): NestedIdentifier => ({
+    kind: "nested",
+    package: profile.package,
+    version: profile.version,
+    name,
+    url: `${profile.url}#${name}` as CanonicalUrl,
+});
+
 export const isSpecializationIdentifier = (
     id: TypeIdentifier | undefined,
 ): id is ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier => {
