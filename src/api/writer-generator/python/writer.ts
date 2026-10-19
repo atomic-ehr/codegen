@@ -38,8 +38,8 @@ import {
     typeModuleImports,
 } from "./imports";
 import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
-import { collectProfileClassNames, generateProfileModule, generateProfilesInit } from "./profile";
-import { pyProfileModuleName } from "./profile-naming";
+import { generateProfileIndex, generateProfileModule } from "./profile";
+import { pyProfileClassName, pyProfileModuleName } from "./profile-naming";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
 
@@ -59,6 +59,12 @@ const GENERIC_FIELD_REWRITES: Record<string, Record<string, (fieldType: string) 
 };
 
 const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
+
+/** Profile class names the package `__init__.py` re-exports from `.profiles`,
+ *  deduped and sorted. Python spells them out for strict mypy
+ *  (`no_implicit_reexport`), where TypeScript writes `export * from "./profiles"`. */
+const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string[] =>
+    [...new Set(profiles.map(pyProfileClassName))].sort();
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
@@ -137,58 +143,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             return options.fhirpyClient;
         }
         return true; // default: fhirpy client
-    }
-
-    override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
-        this.tsIndex = tsIndex;
-        const packages = this.collectPackages(tsIndex);
-        const hasProfiles = Object.values(packages).some(({ profiles }) => profiles.length > 0);
-        this.cd("/", () => {
-            this.cat("__init__.py", () => this.generateRootInit(packages));
-            if (this.forFhirpyClient) {
-                const asset =
-                    this.fieldFormat === "camelCase" ? "fhirpy_base_model_camel_case.py" : "fhirpy_base_model.py";
-                this.copyAssets(resolvePyAssets(asset), "fhirpy_base_model.py");
-            }
-            if (hasProfiles) {
-                this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
-            }
-            this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
-            for (const [packageName, packageTypes] of Object.entries(packages)) {
-                this.cd(snakeCase(packageName), () => {
-                    const { complexTypes, resources, profiles } = packageTypes;
-                    const hasComplexTypes = complexTypes.length > 0;
-                    const hasResources = resources.length > 0;
-                    const hasProfiles = profiles.length > 0;
-                    const needsResourcePreprocessor = resources.some(
-                        (schema) => collectResourceGenericTypeVars(schema).length > 0,
-                    );
-                    if (hasComplexTypes) {
-                        this.cat("base.py", () => this.generateBasePy(packageName, complexTypes));
-                    }
-                    if (hasResources || hasProfiles) {
-                        this.cat("__init__.py", () => this.generatePackageInit(packageName, packageTypes));
-                    }
-                    if (needsResourcePreprocessor) {
-                        this.copyAssets(resolvePyAssets("resource_preprocessor.py"), "resource_preprocessor.py");
-                    }
-                    for (const schema of resources) {
-                        this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
-                            this.generateResourceModule(schema);
-                        });
-                    }
-                    if (hasProfiles) {
-                        this.cd("profiles", () => {
-                            for (const profile of profiles) {
-                                const moduleName = pyProfileModuleName(tsIndex, profile);
-                                this.cat(`${moduleName}.py`, () => generateProfileModule(this, tsIndex, profile));
-                            }
-                            this.cat("__init__.py", () => generateProfilesInit(this, tsIndex, profiles));
-                        });
-                    }
-                });
-            }
-        });
     }
 
     private generateRootInit(packages: TypeSchemaPackages): void {
@@ -681,5 +635,57 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
             return [this.forFhirpyClient ? imports.fhirpy.use("FhirpyBaseModel") : imports.pydantic.use("BaseModel")];
         if (name === "element") return [imports.pydantic.use("BaseModel")];
         return [];
+    }
+
+    override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
+        this.tsIndex = tsIndex;
+        const packages = this.collectPackages(tsIndex);
+        const hasProfiles = Object.values(packages).some(({ profiles }) => profiles.length > 0);
+        this.cd("/", () => {
+            this.cat("__init__.py", () => this.generateRootInit(packages));
+            if (this.forFhirpyClient) {
+                const asset =
+                    this.fieldFormat === "camelCase" ? "fhirpy_base_model_camel_case.py" : "fhirpy_base_model.py";
+                this.copyAssets(resolvePyAssets(asset), "fhirpy_base_model.py");
+            }
+            if (hasProfiles) {
+                this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
+            }
+            this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
+            for (const [packageName, packageTypes] of Object.entries(packages)) {
+                this.cd(snakeCase(packageName), () => {
+                    const { complexTypes, resources, profiles } = packageTypes;
+                    const hasComplexTypes = complexTypes.length > 0;
+                    const hasResources = resources.length > 0;
+                    const hasProfiles = profiles.length > 0;
+                    const needsResourcePreprocessor = resources.some(
+                        (schema) => collectResourceGenericTypeVars(schema).length > 0,
+                    );
+                    if (hasComplexTypes) {
+                        this.cat("base.py", () => this.generateBasePy(packageName, complexTypes));
+                    }
+                    if (hasResources || hasProfiles) {
+                        this.cat("__init__.py", () => this.generatePackageInit(packageName, packageTypes));
+                    }
+                    if (needsResourcePreprocessor) {
+                        this.copyAssets(resolvePyAssets("resource_preprocessor.py"), "resource_preprocessor.py");
+                    }
+                    for (const schema of resources) {
+                        this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
+                            this.generateResourceModule(schema);
+                        });
+                    }
+                    if (hasProfiles) {
+                        this.cd("profiles", () => {
+                            for (const profile of profiles) {
+                                const moduleName = pyProfileModuleName(tsIndex, profile);
+                                this.cat(`${moduleName}.py`, () => generateProfileModule(this, tsIndex, profile));
+                            }
+                            this.cat("__init__.py", () => generateProfileIndex(this, tsIndex, profiles));
+                        });
+                    }
+                });
+            }
+        });
     }
 }

@@ -87,6 +87,36 @@
   },
   "overrides": [
     {
+      "includes": ["src/api/writer-generator/typescript/**/*.ts", "src/api/writer-generator/python/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": { "Map": "Use a Record instead of a Map in the TypeScript and Python writers." }
+              }
+            },
+            "noRestrictedTypes": {
+              "level": "error",
+              "options": {
+                "types": {
+                  "Map": {
+                    "message": "Use a Record instead of a Map in the TypeScript and Python writers.",
+                    "use": "Record"
+                  },
+                  "ReadonlyMap": {
+                    "message": "Use a Readonly<Record> instead of a ReadonlyMap in the TypeScript and Python writers.",
+                    "use": "Readonly<Record>"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["test/**/*.ts", "examples/**/*.ts"],
       "linter": {
         "rules": {

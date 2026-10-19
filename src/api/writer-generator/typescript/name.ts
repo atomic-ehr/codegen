@@ -7,6 +7,8 @@ import {
 import {
     type CanonicalUrl,
     extractNameFromCanonical,
+    type NameCandidates,
+    type ProfileExtension,
     type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
@@ -110,7 +112,9 @@ export const tsExtensionVFlatTypeName = (profileName: string, extensionName: str
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}VFlat`;
 };
 
-export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
+/** Static class member name for a slice's match constant. */
+export const tsSliceStaticName = (name: string): string =>
+    `${name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_")}SliceMatch`;
 
 export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;
 
@@ -122,4 +126,48 @@ const TS_IDENTIFIER_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 export const tsObjectKey = (key: string): string => {
     if (key === "__proto__") return '["__proto__"]';
     return TS_IDENTIFIER_RE.test(key) ? key : JSON.stringify(key);
+};
+
+type SliceNaming = { fieldName: string; sliceName: string; nameCandidates: NameCandidates };
+
+export type ProfileMethodBaseNames = {
+    extension: (ext: ProfileExtension) => string;
+    slice: (sliceDef: SliceNaming) => string;
+};
+
+/** Allocate one accessor base name, avoiding names already taken. */
+export const tsAccessorBaseName = (
+    candidates: readonly string[],
+    recommended: string,
+    reserved: ReadonlySet<string>,
+): string => {
+    if (!reserved.has(recommended)) return recommended;
+    for (const candidate of candidates) {
+        if (!reserved.has(candidate)) return candidate;
+    }
+    return recommended;
+};
+
+export const resolveProfileMethodBaseNames = (
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceNaming[],
+): ProfileMethodBaseNames => {
+    // Field accessors are emitted from the same class, so their names are taken
+    // before slice accessors get to pick.
+    const reserved = new Set(Object.keys(snapshot.fields).map(uppercaseFirstLetter));
+
+    const slicesRecord: Record<string, string> = {};
+    for (const s of sliceDefs) {
+        const name = tsAccessorBaseName(s.nameCandidates.candidates, s.nameCandidates.recommended, reserved);
+        reserved.add(name);
+        slicesRecord[`${s.fieldName}:${s.sliceName}`] = name;
+    }
+
+    return {
+        // Extension accessors keep their recommended name: never reserved, and not keyed
+        // by url:path, which two snapshot entries can share.
+        extension: (ext) => ext.nameCandidates.recommended,
+        slice: (sliceDef) =>
+            slicesRecord[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended,
+    };
 };

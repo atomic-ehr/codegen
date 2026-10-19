@@ -124,10 +124,12 @@ export const profileModuleImports = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ): ProfileImports => {
+    w.line("from __future__ import annotations");
+    w.line();
     const className = pyProfileClassName(snapshot);
     const render = createImportRenderer(w);
-    const tImports = moduleImports(w, render, "typing");
-    const pImports = moduleImports(w, render, "pydantic");
+    const typing = moduleImports(w, render, "typing");
+    const pydantic = moduleImports(w, render, "pydantic");
     const typeInfo = (id: TypeIdentifier): { module: string; name: string } => {
         const schema = tsIndex.resolveType(id);
         if (schema && (isProfileTypeSchema(schema) || isSnapshotProfileTypeSchema(schema))) {
@@ -138,7 +140,7 @@ export const profileModuleImports = (
         }
         return { module: modulePathForTypeId(w.opts.rootPackageName, id), name: deriveResourceName(id) };
     };
-    const typeImports = w.section<never, TypeIdentifier>({
+    const types = w.section<never, TypeIdentifier>({
         name: (id) => {
             const name = typeInfo(id).name;
             return name === className ? `${name}Type` : name;
@@ -150,16 +152,10 @@ export const profileModuleImports = (
             }
         },
     });
-    const helperImports = moduleImports(w, render, `${w.opts.rootPackageName}.profile_helpers`);
-    const imports: ProfileImports = {
-        typing: tImports,
-        pydantic: pImports,
-        types: typeImports,
-        helpers: helperImports,
-    };
+    const helpers = moduleImports(w, render, `${w.opts.rootPackageName}.profile_helpers`);
     w.line();
     w.line();
-    return imports;
+    return { types, typing, pydantic, helpers };
 };
 
 const MAX_IMPORT_LINE_LENGTH = 88;
