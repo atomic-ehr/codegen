@@ -7,7 +7,6 @@ import static java.util.Objects.requireNonNull;
 
 import jakarta.annotation.Generated;
 import jakarta.annotation.Nullable;
-import jakarta.annotation.Generated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
@@ -1422,7 +1421,6 @@ exports[`Mustache Template Based Generation unused and duplicate imports 1`] = `
   "duplicate": {
     "de.solutio.fhir.models.complex_types.ElementDTO": 32,
     "de.solutio.fhir.models.complex_types.ReferenceDTO": 127,
-    "jakarta.annotation.Generated": 189,
   },
   "unused": {
     "com.fasterxml.jackson.annotation.JsonCreator": 54,
