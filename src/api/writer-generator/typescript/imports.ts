@@ -63,7 +63,7 @@ export const profileModuleImports = (
     const types = w.section<never, TypeIdentifier>({
         name: tsResourceName,
         render: (_definitions, usages) => {
-            const grouped = new Map<string, string[]>();
+            const grouped: Record<string, string[]> = {};
             for (const { key, local } of usages) {
                 let modulePath = `../../${w.modulePath(key)}`;
                 if (isNestedIdentifier(key)) {
@@ -71,43 +71,41 @@ export const profileModuleImports = (
                     if (path) modulePath = `../../${w.packageDir(key)}/${pascalCase(path)}`;
                 }
                 const name = tsResourceName(key);
-                const names = grouped.get(modulePath) ?? [];
-                names.push(name === local ? name : `${name} as ${local}`);
-                grouped.set(modulePath, names);
+                (grouped[modulePath] ??= []).push(name === local ? name : `${name} as ${local}`);
             }
-            for (const [modulePath, names] of [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+            for (const [modulePath, names] of Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b))) {
                 w.tsImport(modulePath, ...names.sort(), { typeOnly: true });
             }
-            if (grouped.size > 0) w.line();
+            if (Object.keys(grouped).length > 0) w.line();
         },
     });
 
     // Value imports into emitted terminology modules: enum validations whose
     // code lists are fully explained by emitted systems reference them instead
     // of inlining literals.
-    const sortedTerminology = [...terminologyImports.entries()].sort(([left], [right]) => left.localeCompare(right));
+    const sortedTerminology = Object.entries(terminologyImports).sort(([left], [right]) => left.localeCompare(right));
     for (const [moduleDir, symbols] of sortedTerminology) {
         w.tsImport(`../../${moduleDir}/terminology`, ...[...symbols].sort());
     }
     if (sortedTerminology.length > 0) w.line();
 
     // Import extension profile classes for delegation in setters
-    const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
+    const extProfileImports: Record<string, { modulePath: string; hasFlatInput: boolean }> = {};
     for (const ext of snapshot.extensions ?? []) {
         const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext);
         if (!info) continue;
-        if (!extProfileImports.has(info.className)) {
-            const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;
-            extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
-        }
+        extProfileImports[info.className] ??= {
+            modulePath: info.modulePath,
+            hasFlatInput: collectSubExtensionSlices(info.snapshot).length > 0,
+        };
     }
-    for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
+    for (const [className, { modulePath, hasFlatInput }] of Object.entries(extProfileImports).sort(([a], [b]) =>
         a.localeCompare(b),
     )) {
         const imports = [className, ...(hasFlatInput ? [`type ${className}Flat`] : [])];
         w.tsImport(modulePath, ...imports);
     }
-    if (extProfileImports.size > 0) w.line();
+    if (Object.keys(extProfileImports).length > 0) w.line();
     const helpers = profileHelperImports(w);
     return { types, helpers };
 };

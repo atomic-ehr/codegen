@@ -140,7 +140,7 @@ const allocateTerminologySymbols = (
 };
 
 export class TypeScript extends SectionWriter<TypeScriptOptions> {
-    private packageDirectories = new Map<string, string>();
+    private packageDirectories: Record<string, string> = {};
 
     constructor(options: TypeScriptOptions) {
         super({ lineWidth: 120, ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
@@ -151,7 +151,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
      *  (e.g. `hl7-fhir-r4-core--2`). Unprefixed = stateful writer method. */
     packageDir(physical: PackageMeta | TypeIdentifier): string {
         const pkg = "package" in physical ? { name: physical.package, version: physical.version } : physical;
-        return this.packageDirectories.get(packageMetaToNpm(pkg)) ?? safePackageDir(pkg.name);
+        return this.packageDirectories[packageMetaToNpm(pkg)] ?? safePackageDir(pkg.name);
     }
 
     /** The module's physical position in the output tree: `packageDir/ModuleName`. */
@@ -257,9 +257,9 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
             // FIXME: actually, duplication may means internal error...
-            exports = Array.from(new Map(exports.map((exp) => [exp.resourceName.toLowerCase(), exp])).values()).sort(
-                (a, b) => a.resourceName.localeCompare(b.resourceName),
-            );
+            exports = Object.values(
+                Object.fromEntries(exports.map((exp) => [exp.resourceName.toLowerCase(), exp])),
+            ).sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
@@ -538,17 +538,18 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     /** Emitted terminology, resolved ahead of module generation so profile
      *  emission can reference the allocated symbols. Keyed by package dir. */
-    private terminologyModules = new Map<
-        string,
-        { entry: TerminologyEntry | CodedTerminologyEntry; symbol: string }[]
-    >();
+    private terminologyModules: Record<string, { entry: TerminologyEntry | CodedTerminologyEntry; symbol: string }[]> =
+        {};
     /** Coded systems across every emitted terminology module, by canonical URL. */
-    private terminologyCodeIndex = new Map<string, { moduleDir: string; symbol: string; codes: ReadonlySet<string> }>();
+    private terminologyCodeIndex: Record<string, { moduleDir: string; symbol: string; codes: ReadonlySet<string> }> =
+        {};
 
-    private prepareTerminology(generationUnits: Map<string, { terminology?: PackageTerminology }>) {
-        this.terminologyModules = new Map();
-        this.terminologyCodeIndex = new Map();
-        for (const [packageDir, unit] of [...generationUnits].sort(([left], [right]) => left.localeCompare(right))) {
+    private prepareTerminology(generationUnits: Record<string, { terminology?: PackageTerminology }>) {
+        this.terminologyModules = {};
+        this.terminologyCodeIndex = {};
+        for (const [packageDir, unit] of Object.entries(generationUnits).sort(([left], [right]) =>
+            left.localeCompare(right),
+        )) {
             if (unit.terminology) this.prepareTerminologyModule(packageDir, unit.terminology);
         }
     }
@@ -572,14 +573,14 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
             entry,
             symbol: allocated[index]?.symbol ?? "Terminology",
         }));
-        this.terminologyModules.set(packageDir, allocatedEntries);
+        this.terminologyModules[packageDir] = allocatedEntries;
         for (const { entry, symbol } of allocatedEntries) {
-            if ("codes" in entry && !this.terminologyCodeIndex.has(entry.canonicalUrl))
-                this.terminologyCodeIndex.set(entry.canonicalUrl, {
+            if ("codes" in entry)
+                this.terminologyCodeIndex[entry.canonicalUrl] ??= {
                     moduleDir: packageDir,
                     symbol,
                     codes: new Set(entry.codes),
-                });
+                };
         }
     }
 
@@ -591,7 +592,7 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     private linkFieldEnum(
         tsIndex: TypeSchemaIndex,
         field: Field,
-    ): { expr: string; imports: Map<string, Set<string>> } | undefined {
+    ): { expr: string; imports: Record<string, Set<string>> } | undefined {
         if (isChoiceDeclarationField(field)) return undefined;
         if (!field.enum || field.enum.values.length === 0 || !field.binding) return undefined;
         const binding = tsIndex.resolveByUrl(field.binding.package, field.binding.url);
@@ -622,25 +623,21 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         const conceptCodes = new Set(concepts.map(({ code }) => code));
         const values = field.enum.values;
         if (values.length !== conceptCodes.size || !values.every((value) => conceptCodes.has(value))) return undefined;
-        const bySystem = new Map<string, Set<string>>();
+        const bySystem: Record<string, Set<string>> = {};
         for (const concept of concepts) {
             if (!concept.system) continue;
-            const codes = bySystem.get(concept.system) ?? new Set<string>();
-            codes.add(concept.code);
-            bySystem.set(concept.system, codes);
+            (bySystem[concept.system] ??= new Set<string>()).add(concept.code);
         }
         const spreads: string[] = [];
         const covered = new Set<string>();
-        const imports = new Map<string, Set<string>>();
-        for (const [system, codes] of bySystem) {
-            const indexed = this.terminologyCodeIndex.get(system);
+        const imports: Record<string, Set<string>> = {};
+        for (const [system, codes] of Object.entries(bySystem)) {
+            const indexed = this.terminologyCodeIndex[system];
             if (!indexed) continue;
             if (codes.size !== indexed.codes.size || ![...codes].every((code) => indexed.codes.has(code))) continue;
             spreads.push(`...${indexed.symbol}.codes`);
             for (const code of codes) covered.add(code);
-            const symbols = imports.get(indexed.moduleDir) ?? new Set<string>();
-            symbols.add(indexed.symbol);
-            imports.set(indexed.moduleDir, symbols);
+            (imports[indexed.moduleDir] ??= new Set<string>()).add(indexed.symbol);
         }
         if (spreads.length === 0) return undefined;
         const literals = values.filter((value) => !covered.has(value)).map((value) => JSON.stringify(value));
@@ -650,25 +647,24 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     enumTerminologyLinks(
         tsIndex: TypeSchemaIndex,
         snapshot: SnapshotProfileTypeSchema,
-    ): { exprs: Map<string, string>; imports: Map<string, Set<string>> } {
-        const exprs = new Map<string, string>();
-        const imports = new Map<string, Set<string>>();
-        if (this.terminologyCodeIndex.size === 0) return { exprs, imports };
+    ): { exprs: Record<string, string>; imports: Record<string, Set<string>> } {
+        const exprs: Record<string, string> = {};
+        const imports: Record<string, Set<string>> = {};
+        if (Object.keys(this.terminologyCodeIndex).length === 0) return { exprs, imports };
         for (const [name, field] of Object.entries(snapshot.fields)) {
             const link = this.linkFieldEnum(tsIndex, field);
             if (!link) continue;
-            exprs.set(name, link.expr);
-            for (const [dir, symbols] of link.imports) {
-                const merged = imports.get(dir) ?? new Set<string>();
+            exprs[name] = link.expr;
+            for (const [dir, symbols] of Object.entries(link.imports)) {
+                const merged = (imports[dir] ??= new Set<string>());
                 for (const symbol of symbols) merged.add(symbol);
-                imports.set(dir, merged);
             }
         }
         return { exprs, imports };
     }
 
     generateTerminologyModule(packageDir: string) {
-        const allocatedEntries = this.terminologyModules.get(packageDir) ?? [];
+        const allocatedEntries = this.terminologyModules[packageDir] ?? [];
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
@@ -728,63 +724,64 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                       (terminologyPackages === undefined || terminologyPackages.includes(packageMetaToNpm(pkg))),
               )
             : [];
-        const logicalUnits = new Map<
+        const logicalUnits: Record<
             string,
             { packageMeta: PackageMeta; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }
-        >();
+        > = {};
         for (const schema of typesToGenerate) {
             const pkg = packageMeta(schema);
             const identity = packageMetaToNpm(pkg);
-            const unit = logicalUnits.get(identity) ?? { packageMeta: pkg, packageSchemas: [] };
-            unit.packageSchemas.push(schema);
-            logicalUnits.set(identity, unit);
+            (logicalUnits[identity] ??= { packageMeta: pkg, packageSchemas: [] }).packageSchemas.push(schema);
         }
         for (const packageTerminology of terminology) {
             const identity = packageMetaToNpm(packageTerminology.packageMeta);
-            const unit = logicalUnits.get(identity) ?? {
+            const unit = (logicalUnits[identity] ??= {
                 packageMeta: packageTerminology.packageMeta,
                 packageSchemas: [],
-            };
+            });
             unit.terminology = packageTerminology;
-            logicalUnits.set(identity, unit);
         }
 
-        const identitiesByPackageName = new Map<string, string[]>();
-        for (const [identity, { packageMeta: pkg }] of logicalUnits) {
-            const identities = identitiesByPackageName.get(pkg.name) ?? [];
-            identities.push(identity);
-            identitiesByPackageName.set(pkg.name, identities);
+        const identitiesByPackageName: Record<string, string[]> = {};
+        for (const [identity, { packageMeta: pkg }] of Object.entries(logicalUnits)) {
+            (identitiesByPackageName[pkg.name] ??= []).push(identity);
         }
 
-        const unitsByBaseDir = new Map<
+        const unitsByBaseDir: Record<
             string,
             { identity: string; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }[]
-        >();
-        for (const [identity, { packageMeta: pkg, packageSchemas, terminology: packageTerminology }] of logicalUnits) {
+        > = {};
+        for (const [identity, { packageMeta: pkg, packageSchemas, terminology: packageTerminology }] of Object.entries(
+            logicalUnits,
+        )) {
             const directorySource =
-                (identitiesByPackageName.get(pkg.name)?.length ?? 0) > 1 ? packageMetaToNpm(pkg) : pkg.name;
+                (identitiesByPackageName[pkg.name]?.length ?? 0) > 1 ? packageMetaToNpm(pkg) : pkg.name;
             const baseDir = safePackageDir(directorySource);
-            const units = unitsByBaseDir.get(baseDir) ?? [];
-            const schemasByIdentity = new Map(
+            const schemasByIdentity = Object.fromEntries(
                 packageSchemas.map((schema) => [JSON.stringify(schema.identifier), schema]),
             );
-            const sortedSchemas = [...schemasByIdentity.values()].sort((left, right) =>
+            const sortedSchemas = Object.values(schemasByIdentity).sort((left, right) =>
                 left.identifier.name.localeCompare(right.identifier.name),
             );
-            units.push({ identity, packageSchemas: sortedSchemas, terminology: packageTerminology });
-            unitsByBaseDir.set(baseDir, units);
+            (unitsByBaseDir[baseDir] ??= []).push({
+                identity,
+                packageSchemas: sortedSchemas,
+                terminology: packageTerminology,
+            });
         }
 
-        const generationUnits = new Map<string, { packageSchemas: TypeSchema[]; terminology?: PackageTerminology }>();
+        const generationUnits: Record<string, { packageSchemas: TypeSchema[]; terminology?: PackageTerminology }> = {};
         const usedPackageDirs = new Set<string>();
-        for (const [baseDir, units] of unitsByBaseDir) {
+        for (const [baseDir, units] of Object.entries(unitsByBaseDir)) {
             if (units.length !== 1) continue;
             const unit = units[0];
             if (!unit) continue;
-            generationUnits.set(baseDir, unit);
+            generationUnits[baseDir] = unit;
             usedPackageDirs.add(baseDir);
         }
-        for (const [baseDir, units] of [...unitsByBaseDir].sort(([left], [right]) => left.localeCompare(right))) {
+        for (const [baseDir, units] of Object.entries(unitsByBaseDir).sort(([left], [right]) =>
+            left.localeCompare(right),
+        )) {
             if (units.length < 2) continue;
             let suffix = 1;
             for (const unit of units.sort((left, right) => left.identity.localeCompare(right.identity))) {
@@ -793,13 +790,13 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                     suffix += 1;
                     packageDir = `${baseDir}--${suffix}`;
                 }
-                generationUnits.set(packageDir, unit);
+                generationUnits[packageDir] = unit;
                 usedPackageDirs.add(packageDir);
                 suffix += 1;
             }
         }
-        this.packageDirectories = new Map(
-            [...generationUnits].flatMap(([packageDir, unit]) => {
+        this.packageDirectories = Object.fromEntries(
+            Object.entries(generationUnits).flatMap(([packageDir, unit]) => {
                 if (unit.terminology) {
                     return [[packageMetaToNpm(unit.terminology.packageMeta), packageDir] as const];
                 }
@@ -825,8 +822,8 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
                 );
             }
 
-            for (const [packageDir, { packageSchemas, terminology }] of [...generationUnits].sort(([left], [right]) =>
-                left.localeCompare(right),
+            for (const [packageDir, { packageSchemas, terminology }] of Object.entries(generationUnits).sort(
+                ([left], [right]) => left.localeCompare(right),
             )) {
                 this.cd(packageDir, () => {
                     for (const schema of packageSchemas) {

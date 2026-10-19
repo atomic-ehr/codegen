@@ -88,10 +88,10 @@ const collectEnumValidation = (
     imports: ProfileSections,
     name: string,
     field: RegularField | ChoiceFieldInstance,
-    enumExprs: ReadonlyMap<string, string>,
+    enumExprs: Readonly<Record<string, string>>,
 ): ValidationBody => {
     if (!field.enum) return { errors: [], warnings: [] };
-    const valuesExpr = enumExprs.get(name) ?? JSON.stringify(field.enum.values);
+    const valuesExpr = enumExprs[name] ?? JSON.stringify(field.enum.values);
     const check = `...${imports.helpers.use("validateEnum")}(res, ${imports.const.use("profileName")}, ${JSON.stringify(name)}, ${valuesExpr})`;
     return field.enum.isOpen ? { errors: [], warnings: [check] } : { errors: [check], warnings: [] };
 };
@@ -117,7 +117,7 @@ const collectRegularFieldValidation = (
     field: RegularField | ChoiceFieldInstance,
     fieldSlicing: FieldSlicing | undefined,
     canonicalUrlExpr: { url: string; expr: string } | undefined,
-    enumExprs: ReadonlyMap<string, string>,
+    enumExprs: Readonly<Record<string, string>>,
 ): ValidationBody => {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -171,7 +171,7 @@ const collectValidateBody = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     canonicalUrlExpr: { url: string; expr: string } | undefined,
-    enumExprs: ReadonlyMap<string, string>,
+    enumExprs: Readonly<Record<string, string>>,
 ): ValidationBody => {
     const errors: string[] = [];
     const warnings: string[] = [];
