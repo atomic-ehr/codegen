@@ -160,10 +160,7 @@ export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdenti
     kind: "profile-snapshot",
 });
 
-/** A constraint profile's own copy of the nested type `name`, with the profile's
- *  narrowing. Profile fields keep pointing at the base's nested type, which is
- *  what generated code names and imports; the copy lives under the profile's url. */
-export const profileNestedIdentifier = (profile: Omit<IdentifierBase, "name">, name: Name): NestedIdentifier => ({
+export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): NestedIdentifier => ({
     kind: "nested",
     package: profile.package,
     version: profile.version,

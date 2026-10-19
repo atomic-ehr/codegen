@@ -230,9 +230,8 @@ const treeShakeTypeSchemaWithResolver = (
         const nestedIdentity = (identifier: { package: PkgName; url: CanonicalUrl }) =>
             JSON.stringify([identifier.package, identifier.url]);
         // A profile's fields point at the base's nested types; its own copies live under its url.
-        const owner = schema.identifier;
         const ownNested = (type: TypeIdentifier) =>
-            isProfileTypeSchema(schema) ? profileNestedIdentifier(owner, type.name) : type;
+            isProfileTypeSchema(schema) ? profileNestedIdentifier(schema.identifier, type.name) : type;
         const usedTypes = new Set<string>();
         const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
             Object.values(s.fields ?? {})

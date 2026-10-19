@@ -24,6 +24,7 @@ import {
     type TypeIdentifier,
 } from "../types";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
+import { mkIdentifier } from "./identifier";
 
 /**
  * Check whether the specialization chain defines structural sub-elements at `path`.
@@ -190,18 +191,11 @@ export function mkNestedTypes(
         return true;
     });
 
-    const nestedTypes = [] as NestedTypeSchema[];
+    const nestedTypes: NestedTypeSchema[] = [];
     for (const [path, element] of nested) {
         const identifier =
             fhirSchema.derivation === "constraint"
-                ? profileNestedIdentifier(
-                      {
-                          package: fhirSchema.package_meta.name,
-                          version: fhirSchema.package_meta.version,
-                          url: fhirSchema.url,
-                      },
-                      path.join(".") as Name,
-                  )
+                ? profileNestedIdentifier(mkIdentifier(fhirSchema), path.join(".") as Name)
                 : mkNestedIdentifier(register, fhirSchema, path);
 
         let baseName: Name;
