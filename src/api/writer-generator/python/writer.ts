@@ -38,8 +38,8 @@ import {
     typeModuleImports,
 } from "./imports";
 import { pyReferenceFamilyName, pyReferenceTypeParam } from "./naming-utils";
-import { collectProfileClassNames, generateProfileIndex, generateProfileModule } from "./profile";
-import { pyProfileModuleName } from "./profile-naming";
+import { generateProfileIndex, generateProfileModule } from "./profile";
+import { pyProfileClassName, pyProfileModuleName } from "./profile-naming";
 
 export const resolvePyAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "python", fn);
 
@@ -59,6 +59,12 @@ const GENERIC_FIELD_REWRITES: Record<string, Record<string, (fieldType: string) 
 };
 
 const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
+
+/** Profile class names the package `__init__.py` re-exports from `.profiles`,
+ *  deduped and sorted. Python spells them out for strict mypy
+ *  (`no_implicit_reexport`), where TypeScript writes `export * from "./profiles"`. */
+const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string[] =>
+    [...new Set(profiles.map(pyProfileClassName))].sort();
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,

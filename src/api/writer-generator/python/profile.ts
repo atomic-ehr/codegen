@@ -74,24 +74,18 @@ export const generateProfileIndex = (
     tsIndex: TypeSchemaIndex,
     profiles: SnapshotProfileTypeSchema[],
 ): void => {
-    w.generateDisclaimer();
-    const imports = createImportRenderer(w);
-    const seen = new Set<string>();
+    const exports: Record<string, string> = {};
     for (const snapshot of profiles) {
         const className = pyProfileClassName(snapshot);
-        if (seen.has(className)) continue;
-        seen.add(className);
-        const moduleName = pyProfileModuleName(tsIndex, snapshot);
-        imports(`.${moduleName}`, className);
+        exports[className] ??= pyProfileModuleName(tsIndex, snapshot);
     }
+    const classNames = Object.keys(exports).sort();
+    w.generateDisclaimer();
+    const imports = createImportRenderer(w);
+    for (const className of classNames) imports(`.${exports[className]}`, className);
     // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
     w.line();
     w.squareBlock(["__all__", "="], () => {
-        for (const className of [...seen].sort()) w.line(`'${className}',`);
+        for (const className of classNames) w.line(`'${className}',`);
     });
 };
-
-/** Profile class names a package exports, deduped and sorted — the names its
- *  `__init__.py` re-exports from `.profiles`. */
-export const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string[] =>
-    [...new Set(profiles.map(pyProfileClassName))].sort();
