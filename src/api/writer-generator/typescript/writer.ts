@@ -54,13 +54,6 @@ const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 // `generic.params` (if any, computed via structural propagation) must be ignored at reference sites
 // so we don't emit `<T>` args clashing with the hardcoded `T extends string` declaration.
 const TS_HARDCODED_GENERIC_NAMES = new Set(["Reference", "Coding", "CodeableConcept"]);
-const CODE_SYSTEM_SUFFIX_RE = /CodeSystem$/;
-const CHOICE_SUFFIX_RE = /\[x\]/g;
-const INVALID_TS_IDENTIFIER_RUN_RE = /[^A-Za-z0-9_$]+/g;
-const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
-const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
-const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
-const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -96,6 +89,20 @@ export type TypeScriptOptions = {
     };
 } & WriterOptions;
 
+const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
+const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
+const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
+
+const safePackageDir = (source: string): string => {
+    const normalized = tsPackageDir(source.replace(PACKAGE_PATH_SEPARATOR_RE, "_"));
+    return normalized.replace(INVALID_PACKAGE_DIR_RUN_RE, "-").replace(PACKAGE_DIR_EDGE_RE, "") || "package";
+};
+
+const CODE_SYSTEM_SUFFIX_RE = /CodeSystem$/;
+const CHOICE_SUFFIX_RE = /\[x\]/g;
+const INVALID_TS_IDENTIFIER_RUN_RE = /[^A-Za-z0-9_$]+/g;
+const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
+
 const validTsIdentifier = (source: string): string => {
     const normalized = source.replace(CHOICE_SUFFIX_RE, "_x_").replace(INVALID_TS_IDENTIFIER_RUN_RE, "_");
     return TS_IDENTIFIER_START_RE.test(normalized) ? normalized : `_${normalized}`;
@@ -108,11 +115,6 @@ const terminologySymbolName = (resource: TerminologyResource): string => {
 
 const terminologyResourceIdentity = (resource: TerminologyResource): string =>
     `${resource.id ?? ""}\u0000${resource.name ?? ""}`;
-
-const safePackageDir = (source: string): string => {
-    const normalized = tsPackageDir(source.replace(PACKAGE_PATH_SEPARATOR_RE, "_"));
-    return normalized.replace(INVALID_PACKAGE_DIR_RUN_RE, "-").replace(PACKAGE_DIR_EDGE_RE, "") || "package";
-};
 
 const allocateTerminologySymbols = (
     resources: TerminologyResource[],
