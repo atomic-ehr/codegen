@@ -1,25 +1,28 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"$id": "https://fhir-clj.github.io/type-schema/json-schema/type-schema.json",
-	"$comment": "Maturity Level: Draft",
+	"$comment": "Maturity Level: Draft. Mirrors the TypeSchema types in src/typeschema/types.ts.",
 	"title": "Type Schema",
 	"description": "A code generation friendly representation of FHIR StructureDefinition and FHIR Schema designed to simplify SDK resource classes/types generation.",
 	"type": "object",
 	"definitions": {
-		"type-schema-identifier": {
+		"identifier": {
 			"type": "object",
-			"oneOf": [
-				{ "$ref": "#/definitions/with-primitive-type-kind" },
-				{ "$ref": "#/definitions/with-valueset-kind" },
-				{ "$ref": "#/definitions/with-complex-type-kind" },
-				{ "$ref": "#/definitions/with-resource-kind" },
-				{ "$ref": "#/definitions/with-nested-kind" },
-				{ "$ref": "#/definitions/with-logical-kind" },
-				{ "$ref": "#/definitions/with-binding-kind" }
-			],
+			"description": "Identifies a type: its kind, the package that defines it and its canonical URL",
 			"properties": {
 				"kind": {
-					"type": "string"
+					"enum": [
+						"primitive-type",
+						"complex-type",
+						"resource",
+						"logical",
+						"value-set",
+						"binding",
+						"profile",
+						"profile-snapshot",
+						"nested",
+						"profile-nested"
+					]
 				},
 				"package": {
 					"type": "string",
@@ -36,60 +39,129 @@
 				"url": {
 					"type": "string",
 					"pattern": "^(https?://|urn:)[^\\s]+$",
-					"description": "A canonical URL identifying this resource uniquely in the FHIR ecosystem"
+					"description": "A canonical URL identifying this type uniquely in the FHIR ecosystem; nested types use <declaring type url>#<path>"
 				}
 			},
 			"required": ["kind", "package", "version", "name", "url"],
 			"additionalProperties": false
 		},
-		"with-primitive-type-kind": {
+		"identifier.primitive-type": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "primitive-type" } } }]
+		},
+		"identifier.complex-type": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "complex-type" } } }]
+		},
+		"identifier.resource": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "resource" } } }]
+		},
+		"identifier.specialization": {
+			"allOf": [
+				{ "$ref": "#/definitions/identifier" },
+				{ "type": "object", "properties": { "kind": { "enum": ["resource", "complex-type", "logical"] } } }
+			]
+		},
+		"identifier.value-set": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "value-set" } } }]
+		},
+		"identifier.binding": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "binding" } } }]
+		},
+		"identifier.profile": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "profile" } } }]
+		},
+		"identifier.profile-snapshot": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "profile-snapshot" } } }]
+		},
+		"identifier.nested": {
+			"allOf": [{ "$ref": "#/definitions/identifier" }, { "type": "object", "properties": { "kind": { "const": "nested" } } }]
+		},
+		"identifier.profile-nested": {
+			"allOf": [
+				{ "$ref": "#/definitions/identifier" },
+				{ "type": "object", "properties": { "kind": { "const": "profile-nested" } } }
+			]
+		},
+		"dependencies": {
+			"type": "array",
+			"description": "Other types that this type depends on",
+			"items": { "$ref": "#/definitions/identifier" }
+		},
+
+		"enum-definition": {
 			"type": "object",
-			"description": "Constraint helper to ensure the kind is primitive-type",
+			"description": "For code fields, the codes of the bound value set",
 			"properties": {
-				"kind": { "const": "primitive-type" }
+				"values": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "The allowed codes"
+				},
+				"isOpen": {
+					"type": "boolean",
+					"description": "Whether codes outside of values are allowed (the binding is not required)"
+				}
+			},
+			"required": ["values", "isOpen"],
+			"additionalProperties": false
+		},
+		"value-constraint": {
+			"type": "object",
+			"description": "A fixed[x] or pattern[x] value the field is constrained to",
+			"properties": {
+				"kind": { "enum": ["pattern", "fixed"] },
+				"type": {
+					"type": "string",
+					"description": "The FHIR type of value"
+				},
+				"value": {
+					"description": "The constraining FHIR value"
+				},
+				"validateOnly": {
+					"type": "boolean",
+					"description": "Containment constraint only: validated on resources but not injected into created ones"
+				}
+			},
+			"required": ["kind", "type", "value"],
+			"additionalProperties": false
+		},
+		"field-reference": {
+			"type": "object",
+			"description": "The targets a Reference field can point to",
+			"properties": {
+				"resource": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier" },
+					"description": "Targets that resolve to a specialization, as authored; abstract types kept as-is"
+				},
+				"effectiveResource": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier" },
+					"description": "The resource types a referent may actually carry: abstract targets replaced by their concrete descendants"
+				},
+				"profiles": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier.profile" },
+					"description": "Targets that name a profile"
+				}
+			},
+			"required": ["resource"],
+			"additionalProperties": false
+		},
+
+		"field": {
+			"description": "A field: a choice declaration (has choices), a choice instance (has choiceOf) or a regular field",
+			"if": { "type": "object", "required": ["choices"] },
+			"then": { "$ref": "#/definitions/field.choice-declaration" },
+			"else": {
+				"if": { "type": "object", "required": ["choiceOf"] },
+				"then": { "$ref": "#/definitions/field.choice-instance" },
+				"else": { "$ref": "#/definitions/field.regular" }
 			}
 		},
-		"with-valueset-kind": {
+		"fields": {
 			"type": "object",
-			"description": "Constraint helper to ensure the kind is value-set",
-			"properties": {
-				"kind": { "const": "value-set" }
-			}
-		},
-		"with-binding-kind": {
-			"type": "object",
-			"description": "Constraint helper to ensure the kind is value-set",
-			"properties": {
-				"kind": { "const": "binding" }
-			}
-		},
-		"with-complex-type-kind": {
-			"type": "object",
-			"description": "Constraint helper to ensure the kind is complex-type",
-			"properties": {
-				"kind": { "const": "complex-type" }
-			}
-		},
-		"with-resource-kind": {
-			"type": "object",
-			"description": "Constraint helper to ensure the kind is resource",
-			"properties": {
-				"kind": { "const": "resource" }
-			}
-		},
-		"with-nested-kind": {
-			"type": "object",
-			"description": "Constraint helper to ensure the kind is nested",
-			"properties": {
-				"kind": { "const": "nested" }
-			}
-		},
-		"with-logical-kind": {
-			"type": "object",
-			"description": "Constraint helper to ensure the kind is logical",
-			"properties": {
-				"kind": { "const": "logical" }
-			}
+			"description": "Fields keyed by name",
+			"additionalProperties": { "$ref": "#/definitions/field" }
 		},
 		"field.regular": {
 			"title": "Regular field",
@@ -97,16 +169,10 @@
 			"type": "object",
 			"properties": {
 				"type": {
-					"$ref": "#/definitions/type-schema-identifier",
+					"$ref": "#/definitions/identifier",
 					"description": "The data type of this field"
 				},
-				"reference": {
-					"type": "array",
-					"description": "Reference to other types that this field can point to",
-					"items": {
-						"$ref": "#/definitions/type-schema-identifier"
-					}
-				},
+				"reference": { "$ref": "#/definitions/field-reference" },
 				"required": {
 					"type": "boolean",
 					"default": false,
@@ -123,16 +189,10 @@
 					"description": "Whether this field can contain multiple values (cardinality > 1)"
 				},
 				"binding": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-binding-kind" }
-					]
+					"$ref": "#/definitions/identifier.binding",
+					"description": "For coded fields, the value set binding"
 				},
-				"enum": {
-					"type": "array",
-					"items": { "type": "string" },
-					"description": "For code fields, the set of valid values when bound to a required value set"
-				},
+				"enum": { "$ref": "#/definitions/enum-definition" },
 				"min": {
 					"type": "number",
 					"description": "Minimum limit of items for an array"
@@ -140,13 +200,17 @@
 				"max": {
 					"type": "number",
 					"description": "Maximum limit of items for an array"
+				},
+				"valueConstraint": { "$ref": "#/definitions/value-constraint" },
+				"mustSupport": {
+					"type": "boolean",
+					"description": "Whether the profile marks this field as must support"
 				}
 			},
 			"required": ["type"],
 			"additionalProperties": false
 		},
-
-		"field.polymorphic-declaration": {
+		"field.choice-declaration": {
 			"title": "Polymorphic value[x] field declaration",
 			"description": "The base declaration for a FHIR choice type (e.g., value[x])",
 			"type": "object",
@@ -154,7 +218,12 @@
 				"choices": {
 					"type": "array",
 					"items": { "type": "string" },
-					"description": "The names of all concrete type options for this choice field"
+					"description": "The names of the allowed concrete type options for this choice field"
+				},
+				"prohibited": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "The names of the concrete type options a profile removed"
 				},
 				"required": {
 					"type": "boolean",
@@ -183,8 +252,7 @@
 			"required": ["choices"],
 			"additionalProperties": false
 		},
-
-		"field.polymorphic-instance": {
+		"field.choice-instance": {
 			"title": "Polymorphic value[x] field instance",
 			"description": "A specific type option for a FHIR choice type (e.g., valueString, valueInteger)",
 			"type": "object",
@@ -194,7 +262,7 @@
 					"description": "The name of the choice field this instance belongs to (e.g., 'value' for valueString)"
 				},
 				"type": {
-					"$ref": "#/definitions/type-schema-identifier",
+					"$ref": "#/definitions/identifier",
 					"description": "The data type of this choice option"
 				},
 				"required": {
@@ -212,25 +280,12 @@
 					"default": false,
 					"description": "Whether this choice can contain multiple values"
 				},
-				"reference": {
-					"type": "array",
-					"description": "Reference to other types that this field can point to",
-					"items": {
-						"$ref": "#/definitions/type-schema-identifier"
-					}
-				},
+				"reference": { "$ref": "#/definitions/field-reference" },
 				"binding": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-binding-kind" }
-					],
-					"description": "For coded choices, information about the value set binding"
+					"$ref": "#/definitions/identifier.binding",
+					"description": "For coded choices, the value set binding"
 				},
-				"enum": {
-					"type": "array",
-					"items": { "type": "string" },
-					"description": "For code fields, the set of valid values when bound to a required value set"
-				},
+				"enum": { "$ref": "#/definitions/enum-definition" },
 				"min": {
 					"type": "number",
 					"description": "Minimum limit of items for an array"
@@ -238,144 +293,225 @@
 				"max": {
 					"type": "number",
 					"description": "Maximum limit of items for an array"
+				},
+				"valueConstraint": { "$ref": "#/definitions/value-constraint" },
+				"mustSupport": {
+					"type": "boolean",
+					"description": "Whether the profile marks this choice as must support"
 				}
 			},
-			"required": ["type", "choiceOf"],
+			"required": ["choiceOf", "type"],
 			"additionalProperties": false
 		},
-		"dependencies": {
-			"type": "array",
-			"description": "Other types that this type depends on",
-			"items": {
-				"$ref": "#/definitions/type-schema-identifier"
-			}
-		}
-	},
 
-	"oneOf": [
-		{
+		"name-candidates": {
+			"type": "object",
+			"description": "Candidate names for generated accessors, most specific last",
+			"properties": {
+				"candidates": {
+					"type": "array",
+					"items": { "type": "string" }
+				},
+				"recommended": { "type": "string" }
+			},
+			"required": ["candidates", "recommended"],
+			"additionalProperties": false
+		},
+		"slice-discriminator": {
+			"type": "object",
+			"properties": {
+				"type": { "enum": ["value", "exists", "pattern", "type", "profile", "position"] },
+				"path": { "type": "string" }
+			},
+			"required": ["type", "path"],
+			"additionalProperties": false
+		},
+		"field-slice": {
+			"type": "object",
+			"properties": {
+				"min": { "type": "number" },
+				"max": { "type": "number" },
+				"match": {
+					"type": "object",
+					"description": "The discriminator values an element must carry to belong to the slice"
+				},
+				"required": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Element names the slice makes required"
+				},
+				"excluded": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Element names the slice prohibits"
+				},
+				"elements": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Element names the slice constrains"
+				},
+				"nameCandidates": { "$ref": "#/definitions/name-candidates" }
+			},
+			"required": ["nameCandidates"],
+			"additionalProperties": false
+		},
+		"field-slicing": {
+			"type": "object",
+			"properties": {
+				"discriminator": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/slice-discriminator" }
+				},
+				"rules": { "enum": ["open", "closed", "openAtEnd"] },
+				"ordered": { "type": "boolean" },
+				"slices": {
+					"type": "object",
+					"description": "Slices keyed by slice name",
+					"additionalProperties": { "$ref": "#/definitions/field-slice" }
+				}
+			},
+			"additionalProperties": false
+		},
+		"slicing": {
+			"type": "object",
+			"description": "Slicing definitions keyed by field name, kept apart from fields",
+			"additionalProperties": { "$ref": "#/definitions/field-slicing" }
+		},
+
+		"generic-info": {
+			"type": "object",
+			"description": "Generic params a type exposes, e.g. T extends Resource for Bundle",
+			"properties": {
+				"params": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"typeVar": { "type": "string" },
+							"constraint": { "$ref": "#/definitions/identifier" },
+							"path": {
+								"type": "array",
+								"items": { "type": "string" },
+								"description": "Path from this type down to the field that introduces the param"
+							}
+						},
+						"required": ["typeVar", "constraint", "path"],
+						"additionalProperties": false
+					}
+				}
+			},
+			"required": ["params"],
+			"additionalProperties": false
+		},
+		"type-family": {
+			"type": "object",
+			"description": "Transitive children grouped by kind (e.g. Resource -> { resources: [DomainResource, Patient, ...] })",
+			"properties": {
+				"resources": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier.resource" }
+				},
+				"complexTypes": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier.complex-type" }
+				}
+			},
+			"additionalProperties": false
+		},
+		"extension-sub-field": {
+			"type": "object",
+			"description": "A sub-extension of a complex extension",
+			"properties": {
+				"name": { "type": "string" },
+				"url": { "type": "string" },
+				"valueFieldType": { "$ref": "#/definitions/identifier" },
+				"min": { "type": "number" },
+				"max": { "type": "string" }
+			},
+			"required": ["name", "url"],
+			"additionalProperties": false
+		},
+		"profile-extension": {
+			"type": "object",
+			"description": "An extension a profile declares on one of its elements",
+			"properties": {
+				"profile": { "$ref": "#/definitions/identifier.profile" },
+				"name": { "type": "string" },
+				"path": {
+					"type": "string",
+					"description": "The element path the extension is declared on"
+				},
+				"url": { "type": "string" },
+				"min": { "type": "number" },
+				"max": { "type": "string" },
+				"mustSupport": { "type": "boolean" },
+				"valueFieldTypes": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/identifier" }
+				},
+				"subExtensions": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/extension-sub-field" }
+				},
+				"isComplex": { "type": "boolean" },
+				"nameCandidates": { "$ref": "#/definitions/name-candidates" }
+			},
+			"required": ["name", "path", "nameCandidates"],
+			"additionalProperties": false
+		},
+
+		"primitive-type-schema": {
 			"title": "Type Schema for Primitive Type",
 			"description": "Schema for basic FHIR data types like string, boolean, decimal",
 			"type": "object",
 			"properties": {
-				"identifier": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-primitive-type-kind" }
-					],
-					"description": "The unique identifier for this primitive type"
-				},
+				"identifier": { "$ref": "#/definitions/identifier.primitive-type" },
 				"description": {
 					"type": "string",
 					"description": "Human-readable description of the primitive type"
 				},
 				"base": {
-					"$ref": "#/definitions/type-schema-identifier",
+					"$ref": "#/definitions/identifier",
 					"description": "The base type this primitive type extends (typically Element)"
 				},
-				"dependencies": {
-					"$ref": "#/definitions/dependencies",
-					"description": "Other types that this primitive type depends on"
-				}
+				"dependencies": { "$ref": "#/definitions/dependencies" }
 			},
 			"required": ["identifier", "base"],
 			"additionalProperties": false
 		},
-
-		{
+		"specialization-schema": {
 			"title": "Type Schema for Resource, Complex Type, Logical",
 			"description": "Schema for FHIR resources, complex types, and logical types",
 			"type": "object",
 			"properties": {
-				"identifier": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{
-							"oneOf": [
-								{ "$ref": "#/definitions/with-resource-kind" },
-								{ "$ref": "#/definitions/with-complex-type-kind" },
-								{ "$ref": "#/definitions/with-logical-kind" }
-							]
-						}
-					],
-					"description": "The unique identifier for this resource or type"
-				},
+				"identifier": { "$ref": "#/definitions/identifier.specialization" },
 				"base": {
-					"$ref": "#/definitions/type-schema-identifier",
+					"$ref": "#/definitions/identifier",
 					"description": "The base type this resource or type extends"
 				},
 				"description": {
 					"type": "string",
 					"description": "Human-readable description of the resource or type"
 				},
-				"fields": {
-					"type": "object",
-					"description": "The fields contained in this resource or type",
-					"additionalProperties": {
-						"anyOf": [
-							{ "$ref": "#/definitions/field.regular" },
-							{ "$ref": "#/definitions/field.polymorphic-declaration" },
-							{ "$ref": "#/definitions/field.polymorphic-instance" }
-						]
-					}
+				"abstractResource": {
+					"type": "boolean",
+					"description": "Whether the type is abstract (e.g. Resource, DomainResource)"
 				},
-				"nested": {
-					"type": "array",
-					"description": "BackboneElement types nested within this resource or type",
-					"items": {
-						"type": "object",
-						"properties": {
-							"identifier": {
-								"allOf": [
-									{ "$ref": "#/definitions/type-schema-identifier" },
-									{ "$ref": "#/definitions/with-nested-kind" }
-								],
-								"description": "The unique identifier for this nested type"
-							},
-							"base": {
-								"$ref": "#/definitions/type-schema-identifier",
-								"description": "The base type this nested type extends (typically BackboneElement)"
-							},
-							"fields": {
-								"type": "object",
-								"description": "The fields contained in this nested type",
-								"additionalProperties": {
-									"anyOf": [
-										{ "$ref": "#/definitions/field.regular" },
-										{ "$ref": "#/definitions/field.polymorphic-declaration" },
-										{ "$ref": "#/definitions/field.polymorphic-instance" }
-									]
-								}
-							}
-						},
-						"required": ["identifier", "base"],
-						"additionalProperties": false
-					}
-				},
-				"dependencies": {
-					"type": "array",
-					"description": "Other types that this resource or type depends on",
-					"items": {
-						"$ref": "#/definitions/type-schema-identifier"
-					}
-				}
+				"fields": { "$ref": "#/definitions/fields" },
+				"slicing": { "$ref": "#/definitions/slicing" },
+				"dependencies": { "$ref": "#/definitions/dependencies" },
+				"typeFamily": { "$ref": "#/definitions/type-family" },
+				"generic": { "$ref": "#/definitions/generic-info" }
 			},
 			"required": ["identifier"],
 			"additionalProperties": false
 		},
-
-		{
+		"value-set-schema": {
 			"title": "Type Schema for ValueSet",
 			"description": "Schema for FHIR value sets that define terminology bindings",
 			"type": "object",
 			"properties": {
-				"identifier": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-valueset-kind" }
-					],
-					"description": "The unique identifier for this value set"
-				},
+				"identifier": { "$ref": "#/definitions/identifier.value-set" },
 				"description": {
 					"type": "string",
 					"description": "Human-readable description of the value set"
@@ -411,52 +547,184 @@
 			"required": ["identifier"],
 			"additionalProperties": false
 		},
-
-		{
+		"binding-schema": {
 			"title": "Type Schema for Binding",
+			"description": "A value set binding of an element, shared by name when the StructureDefinition names it",
 			"type": "object",
 			"properties": {
-				"identifier": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-binding-kind" }
-					],
-					"description": "The unique identifier for this value set"
-				},
+				"identifier": { "$ref": "#/definitions/identifier.binding" },
 				"description": {
 					"type": "string",
-					"description": "Human-readable description of the value set"
-				},
-				"type": {
-					"$ref": "#/definitions/type-schema-identifier"
+					"description": "Human-readable description of the binding"
 				},
 				"strength": {
 					"type": "string",
 					"description": "The strength of the binding"
 				},
-				"enum": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"description": "The enumeration of values for the binding"
-				},
-				"valueset": {
-					"allOf": [
-						{ "$ref": "#/definitions/type-schema-identifier" },
-						{ "$ref": "#/definitions/with-valueset-kind" }
-					]
-				},
-				"dependencies": {
-					"type": "array",
-					"description": "Other types that this resource or type depends on",
-					"items": {
-						"$ref": "#/definitions/type-schema-identifier"
-					}
-				}
+				"enum": { "$ref": "#/definitions/enum-definition" },
+				"valueset": { "$ref": "#/definitions/identifier.value-set" },
+				"dependencies": { "$ref": "#/definitions/dependencies" }
 			},
 			"required": ["identifier"],
 			"additionalProperties": false
+		},
+		"profile-schema": {
+			"title": "Type Schema for Profile",
+			"description": "A constraint profile: only the fields its differential restates",
+			"type": "object",
+			"properties": {
+				"identifier": { "$ref": "#/definitions/identifier.profile" },
+				"base": {
+					"$ref": "#/definitions/identifier",
+					"description": "The type or profile this profile constrains"
+				},
+				"description": {
+					"type": "string",
+					"description": "Human-readable description of the profile"
+				},
+				"fields": { "$ref": "#/definitions/fields" },
+				"slicing": { "$ref": "#/definitions/slicing" },
+				"extensions": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/profile-extension" }
+				},
+				"dependencies": { "$ref": "#/definitions/dependencies" }
+			},
+			"required": ["identifier", "base"],
+			"additionalProperties": false
+		},
+		"profile-snapshot-schema": {
+			"title": "Type Schema for Profile Snapshot",
+			"description": "A flattened profile: the fields of the whole profile chain merged onto its base type",
+			"type": "object",
+			"properties": {
+				"identifier": { "$ref": "#/definitions/identifier.profile-snapshot" },
+				"base": {
+					"$ref": "#/definitions/identifier",
+					"description": "The type or profile this profile constrains"
+				},
+				"description": {
+					"type": "string",
+					"description": "Human-readable description of the profile"
+				},
+				"fields": { "$ref": "#/definitions/fields" },
+				"slicing": { "$ref": "#/definitions/slicing" },
+				"inheritedRequiredFields": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Required top-level fields inherited from the base resource that the profile chain does not restate"
+				},
+				"extensions": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/profile-extension" }
+				},
+				"dependencies": { "$ref": "#/definitions/dependencies" }
+			},
+			"required": ["identifier", "base", "fields"],
+			"additionalProperties": false
+		},
+		"nested-schema": {
+			"title": "Type Schema for Nested Type",
+			"description": "A nested type (backbone element) declared by a resource, complex type or logical model",
+			"type": "object",
+			"properties": {
+				"identifier": { "$ref": "#/definitions/identifier.nested" },
+				"derivation": { "const": "specialization" },
+				"declaredIn": {
+					"$ref": "#/definitions/identifier.specialization",
+					"description": "The resource, complex type or logical model whose definition declares the element"
+				},
+				"path": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Element path from the declaring type down to this nested type"
+				},
+				"base": {
+					"$ref": "#/definitions/identifier",
+					"description": "The base type this nested type extends (typically BackboneElement)"
+				},
+				"fields": { "$ref": "#/definitions/fields" },
+				"slicing": { "$ref": "#/definitions/slicing" },
+				"dependencies": { "$ref": "#/definitions/dependencies" },
+				"generic": { "$ref": "#/definitions/generic-info" }
+			},
+			"required": ["identifier", "derivation", "declaredIn", "path", "fields"],
+			"additionalProperties": false
+		},
+		"profile-nested-schema": {
+			"title": "Type Schema for Profile Nested Type",
+			"description": "A constraint profile's own copy of a nested type, with the profile's narrowing",
+			"type": "object",
+			"properties": {
+				"identifier": { "$ref": "#/definitions/identifier.profile-nested" },
+				"derivation": { "const": "constraint" },
+				"declaredIn": {
+					"$ref": "#/definitions/identifier.profile",
+					"description": "The profile that constrains the element"
+				},
+				"specialization": {
+					"$ref": "#/definitions/identifier.nested",
+					"description": "The specialization's nested type this copy constrains"
+				},
+				"path": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Element path from the declaring type down to this nested type"
+				},
+				"base": {
+					"$ref": "#/definitions/identifier",
+					"description": "The base type this nested type extends (typically BackboneElement)"
+				},
+				"fields": { "$ref": "#/definitions/fields" },
+				"slicing": { "$ref": "#/definitions/slicing" },
+				"dependencies": { "$ref": "#/definitions/dependencies" },
+				"generic": { "$ref": "#/definitions/generic-info" }
+			},
+			"required": ["identifier", "derivation", "declaredIn", "specialization", "path", "fields"],
+			"additionalProperties": false
+		}
+	},
+
+	"properties": {
+		"identifier": { "$ref": "#/definitions/identifier" }
+	},
+	"required": ["identifier"],
+	"allOf": [
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "primitive-type" } } } } },
+			"then": { "$ref": "#/definitions/primitive-type-schema" }
+		},
+		{
+			"if": {
+				"properties": { "identifier": { "type": "object", "properties": { "kind": { "enum": ["resource", "complex-type", "logical"] } } } }
+			},
+			"then": { "$ref": "#/definitions/specialization-schema" }
+		},
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "value-set" } } } } },
+			"then": { "$ref": "#/definitions/value-set-schema" }
+		},
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "binding" } } } } },
+			"then": { "$ref": "#/definitions/binding-schema" }
+		},
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "profile" } } } } },
+			"then": { "$ref": "#/definitions/profile-schema" }
+		},
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "profile-snapshot" } } } } },
+			"then": { "$ref": "#/definitions/profile-snapshot-schema" }
+		},
+		{
+			"if": { "properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "nested" } } } } },
+			"then": { "$ref": "#/definitions/nested-schema" }
+		},
+		{
+			"if": {
+				"properties": { "identifier": { "type": "object", "properties": { "kind": { "const": "profile-nested" } } } }
+			},
+			"then": { "$ref": "#/definitions/profile-nested-schema" }
 		}
 	]
 }
