@@ -96,6 +96,8 @@ export const typeSchemaSpecViolations = (report: GenerationReport): Record<strin
         if (validate(schema)) continue;
         const kindViolations = (violations[schema.identifier.kind] ??= new Set());
         for (const e of validate.errors ?? []) {
+            // `must match "then" schema` only wraps the specific errors reported next to it
+            if (e.keyword === "if") continue;
             const path = e.instancePath.replace(/\/(fields|nested)\/[^/]+/g, "/$1/*").replace(/\/\d+/g, "/*");
             kindViolations.add(`${path || "/"} ${e.message} ${JSON.stringify(e.params)}`);
         }
