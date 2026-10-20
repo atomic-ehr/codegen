@@ -17,7 +17,9 @@ import {
     type Field,
     isComplexTypeTypeSchema,
     isNotChoiceDeclarationField,
+    isProfileNestedTypeSchema,
     isResourceTypeSchema,
+    isSpecializationTypeSchema,
     type NestedTypeSchema,
     type RegularField,
     type TypeIdentifier,
@@ -101,7 +103,7 @@ export class ViewModelFactory {
         nestedIn?: TypeSchema,
     ): TypeViewModel {
         const type = this.tsIndex.resolveType(typeRef);
-        if (!type) {
+        if (!type || isProfileNestedTypeSchema(type)) {
             throw new Error(`ComplexType ${typeRef.name} not found`);
         }
         if (!Object.hasOwn(cache.complexTypesByUri, type.identifier.url)) {
@@ -114,7 +116,7 @@ export class ViewModelFactory {
 
     private _createForResource(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
         const type = this.tsIndex.resolveType(typeRef);
-        if (!type) {
+        if (!type || isProfileNestedTypeSchema(type)) {
             throw new Error(`Resource ${typeRef.name} not found`);
         }
         if (!Object.hasOwn(cache.resourcesByUri, type.identifier.url)) {
@@ -252,7 +254,7 @@ export class ViewModelFactory {
                     dependencies.resources.push(dependency);
                 });
         }
-        if ("nested" in schema && schema.nested) {
+        if (isSpecializationTypeSchema(schema) && schema.nested) {
             schema.nested
                 .map((nested) => this._collectDependencies(nested))
                 .forEach((d) => {
@@ -319,7 +321,7 @@ export class ViewModelFactory {
         cache: ViewModelCache,
     ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
-        if ("nested" in schema && schema.nested) {
+        if (isSpecializationTypeSchema(schema) && schema.nested) {
             schema.nested
                 .map((nested) => this._createForNestedType(nested, cache, schema))
                 .forEach((n) => {

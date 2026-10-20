@@ -26,6 +26,8 @@ import {
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNestedTypeSchema,
+    isProfileNestedIdentifier,
+    isProfileNestedTypeSchema,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
@@ -42,6 +44,8 @@ import {
     type PrimitiveTypeSchema,
     type ProfileExtension,
     type ProfileIdentifier,
+    type ProfileNestedIdentifier,
+    type ProfileNestedTypeSchema,
     type ProfileTypeSchema,
     type ResourceIdentifier,
     type ResourceTypeSchema,
@@ -179,7 +183,7 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
  *  and sorted so generated code does not depend on the order schemas were loaded in. */
 const expandAbstractTargets = (
     resource: TypeIdentifier[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): TypeIdentifier[] => {
     const isAbstract = (id: TypeIdentifier): boolean => {
         const schema = resolveType(id);
@@ -210,7 +214,7 @@ const expandAbstractTargets = (
 /** Runs after `populateTypeFamily`, which supplies the descendants, and mutates in place as it does. */
 const populateEffectiveReferences = (
     schemas: TypeSchema[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): void => {
     const populateFields = (fields: Record<string, Field> | undefined): void => {
         for (const field of Object.values(fields ?? {})) {
@@ -236,8 +240,8 @@ type GenericContribution =
     | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
 
 const collectGenericContributions = (
-    schema: SpecializationTypeSchema | NestedTypeSchema,
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+    schema: SpecializationTypeSchema | NestedTypeSchema | ProfileNestedTypeSchema,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): GenericContribution[] => {
     const contributions: GenericContribution[] = [];
     for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
@@ -301,9 +305,9 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
  *  hops. Iterates to a fixpoint so order doesn't matter. */
 const populateGeneric = (
     schemas: TypeSchema[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): void => {
-    type Carrier = SpecializationTypeSchema | NestedTypeSchema;
+    type Carrier = SpecializationTypeSchema | NestedTypeSchema | ProfileNestedTypeSchema;
     const carriers: Carrier[] = [];
     for (const schema of schemas) {
         if (isSpecializationTypeSchema(schema)) {
@@ -352,7 +356,8 @@ const populateGeneric = (
         const constraints: Identifier[] = [];
         const collect = (params: GenericParam[]) => {
             for (const p of params) {
-                if (!isNestedIdentifier(p.constraint)) constraints.push(p.constraint);
+                if (!isNestedIdentifier(p.constraint) && !isProfileNestedIdentifier(p.constraint))
+                    constraints.push(p.constraint);
             }
         };
         if (schema.generic) collect(schema.generic.params);
@@ -380,9 +385,10 @@ type ResolveFn = {
     (id: Identifier): TypeSchema | undefined;
 };
 
-/** Overloaded `resolveType` — same as ResolveFn plus a NestedIdentifier overload. */
+/** Overloaded `resolveType` — same as ResolveFn plus the nested identifier overloads. */
 type ResolveTypeFn = {
     (id: NestedIdentifier): NestedTypeSchema | undefined;
+    (id: ProfileNestedIdentifier): ProfileNestedTypeSchema | undefined;
     (id: PrimitiveIdentifier): PrimitiveTypeSchema | undefined;
     (id: ComplexTypeIdentifier): ComplexTypeTypeSchema | undefined;
     (id: ResourceIdentifier): ResourceTypeSchema | undefined;
@@ -391,7 +397,7 @@ type ResolveTypeFn = {
     (id: BindingIdentifier): BindingTypeSchema | undefined;
     (id: ProfileIdentifier): ProfileTypeSchema | undefined;
     (id: SnapshotProfileIdentifier): SnapshotProfileTypeSchema | undefined;
-    (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined;
+    (id: TypeIdentifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined;
 };
 
 export type TypeSchemaIndex = {
@@ -406,7 +412,10 @@ export type TypeSchemaIndex = {
     collectSnapshotProfiles: () => SnapshotProfileTypeSchema[];
     resolve: ResolveFn;
     resolveType: ResolveTypeFn;
-    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | NestedTypeSchema | undefined;
+    resolveByUrl: (
+        pkgName: PkgName,
+        url: CanonicalUrl,
+    ) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
@@ -432,7 +441,10 @@ export type TypeSchemaIndex = {
     replaceSchemas: (schemas: TypeSchema[]) => TypeSchemaIndex;
 };
 
-type EntityTree = Record<PkgName, Record<TypeIdentifier["kind"], Record<CanonicalUrl, object>>>;
+type EntityTree = Record<
+    PkgName,
+    Record<Exclude<TypeIdentifier["kind"], "profile-nested">, Record<CanonicalUrl, object>>
+>;
 
 const choiceInstances = (fields: Record<string, Field>, declName: string): [string, ChoiceFieldInstance][] =>
     Object.entries(fields).filter(
@@ -530,7 +542,7 @@ export const mkTypeSchemaIndex = (
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema | ProfileNestedTypeSchema>> = {};
     const snapshotIndex: Record<CanonicalUrl, Record<PkgName, SnapshotProfileTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
@@ -551,9 +563,6 @@ export const mkTypeSchemaIndex = (
                     const nurl = nschema.identifier.url;
                     const npkg = nschema.identifier.package;
                     nestedIndex[nurl] ??= {};
-                    // A constraint profile's nested type reuses its specialization's
-                    // identifier; the specialization's nested type wins whenever it is indexed.
-                    if (isProfileTypeSchema(schema) && nestedIndex[nurl][npkg]) return;
                     nestedIndex[nurl][npkg] = nschema;
                 });
             }
@@ -568,15 +577,18 @@ export const mkTypeSchemaIndex = (
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     }) as ResolveFn;
-    const resolveType = ((id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
-        if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
+    const resolveType = ((id: TypeIdentifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined => {
+        if (isNestedIdentifier(id) || isProfileNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     }) as ResolveTypeFn;
 
     populateEffectiveReferences(schemas, resolveType);
     populateGeneric(schemas, resolveType);
-    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
+    const resolveByUrl = (
+        pkgName: PkgName,
+        url: CanonicalUrl,
+    ): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
@@ -613,7 +625,7 @@ export const mkTypeSchemaIndex = (
             res.push(cur);
             const base: TypeIdentifier | undefined = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
-            if (isNestedIdentifier(base)) break;
+            if (isNestedIdentifier(base) || isProfileNestedIdentifier(base)) break;
             const resolved: TypeSchema | undefined = resolve(base);
             if (!resolved) {
                 logger?.warn(
@@ -648,7 +660,7 @@ export const mkTypeSchemaIndex = (
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const resolved = resolveType(id);
         if (!resolved) return id;
-        if (isNestedTypeSchema(resolved))
+        if (isNestedTypeSchema(resolved) || isProfileNestedTypeSchema(resolved))
             return resolved.base ? findLastSpecializationByIdentifier(resolved.base) : resolved.identifier;
         return findLastSpecialization(resolved).identifier;
     };

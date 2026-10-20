@@ -19,8 +19,12 @@ import {
     type Name,
     type NestedIdentifier,
     type NestedTypeSchema,
+    type NestedTypeSchemaBody,
+    type ProfileNestedIdentifier,
+    type ProfileNestedTypeSchema,
     profileNestedIdentifier,
     type RichFHIRSchema,
+    type RichProfileFHIRSchema,
     type TypeIdentifier,
 } from "../types";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
@@ -172,11 +176,12 @@ function transformNestedElements(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-export function mkNestedTypes(
+function collectNestedTypes<I extends NestedIdentifier | ProfileNestedIdentifier>(
     register: Register,
     fhirSchema: RichFHIRSchema,
+    mkNestedTypeIdentifier: (path: string[]) => I,
     logger?: CodegenLog,
-): NestedTypeSchema[] | undefined {
+): ({ identifier: I } & NestedTypeSchemaBody)[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
     const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
@@ -191,12 +196,9 @@ export function mkNestedTypes(
         return true;
     });
 
-    const nestedTypes: NestedTypeSchema[] = [];
+    const nestedTypes: ({ identifier: I } & NestedTypeSchemaBody)[] = [];
     for (const [path, element] of nested) {
-        const identifier =
-            fhirSchema.derivation === "constraint"
-                ? profileNestedIdentifier(mkIdentifier(fhirSchema), path.join(".") as Name)
-                : mkNestedIdentifier(register, fhirSchema, path);
+        const identifier = mkNestedTypeIdentifier(path);
 
         let baseName: Name;
         if (element.type === "BackboneElement" || !element.type) {
@@ -224,7 +226,7 @@ export function mkNestedTypes(
 
         const { fields, slicing } = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
-        const nestedType: NestedTypeSchema = {
+        const nestedType: { identifier: I } & NestedTypeSchemaBody = {
             identifier,
             ...(base ? { base } : {}),
             fields,
@@ -238,7 +240,32 @@ export function mkNestedTypes(
     return nestedTypes.length === 0 ? undefined : nestedTypes;
 }
 
-export function extractNestedDependencies(nestedTypes: NestedTypeSchema[]): TypeIdentifier[] {
+/** Nested types declared by a resource, complex type or logical model. */
+export const mkNestedTypes = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLog,
+): NestedTypeSchema[] | undefined =>
+    collectNestedTypes(register, fhirSchema, (path) => mkNestedIdentifier(register, fhirSchema, path), logger);
+
+/** A constraint profile's own copies of the nested types it constrains, under the profile's url. */
+export const mkProfileNestedTypes = (
+    register: Register,
+    fhirSchema: RichProfileFHIRSchema,
+    logger?: CodegenLog,
+): ProfileNestedTypeSchema[] | undefined => {
+    const profile = mkIdentifier(fhirSchema);
+    return collectNestedTypes(
+        register,
+        fhirSchema,
+        (path) => profileNestedIdentifier(profile, path.join(".") as Name),
+        logger,
+    );
+};
+
+export function extractNestedDependencies(
+    nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[],
+): TypeIdentifier[] {
     const deps: TypeIdentifier[] = [];
 
     for (const nested of nestedTypes) {

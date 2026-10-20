@@ -17,6 +17,7 @@ import {
     isNestedIdentifier,
     type NestedTypeSchema,
     type ProfileIdentifier,
+    type ProfileNestedTypeSchema,
     type ProfileTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
@@ -31,7 +32,7 @@ import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 import { assignRecommendedBaseNames } from "./name-candidates";
-import { extractNestedDependencies, isNestedElement, mkNestedTypes } from "./nested-types";
+import { extractNestedDependencies, isNestedElement, mkNestedTypes, mkProfileNestedTypes } from "./nested-types";
 import { extractProfileExtensions } from "./profile-extensions";
 
 export function mkFields(
@@ -95,7 +96,7 @@ export async function transformValueSet(
 const collectRawDeps = (
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
+    nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[] | undefined,
 ): TypeIdentifier[] => {
     const deps: TypeIdentifier[] = [];
     if (base) deps.push(base);
@@ -125,7 +126,7 @@ export const extractProfileDependencies = (
     identifier: ProfileIdentifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
+    nestedTypes: ProfileNestedTypeSchema[] | undefined,
 ): TypeIdentifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
     const filtered = deps.filter((dep) => dep.url !== identifier.url);
@@ -153,7 +154,6 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
     }
 
     const { fields, slicing } = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
-    const nested = mkNestedTypes(register, fhirSchema, logger);
     const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
 
     if (fhirSchema.derivation === "constraint") {
@@ -161,6 +161,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
+        const nested = mkProfileNestedTypes(register, fhirSchema, logger);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
         const profileSchema: ProfileTypeSchema = {
             identifier,
@@ -176,6 +177,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         return [profileSchema, ...bindingSchemas];
     }
 
+    const nested = mkNestedTypes(register, fhirSchema, logger);
     if (fhirSchema.kind === "primitive-type") {
         const identifier = mkIdentifier(fhirSchema);
         assert(base, `Primitive type ${fhirSchema.url} must have a base type`);
