@@ -176,12 +176,12 @@ function transformNestedElements(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-function collectNestedTypes<I extends NestedIdentifier | ProfileNestedIdentifier>(
+const collectNestedTypes = <I extends NestedIdentifier | ProfileNestedIdentifier>(
     register: Register,
     fhirSchema: RichFHIRSchema,
     mkNestedTypeIdentifier: (path: string[]) => I,
     logger?: CodegenLog,
-): ({ identifier: I } & NestedTypeSchemaBody)[] | undefined {
+): ({ identifier: I } & NestedTypeSchemaBody)[] | undefined => {
     if (!fhirSchema.elements) return undefined;
 
     const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
@@ -238,7 +238,7 @@ function collectNestedTypes<I extends NestedIdentifier | ProfileNestedIdentifier
     nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
 
     return nestedTypes.length === 0 ? undefined : nestedTypes;
-}
+};
 
 /** Nested types declared by a resource, complex type or logical model. */
 export const mkNestedTypes = (
@@ -263,9 +263,9 @@ export const mkProfileNestedTypes = (
     );
 };
 
-export function extractNestedDependencies(
+export const extractNestedDependencies = (
     nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[],
-): TypeIdentifier[] {
+): TypeIdentifier[] => {
     const deps: TypeIdentifier[] = [];
 
     for (const nested of nestedTypes) {
@@ -283,4 +283,4 @@ export function extractNestedDependencies(
         }
     }
     return deps;
-}
+};

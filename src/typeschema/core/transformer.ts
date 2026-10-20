@@ -133,7 +133,11 @@ export const extractProfileDependencies = (
     return concatIdentifiers(filtered);
 };
 
-export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
+export const transformFhirSchema = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLog,
+): TypeSchema[] => {
     let base: Identifier | undefined;
     if (fhirSchema.base) {
         const baseUrl = register.ensureSpecializationCanonicalUrl(fhirSchema.base);
@@ -205,4 +209,4 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         typeFamily: undefined,
     } as SpecializationTypeSchema;
     return [schema, ...bindingSchemas];
-}
+};
