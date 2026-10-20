@@ -44,7 +44,7 @@ describe("TypeSchema R5 generation", async () => {
             nested: [
                 {
                     identifier: {
-                        kind: "nested",
+                        kind: "profile-nested",
                         package: "hl7.fhir.r5.core",
                         version: "5.0.0",
                         name: "concept",

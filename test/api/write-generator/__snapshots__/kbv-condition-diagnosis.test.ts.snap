@@ -2433,7 +2433,7 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
   "nested": [
     {
       "identifier": {
-        "kind": "nested",
+        "kind": "profile-nested",
         "package": "kbv.basis",
         "version": "1.9.0",
         "name": "stage",
@@ -3588,7 +3588,7 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
   "nested": [
     {
       "identifier": {
-        "kind": "nested",
+        "kind": "profile-nested",
         "package": "kbv.basis",
         "version": "1.9.0",
         "name": "stage",
