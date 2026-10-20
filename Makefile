@@ -17,7 +17,7 @@ TEST_ARG ?=
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
-	test test-multi-package \
+	test \
 	prepare-aidbox-runme test-all-example-generation test-other-example-generation \
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda \
 	test-on-the-fly-kbv-condition-diagnosis \
@@ -27,7 +27,7 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	python-r4-us-core-test-setup \
 	test-python-sdk test-python-r4-us-core-example
 
-all: test test-multi-package test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
+all: test test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -45,13 +45,8 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
+	@find test -name "*.test.ts" | sort | \
 		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test $(TEST_ARG) --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
-
-test-multi-package: typecheck
-	bun test $(TEST_ARG) test/api/write-generator/multi-package/cda.test.ts
-	bun test $(TEST_ARG) test/api/write-generator/multi-package/local-package.test.ts
-	bun test $(TEST_ARG) test/api/write-generator/multi-package/sql-on-fhir.test.ts
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
