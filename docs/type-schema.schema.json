@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "https://fhir-clj.github.io/type-schema/json-schema/type-schema.json",
+	"$id": "https://raw.githubusercontent.com/atomic-ehr/codegen/main/docs/type-schema.schema.json",
 	"$comment": "Maturity Level: Draft. Mirrors the TypeSchema types in src/typeschema/types.ts.",
 	"title": "Type Schema",
 	"description": "A code generation friendly representation of FHIR StructureDefinition and FHIR Schema designed to simplify SDK resource classes/types generation.",
