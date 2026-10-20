@@ -14,14 +14,15 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { IsPrefixed } from "@root/utils/types";
 import {
     type ChoiceFieldInstance,
+    type ComplexTypeIdentifier,
     type Field,
     isComplexTypeTypeSchema,
     isNotChoiceDeclarationField,
-    isProfileNestedTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
     type RegularField,
+    type ResourceIdentifier,
     type TypeIdentifier,
     type TypeSchema,
 } from "@typeschema/types";
@@ -45,7 +46,7 @@ export class ViewModelFactory {
     }
 
     public createComplexType(
-        typeRef: TypeIdentifier,
+        typeRef: ComplexTypeIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForComplexType(typeRef, cache);
@@ -66,7 +67,7 @@ export class ViewModelFactory {
         });
     }
     public createResource(
-        typeRef: TypeIdentifier,
+        typeRef: ResourceIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForResource(typeRef, cache);
@@ -98,12 +99,12 @@ export class ViewModelFactory {
     }
 
     private _createForComplexType(
-        typeRef: TypeIdentifier,
+        typeRef: ComplexTypeIdentifier,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
         const type = this.tsIndex.resolveType(typeRef);
-        if (!type || isProfileNestedTypeSchema(type)) {
+        if (!type) {
             throw new Error(`ComplexType ${typeRef.name} not found`);
         }
         if (!Object.hasOwn(cache.complexTypesByUri, type.identifier.url)) {
@@ -114,9 +115,13 @@ export class ViewModelFactory {
         return res;
     }
 
-    private _createForResource(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
+    private _createForResource(
+        typeRef: ResourceIdentifier,
+        cache: ViewModelCache,
+        nestedIn?: TypeSchema,
+    ): TypeViewModel {
         const type = this.tsIndex.resolveType(typeRef);
-        if (!type || isProfileNestedTypeSchema(type)) {
+        if (!type) {
             throw new Error(`Resource ${typeRef.name} not found`);
         }
         if (!Object.hasOwn(cache.resourcesByUri, type.identifier.url)) {
