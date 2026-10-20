@@ -198,14 +198,14 @@ export type TypeSchema =
     | ProfileTypeSchema
     | SnapshotProfileTypeSchema;
 
-type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined;
+type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | null | undefined;
 
 export const isNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is NestedTypeSchema => {
-    return schema !== undefined && isNestedIdentifier(schema.identifier);
+    return isNestedIdentifier(schema?.identifier);
 };
 
 export const isProfileNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is ProfileNestedTypeSchema => {
-    return schema !== undefined && isProfileNestedIdentifier(schema.identifier);
+    return isProfileNestedIdentifier(schema?.identifier);
 };
 
 export const isSpecializationTypeSchema = (schema: TypeSchemaGuardInput): schema is SpecializationTypeSchema => {
