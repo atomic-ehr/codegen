@@ -14,12 +14,15 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { IsPrefixed } from "@root/utils/types";
 import {
     type ChoiceFieldInstance,
+    type ComplexTypeIdentifier,
     type Field,
     isComplexTypeTypeSchema,
     isNotChoiceDeclarationField,
     isResourceTypeSchema,
+    isSpecializationTypeSchema,
     type NestedTypeSchema,
     type RegularField,
+    type ResourceIdentifier,
     type TypeIdentifier,
     type TypeSchema,
 } from "@typeschema/types";
@@ -43,7 +46,7 @@ export class ViewModelFactory {
     }
 
     public createComplexType(
-        typeRef: TypeIdentifier,
+        typeRef: ComplexTypeIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForComplexType(typeRef, cache);
@@ -64,7 +67,7 @@ export class ViewModelFactory {
         });
     }
     public createResource(
-        typeRef: TypeIdentifier,
+        typeRef: ResourceIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForResource(typeRef, cache);
@@ -96,7 +99,7 @@ export class ViewModelFactory {
     }
 
     private _createForComplexType(
-        typeRef: TypeIdentifier,
+        typeRef: ComplexTypeIdentifier,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
@@ -112,7 +115,11 @@ export class ViewModelFactory {
         return res;
     }
 
-    private _createForResource(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
+    private _createForResource(
+        typeRef: ResourceIdentifier,
+        cache: ViewModelCache,
+        nestedIn?: TypeSchema,
+    ): TypeViewModel {
         const type = this.tsIndex.resolveType(typeRef);
         if (!type) {
             throw new Error(`Resource ${typeRef.name} not found`);
@@ -252,7 +259,7 @@ export class ViewModelFactory {
                     dependencies.resources.push(dependency);
                 });
         }
-        if ("nested" in schema && schema.nested) {
+        if (isSpecializationTypeSchema(schema) && schema.nested) {
             schema.nested
                 .map((nested) => this._collectDependencies(nested))
                 .forEach((d) => {
@@ -319,7 +326,7 @@ export class ViewModelFactory {
         cache: ViewModelCache,
     ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
-        if ("nested" in schema && schema.nested) {
+        if (isSpecializationTypeSchema(schema) && schema.nested) {
             schema.nested
                 .map((nested) => this._createForNestedType(nested, cache, schema))
                 .forEach((n) => {

@@ -110,6 +110,7 @@ export type ComplexTypeIdentifier = { kind: "complex-type" } & IdentifierBase;
 export type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
 export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
+export type ProfileNestedIdentifier = { kind: "profile-nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
 export type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
 export type SnapshotProfileIdentifier = { kind: "profile-snapshot" } & IdentifierBase;
@@ -125,7 +126,7 @@ export type Identifier =
     | SnapshotProfileIdentifier
     | LogicalIdentifier;
 
-export type TypeIdentifier = Identifier | NestedIdentifier;
+export type TypeIdentifier = Identifier | NestedIdentifier | ProfileNestedIdentifier;
 
 export const isResourceIdentifier = (id: TypeIdentifier | undefined): id is ResourceIdentifier => {
     return id?.kind === "resource";
@@ -147,6 +148,10 @@ export const isNestedIdentifier = (id: TypeIdentifier | undefined): id is Nested
     return id?.kind === "nested";
 };
 
+export const isProfileNestedIdentifier = (id: TypeIdentifier | undefined): id is ProfileNestedIdentifier => {
+    return id?.kind === "profile-nested";
+};
+
 export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is ProfileIdentifier => {
     return id?.kind === "profile";
 };
@@ -160,8 +165,8 @@ export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdenti
     kind: "profile-snapshot",
 });
 
-export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): NestedIdentifier => ({
-    kind: "nested",
+export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): ProfileNestedIdentifier => ({
+    kind: "profile-nested",
     package: profile.package,
     version: profile.version,
     name,
@@ -193,10 +198,14 @@ export type TypeSchema =
     | ProfileTypeSchema
     | SnapshotProfileTypeSchema;
 
-type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | undefined;
+type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | null | undefined;
 
 export const isNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is NestedTypeSchema => {
-    return schema !== undefined && isNestedIdentifier(schema.identifier);
+    return isNestedIdentifier(schema?.identifier);
+};
+
+export const isProfileNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is ProfileNestedTypeSchema => {
+    return isProfileNestedIdentifier(schema?.identifier);
 };
 
 export const isSpecializationTypeSchema = (schema: TypeSchemaGuardInput): schema is SpecializationTypeSchema => {
@@ -261,14 +270,19 @@ export type GenericInfo = {
     params: GenericParam[];
 };
 
-export interface NestedTypeSchema {
-    identifier: NestedIdentifier;
+export type NestedTypeSchemaBody = {
     base?: TypeIdentifier;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
     generic?: GenericInfo;
-}
+};
+
+/** A nested type (backbone element) declared by a resource, complex type or logical model. */
+export type NestedTypeSchema = { identifier: NestedIdentifier } & NestedTypeSchemaBody;
+
+/** A constraint profile's own copy of a nested type, with the profile's narrowing. */
+export type ProfileNestedTypeSchema = { identifier: ProfileNestedIdentifier } & NestedTypeSchemaBody;
 
 export interface ProfileTypeSchema {
     identifier: ProfileIdentifier;
@@ -279,7 +293,7 @@ export interface ProfileTypeSchema {
     slicing?: Record<string, FieldSlicing>;
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedTypeSchema[];
+    nested?: ProfileNestedTypeSchema[];
 }
 
 /** Flattened profile. */
@@ -300,7 +314,7 @@ export interface SnapshotProfileTypeSchema {
     inheritedRequiredFields?: string[];
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedTypeSchema[];
+    nested?: ProfileNestedTypeSchema[];
 }
 
 export const isSnapshotProfileTypeSchema = (s: TypeSchemaGuardInput): s is SnapshotProfileTypeSchema => {

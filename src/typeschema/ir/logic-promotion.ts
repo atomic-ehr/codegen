@@ -10,6 +10,7 @@ import {
     isValueSetTypeSchema,
     type NestedTypeSchema,
     type PkgName,
+    type ProfileNestedTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -49,9 +50,9 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         const cloned = JSON.parse(JSON.stringify(schema));
         cloned.identifier = replace(cloned.identifier);
         cloned.dependencies = cloned.dependencies?.map(replace);
-        if (isSpecializationTypeSchema(cloned) || isProfileTypeSchema(cloned)) {
+        if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
             cloned.fields = replaceInFields(cloned.fields);
-            cloned.nested = cloned.nested?.map((n: NestedTypeSchema) => {
+            cloned.nested = cloned.nested?.map((n: NestedTypeSchema | ProfileNestedTypeSchema) => {
                 return {
                     ...n,
                     base: n.base ? replace(n.base) : undefined,

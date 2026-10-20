@@ -14,6 +14,8 @@ import {
     isNestedTypeSchema,
     isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
+    isProfileNestedIdentifier,
+    isProfileNestedTypeSchema,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSnapshotProfileTypeSchema,
@@ -255,7 +257,9 @@ const treeShakeTypeSchemaWithResolver = (
                 });
         };
         collectUsedNestedTypes(schema);
-        schema.nested = schema.nested.filter((nested) => usedTypes.has(nestedIdentity(nested.identifier)));
+        const isUsed = (nested: { identifier: TypeIdentifier }) => usedTypes.has(nestedIdentity(nested.identifier));
+        if (isProfileTypeSchema(schema)) schema.nested = schema.nested.filter(isUsed);
+        else if (isSpecializationTypeSchema(schema)) schema.nested = schema.nested?.filter(isUsed);
     }
 
     if (isProfileTypeSchema(schema)) {
@@ -363,7 +367,8 @@ export const treeShake = (
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
             const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema || isNestedTypeSchema(schema)) throw new Error(`Schema not found for ${pkgId} ${url}`);
+            if (!schema || isNestedTypeSchema(schema) || isProfileNestedTypeSchema(schema))
+                throw new Error(`Schema not found for ${pkgId} ${url}`);
             const shaked = treeShakeTypeSchemaWithResolver(schema, rule, tsIndex.resolveType);
             focusedSchemas.push(shaked);
             if (rule.followReferences ?? defaults?.followReferences) {
@@ -397,7 +402,7 @@ export const treeShake = (
                     ...collectSliceMatchResourceTargets(schema, tsIndex).map(({ identifier }) => identifier),
                 ];
                 dependencies.forEach((dep) => {
-                    if (isNestedIdentifier(dep)) return;
+                    if (isNestedIdentifier(dep) || isProfileNestedIdentifier(dep)) return;
                     const depSchema = tsIndex.resolve(dep);
                     if (!depSchema)
                         throw new Error(
