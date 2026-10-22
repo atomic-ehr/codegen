@@ -31,12 +31,10 @@
 - `http://hl7.org/fhir/StructureDefinition/Appointment`
 - `http://hl7.org/fhir/StructureDefinition/AppointmentResponse`
 - `http://hl7.org/fhir/StructureDefinition/AuditEvent`
-- `http://hl7.org/fhir/StructureDefinition/BackboneElement`
 - `http://hl7.org/fhir/StructureDefinition/Basic`
 - `http://hl7.org/fhir/StructureDefinition/Binary`
 - `http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct`
 - `http://hl7.org/fhir/StructureDefinition/BodyStructure`
-- `http://hl7.org/fhir/StructureDefinition/Bundle`
 - `http://hl7.org/fhir/StructureDefinition/CapabilityStatement`
 - `http://hl7.org/fhir/StructureDefinition/CarePlan`
 - `http://hl7.org/fhir/StructureDefinition/CareTeam`
@@ -46,7 +44,6 @@
 - `http://hl7.org/fhir/StructureDefinition/Claim`
 - `http://hl7.org/fhir/StructureDefinition/ClaimResponse`
 - `http://hl7.org/fhir/StructureDefinition/ClinicalImpression`
-- `http://hl7.org/fhir/StructureDefinition/CodeSystem`
 - `http://hl7.org/fhir/StructureDefinition/Communication`
 - `http://hl7.org/fhir/StructureDefinition/CommunicationRequest`
 - `http://hl7.org/fhir/StructureDefinition/CompartmentDefinition`
@@ -72,9 +69,7 @@
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences`
 - `http://hl7.org/fhir/StructureDefinition/DocumentManifest`
 - `http://hl7.org/fhir/StructureDefinition/DocumentReference`
-- `http://hl7.org/fhir/StructureDefinition/DomainResource`
 - `http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis`
-- `http://hl7.org/fhir/StructureDefinition/Element`
 - `http://hl7.org/fhir/StructureDefinition/ElementDefinition`
 - `http://hl7.org/fhir/StructureDefinition/Encounter`
 - `http://hl7.org/fhir/StructureDefinition/Endpoint`
@@ -133,14 +128,11 @@
 - `http://hl7.org/fhir/StructureDefinition/MoneyQuantity`
 - `http://hl7.org/fhir/StructureDefinition/NamingSystem`
 - `http://hl7.org/fhir/StructureDefinition/NutritionOrder`
-- `http://hl7.org/fhir/StructureDefinition/Observation`
 - `http://hl7.org/fhir/StructureDefinition/ObservationDefinition`
 - `http://hl7.org/fhir/StructureDefinition/OperationDefinition`
-- `http://hl7.org/fhir/StructureDefinition/OperationOutcome`
 - `http://hl7.org/fhir/StructureDefinition/Organization`
 - `http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation`
 - `http://hl7.org/fhir/StructureDefinition/Parameters`
-- `http://hl7.org/fhir/StructureDefinition/Patient`
 - `http://hl7.org/fhir/StructureDefinition/PaymentNotice`
 - `http://hl7.org/fhir/StructureDefinition/PaymentReconciliation`
 - `http://hl7.org/fhir/StructureDefinition/Person`
@@ -208,8 +200,6 @@
 - `http://hl7.org/fhir/StructureDefinition/bodySite`
 - `http://hl7.org/fhir/StructureDefinition/bodyheight`
 - `http://hl7.org/fhir/StructureDefinition/bodytemp`
-- `http://hl7.org/fhir/StructureDefinition/bodyweight`
-- `http://hl7.org/fhir/StructureDefinition/bp`
 - `http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation`
 - `http://hl7.org/fhir/StructureDefinition/capabilitystatement-prohibited`
 - `http://hl7.org/fhir/StructureDefinition/capabilitystatement-search-parameter-combination`
@@ -356,7 +346,6 @@
 - `http://hl7.org/fhir/StructureDefinition/humanname-fathers-family`
 - `http://hl7.org/fhir/StructureDefinition/humanname-mothers-family`
 - `http://hl7.org/fhir/StructureDefinition/humanname-own-name`
-- `http://hl7.org/fhir/StructureDefinition/humanname-own-prefix`
 - `http://hl7.org/fhir/StructureDefinition/humanname-partner-name`
 - `http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix`
 - `http://hl7.org/fhir/StructureDefinition/identifier-validDate`
@@ -454,8 +443,6 @@
 - `http://hl7.org/fhir/StructureDefinition/parameters-fullUrl`
 - `http://hl7.org/fhir/StructureDefinition/patient-adoptionInfo`
 - `http://hl7.org/fhir/StructureDefinition/patient-animal`
-- `http://hl7.org/fhir/StructureDefinition/patient-birthPlace`
-- `http://hl7.org/fhir/StructureDefinition/patient-birthTime`
 - `http://hl7.org/fhir/StructureDefinition/patient-cadavericDonor`
 - `http://hl7.org/fhir/StructureDefinition/patient-citizenship`
 - `http://hl7.org/fhir/StructureDefinition/patient-congregation`
@@ -464,7 +451,6 @@
 - `http://hl7.org/fhir/StructureDefinition/patient-importance`
 - `http://hl7.org/fhir/StructureDefinition/patient-interpreterRequired`
 - `http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName`
-- `http://hl7.org/fhir/StructureDefinition/patient-nationality`
 - `http://hl7.org/fhir/StructureDefinition/patient-preferenceType`
 - `http://hl7.org/fhir/StructureDefinition/patient-proficiency`
 - `http://hl7.org/fhir/StructureDefinition/patient-relatedPerson`
@@ -1956,7 +1942,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height`
@@ -1965,7 +1950,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-temperature#valueQuantity.code_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight#valueQuantity.code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference#category_binding`
@@ -2049,7 +2033,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-sexual-orientation#status_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization#address.state_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient#address.state_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient#telecom.system_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient#telecom.use_binding`
@@ -2062,7 +2045,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure#reasonCode_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure#status_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse`
