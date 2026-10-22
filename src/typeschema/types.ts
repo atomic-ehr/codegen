@@ -165,6 +165,10 @@ export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdenti
     kind: "profile-snapshot",
 });
 
+/** A constraint profile's own copy of the nested type `name`, with the profile's
+ *  narrowing, under the profile's url. Profile fields point at the copy of the nearest
+ *  constraining ancestor, the profile itself included (or at the specialization's nested
+ *  type if none constrains it); writers name and import a copy's `specialization` via `specializationOf`. */
 export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): ProfileNestedIdentifier => ({
     kind: "profile-nested",
     package: profile.package,

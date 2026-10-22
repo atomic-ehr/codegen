@@ -61,10 +61,11 @@ export const profileModuleImports = (
 ): ProfileImports => {
     const terminologyImports = w.enumTerminologyLinks(tsIndex, snapshot).imports;
     const types = w.section<never, Identifier>({
-        name: tsResourceName,
+        name: (id) => tsResourceName(tsIndex.specializationOf(id)),
         render: (_definitions, usages) => {
             const grouped: Record<string, string[]> = {};
-            for (const { key, local } of usages) {
+            for (const { key: constraint, local } of usages) {
+                const key = tsIndex.specializationOf(constraint);
                 let modulePath = `../../${w.modulePath(key)}`;
                 if (isNestedIdentifier(key)) {
                     const path = tsNameFromCanonical(key.url, true);

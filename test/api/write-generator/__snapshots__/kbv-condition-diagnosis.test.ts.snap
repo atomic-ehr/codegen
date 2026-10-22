@@ -2164,11 +2164,11 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
     },
     "stage": {
       "type": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
+        "kind": "profile-nested",
+        "package": "kbv.basis",
+        "version": "1.9.0",
         "name": "stage",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
       },
       "array": true,
       "required": false,
@@ -2281,13 +2281,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
     },
     {
-      "kind": "nested",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "stage",
-      "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
-    },
-    {
       "kind": "primitive-type",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
@@ -2321,6 +2314,13 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "4.0.1",
       "name": "Reference",
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+    },
+    {
+      "kind": "profile-nested",
+      "package": "kbv.basis",
+      "version": "1.9.0",
+      "name": "stage",
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
     },
     {
       "kind": "binding",
@@ -2909,11 +2909,11 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
     },
     "stage": {
       "type": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
+        "kind": "profile-nested",
+        "package": "kbv.basis",
+        "version": "1.9.0",
         "name": "stage",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
       },
       "array": true,
       "required": false,
@@ -3147,13 +3147,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
     },
     {
-      "kind": "nested",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "stage",
-      "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
-    },
-    {
       "kind": "primitive-type",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
@@ -3187,6 +3180,13 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "4.0.1",
       "name": "Reference",
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+    },
+    {
+      "kind": "profile-nested",
+      "package": "kbv.basis",
+      "version": "1.9.0",
+      "name": "stage",
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
     },
     {
       "kind": "binding",

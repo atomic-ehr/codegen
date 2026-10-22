@@ -2006,6 +2006,7 @@ exports[`IntrospectionWriter - flat profile output Generated file list 1`] = `
   "generated/introspection/hl7.fhir.r4.core/CodeableConcept(CodeableConcept).json",
   "generated/introspection/hl7.fhir.r4.core/Coding(Coding).json",
   "generated/introspection/hl7.fhir.r4.core/component(Observation).json",
+  "generated/introspection/hl7.fhir.r4.core/component(vitalsigns).json",
   "generated/introspection/hl7.fhir.r4.core/dateTime(dateTime).json",
   "generated/introspection/hl7.fhir.r4.core/decimal(decimal).json",
   "generated/introspection/hl7.fhir.r4.core/DomainResource(DomainResource).json",
@@ -2518,11 +2519,11 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
     },
     "component": {
       "type": {
-        "kind": "nested",
+        "kind": "profile-nested",
         "package": "hl7.fhir.r4.core",
         "version": "4.0.1",
         "name": "component",
-        "url": "http://hl7.org/fhir/StructureDefinition/Observation#component"
+        "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns#component"
       },
       "array": true,
       "required": false,
@@ -2657,13 +2658,6 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
       "url": "http://hl7.org/fhir/StructureDefinition/Observation"
     },
     {
-      "kind": "nested",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "component",
-      "url": "http://hl7.org/fhir/StructureDefinition/Observation#component"
-    },
-    {
       "kind": "complex-type",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
@@ -2676,6 +2670,13 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
       "version": "4.0.1",
       "name": "Reference",
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+    },
+    {
+      "kind": "profile-nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "component",
+      "url": "http://hl7.org/fhir/StructureDefinition/vitalsigns#component"
     },
     {
       "kind": "binding",

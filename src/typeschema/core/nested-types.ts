@@ -22,6 +22,7 @@ import {
     type NestedIdentifier,
     type NestedTypeSchema,
     type NestedTypeSchemaBody,
+    type ProfileNestedIdentifier,
     type ProfileNestedTypeSchema,
     profileNestedIdentifier,
     type RichFHIRSchema,
@@ -138,6 +139,48 @@ function collectNestedElements(
     return nested;
 }
 
+/** Whether `fhirSchema` declares its own nested type for `element` at `path`. */
+const isOwnNestedElement = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    element: FHIRSchemaElement,
+): boolean => {
+    if (!element.elements || Object.keys(element.elements).length === 0) return false;
+    // Verify the specialization chain also defines sub-elements for this path.
+    // This filters out false positives from constraint profiles that add sub-elements
+    // for constraining (e.g. bodyweight constraining code.coding — the base
+    // Observation.code has no sub-elements, so it's not a nested type).
+    if (element.type !== "BackboneElement") return hasStructuralElements(register, fhirSchema, path);
+    return true;
+};
+
+const hasOwnNestedType = (register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean => {
+    let element: FHIRSchemaElement | undefined;
+    let elements = fhirSchema.elements;
+    for (const key of path) {
+        element = elements?.[key];
+        elements = element?.elements;
+    }
+    if (!element || element.choiceOf !== undefined) return false;
+    return isOwnNestedElement(register, fhirSchema, path, element);
+};
+
+/** The nested type a field of `fhirSchema` at `path` points at: the nearest schema in its
+ *  genealogy, itself first, that declares one there — a profile's own copy, else the specialization's. */
+export const effectiveNestedIdentifier = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+): NestedIdentifier | ProfileNestedIdentifier => {
+    for (const ancestor of register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url)) {
+        if (ancestor.derivation !== "constraint") return mkNestedIdentifier(register, ancestor, path);
+        if (hasOwnNestedType(register, ancestor, path))
+            return profileNestedIdentifier(mkIdentifier(ancestor), path.join(".") as Name);
+    }
+    throw new Error(`No structural nested type for ${fhirSchema.url}#${path.join(".")}`);
+};
+
 function transformNestedElements(
     register: Register,
     fhirSchema: RichFHIRSchema,
@@ -185,17 +228,9 @@ const collectNestedTypeBodies = (
 ): NestedTypeSchemaBody[] => {
     if (!fhirSchema.elements) return [];
 
-    const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
-        if (!element.elements || Object.keys(element.elements).length === 0) return false;
-        // Verify the specialization chain also defines sub-elements for this path.
-        // This filters out false positives from constraint profiles that add sub-elements
-        // for constraining (e.g. bodyweight constraining code.coding — the base
-        // Observation.code has no sub-elements, so it's not a nested type).
-        if (element.type !== "BackboneElement") {
-            return hasStructuralElements(register, fhirSchema, path);
-        }
-        return true;
-    });
+    const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) =>
+        isOwnNestedElement(register, fhirSchema, path, element),
+    );
 
     return nested.map(([path, element]) => {
         let baseName: Name;
@@ -265,16 +300,21 @@ export const mkProfileNestedTypes = (
     logger?: CodegenLog,
 ): ProfileNestedTypeSchema[] | undefined => {
     const profile = mkIdentifier(fhirSchema);
+    const parent = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url)[1];
+    if (!parent) throw new Error(`Profile ${fhirSchema.url} has no parent`);
     const nestedTypes = collectNestedTypeBodies(register, fhirSchema, logger)
         .map((body): ProfileNestedTypeSchema => {
             const identifier = profileNestedIdentifier(profile, body.path.join(".") as Name);
+            // The parent's version of this nested type: its own copy, or the specialization's.
+            const base = effectiveNestedIdentifier(register, parent, body.path);
             return {
                 identifier,
                 derivation: "constraint",
                 declaredIn: profile,
                 ...body,
+                base,
                 specialization: mkNestedIdentifier(register, fhirSchema, body.path),
-                dependencies: extractDependencies(identifier, body.base, body.fields),
+                dependencies: extractDependencies(identifier, base, body.fields),
             };
         })
         .sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));

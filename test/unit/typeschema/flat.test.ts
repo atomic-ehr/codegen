@@ -81,6 +81,34 @@ describe("flat TypeSchemas", async () => {
         base: profileA.url,
         elements: { component: { elements: { code: { mustSupport: true } } } },
     });
+    // A recursive backbone, like Questionnaire.item.item: `item.item` is a contentReference to `item`.
+    const tree = registerFs(register, {
+        url: "http://example.org/StructureDefinition/FlatTree",
+        name: "FlatTree",
+        kind: "resource",
+        base: "DomainResource",
+        elements: {
+            item: {
+                type: "BackboneElement",
+                array: true,
+                elements: {
+                    code: { type: "code" },
+                    item: {
+                        elementReference: ["http://example.org/StructureDefinition/FlatTree", "elements", "item"],
+                        array: true,
+                    },
+                },
+            },
+        },
+    });
+    const treeProfile = registerFs(register, {
+        url: "http://example.org/StructureDefinition/FlatTreeProfile",
+        name: "FlatTreeProfile",
+        kind: "resource",
+        derivation: "constraint",
+        base: tree.url,
+        elements: { item: { elements: { code: { mustSupport: true }, item: { mustSupport: true } } } },
+    });
     const translate = (fs: RichFHIRSchema) => transformFhirSchema(register, fs, logger);
     const nested = (fs: RichFHIRSchema, path = "component") => {
         const node = translate(fs)
@@ -112,14 +140,31 @@ describe("flat TypeSchemas", async () => {
         const componentBase = index.resolve(nested(base).identifier)!;
         const componentA = index.resolve(nested(profileA).identifier)!;
         const componentB = index.resolve(nested(profileB).identifier)!;
-        expect(componentA).toHaveProperty("identifier.url", `${profileA.url}#component`);
-        expect(componentB).toHaveProperty("identifier.url", `${profileB.url}#component`);
+        expect(componentA).toMatchObject({
+            identifier: { url: `${profileA.url}#component` },
+            base: componentBase.identifier,
+        });
+        expect(componentB).toMatchObject({
+            identifier: { url: `${profileB.url}#component` },
+            base: componentBase.identifier,
+        });
         expect(componentA).toHaveProperty("fields.code.valueConstraint.value", "A");
         expect(componentB).toHaveProperty("fields.code.valueConstraint.value", "B");
         expect(componentBase).toHaveProperty("fields.code.valueConstraint", undefined);
         const reversed = mkIndex([...schemas].reverse());
         expect(reversed.resolve(componentA.identifier)).toEqual(componentA);
         expect(reversed.resolve(componentBase.identifier)).toEqual(componentBase);
+    });
+
+    it("reuses the nearest constrained ancestor and links further constraints to it", () => {
+        const inheritedSchemas = translate(inherited);
+        expect(inheritedSchemas.filter(isProfileNestedTypeSchema)).toHaveLength(0);
+        expect(inheritedSchemas[0]).toHaveProperty("fields.component.type.url", `${profileA.url}#component`);
+        expect(nested(derived)).toHaveProperty("base.url", `${profileA.url}#component`);
+        expect(nested(derived)).toHaveProperty("fields.code.valueConstraint.value", "A");
+        expect(nested(derived)).toHaveProperty("fields.code.mustSupport", true);
+        expect(nested(derived)).toHaveProperty("fields.detail.type.url", `${profileA.url}#component.detail`);
+        expect(nested(profileA, "component.detail")).toHaveProperty("fields.value.required", true);
     });
 
     it("does not manufacture constrained nodes when only the containing field's cardinality changes", () => {
@@ -181,10 +226,24 @@ describe("flat TypeSchemas", async () => {
         const root = translate(derived)[0]!;
         if (!isProfileTypeSchema(root)) throw new Error("Expected a profile root");
         const reachable = index.reachableFrom([root.identifier]);
-        expect(reachable.some((schema) => schema.identifier.url === `${base.url}#component.detail`)).toBeTrue();
+        expect(reachable.some((schema) => schema.identifier.url === `${profileA.url}#component.detail`)).toBeTrue();
         expect(reachable.some((schema) => schema.identifier.url === `${profileB.url}#component`)).toBeFalse();
         expect(reachable.some((schema) => schema.identifier.name === "string")).toBeTrue();
         expect(index.profileNestedTypesOf(root.identifier)).toHaveLength(1);
+        // Both specialization lookups land on the structural declaration, through profile A's copy.
+        const [derivedComponent] = index.profileNestedTypesOf(root.identifier);
+        if (!derivedComponent) throw new Error("Expected the derived profile's nested type");
+        expect(derivedComponent).toHaveProperty("base.url", `${profileA.url}#component`);
+        expect(index.findLastSpecialization(derivedComponent).identifier).toEqual(derivedComponent.specialization);
+        expect(index.findLastSpecializationByIdentifier(derivedComponent.identifier)).toEqual(
+            derivedComponent.specialization,
+        );
+    });
+
+    it("points a contentReference in a profile's nested type at the unconstrained definition", () => {
+        const item = nested(treeProfile, "item");
+        expect(item).toHaveProperty("identifier.url", `${treeProfile.url}#item`);
+        expect(item).toHaveProperty("fields.item.type.url", `${tree.url}#item`);
     });
 
     it("drops unreachable nested nodes after selecting root fields", async () => {

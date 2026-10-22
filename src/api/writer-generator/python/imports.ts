@@ -131,6 +131,7 @@ export const profileModuleImports = (
     const typing = moduleImports(w, render, "typing");
     const pydantic = moduleImports(w, render, "pydantic");
     const typeInfo = (id: Identifier): { module: string; name: string } => {
+        id = tsIndex.specializationOf(id);
         const schema = tsIndex.resolveType(id);
         if (schema && (isProfileTypeSchema(schema) || isSnapshotProfileTypeSchema(schema))) {
             return {

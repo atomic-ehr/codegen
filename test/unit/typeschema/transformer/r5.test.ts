@@ -34,11 +34,11 @@ describe("TypeSchema R5 generation", async () => {
                 fields: {
                     concept: {
                         type: {
-                            kind: "nested",
+                            kind: "profile-nested",
                             package: "hl7.fhir.r5.core",
                             version: "5.0.0",
                             name: "concept",
-                            url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
+                            url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
                         },
                     },
                 },
@@ -52,11 +52,11 @@ describe("TypeSchema R5 generation", async () => {
                     url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem#concept",
                 },
                 base: {
-                    kind: "complex-type",
+                    kind: "nested",
+                    name: "concept",
                     package: "hl7.fhir.r5.core",
                     version: "5.0.0",
-                    name: "BackboneElement",
-                    url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
+                    url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept",
                 },
                 fields: {
                     concept: {

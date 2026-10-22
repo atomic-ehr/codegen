@@ -49,7 +49,7 @@ index.moduleDependencies(observation);         // Dependencies of the generated 
 
 Writers emit the nested types returned by `nestedTypesOf` into the module of the schema they are declared in.
 
-A profile that constrains a nested type gets its own `profile-nested` node under the profile's url, such as `MyObservationProfile#component`. The profile's node records the specialization's node it constrains as its `specialization`; `specializationOf` returns it, so generated code can name and import the structural type while constraint lookups read the profile's node. Fields of a profile's nested node hold values resolved from the FHIRSchema genealogy, not only the differential.
+A profile that constrains a nested type gets its own `profile-nested` node under the profile's url, such as `MyObservationProfile#component`, based on `Observation#component`. Profile fields point at the node of the nearest profile that constrains that path (the profile itself or an ancestor), or at the specialization's node when none does. The profile's node records that specialization node as its `specialization`; `specializationOf` returns it, so generated code names and imports the structural type while constraint lookups read the profile's node. Fields of a profile's nested node hold values resolved from the FHIRSchema genealogy, not only the differential.
 
 Tree shaking keeps the nested nodes reachable from the kept schemas and recomputes dependencies after field selection, so dropping a field also drops nested types only that field used. The IR report lists skipped root schemas only; a nested type goes with the schema it is declared in.
 

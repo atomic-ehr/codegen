@@ -116,11 +116,12 @@ describe("TypeSchema Processing constraint generation", async () => {
                 identifier: { kind: "profile", name: "e", url: "uri::E" },
                 base: { kind: "resource", name: "d", url: "uri::D" },
                 fields: {
-                    foo: { type: { kind: "nested", name: "foo", url: "uri::D#foo" } },
+                    foo: { type: { kind: "profile-nested", name: "foo", url: "uri::E#foo" } },
                 },
             },
             {
                 identifier: { kind: "profile-nested", name: "foo", url: "uri::E#foo" },
+                base: { url: "uri::D#foo" },
                 fields: {
                     bar: {
                         type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
@@ -141,13 +142,10 @@ describe("TypeSchema Processing constraint generation", async () => {
         const schemas = await registerFsAndMkTs(r4, profile, logger);
         expect(schemas[0]).toMatchObject({
             identifier: { kind: "profile", url: profile.url },
-            fields: {
-                concept: {
-                    type: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
-                },
-            },
+            fields: { concept: { type: { kind: "profile-nested", url: `${profile.url}#concept` } } },
         });
         expect(schemas.find((schema) => schema.identifier.url === `${profile.url}#concept`)).toMatchObject({
+            base: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
             declaredIn: { kind: "profile", url: profile.url },
         });
         expect(schemas.some((schema) => schema.identifier.kind === "binding")).toBeTrue();
