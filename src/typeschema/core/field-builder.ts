@@ -15,12 +15,12 @@ import type {
     FieldReference,
     FieldSlice,
     FieldSlicing,
+    Identifier,
     Name,
     PackageMeta,
     ProfileIdentifier,
     RegularField,
     RichFHIRSchema,
-    TypeIdentifier,
     ValueConstraint,
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
@@ -104,7 +104,7 @@ const buildReferences = (
     element: FHIRSchemaElement,
 ): FieldReference | undefined => {
     if (!element.refers) return undefined;
-    const resource: TypeIdentifier[] = [];
+    const resource: Identifier[] = [];
     const profiles: ProfileIdentifier[] = [];
     const seen = new Set<string>();
     for (const ref of element.refers) {
@@ -112,7 +112,7 @@ const buildReferences = (
         const fs = register.resolveFs(fhirSchema.package_meta, curl);
         if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
         const id = mkIdentifier(fs);
-        let resolved: TypeIdentifier = id;
+        let resolved: Identifier = id;
         if (isProfileIdentifier(id)) {
             profiles.push(id);
             const baseFs = register.resolveFsSpecializations(fs.package_meta, fs.url)[0];
@@ -327,7 +327,7 @@ export function buildFieldType(
     path: string[],
     element: FHIRSchemaElement,
     logger?: CodegenLog,
-): TypeIdentifier | undefined {
+): Identifier | undefined {
     if (element.elementReference) {
         const refPath = element.elementReference
             .slice(1) // drop canonicalUrl
@@ -445,7 +445,7 @@ export const mkField = (
     }
 
     return {
-        type: fieldType as TypeIdentifier,
+        type: fieldType as Identifier,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 

@@ -11,11 +11,11 @@
 import { LEADING_DIGIT_RE, PYTHON_KEYWORDS } from "@root/api/writer-generator/python/naming-utils";
 import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type {
+    Identifier,
     NameCandidates,
     ProfileExtension,
     ProfileTypeSchema,
     SnapshotProfileTypeSchema,
-    TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 
@@ -76,9 +76,9 @@ export const pySliceStaticName = (name: string): string => {
     return `_${snakeCase(cleaned)}_slice_match`;
 };
 
-/** The FHIR `value[x]` field name for a TypeIdentifier, formatted per the active
+/** The FHIR `value[x]` field name for a Identifier, formatted per the active
  *  field-naming mode (e.g. `value_coding` for snake_case, `valueCoding` for camelCase). */
-export const pyValueFieldName = (id: TypeIdentifier, formatName: (s: string) => string = snakeCase): string =>
+export const pyValueFieldName = (id: Identifier, formatName: (s: string) => string = snakeCase): string =>
     formatName(`value${pascalCase(normalizePyName(id.name))}`);
 
 type SliceNaming = { fieldName: string; sliceName: string; nameCandidates: NameCandidates };

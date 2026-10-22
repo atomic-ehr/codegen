@@ -23,7 +23,6 @@ import {
     type RichFHIRSchema,
     type RichValueSet,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
@@ -61,8 +60,8 @@ export function mkFields(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-function extractFieldDependencies(fields: Record<string, Field>): TypeIdentifier[] {
-    const deps: TypeIdentifier[] = [];
+function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
+    const deps: Identifier[] = [];
 
     for (const field of Object.values(fields)) {
         if ("type" in field && field.type) {
@@ -94,11 +93,11 @@ export async function transformValueSet(
 }
 
 const collectRawDeps = (
-    base: TypeIdentifier | undefined,
+    base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[] | undefined,
-): TypeIdentifier[] => {
-    const deps: TypeIdentifier[] = [];
+): Identifier[] => {
+    const deps: Identifier[] = [];
     if (base) deps.push(base);
     if (fields) deps.push(...extractFieldDependencies(fields));
     if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
@@ -107,13 +106,13 @@ const collectRawDeps = (
 
 export const extractDependencies = (
     identifier: Identifier,
-    base: TypeIdentifier | undefined,
+    base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
 ): Identifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
 
-    const filtered = deps.filter((dep): dep is Identifier => {
+    const filtered = deps.filter((dep) => {
         if (dep.url === identifier.url) return false;
         if (isNestedIdentifier(dep)) return false;
         return true;
@@ -124,10 +123,10 @@ export const extractDependencies = (
 
 export const extractProfileDependencies = (
     identifier: ProfileIdentifier,
-    base: TypeIdentifier | undefined,
+    base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: ProfileNestedTypeSchema[] | undefined,
-): TypeIdentifier[] | undefined => {
+): Identifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
     const filtered = deps.filter((dep) => dep.url !== identifier.url);
     return concatIdentifiers(filtered);

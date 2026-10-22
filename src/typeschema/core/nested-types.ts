@@ -16,6 +16,7 @@ import {
     type CanonicalUrl,
     type Field,
     type FieldSlicing,
+    type Identifier,
     type Name,
     type NestedIdentifier,
     type NestedTypeSchema,
@@ -24,7 +25,6 @@ import {
     profileNestedIdentifier,
     type RichFHIRSchema,
     type RichProfileFHIRSchema,
-    type TypeIdentifier,
 } from "../types";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier } from "./identifier";
@@ -210,7 +210,7 @@ const collectNestedTypeBodies = (
             fhirSchema.derivation === "specialization" &&
             isVirtualFhirBaseCanonical(baseName);
         if (!baseFs && !isVirtualLogicalBase) throw new Error(`Could not resolve base type ${baseName}`);
-        const base: TypeIdentifier | undefined = baseFs
+        const base: Identifier | undefined = baseFs
             ? {
                   kind: "complex-type",
                   package: baseFs.package_meta.name,
@@ -263,8 +263,8 @@ export const mkProfileNestedTypes = (
 
 export const extractNestedDependencies = (
     nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[],
-): TypeIdentifier[] => {
-    const deps: TypeIdentifier[] = [];
+): Identifier[] => {
+    const deps: Identifier[] = [];
 
     for (const nested of nestedTypes) {
         if (nested.base) {

@@ -2,9 +2,9 @@ import type { FhirTypeImports, SectionHandle } from "@root/api/writer-generator/
 import { pascalCase } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
+    type Identifier,
     isNestedIdentifier,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { tsNameFromCanonical, tsResourceName } from "./name";
@@ -23,7 +23,7 @@ export const resolveFhirType = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     name: string,
-): TypeIdentifier => {
+): Identifier => {
     const url = `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl;
     const schema = tsIndex.resolveByUrl(snapshot.identifier.package, url);
     if (!schema) throw new Error(`'${url}' not found for ${snapshot.identifier.package}.`);
@@ -60,7 +60,7 @@ export const profileModuleImports = (
     snapshot: SnapshotProfileTypeSchema,
 ): ProfileImports => {
     const terminologyImports = w.enumTerminologyLinks(tsIndex, snapshot).imports;
-    const types = w.section<never, TypeIdentifier>({
+    const types = w.section<never, Identifier>({
         name: tsResourceName,
         render: (_definitions, usages) => {
             const grouped: Record<string, string[]> = {};

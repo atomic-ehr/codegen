@@ -11,7 +11,6 @@ import {
     type NestedTypeSchema,
     type PkgName,
     type ProfileNestedTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { LogicalPromotionConf } from "./types";
@@ -21,8 +20,8 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         Object.entries(promotes).map(([pkg, urls]) => [pkg, new Set(urls)]),
     );
 
-    const identifierToString = (i: TypeIdentifier): string => `${i.package}-${i.version}-${i.kind}-${i.url}`;
-    const renames: Record<string, TypeIdentifier> = Object.fromEntries(
+    const identifierToString = (i: Identifier): string => `${i.package}-${i.version}-${i.kind}-${i.url}`;
+    const renames: Record<string, Identifier> = Object.fromEntries(
         tsIndex.schemas
             .map((schema) => {
                 const promo = promoteSets[schema.identifier.package]?.has(schema.identifier.url);
@@ -33,7 +32,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
             })
             .filter((e) => e !== undefined),
     );
-    const replace = (i: TypeIdentifier): TypeIdentifier => renames[identifierToString(i)] || i;
+    const replace = (i: Identifier): Identifier => renames[identifierToString(i)] || i;
     const replaceInFields = (fields: Record<string, Field> | undefined) => {
         if (!fields) return undefined;
         return Object.fromEntries(

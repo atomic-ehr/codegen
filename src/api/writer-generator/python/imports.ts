@@ -3,13 +3,13 @@ import { snakeCase } from "@root/api/writer-generator/utils";
 import type { Writer } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
+    type Identifier,
     isNestedIdentifier,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
     isResourceIdentifier,
     isSnapshotProfileTypeSchema,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -43,7 +43,7 @@ export type TypeModuleImports = {
     preprocessor: LibraryImports;
 };
 
-export const profilePyType = (imports: ProfileImports, id: TypeIdentifier): string => {
+export const profilePyType = (imports: ProfileImports, id: Identifier): string => {
     const primitive = PRIMITIVE_TYPE_MAP[id.name];
     if (isPrimitiveIdentifier(id) || primitive !== undefined) {
         return primitive === "PositiveInt" ? imports.pydantic.use(primitive) : (primitive ?? "str");
@@ -55,7 +55,7 @@ export const resolveFhirType = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     name: string,
-): TypeIdentifier => {
+): Identifier => {
     const schema = tsIndex.resolveByUrl(
         snapshot.identifier.package,
         `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl,
@@ -74,7 +74,7 @@ export const typeModuleImports = (w: Python, packageName: string, module: string
     const typing = moduleImports(w, render, "typing", (name) => (name === "List" ? "PyList" : name));
     const typingExtensions = moduleImports(w, render, "typing_extensions");
     const fhirpy = moduleImports(w, render, `${w.opts.rootPackageName}.fhirpy_base_model`);
-    const types = w.section<never, TypeIdentifier>({
+    const types = w.section<never, Identifier>({
         name: deriveResourceName,
         render: (_definitions, usages) => {
             for (const { key, local } of usages) {
@@ -108,7 +108,7 @@ const moduleImports = (
     });
 };
 
-const modulePathForTypeId = (rootPackageName: string, typeId: TypeIdentifier): string => {
+const modulePathForTypeId = (rootPackageName: string, typeId: Identifier): string => {
     const pkg = pyFhirPackageByName(rootPackageName, typeId.package);
     if (isResourceIdentifier(typeId)) return `${pkg}.${snakeCase(typeId.name)}`;
     if (isNestedIdentifier(typeId)) {
@@ -130,7 +130,7 @@ export const profileModuleImports = (
     const render = createImportRenderer(w);
     const typing = moduleImports(w, render, "typing");
     const pydantic = moduleImports(w, render, "pydantic");
-    const typeInfo = (id: TypeIdentifier): { module: string; name: string } => {
+    const typeInfo = (id: Identifier): { module: string; name: string } => {
         const schema = tsIndex.resolveType(id);
         if (schema && (isProfileTypeSchema(schema) || isSnapshotProfileTypeSchema(schema))) {
             return {
@@ -140,7 +140,7 @@ export const profileModuleImports = (
         }
         return { module: modulePathForTypeId(w.opts.rootPackageName, id), name: deriveResourceName(id) };
     };
-    const types = w.section<never, TypeIdentifier>({
+    const types = w.section<never, Identifier>({
         name: (id) => {
             const name = typeInfo(id).name;
             return name === className ? `${name}Type` : name;

@@ -122,7 +122,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - In code generators (writer-generator): use `curlyBlock` and `squareBlock` helpers for writing structured output instead of manual indent/deindent or string concatenation
 - Use `Record` instead of `Map` unless there is a significant reason for `Map` (e.g. non-string keys, iteration order guarantees, frequent deletion)
 - Prefer single-line guard clauses without braces: `if (!x) throw new Error("...");` instead of wrapping in `{ }`
-- Do not check `kind` of `Identifier`/`TypeIdentifier`/`TypeSchema` by manually comparing the `kind` field. Use dedicated predicates (`isPrimitiveIdentifier`, `isSpecializationTypeSchema`, etc.)
+- Do not check `kind` of `Identifier`/`TypeSchema` by manually comparing the `kind` field. Use dedicated predicates (`isPrimitiveIdentifier`, `isSpecializationTypeSchema`, etc.)
 
 ### Documentation
 - Don't hard-wrap paragraphs in Markdown files (`README.md`, `docs/`). Write each paragraph as a single physical line and let it soft-wrap; reserve line breaks for list items and intentional structure.

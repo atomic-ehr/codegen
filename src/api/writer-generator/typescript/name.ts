@@ -7,10 +7,10 @@ import {
 import {
     type CanonicalUrl,
     extractNameFromCanonical,
+    type Identifier,
     type NameCandidates,
     type ProfileExtension,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 
@@ -33,7 +33,7 @@ export const tsPackageDir = (name: string): string => {
     return kebabCase(name.replace(/[@/]/g, "_"));
 };
 
-export const tsModuleName = (id: TypeIdentifier): string => {
+export const tsModuleName = (id: Identifier): string => {
     // NOTE: Why not pascal case?
     // In hl7-fhir-uv-xver-r5-r4 we have:
     // - http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.topic (subscription_topic)
@@ -42,7 +42,7 @@ export const tsModuleName = (id: TypeIdentifier): string => {
     return uppercaseFirstLetter(tsResourceName(id));
 };
 
-export const tsModuleFileName = (id: TypeIdentifier): string => {
+export const tsModuleFileName = (id: Identifier): string => {
     return `${tsModuleName(id)}.ts`;
 };
 
@@ -53,7 +53,7 @@ export const tsNameFromCanonical = (canonical: string | undefined, dropFragment 
     return normalizeTsName(localName);
 };
 
-export const tsResourceName = (id: TypeIdentifier): string => {
+export const tsResourceName = (id: Identifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
         // Extract name from URL without normalizing dots (needed for fragment splitting)
@@ -116,7 +116,7 @@ export const tsExtensionVFlatTypeName = (profileName: string, extensionName: str
 export const tsSliceStaticName = (name: string): string =>
     `${name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_")}SliceMatch`;
 
-export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;
+export const tsValueFieldName = (id: Identifier): string => `value${uppercaseFirstLetter(id.name)}`;
 
 const TS_IDENTIFIER_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 

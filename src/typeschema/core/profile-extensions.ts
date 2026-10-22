@@ -12,10 +12,10 @@ import {
     type CanonicalUrl,
     concatIdentifiers,
     type ExtensionSubField,
+    type Identifier,
     type ProfileExtension,
     type ProfileIdentifier,
     type RichFHIRSchema,
-    type TypeIdentifier,
 } from "@typeschema/types";
 
 import { buildFieldType } from "./field-builder";
@@ -27,11 +27,11 @@ const extractExtensionValueFieldTypes = (
     fhirSchema: RichFHIRSchema,
     extensionUrl: CanonicalUrl,
     logger?: CodegenLog,
-): TypeIdentifier[] | undefined => {
+): Identifier[] | undefined => {
     const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
     if (!extensionSchema?.elements) return undefined;
 
-    const valueFieldTypes: TypeIdentifier[] = [];
+    const valueFieldTypes: Identifier[] = [];
     for (const [key, element] of Object.entries(extensionSchema.elements)) {
         if (element.choiceOf !== "value" && !key.startsWith("value")) continue;
         const fieldType = buildFieldType(register, extensionSchema, [key], element, logger);
@@ -55,7 +55,7 @@ const extractLegacySubExtensions = (
         const sliceName = key.split(":")[1];
         if (!sliceName) continue;
 
-        let valueType: TypeIdentifier | undefined;
+        let valueType: Identifier | undefined;
         for (const [elemKey, elemValue] of Object.entries(element.elements ?? {})) {
             if (elemValue.choiceOf !== "value" && !elemKey.startsWith("value")) continue;
             valueType = buildFieldType(register, extensionSchema, [key, elemKey], elemValue, logger);
@@ -88,7 +88,7 @@ const extractSlicingSubExtensions = (
         const schema = slice.schema;
         if (!schema) continue;
 
-        let valueType: TypeIdentifier | undefined;
+        let valueType: Identifier | undefined;
         for (const [elemKey, elemValue] of Object.entries(schema.elements ?? {})) {
             const elem = elemValue as any;
             if (elem.choiceOf !== "value" && !elemKey.startsWith("value")) continue;

@@ -16,6 +16,7 @@ import {
     type ChoiceFieldInstance,
     type EnumDefinition,
     type Field,
+    type Identifier,
     isNestedIdentifier,
     isNestedTypeSchema,
     isNotChoiceDeclarationField,
@@ -27,7 +28,6 @@ import {
     type RegularField,
     type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { resolveGeneratorAsset } from "../assets";
 import {
@@ -68,8 +68,8 @@ const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
-): { typeVar: string; constraint: TypeIdentifier }[] => {
-    const all: Record<string, TypeIdentifier> = {};
+): { typeVar: string; constraint: Identifier }[] => {
+    const all: Record<string, Identifier> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
         for (const p of s.generic?.params ?? []) {
             if (!Object.hasOwn(all, p.typeVar)) all[p.typeVar] = p.constraint;

@@ -124,39 +124,39 @@ export type Identifier =
     | ValueSetIdentifier
     | ProfileIdentifier
     | SnapshotProfileIdentifier
-    | LogicalIdentifier;
+    | LogicalIdentifier
+    | NestedIdentifier
+    | ProfileNestedIdentifier;
 
-export type TypeIdentifier = Identifier | NestedIdentifier | ProfileNestedIdentifier;
-
-export const isResourceIdentifier = (id: TypeIdentifier | undefined): id is ResourceIdentifier => {
+export const isResourceIdentifier = (id: Identifier | undefined): id is ResourceIdentifier => {
     return id?.kind === "resource";
 };
 
-export const isLogicalIdentifier = (id: TypeIdentifier | undefined): id is LogicalIdentifier => {
+export const isLogicalIdentifier = (id: Identifier | undefined): id is LogicalIdentifier => {
     return id?.kind === "logical";
 };
 
-export const isComplexTypeIdentifier = (id: TypeIdentifier | undefined): id is ComplexTypeIdentifier => {
+export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
     return id?.kind === "complex-type";
 };
 
-export const isPrimitiveIdentifier = (id: TypeIdentifier | undefined): id is PrimitiveIdentifier => {
+export const isPrimitiveIdentifier = (id: Identifier | undefined): id is PrimitiveIdentifier => {
     return id?.kind === "primitive-type";
 };
 
-export const isNestedIdentifier = (id: TypeIdentifier | undefined): id is NestedIdentifier => {
+export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
 };
 
-export const isProfileNestedIdentifier = (id: TypeIdentifier | undefined): id is ProfileNestedIdentifier => {
+export const isProfileNestedIdentifier = (id: Identifier | undefined): id is ProfileNestedIdentifier => {
     return id?.kind === "profile-nested";
 };
 
-export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is ProfileIdentifier => {
+export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {
     return id?.kind === "profile";
 };
 
-export const isSnapshotProfileIdentifier = (id: TypeIdentifier | undefined): id is SnapshotProfileIdentifier => {
+export const isSnapshotProfileIdentifier = (id: Identifier | undefined): id is SnapshotProfileIdentifier => {
     return id?.kind === "profile-snapshot";
 };
 
@@ -174,12 +174,12 @@ export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name):
 });
 
 export const isSpecializationIdentifier = (
-    id: TypeIdentifier | undefined,
+    id: Identifier | undefined,
 ): id is ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier => {
     return isResourceIdentifier(id) || isComplexTypeIdentifier(id) || isLogicalIdentifier(id);
 };
 
-export const concatIdentifiers = <T extends TypeIdentifier = TypeIdentifier>(
+export const concatIdentifiers = <T extends Identifier = Identifier>(
     ...sources: (T[] | undefined)[]
 ): T[] | undefined => {
     const entries = sources
@@ -247,13 +247,13 @@ export const isValueSetTypeSchema = (schema: TypeSchemaGuardInput): schema is Va
 export interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
     description?: string;
-    base: TypeIdentifier;
-    dependencies?: TypeIdentifier[];
+    base: Identifier;
+    dependencies?: Identifier[];
 }
 
 export type GenericParam = {
     typeVar: string;
-    constraint: TypeIdentifier;
+    constraint: Identifier;
     /** Path from this schema down to the typeFamily-rooted field that introduces the param.
      *  Single segment for a direct introduce (e.g. `["outcome"]` on `BundleEntryResponse`);
      *  carrier fields are prepended as the param surfaces through passthrough (e.g.
@@ -271,7 +271,7 @@ export type GenericInfo = {
 };
 
 export type NestedTypeSchemaBody = {
-    base?: TypeIdentifier;
+    base?: Identifier;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
@@ -286,20 +286,20 @@ export type ProfileNestedTypeSchema = { identifier: ProfileNestedIdentifier } & 
 
 export interface ProfileTypeSchema {
     identifier: ProfileIdentifier;
-    base: TypeIdentifier;
+    base: Identifier;
     description?: string;
     fields?: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
     extensions?: ProfileExtension[];
-    dependencies?: TypeIdentifier[];
+    dependencies?: Identifier[];
     nested?: ProfileNestedTypeSchema[];
 }
 
 /** Flattened profile. */
 export interface SnapshotProfileTypeSchema {
     identifier: SnapshotProfileIdentifier;
-    base: TypeIdentifier;
+    base: Identifier;
     description?: string;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
@@ -313,7 +313,7 @@ export interface SnapshotProfileTypeSchema {
      *  `fields` and the validator handles them via the regular path. */
     inheritedRequiredFields?: string[];
     extensions?: ProfileExtension[];
-    dependencies?: TypeIdentifier[];
+    dependencies?: Identifier[];
     nested?: ProfileNestedTypeSchema[];
 }
 
@@ -340,7 +340,7 @@ export const isTypeDiscriminated = (slicing: FieldSlicing | undefined): boolean 
 export type ConstrainedChoiceInfo = {
     choiceBase: string;
     variant: string;
-    variantType: TypeIdentifier;
+    variantType: Identifier;
     allChoiceNames: string[];
 };
 
@@ -362,7 +362,7 @@ export interface FieldSlice {
 export interface ExtensionSubField {
     name: string;
     url: string;
-    valueFieldType?: TypeIdentifier;
+    valueFieldType?: Identifier;
     min?: number;
     max?: string;
 }
@@ -375,20 +375,20 @@ export interface ProfileExtension {
     min?: number;
     max?: string;
     mustSupport?: boolean;
-    valueFieldTypes?: TypeIdentifier[];
+    valueFieldTypes?: Identifier[];
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
     nameCandidates: NameCandidates;
 }
 
-export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] => [
+export const extractExtensionDeps = (ext: ProfileExtension): Identifier[] => [
     ...(ext.valueFieldTypes ?? []),
     ...(ext.profile ? [ext.profile] : []),
     ...(ext.subExtensions?.flatMap((sub) => (sub.valueFieldType ? [sub.valueFieldType] : [])) ?? []),
 ];
 
 type SpecializationTypeSchemaBody = {
-    base?: TypeIdentifier;
+    base?: Identifier;
     description?: string;
     abstractResource?: boolean;
     fields?: { [k: string]: Field };
@@ -415,18 +415,18 @@ export type SpecializationTypeSchema = ResourceTypeSchema | ComplexTypeTypeSchem
 export type FieldReference = {
     /** Targets that resolve to a specialization, as authored — abstract types kept as-is.
      *  A target naming a profile contributes to `profiles` only. */
-    resource: TypeIdentifier[];
+    resource: Identifier[];
     /** The resourceTypes a referent may actually carry: every abstract entry of `resource`
      *  replaced by its concrete descendants. Written by `populateEffectiveReferences` during
      *  index construction — absent means not computed yet, never an answer — so every emitted
      *  TypeSchema carries it. Relative to the current corpus: tree shaking rebuilds the index,
      *  so the expansion shrinks to the types that survived. */
-    effectiveResource?: TypeIdentifier[];
+    effectiveResource?: Identifier[];
     profiles?: ProfileIdentifier[];
 };
 
 export interface RegularField {
-    type: TypeIdentifier;
+    type: Identifier;
     reference?: FieldReference;
     required?: boolean;
     excluded?: boolean;
@@ -451,7 +451,7 @@ export interface ChoiceFieldDeclaration {
 
 export interface ChoiceFieldInstance {
     choiceOf: string;
-    type: TypeIdentifier;
+    type: Identifier;
     required?: boolean;
     excluded?: boolean;
     array?: boolean;
@@ -488,7 +488,7 @@ export interface BindingTypeSchema {
     strength?: string;
     enum?: EnumDefinition;
     valueset?: ValueSetIdentifier;
-    dependencies?: TypeIdentifier[];
+    dependencies?: Identifier[];
 }
 
 export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;
