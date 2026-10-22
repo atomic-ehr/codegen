@@ -668,6 +668,7 @@ describe("TypeSchema Index", () => {
             identifier: profileNestedIdentifier(profileId, "item" as Name),
             declaredIn: profileId,
             derivation: "constraint",
+            specialization: baseItem.identifier,
             base: baseItem.identifier,
             fields: { value: { type: stringType, required: true } },
         };

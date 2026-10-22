@@ -388,6 +388,10 @@ export type TypeSchemaIndex = {
     nestedTypesOf: (declaredIn: Identifier) => NestedTypeSchema[];
     profileNestedTypesOf: (profile: ProfileIdentifier) => ProfileNestedTypeSchema[];
     moduleDependencies: (schema: TypeSchema) => Identifier[];
+    /** The `specialization` of a profile's nested copy: the specialization's nested type it constrains.
+     *  Any other id is returned unchanged. Generated code has no declaration for a copy, so
+     *  writers name and import its specialization; constraint lookups read the copy via `resolveType`. */
+    specializationOf: (id: Identifier) => Identifier;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
@@ -594,7 +598,7 @@ export const mkTypeSchemaIndex = (
 
     const findLastSpecialization = (schema: TypeSchema): TypeSchema => {
         const nonConstraintSchema = hierarchy(schema).find(
-            (s) => !isProfileTypeSchema(s) && !isSnapshotProfileTypeSchema(s),
+            (s) => !isProfileTypeSchema(s) && !isSnapshotProfileTypeSchema(s) && !isProfileNestedTypeSchema(s),
         );
         if (!nonConstraintSchema) {
             throw new Error(`No non-constraint schema found in hierarchy for: ${schema.identifier.name}`);
@@ -605,8 +609,8 @@ export const mkTypeSchemaIndex = (
     const findLastSpecializationByIdentifier = (id: Identifier): Identifier => {
         const resolved = resolveType(id);
         if (!resolved) return id;
-        if (isNestedTypeSchema(resolved) || isProfileNestedTypeSchema(resolved))
-            return resolved.base ? findLastSpecializationByIdentifier(resolved.base) : resolved.identifier;
+        if (isProfileNestedTypeSchema(resolved)) return resolved.specialization;
+        if (isNestedTypeSchema(resolved)) return resolved.identifier;
         return findLastSpecialization(resolved).identifier;
     };
 
@@ -935,6 +939,10 @@ export const mkTypeSchemaIndex = (
             return reached;
         },
         moduleDependencies,
+        specializationOf: (id) => {
+            const schema = resolveType(id);
+            return isProfileNestedTypeSchema(schema) ? schema.specialization : id;
+        },
         resolveByUrl,
         tryHierarchy,
         hierarchy,

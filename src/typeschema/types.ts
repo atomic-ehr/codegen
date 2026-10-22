@@ -296,6 +296,8 @@ export type ProfileNestedTypeSchema = {
     derivation: "constraint";
     /** The profile that constrains the element. */
     declaredIn: ProfileIdentifier;
+    /** The specialization's nested type this copy constrains: what generated code names and imports. */
+    specialization: NestedIdentifier;
 } & NestedTypeSchemaBody;
 
 export interface ProfileTypeSchema {

@@ -156,6 +156,17 @@ describe("flat TypeSchemas", async () => {
         expect(() => mkIndex(schemas).reachableFrom([schemas[0]!.identifier])).toThrow("Schema not found");
     });
 
+    it("preserves profile identities for lookups while selecting structural declarations for imports", () => {
+        const schemas = [base, profileA, profileB, inherited, derived].flatMap(translate);
+        const index = mkTypeSchemaIndex(schemas, { logger });
+        const a = nested(profileA);
+        if (!isProfileNestedTypeSchema(a)) throw new Error("Expected a profile's nested type");
+        expect(index.resolveType(a.identifier)).toHaveProperty("fields.code.valueConstraint.value", "A");
+        expect(index.resolveType(nested(profileB).identifier)).toHaveProperty("fields.code.valueConstraint.value", "B");
+        expect(index.specializationOf(a.identifier)).toEqual(a.specialization);
+        expect(index.findLastSpecializationByIdentifier(a.identifier)).toEqual(a.specialization);
+    });
+
     it("generates the full package graph and follows profile and nested dependencies uniformly", async () => {
         const { schemas } = await generateTypeSchemas(register, undefined, logger);
         const index = mkIndex(schemas);

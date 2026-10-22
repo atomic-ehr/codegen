@@ -47,9 +47,8 @@ const profileFieldPyType = (
     tsIndex: TypeSchemaIndex,
 ): string => {
     // A nested backbone element is its own generated class (ObservationComponent,
-    // ProvenanceAgent), so it must not be resolved: the last specialization of a
-    // nested identifier is BackboneElement, which is what the model field is
-    // declared *against*, not what it accepts.
+    // ProvenanceAgent). Keep the field's own identifier: it is the key the other
+    // accessors import the class by.
     const resolved = isNestedIdentifier(field.type)
         ? field.type
         : tsIndex.findLastSpecializationByIdentifier(field.type);

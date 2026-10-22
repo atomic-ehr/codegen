@@ -273,6 +273,7 @@ export const mkProfileNestedTypes = (
                 derivation: "constraint",
                 declaredIn: profile,
                 ...body,
+                specialization: mkNestedIdentifier(register, fhirSchema, body.path),
                 dependencies: extractDependencies(identifier, body.base, body.fields),
             };
         })
