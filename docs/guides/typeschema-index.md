@@ -96,7 +96,15 @@ resolve(id: Identifier): TypeSchema | undefined
   Resolves by fully qualified identifier (identifier object with package, version, name, url, kind), nested types included
 
 resolveByUrl(pkgName: PackageName, url: CanonicalUrl): TypeSchema | undefined
-  Resolves by canonical URL within a specific package
+  Resolves by canonical URL as seen from a package. `pkgName` is a bare package name;
+  resolution goes through the register's resolution tree, so the URL may be declared by
+  that package or by any of its dependencies. If the name matches nothing, it warns and
+  falls back to an arbitrary package containing the URL rather than returning undefined.
+
+resolveRoot(pkgKey: string, url: CanonicalUrl): TypeSchema
+  Strict variant used for tree-shake roots. `pkgKey` is "name" or "name#version"; the
+  version is asserted against the loaded packages. There is no cross-package fallback —
+  a URL the named package neither owns nor reaches through its dependencies throws.
 ```
 
 ---
@@ -194,10 +202,10 @@ const profiles = tsIndex.collectProfiles();
 ### Resolution Methods
 
 ```typescript
-const patientIdentifier = { package: "hl7.fhir.r4.core", version: "4.0.1", name: "Patient", url: "http://hl7.org/fhir/Patient", kind: "resource" };
+const patientIdentifier = { package: "hl7.fhir.r4.core", version: "4.0.1", name: "Patient", url: "http://hl7.org/fhir/StructureDefinition/Patient", kind: "resource" };
 const schema = tsIndex.resolve(patientIdentifier);
 
-const schema2 = tsIndex.resolveByUrl("hl7.fhir.r4.core", "http://hl7.org/fhir/Patient");
+const schema2 = tsIndex.resolveByUrl("hl7.fhir.r4.core", "http://hl7.org/fhir/StructureDefinition/Patient");
 ```
 
 ### Hierarchy Methods

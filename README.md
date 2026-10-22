@@ -342,6 +342,8 @@ Tree shaking optimizes the generated output by including only the resources you 
 
 This feature automatically resolves and includes all dependencies (field types, base resources, nested types, and extension definitions used by profiles) while excluding unused resources, significantly reducing the size of generated code and improving compilation times. Reference targets are not dependencies: a field typed `Reference<"Patient">` does not pull the `Patient` type into the output, since the reference is rendered as a string literal.
 
+The package key is a package name, either bare (`"hl7.fhir.r4.core"`) or version-qualified (`"hl7.fhir.r4.core#4.0.1"`). The named package does not have to declare the canonical itself — resolution follows its dependency closure, so a `"hl7.fhir.us.core"` key can legitimately root a canonical owned by `hl7.fhir.r4.core`. Qualifying the version matters only when two releases of the same specification are loaded together; it is checked against the loaded packages rather than used to pick one. A root that does not resolve in the named package is an error, not a fallback to whichever package happens to contain the URL.
+
 ##### Field-Level Tree Shaking
 
 Beyond resource-level filtering, tree shaking supports fine-grained field selection using `selectFields` (whitelist) or `ignoreFields` (blacklist):

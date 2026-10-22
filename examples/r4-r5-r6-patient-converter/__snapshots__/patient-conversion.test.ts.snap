@@ -1,0 +1,119 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`demo: migrating a Patient across FHIR releases R4 → R5 carries the resource over unchanged 1`] = `
+{
+  "active": true,
+  "birthDate": "1974-12-25",
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "code": "en-GB",
+            "system": "urn:ietf:bcp:47",
+          },
+        ],
+      },
+      "preferred": true,
+    },
+  ],
+  "contact": [
+    {
+      "name": {
+        "family": "du Marché",
+        "given": [
+          "Bénédicte",
+        ],
+      },
+      "relationship": [
+        {
+          "coding": [
+            {
+              "code": "N",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  "gender": "male",
+  "id": "pt-1",
+  "maritalStatus": {
+    "coding": [
+      {
+        "code": "M",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      },
+    ],
+  },
+  "name": [
+    {
+      "family": "Chalmers",
+      "given": [
+        "Peter",
+      ],
+    },
+  ],
+  "resourceType": "Patient",
+}
+`;
+
+exports[`demo: migrating a Patient across FHIR releases R5 → R6 moves contact.relationship to contact.role 1`] = `
+{
+  "active": true,
+  "birthDate": "1974-12-25",
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "code": "en-GB",
+            "system": "urn:ietf:bcp:47",
+          },
+        ],
+      },
+      "preferred": true,
+    },
+  ],
+  "contact": [
+    {
+      "name": {
+        "family": "du Marché",
+        "given": [
+          "Bénédicte",
+        ],
+      },
+      "role": [
+        {
+          "coding": [
+            {
+              "code": "N",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  "gender": "male",
+  "id": "pt-1",
+  "maritalStatus": {
+    "coding": [
+      {
+        "code": "M",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      },
+    ],
+  },
+  "name": [
+    {
+      "family": "Chalmers",
+      "given": [
+        "Peter",
+      ],
+    },
+  ],
+  "resourceType": "Patient",
+}
+`;
