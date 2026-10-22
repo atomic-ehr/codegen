@@ -567,7 +567,6 @@ export const mkTypeSchemaIndex = (
     for (const schema of schemas) {
         append(schema);
     }
-    populateTypeFamily(schemas);
 
     const resolve = ((id: Identifier): TypeSchema | undefined => {
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
@@ -579,6 +578,7 @@ export const mkTypeSchemaIndex = (
         return index[id.url]?.[id.package];
     }) as ResolveTypeFn;
 
+    populateTypeFamily(schemas);
     populateEffectiveReferences(schemas, resolveType);
     populateGeneric(schemas, resolveType);
     const resolveByUrl = (
