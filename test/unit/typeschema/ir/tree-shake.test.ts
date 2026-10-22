@@ -892,3 +892,38 @@ describe("ignoreExtensions", () => {
         expect(result.extensions).toBeUndefined();
     });
 });
+
+describe("tree shake root resolution", async () => {
+    const register = await registerFromPackageMetas([r4Package, r5Package], {});
+    const tsIndex = await mkIndex(register);
+    const patientUrl = "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl;
+
+    const rootOf = (pkgKey: string) => {
+        const shaked = treeShake(tsIndex, { [pkgKey]: { [patientUrl]: {} } });
+        return shaked.schemas.find((s) => s.identifier.url === patientUrl)?.identifier;
+    };
+
+    it("resolves a bare package name", () => {
+        expect(rootOf("hl7.fhir.r4.core")?.package).toBe("hl7.fhir.r4.core");
+    });
+
+    it("a version-qualified key selects the named release when both are loaded", () => {
+        expect(rootOf("hl7.fhir.r4.core#4.0.1")?.version).toBe("4.0.1");
+        expect(rootOf("hl7.fhir.r5.core#5.0.0")?.version).toBe("5.0.0");
+    });
+
+    it("throws instead of falling back to an arbitrary package", () => {
+        expect(() => treeShake(tsIndex, { "totally.bogus.package": { [patientUrl]: {} } })).toThrow(
+            /does not resolve in package/,
+        );
+        expect(() => treeShake(tsIndex, { "hl7.fhir.r4.core#9.9.9": { [patientUrl]: {} } })).toThrow(
+            /does not resolve in package/,
+        );
+    });
+
+    it("throws for a canonical no loaded package provides", () => {
+        expect(() => treeShake(tsIndex, { "hl7.fhir.r4.core": { "http://example.org/Nope": {} } })).toThrow(
+            /No loaded package provides this canonical/,
+        );
+    });
+});
