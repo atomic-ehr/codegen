@@ -39,12 +39,10 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/AppointmentResponse",
       "http://hl7.org/fhir/StructureDefinition/Attachment",
       "http://hl7.org/fhir/StructureDefinition/AuditEvent",
-      "http://hl7.org/fhir/StructureDefinition/BackboneElement",
       "http://hl7.org/fhir/StructureDefinition/Basic",
       "http://hl7.org/fhir/StructureDefinition/Binary",
       "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct",
       "http://hl7.org/fhir/StructureDefinition/BodyStructure",
-      "http://hl7.org/fhir/StructureDefinition/Bundle",
       "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
       "http://hl7.org/fhir/StructureDefinition/CarePlan",
       "http://hl7.org/fhir/StructureDefinition/CareTeam",
@@ -86,11 +84,9 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/Distance",
       "http://hl7.org/fhir/StructureDefinition/DocumentManifest",
       "http://hl7.org/fhir/StructureDefinition/DocumentReference",
-      "http://hl7.org/fhir/StructureDefinition/DomainResource",
       "http://hl7.org/fhir/StructureDefinition/Dosage",
       "http://hl7.org/fhir/StructureDefinition/Duration",
       "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis",
-      "http://hl7.org/fhir/StructureDefinition/Element",
       "http://hl7.org/fhir/StructureDefinition/ElementDefinition",
       "http://hl7.org/fhir/StructureDefinition/Encounter",
       "http://hl7.org/fhir/StructureDefinition/Endpoint",
@@ -156,7 +152,6 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/Observation",
       "http://hl7.org/fhir/StructureDefinition/ObservationDefinition",
       "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
-      "http://hl7.org/fhir/StructureDefinition/OperationOutcome",
       "http://hl7.org/fhir/StructureDefinition/Organization",
       "http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation",
       "http://hl7.org/fhir/StructureDefinition/ParameterDefinition",
@@ -2977,12 +2972,10 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/AppointmentResponse>
 - <http://hl7.org/fhir/StructureDefinition/Attachment>
 - <http://hl7.org/fhir/StructureDefinition/AuditEvent>
-- <http://hl7.org/fhir/StructureDefinition/BackboneElement>
 - <http://hl7.org/fhir/StructureDefinition/Basic>
 - <http://hl7.org/fhir/StructureDefinition/Binary>
 - <http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct>
 - <http://hl7.org/fhir/StructureDefinition/BodyStructure>
-- <http://hl7.org/fhir/StructureDefinition/Bundle>
 - <http://hl7.org/fhir/StructureDefinition/CapabilityStatement>
 - <http://hl7.org/fhir/StructureDefinition/CarePlan>
 - <http://hl7.org/fhir/StructureDefinition/CareTeam>
@@ -3024,11 +3017,9 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/Distance>
 - <http://hl7.org/fhir/StructureDefinition/DocumentManifest>
 - <http://hl7.org/fhir/StructureDefinition/DocumentReference>
-- <http://hl7.org/fhir/StructureDefinition/DomainResource>
 - <http://hl7.org/fhir/StructureDefinition/Dosage>
 - <http://hl7.org/fhir/StructureDefinition/Duration>
 - <http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis>
-- <http://hl7.org/fhir/StructureDefinition/Element>
 - <http://hl7.org/fhir/StructureDefinition/ElementDefinition>
 - <http://hl7.org/fhir/StructureDefinition/Encounter>
 - <http://hl7.org/fhir/StructureDefinition/Endpoint>
@@ -3094,7 +3085,6 @@ Skipped canonicals:
 - <http://hl7.org/fhir/StructureDefinition/Observation>
 - <http://hl7.org/fhir/StructureDefinition/ObservationDefinition>
 - <http://hl7.org/fhir/StructureDefinition/OperationDefinition>
-- <http://hl7.org/fhir/StructureDefinition/OperationOutcome>
 - <http://hl7.org/fhir/StructureDefinition/Organization>
 - <http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation>
 - <http://hl7.org/fhir/StructureDefinition/ParameterDefinition>

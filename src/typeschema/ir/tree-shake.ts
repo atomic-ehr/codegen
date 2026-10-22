@@ -169,6 +169,8 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
         if (skippedPackages.includes(pkgName)) continue;
         const tsSchemas = tsIndex.schemasByPackage[pkgName];
         assert(tsSchemas);
+        // Roots are kept as shaken copies, so a kept schema is matched by its identifier.
+        const keptIds = new Set(shakedSchemas.map((schema) => JSON.stringify(schema.identifier)));
         report.packages[pkgName] = {
             // Nested types go with the schema they are declared in, so only skipped declaring schemas are listed.
             skippedCanonicals: tsSchemas
@@ -176,7 +178,7 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
                     (schema) =>
                         !isNestedTypeSchema(schema) &&
                         !isProfileNestedTypeSchema(schema) &&
-                        !shakedSchemas.includes(schema),
+                        !keptIds.has(JSON.stringify(schema.identifier)),
                 )
                 .map((schema) => schema.identifier.url)
                 .sort(),
