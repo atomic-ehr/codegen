@@ -9,15 +9,10 @@ import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodegenLog } from "@root/utils/log";
 import { isVirtualFhirBaseCanonical, type Register } from "@typeschema/register";
 import {
-    concatIdentifiers,
-    extractExtensionDeps,
     type Field,
     type FieldSlicing,
     type Identifier,
     isNestedIdentifier,
-    type NestedTypeSchema,
-    type ProfileIdentifier,
-    type ProfileNestedTypeSchema,
     type ProfileTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
@@ -26,12 +21,12 @@ import {
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
-
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
+import { extractDependencies } from "./dependencies";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 import { assignRecommendedBaseNames } from "./name-candidates";
-import { extractNestedDependencies, isNestedElement, mkNestedTypes, mkProfileNestedTypes } from "./nested-types";
+import { isNestedElement, mkNestedTypes, mkProfileNestedTypes } from "./nested-types";
 import { extractProfileExtensions } from "./profile-extensions";
 
 export function mkFields(
@@ -60,21 +55,6 @@ export function mkFields(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
-    const deps: Identifier[] = [];
-
-    for (const field of Object.values(fields)) {
-        if ("type" in field && field.type) {
-            deps.push(field.type);
-        }
-        if ("binding" in field && field.binding) {
-            deps.push(field.binding);
-        }
-    }
-
-    return deps;
-}
-
 export async function transformValueSet(
     register: Register,
     valueSet: RichValueSet,
@@ -91,46 +71,6 @@ export async function transformValueSet(
         compose: !concept ? valueSet.compose : undefined,
     };
 }
-
-const collectRawDeps = (
-    base: Identifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[] | undefined,
-): Identifier[] => {
-    const deps: Identifier[] = [];
-    if (base) deps.push(base);
-    if (fields) deps.push(...extractFieldDependencies(fields));
-    if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
-    return deps;
-};
-
-export const extractDependencies = (
-    identifier: Identifier,
-    base: Identifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
-): Identifier[] | undefined => {
-    const deps = collectRawDeps(base, fields, nestedTypes);
-
-    const filtered = deps.filter((dep) => {
-        if (dep.url === identifier.url) return false;
-        if (isNestedIdentifier(dep)) return false;
-        return true;
-    });
-
-    return concatIdentifiers(filtered);
-};
-
-export const extractProfileDependencies = (
-    identifier: ProfileIdentifier,
-    base: Identifier | undefined,
-    fields: Record<string, Field> | undefined,
-    nestedTypes: ProfileNestedTypeSchema[] | undefined,
-): Identifier[] | undefined => {
-    const deps = collectRawDeps(base, fields, nestedTypes);
-    const filtered = deps.filter((dep) => dep.url !== identifier.url);
-    return concatIdentifiers(filtered);
-};
 
 export const transformFhirSchema = (
     register: Register,
@@ -163,21 +103,18 @@ export const transformFhirSchema = (
         const identifier = mkIdentifier(fhirSchema);
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
-        const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const nested = mkProfileNestedTypes(register, fhirSchema, logger);
-        const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
         const profileSchema: ProfileTypeSchema = {
             identifier,
             base,
             fields,
             slicing,
-            nested,
             description: fhirSchema.description,
-            dependencies: concatIdentifiers(rawDeps, extensionDeps),
+            dependencies: extractDependencies(identifier, base, fields, extensions),
             extensions,
         };
         assignRecommendedBaseNames(profileSchema);
-        return [profileSchema, ...bindingSchemas];
+        return [profileSchema, ...(nested ?? []), ...bindingSchemas];
     }
 
     const nested = mkNestedTypes(register, fhirSchema, logger);
@@ -189,7 +126,7 @@ export const transformFhirSchema = (
                 identifier,
                 description: fhirSchema.description,
                 base,
-                dependencies: extractDependencies(identifier, base, fields, nested),
+                dependencies: extractDependencies(identifier, base, fields),
             },
             ...bindingSchemas,
         ];
@@ -201,11 +138,10 @@ export const transformFhirSchema = (
         base,
         fields,
         slicing,
-        nested,
         description: fhirSchema.description,
         ...(fhirSchema.abstract === true ? { abstractResource: true } : {}),
-        dependencies: extractDependencies(identifier, base, fields, nested),
+        dependencies: extractDependencies(identifier, base, fields),
         typeFamily: undefined,
     } as SpecializationTypeSchema;
-    return [schema, ...bindingSchemas];
+    return [schema, ...(nested ?? []), ...bindingSchemas];
 };

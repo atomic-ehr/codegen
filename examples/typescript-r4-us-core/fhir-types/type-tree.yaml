@@ -66,7 +66,32 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Provenance: {}
     http://hl7.org/fhir/StructureDefinition/Resource: {}
   value-set: {}
-  nested: {}
+  nested:
+    http://hl7.org/fhir/StructureDefinition/Provenance#agent: {}
+    http://hl7.org/fhir/StructureDefinition/DataRequirement#codeFilter: {}
+    http://hl7.org/fhir/StructureDefinition/Patient#communication: {}
+    http://hl7.org/fhir/StructureDefinition/Observation#component: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem#concept: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property: {}
+    http://hl7.org/fhir/StructureDefinition/Patient#contact: {}
+    http://hl7.org/fhir/StructureDefinition/DataRequirement#dateFilter: {}
+    http://hl7.org/fhir/StructureDefinition/Dosage#doseAndRate: {}
+    http://hl7.org/fhir/StructureDefinition/Provenance#entity: {}
+    http://hl7.org/fhir/StructureDefinition/Bundle#entry: {}
+    http://hl7.org/fhir/StructureDefinition/Bundle#entry.request: {}
+    http://hl7.org/fhir/StructureDefinition/Bundle#entry.response: {}
+    http://hl7.org/fhir/StructureDefinition/Bundle#entry.search: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem#filter: {}
+    http://hl7.org/fhir/StructureDefinition/OperationOutcome#issue: {}
+    http://hl7.org/fhir/StructureDefinition/Bundle#link: {}
+    http://hl7.org/fhir/StructureDefinition/Patient#link: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem#property: {}
+    http://hl7.org/fhir/StructureDefinition/Observation#referenceRange: {}
+    http://hl7.org/fhir/StructureDefinition/Timing#repeat: {}
+    http://hl7.org/fhir/StructureDefinition/DataRequirement#sort: {}
+  profile-nested:
+    http://hl7.org/fhir/StructureDefinition/vitalsigns#component: {}
   binding: {}
   profile:
     http://hl7.org/fhir/StructureDefinition/patient-birthPlace: {}
@@ -84,6 +109,10 @@ hl7.fhir.us.core:
   resource: {}
   value-set: {}
   nested: {}
+  profile-nested:
+    http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance#agent: {}
+    http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient#communication: {}
+    http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs#component: {}
   binding:
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure#code_binding: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight#code_binding: {}
@@ -110,6 +139,7 @@ shared:
   resource: {}
   value-set: {}
   nested: {}
+  profile-nested: {}
   binding:
     urn:fhir:binding:AdditionalInstruction: {}
     urn:fhir:binding:AddressType: {}

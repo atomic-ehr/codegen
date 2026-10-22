@@ -27,7 +27,7 @@ import { BINDABLE_TYPES, buildEnum } from "./binding";
 import { assertNoElementDefects } from "./defect-assertions";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkSliceNameCandidates } from "./name-candidates";
-import { mkNestedIdentifier } from "./nested-types";
+import { effectiveNestedIdentifier, mkNestedIdentifier } from "./nested-types";
 
 const R5_ONLY_TYPES = new Set([
     "Availability",
@@ -332,6 +332,7 @@ export function buildFieldType(
         const refPath = element.elementReference
             .slice(1) // drop canonicalUrl
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
+        // A contentReference refers to the element's unconstrained definition, not a profile's copy.
         return mkNestedIdentifier(register, fhirSchema, refPath);
     }
     if (element.type) {
@@ -471,9 +472,8 @@ export function mkNestedField(
     path: string[],
     element: FHIRSchemaElement,
 ): RegularField {
-    const nestedIdentifier = mkNestedIdentifier(register, fhirSchema, path);
     return {
-        type: nestedIdentifier,
+        type: effectiveNestedIdentifier(register, fhirSchema, path),
         array: element.array || false,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),

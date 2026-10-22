@@ -165,6 +165,10 @@ export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdenti
     kind: "profile-snapshot",
 });
 
+/** A constraint profile's own copy of the nested type `name`, with the profile's
+ *  narrowing, under the profile's url. Profile fields point at the copy of the nearest
+ *  constraining ancestor, the profile itself included (or at the specialization's nested
+ *  type if none constrains it); writers name and import a copy's `specialization` via `specializationOf`. */
 export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name): ProfileNestedIdentifier => ({
     kind: "profile-nested",
     package: profile.package,
@@ -173,9 +177,9 @@ export const profileNestedIdentifier = (profile: ProfileIdentifier, name: Name):
     url: `${profile.url}#${name}` as CanonicalUrl,
 });
 
-export const isSpecializationIdentifier = (
-    id: Identifier | undefined,
-): id is ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier => {
+export type SpecializationIdentifier = ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier;
+
+export const isSpecializationIdentifier = (id: Identifier | undefined): id is SpecializationIdentifier => {
     return isResourceIdentifier(id) || isComplexTypeIdentifier(id) || isLogicalIdentifier(id);
 };
 
@@ -196,9 +200,11 @@ export type TypeSchema =
     | ValueSetTypeSchema
     | BindingTypeSchema
     | ProfileTypeSchema
-    | SnapshotProfileTypeSchema;
+    | SnapshotProfileTypeSchema
+    | NestedTypeSchema
+    | ProfileNestedTypeSchema;
 
-type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | null | undefined;
+type TypeSchemaGuardInput = TypeSchema | null | undefined;
 
 export const isNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is NestedTypeSchema => {
     return isNestedIdentifier(schema?.identifier);
@@ -271,6 +277,8 @@ export type GenericInfo = {
 };
 
 export type NestedTypeSchemaBody = {
+    path: string[];
+    dependencies?: Identifier[];
     base?: Identifier;
     fields: Record<string, Field>;
     /** Slicing definitions keyed by field name, kept apart from `fields` */
@@ -279,10 +287,22 @@ export type NestedTypeSchemaBody = {
 };
 
 /** A nested type (backbone element) declared by a resource, complex type or logical model. */
-export type NestedTypeSchema = { identifier: NestedIdentifier } & NestedTypeSchemaBody;
+export type NestedTypeSchema = {
+    identifier: NestedIdentifier;
+    derivation: "specialization";
+    /** The resource, complex type or logical model whose definition declares the element. */
+    declaredIn: SpecializationIdentifier;
+} & NestedTypeSchemaBody;
 
 /** A constraint profile's own copy of a nested type, with the profile's narrowing. */
-export type ProfileNestedTypeSchema = { identifier: ProfileNestedIdentifier } & NestedTypeSchemaBody;
+export type ProfileNestedTypeSchema = {
+    identifier: ProfileNestedIdentifier;
+    derivation: "constraint";
+    /** The profile that constrains the element. */
+    declaredIn: ProfileIdentifier;
+    /** The specialization's nested type this copy constrains: what generated code names and imports. */
+    specialization: NestedIdentifier;
+} & NestedTypeSchemaBody;
 
 export interface ProfileTypeSchema {
     identifier: ProfileIdentifier;
@@ -293,7 +313,6 @@ export interface ProfileTypeSchema {
     slicing?: Record<string, FieldSlicing>;
     extensions?: ProfileExtension[];
     dependencies?: Identifier[];
-    nested?: ProfileNestedTypeSchema[];
 }
 
 /** Flattened profile. */
@@ -314,7 +333,6 @@ export interface SnapshotProfileTypeSchema {
     inheritedRequiredFields?: string[];
     extensions?: ProfileExtension[];
     dependencies?: Identifier[];
-    nested?: ProfileNestedTypeSchema[];
 }
 
 export const isSnapshotProfileTypeSchema = (s: TypeSchemaGuardInput): s is SnapshotProfileTypeSchema => {
@@ -394,7 +412,6 @@ type SpecializationTypeSchemaBody = {
     fields?: { [k: string]: Field };
     /** Slicing definitions keyed by field name, kept apart from `fields` */
     slicing?: Record<string, FieldSlicing>;
-    nested?: NestedTypeSchema[];
     dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: TypeFamily;

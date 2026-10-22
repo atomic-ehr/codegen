@@ -1,7 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import type { SectionHandle } from "@root/api/writer-generator/section-writer";
-import { fieldTsType } from "@root/api/writer-generator/typescript/utils";
-import type { CanonicalUrl, Identifier, Name, ProfileIdentifier, RegularField } from "@root/typeschema/types";
+import { fieldTsType, resolveFieldTsType } from "@root/api/writer-generator/typescript/utils";
+import {
+    type CanonicalUrl,
+    type Identifier,
+    isProfileNestedIdentifier,
+    type Name,
+    type ProfileIdentifier,
+    type RegularField,
+} from "@root/typeschema/types";
 
 const makeIdentifier = (kind: Identifier["kind"], name: string): Identifier => ({
     kind,
@@ -89,5 +96,24 @@ describe("fieldTsType bindings", () => {
             enum: { isOpen: false, values: ["a", "b"] },
         };
         expect(fieldTsType(tImport, field)).toBe(`${name}<("a" | "b")>`);
+    });
+});
+
+describe("resolveFieldTsType nested types", () => {
+    // A profile module's type imports name a profile's nested copy after its specialization.
+    const profileImports: SectionHandle<never, Identifier> = {
+        def: () => undefined,
+        use: (id) => (isProfileNestedIdentifier(id) ? "ObservationComponent" : id.name),
+    };
+    const component: Identifier = {
+        kind: "profile-nested",
+        package: "test-package",
+        version: "1.0.0",
+        name: "component" as Name,
+        url: "http://example.org/StructureDefinition/bp#component" as CanonicalUrl,
+    };
+
+    test("names a profile's nested copy through the type imports", () => {
+        expect(resolveFieldTsType(profileImports, "", "", { type: component })).toBe("ObservationComponent");
     });
 });

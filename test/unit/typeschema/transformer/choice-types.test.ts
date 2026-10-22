@@ -80,7 +80,6 @@ describe("TypeSchema choice type generation", async () => {
                         required: false,
                     },
                 },
-                nested: undefined,
                 dependencies: [{ name: "boolean" }, { name: "dateTime" }],
             },
         ]);

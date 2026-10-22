@@ -935,193 +935,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
       "array": true
     }
   },
-  "nested": [
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "evidence",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#evidence"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "code": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": true,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ManifestationOrSymptom",
-            "url": "urn:fhir:binding:ManifestationOrSymptom"
-          }
-        },
-        "detail": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Resource",
-                "url": "http://hl7.org/fhir/StructureDefinition/Resource"
-              }
-            ],
-            "effectiveResource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Condition",
-                "url": "http://hl7.org/fhir/StructureDefinition/Condition"
-              }
-            ]
-          },
-          "array": true
-        }
-      }
-    },
-    {
-      "identifier": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "stage",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "summary": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStage",
-            "url": "urn:fhir:binding:ConditionStage"
-          }
-        },
-        "assessment": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ],
-            "effectiveResource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ]
-          },
-          "array": true
-        },
-        "type": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStageType",
-            "url": "urn:fhir:binding:ConditionStageType"
-          }
-        }
-      }
-    }
-  ],
   "description": "A clinical condition, problem, diagnosis, or other event, situation, issue, or clinical concept that has risen to a level of concern.",
   "dependencies": [
     {
@@ -1142,15 +955,22 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
       "kind": "complex-type",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
-      "name": "BackboneElement",
-      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-    },
-    {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
       "name": "CodeableConcept",
       "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "evidence",
+      "url": "http://hl7.org/fhir/StructureDefinition/Condition#evidence"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "stage",
+      "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
     },
     {
       "kind": "primitive-type",
@@ -1240,29 +1060,8 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: Condit
       "kind": "binding",
       "package": "shared",
       "version": "1.0.0",
-      "name": "ConditionStage",
-      "url": "urn:fhir:binding:ConditionStage"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ConditionStageType",
-      "url": "urn:fhir:binding:ConditionStageType"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
       "name": "ConditionVerificationStatus",
       "url": "urn:fhir:binding:ConditionVerificationStatus"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ManifestationOrSymptom",
-      "url": "urn:fhir:binding:ManifestationOrSymptom"
     }
   ]
 }"
@@ -2365,11 +2164,11 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
     },
     "stage": {
       "type": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
+        "kind": "profile-nested",
+        "package": "kbv.basis",
+        "version": "1.9.0",
         "name": "stage",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
       },
       "array": true,
       "required": false,
@@ -2430,124 +2229,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "rules": "open"
     }
   },
-  "nested": [
-    {
-      "identifier": {
-        "kind": "profile-nested",
-        "package": "kbv.basis",
-        "version": "1.9.0",
-        "name": "stage",
-        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "summary": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStage",
-            "url": "urn:fhir:binding:ConditionStage"
-          }
-        },
-        "assessment": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ],
-            "effectiveResource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ]
-          },
-          "array": true
-        },
-        "type": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStageType",
-            "url": "urn:fhir:binding:ConditionStageType"
-          }
-        }
-      }
-    }
-  ],
   "description": "Dieses Profil bildet relevante Informationen zu einer Diagnoserstellung ab.",
   "dependencies": [
     {
@@ -2570,13 +2251,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "4.0.1",
       "name": "Annotation",
       "url": "http://hl7.org/fhir/StructureDefinition/Annotation"
-    },
-    {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "BackboneElement",
-      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
     },
     {
       "kind": "profile",
@@ -2605,13 +2279,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "4.0.1",
       "name": "assertedDate",
       "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
-    },
-    {
-      "kind": "nested",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "stage",
-      "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
     },
     {
       "kind": "primitive-type",
@@ -2649,6 +2316,13 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
     },
     {
+      "kind": "profile-nested",
+      "package": "kbv.basis",
+      "version": "1.9.0",
+      "name": "stage",
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
+    },
+    {
       "kind": "binding",
       "package": "shared",
       "version": "1.0.0",
@@ -2675,20 +2349,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "1.0.0",
       "name": "ConditionSeverity",
       "url": "urn:fhir:binding:ConditionSeverity"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ConditionStage",
-      "url": "urn:fhir:binding:ConditionStage"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ConditionStageType",
-      "url": "urn:fhir:binding:ConditionStageType"
     },
     {
       "kind": "binding",
@@ -3249,11 +2909,11 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
     },
     "stage": {
       "type": {
-        "kind": "nested",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
+        "kind": "profile-nested",
+        "package": "kbv.basis",
+        "version": "1.9.0",
         "name": "stage",
-        "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
       },
       "array": true,
       "required": false,
@@ -3459,13 +3119,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "url": "http://hl7.org/fhir/StructureDefinition/Annotation"
     },
     {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "BackboneElement",
-      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-    },
-    {
       "kind": "profile",
       "package": "hl7.fhir.r4.core",
       "version": "4.0.1",
@@ -3492,13 +3145,6 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "version": "4.0.1",
       "name": "assertedDate",
       "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
-    },
-    {
-      "kind": "nested",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "stage",
-      "url": "http://hl7.org/fhir/StructureDefinition/Condition#stage"
     },
     {
       "kind": "primitive-type",
@@ -3536,6 +3182,13 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "url": "http://hl7.org/fhir/StructureDefinition/Reference"
     },
     {
+      "kind": "profile-nested",
+      "package": "kbv.basis",
+      "version": "1.9.0",
+      "name": "stage",
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
+    },
+    {
       "kind": "binding",
       "package": "shared",
       "version": "1.0.0",
@@ -3567,140 +3220,8 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "kind": "binding",
       "package": "shared",
       "version": "1.0.0",
-      "name": "ConditionStage",
-      "url": "urn:fhir:binding:ConditionStage"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
-      "name": "ConditionStageType",
-      "url": "urn:fhir:binding:ConditionStageType"
-    },
-    {
-      "kind": "binding",
-      "package": "shared",
-      "version": "1.0.0",
       "name": "ConditionVerificationStatus",
       "url": "urn:fhir:binding:ConditionVerificationStatus"
-    }
-  ],
-  "nested": [
-    {
-      "identifier": {
-        "kind": "profile-nested",
-        "package": "kbv.basis",
-        "version": "1.9.0",
-        "name": "stage",
-        "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis#stage"
-      },
-      "base": {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "BackboneElement",
-        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
-      },
-      "fields": {
-        "summary": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStage",
-            "url": "urn:fhir:binding:ConditionStage"
-          }
-        },
-        "assessment": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Reference",
-            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-          },
-          "required": false,
-          "excluded": false,
-          "reference": {
-            "resource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ],
-            "effectiveResource": [
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "ClinicalImpression",
-                "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "DiagnosticReport",
-                "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
-              },
-              {
-                "kind": "resource",
-                "package": "hl7.fhir.r4.core",
-                "version": "4.0.1",
-                "name": "Observation",
-                "url": "http://hl7.org/fhir/StructureDefinition/Observation"
-              }
-            ]
-          },
-          "array": true
-        },
-        "type": {
-          "type": {
-            "kind": "complex-type",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "CodeableConcept",
-            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-          },
-          "required": false,
-          "excluded": false,
-          "array": false,
-          "binding": {
-            "kind": "binding",
-            "package": "shared",
-            "version": "1.0.0",
-            "name": "ConditionStageType",
-            "url": "urn:fhir:binding:ConditionStageType"
-          }
-        }
-      }
     }
   ]
 }"

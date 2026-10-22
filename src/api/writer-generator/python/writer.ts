@@ -1,4 +1,3 @@
-import assert from "node:assert";
 import {
     canonicalToName,
     deriveResourceName,
@@ -68,6 +67,7 @@ const collectProfileClassNames = (profiles: SnapshotProfileTypeSchema[]): string
 
 const collectResourceGenericTypeVars = (
     schema: SpecializationTypeSchema,
+    nestedTypes: NestedTypeSchema[],
 ): { typeVar: string; constraint: Identifier }[] => {
     const all: Record<string, Identifier> = {};
     const addParams = (s: SpecializationTypeSchema | NestedTypeSchema) => {
@@ -76,7 +76,7 @@ const collectResourceGenericTypeVars = (
         }
     };
     addParams(schema);
-    for (const nested of schema.nested ?? []) addParams(nested);
+    for (const nested of nestedTypes) addParams(nested);
     return Object.entries(all)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([typeVar, constraint]) => ({ typeVar, constraint }));
@@ -125,7 +125,7 @@ type TypeSchemaPackages = Record<string, TypeSchemaPackage>;
 
 export class Python extends SectionWriter<PythonGeneratorOptions> {
     readonly nameFormatFunction: (name: string) => string;
-    private tsIndex: TypeSchemaIndex | undefined;
+    private tsIndex!: TypeSchemaIndex;
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
     constructor(options: PythonGeneratorOptions) {
@@ -279,7 +279,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     private collectResourceImportNames(resource: SpecializationTypeSchema): string[] {
         const names = [deriveResourceName(resource.identifier)];
 
-        for (const nested of resource.nested ?? []) {
+        for (const nested of this.tsIndex.nestedTypesOf(resource.identifier)) {
             const nestedName = deriveResourceName(nested.identifier);
             names.push(nestedName);
         }
@@ -304,7 +304,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private generateResourceModule(schema: SpecializationTypeSchema): void {
-        const typeVars = collectResourceGenericTypeVars(schema);
+        const typeVars = collectResourceGenericTypeVars(schema, this.tsIndex.nestedTypesOf(schema.identifier));
 
         this.generateDisclaimer();
         const module = pyPackage(this.opts.rootPackageName, schema.identifier);
@@ -433,7 +433,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
         let elementType: string | undefined;
         if (this.shouldAddPrimitiveExtensions(schema)) {
-            assert(this.tsIndex !== undefined);
             const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
             const element = this.tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
             if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
@@ -486,7 +485,7 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
         const fieldType = this.determineFieldType(imports, field, fieldName, schema);
         const defaultValue = this.getFieldDefaultValue(imports, field, fieldName);
-        const family = this.tsIndex ? pyReferenceFamilyName(field, this.tsIndex) : undefined;
+        const family = pyReferenceFamilyName(field, this.tsIndex);
 
         return {
             name: pyFieldName,
@@ -526,7 +525,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
 
         // Resource-bound generics: field's type is itself a generic schema (passthrough)
         if (params.length > 0) {
-            assert(this.tsIndex !== undefined);
             const target = this.tsIndex.resolveType(field.type);
             if (target && (isNestedTypeSchema(target) || isSpecializationTypeSchema(target))) {
                 const nestedParams = target.generic?.params ?? [];
@@ -552,7 +550,6 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
         // `fieldType` holds an import marker here, so test the identifier.
         const isReference = !isPrimitiveIdentifier(field.type) && field.type.name === "Reference";
         if (isReference && !field.enum && field.reference) {
-            assert(this.tsIndex !== undefined);
             const typeParam = pyReferenceTypeParam(imports.typing, field, this.tsIndex);
             if (typeParam) fieldType = `${fieldType}[${typeParam}]`;
         }
@@ -612,10 +609,10 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
     }
 
     private generateNestedTypes(imports: TypeModuleImports, schema: SpecializationTypeSchema): void {
-        if (!schema.nested) return;
-
+        const nested = this.tsIndex.nestedTypesOf(schema.identifier);
+        if (!nested.length) return;
         this.line();
-        for (const subtype of schema.nested) {
+        for (const subtype of nested) {
             this.generateType(imports, subtype);
         }
     }
@@ -659,7 +656,9 @@ export class Python extends SectionWriter<PythonGeneratorOptions> {
                     const hasResources = resources.length > 0;
                     const hasProfiles = profiles.length > 0;
                     const needsResourcePreprocessor = resources.some(
-                        (schema) => collectResourceGenericTypeVars(schema).length > 0,
+                        (schema) =>
+                            collectResourceGenericTypeVars(schema, this.tsIndex.nestedTypesOf(schema.identifier))
+                                .length > 0,
                     );
                     if (hasComplexTypes) {
                         this.cat("base.py", () => this.generateBasePy(packageName, complexTypes));

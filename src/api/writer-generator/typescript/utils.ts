@@ -5,6 +5,7 @@ import {
     type Identifier,
     isNestedIdentifier,
     isPrimitiveIdentifier,
+    isProfileNestedIdentifier,
     type RegularField,
 } from "@root/typeschema/types";
 import { tsResourceName } from "./name";
@@ -120,6 +121,7 @@ export const resolveFieldTsType = (
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
     if (isNestedIdentifier(field.type)) return tsResourceName(field.type);
+    // A profile's nested copy is named after its specialization by the type imports.
     return typeRef(field.type);
 };
 
@@ -131,14 +133,16 @@ export const fieldTsType = (
 ): string => {
     // Profile fields use nested types exported by their parent module.
     const type =
-        isNestedIdentifier(field.type) && !field.enum && !field.reference?.resource.length
+        (isNestedIdentifier(field.type) || isProfileNestedIdentifier(field.type)) &&
+        !field.enum &&
+        !field.reference?.resource.length
             ? tsTypeFromIdentifier(tImport, field.type)
             : resolveFieldTsType(tImport, "", "", field, resolveRef, undefined, isFamilyType);
     return type + (field.array ? "[]" : "");
 };
 
 export const tsTypeFromIdentifier = (tImport: FhirTypeImports, id: Identifier): string => {
-    if (isNestedIdentifier(id)) return tImport.use(id);
+    if (isNestedIdentifier(id) || isProfileNestedIdentifier(id)) return tImport.use(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set
     const primitiveType = primitiveType2tsType[id.name];

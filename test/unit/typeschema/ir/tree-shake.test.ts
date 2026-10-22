@@ -13,16 +13,16 @@ import {
     treeShakeTypeSchema,
 } from "@root/typeschema/ir/tree-shake";
 import { registerFromPackageMetas } from "@root/typeschema/register";
-import {
-    type CanonicalUrl,
-    type Identifier,
-    type Name,
-    type NestedIdentifier,
-    type ProfileIdentifier,
-    type ProfileTypeSchema,
-    profileNestedIdentifier,
-    type ResourceIdentifier,
-    type SpecializationTypeSchema,
+import type {
+    CanonicalUrl,
+    Identifier,
+    Name,
+    NestedIdentifier,
+    ProfileIdentifier,
+    ProfileTypeSchema,
+    ResourceIdentifier,
+    SpecializationTypeSchema,
+    TypeSchema,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -169,27 +169,46 @@ describe("treeShake inherited nested targets", () => {
         package: "example.test.praxis",
         version: "0.101.6",
     };
-    // The profile's own copy of `item`, under the profile's url.
-    const profileItemId = profileNestedIdentifier(profileId, "item" as Name);
 
-    const schemas = (includeEnableWhen: boolean): [SpecializationTypeSchema, ProfileTypeSchema] => {
+    const schemas = (includeEnableWhen: boolean): TypeSchema[] => {
+        const item: import("@typeschema/types").NestedTypeSchema = {
+            identifier: itemId,
+            declaredIn: questionnaireId,
+            path: ["item"],
+            derivation: "specialization",
+            base: questionnaireId,
+            fields: { enableWhen: { type: enableWhenId } },
+            dependencies: [questionnaireId, enableWhenId],
+        };
         const questionnaire: SpecializationTypeSchema = {
             identifier: questionnaireId,
             fields: { item: { type: itemId } },
-            nested: [
-                { identifier: itemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } },
-                ...(includeEnableWhen ? [{ identifier: enableWhenId, base: questionnaireId, fields: {} }] : []),
-            ],
+            dependencies: [itemId],
         };
         const profile: ProfileTypeSchema = {
             identifier: profileId,
             base: questionnaireId,
             fields: { item: { type: itemId } },
-            nested: [
-                { identifier: profileItemId, base: questionnaireId, fields: { enableWhen: { type: enableWhenId } } },
-            ],
+            dependencies: [questionnaireId, itemId],
         };
-        return [questionnaire, profile];
+        return [
+            questionnaire,
+            profile,
+            item,
+            ...(includeEnableWhen
+                ? [
+                      {
+                          identifier: enableWhenId,
+                          declaredIn: questionnaireId,
+                          path: ["item", "enableWhen"],
+                          derivation: "specialization" as const,
+                          base: questionnaireId,
+                          fields: {},
+                          dependencies: [questionnaireId],
+                      },
+                  ]
+                : []),
+        ];
     };
 
     /**
@@ -203,7 +222,7 @@ describe("treeShake inherited nested targets", () => {
             "example.test.praxis": { [profileUrl]: {} },
         });
 
-        expect(shaked.resolve(profileId)?.nested?.map(({ identifier }) => identifier)).toContainEqual(profileItemId);
+        expect(shaked.resolve(itemId)?.identifier).toEqual(itemId);
         expect(shaked.resolveType(enableWhenId)?.identifier).toEqual(enableWhenId);
     });
 
@@ -213,6 +232,16 @@ describe("treeShake inherited nested targets", () => {
                 "example.test.praxis": { [profileUrl]: {} },
             }),
         ).toThrowError("http://hl7.org/fhir/StructureDefinition/Questionnaire#item.enableWhen");
+    });
+
+    it("rejects a nested url as a tree-shake root", () => {
+        expect(() =>
+            treeShake(mkTypeSchemaIndex(schemas(true), {}), {
+                "hl7.fhir.r4.core": { [itemId.url]: {} },
+            }),
+        ).toThrowError(
+            `Nested type ${itemId.url} can't be a tree-shake root: shake ${questionnaireUrl}, which declares it`,
+        );
     });
 
     /**
@@ -246,15 +275,30 @@ describe("treeShake inherited nested targets", () => {
                 valid: { type: coreNested },
                 missing: { type: missingNested },
             },
-            nested: [{ identifier: coreNested, base: rootId, fields: {} }],
         };
 
         expect(() =>
-            treeShake(mkTypeSchemaIndex([root], {}), {
-                fixture: { "http://r": {} },
-            }),
+            treeShake(
+                mkTypeSchemaIndex(
+                    [
+                        root,
+                        {
+                            identifier: coreNested,
+                            declaredIn: rootId,
+                            path: ["n"],
+                            derivation: "specialization",
+                            base: rootId,
+                            fields: {},
+                        },
+                    ],
+                    {},
+                ),
+                {
+                    fixture: { "http://r": {} },
+                },
+            ),
         ).toThrowError(
-            'Nested schema {"kind":"nested","name":"n","url":"http://r#n","package":"absent","version":"1.0.0"}',
+            'Dependent schema {"kind":"nested","name":"n","url":"http://r#n","package":"absent","version":"1.0.0"}',
         );
     });
 });
@@ -320,8 +364,7 @@ describe("treeShake inherited slice match targets", () => {
             identifier: bundleId,
             base: resourceBaseId,
             fields: { entry: { type: entryId, array: true } },
-            nested: [{ identifier: entryId, base: bundleId, fields: { resource: { type: resourceBaseId } } }],
-            dependencies: [resourceBaseId],
+            dependencies: [resourceBaseId, entryId],
         };
         const epsBundle: ProfileTypeSchema = {
             identifier: epsBundleId,
@@ -361,6 +404,15 @@ describe("treeShake inherited slice match targets", () => {
             [
                 { identifier: resourceBaseId },
                 bundle,
+                {
+                    identifier: entryId,
+                    declaredIn: bundleId,
+                    path: ["entry"],
+                    derivation: "specialization",
+                    base: bundleId,
+                    fields: { resource: { type: resourceBaseId } },
+                    dependencies: [bundleId, resourceBaseId],
+                },
                 { identifier: patientId, base: resourceBaseId, dependencies: [resourceBaseId] },
                 { identifier: practitionerId, base: resourceBaseId, dependencies: [resourceBaseId] },
                 { identifier: r5PatientId },
@@ -800,6 +852,32 @@ describe("ignoreExtensions", () => {
         expect(
             result.dependencies?.find((d) => d.url === "http://hl7.org/fhir/StructureDefinition/Patient"),
         ).toBeDefined();
+    });
+
+    it("keeps a field's and an extension's dependencies that share a url across packages", () => {
+        const r4Code: Identifier = {
+            kind: "primitive-type",
+            name: "code" as Name,
+            url: "http://hl7.org/fhir/StructureDefinition/code" as CanonicalUrl,
+            package: "hl7.fhir.r4.core",
+            version: "4.0.1",
+        };
+        const r5Code: Identifier = { ...r4Code, package: "hl7.fhir.r5.core", version: "5.0.0" };
+        const profile: ProfileTypeSchema = {
+            ...mkProfile(),
+            fields: { status: { type: r4Code } },
+            extensions: [
+                {
+                    name: "status",
+                    path: "Patient.extension",
+                    url: "http://example.com/ext/status",
+                    valueFieldTypes: [r5Code],
+                    nameCandidates: mkExtensionNameCandidates({ name: "status", path: "Patient.extension" }),
+                },
+            ],
+        };
+        const result = treeShakeTypeSchema(profile, {}) as ProfileTypeSchema;
+        expect(result.dependencies?.filter((d) => d.name === "code")).toEqual([r4Code, r5Code]);
     });
 
     it("removing all extensions sets extensions to undefined", () => {

@@ -5,6 +5,7 @@ import {
     isChoiceInstanceField,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
+    isProfileNestedIdentifier,
     isResourceIdentifier,
     type RegularField,
     type SnapshotProfileTypeSchema,
@@ -47,12 +48,13 @@ const profileFieldPyType = (
     tsIndex: TypeSchemaIndex,
 ): string => {
     // A nested backbone element is its own generated class (ObservationComponent,
-    // ProvenanceAgent), so it must not be resolved: the last specialization of a
-    // nested identifier is BackboneElement, which is what the model field is
-    // declared *against*, not what it accepts.
-    const resolved = isNestedIdentifier(field.type)
-        ? field.type
-        : tsIndex.findLastSpecializationByIdentifier(field.type);
+    // ProvenanceAgent). Keep the field's own identifier, a profile's copy included:
+    // it is the key the other accessors import the class by (named after its specialization),
+    // so resolving it to the specialization here would import the same class twice.
+    const resolved =
+        isNestedIdentifier(field.type) || isProfileNestedIdentifier(field.type)
+            ? field.type
+            : tsIndex.findLastSpecializationByIdentifier(field.type);
     let base = profilePyType(imports, resolved);
     if (base === "str" && field.enum && !field.enum.isOpen && field.enum.values.length > 0) {
         const literal = `${imports.typing.use("Literal")}[${field.enum.values.map((v) => JSON.stringify(v)).join(", ")}]`;
