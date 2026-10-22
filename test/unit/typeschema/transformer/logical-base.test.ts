@@ -57,14 +57,12 @@ describe("TypeSchema: logical model specializing FHIR Base (R4, virtual root)", 
                         type: { kind: "nested", name: "part" },
                     },
                 },
-                nested: [
-                    {
-                        identifier: { kind: "nested", name: "part" },
-                        fields: {
-                            label: { type: { kind: "primitive-type", name: "string" } },
-                        },
-                    },
-                ],
+            },
+            {
+                identifier: { kind: "nested", name: "part" },
+                fields: {
+                    label: { type: { kind: "primitive-type", name: "string" } },
+                },
             },
         ]);
     });

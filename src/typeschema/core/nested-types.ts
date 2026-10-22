@@ -17,6 +17,7 @@ import {
     type Field,
     type FieldSlicing,
     type Identifier,
+    isSpecializationIdentifier,
     type Name,
     type NestedIdentifier,
     type NestedTypeSchema,
@@ -26,6 +27,7 @@ import {
     type RichFHIRSchema,
     type RichProfileFHIRSchema,
 } from "../types";
+import { extractDependencies } from "./dependencies";
 import { buildSlicing, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier } from "./identifier";
 
@@ -175,12 +177,12 @@ function transformNestedElements(
     return { fields, slicing: Object.keys(slicing).length > 0 ? slicing : undefined };
 }
 
-/** Nested types of `fhirSchema` without their identifiers, keyed by element path. */
+/** Nested types of `fhirSchema` without their identifiers. */
 const collectNestedTypeBodies = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLog,
-): { path: string[]; body: NestedTypeSchemaBody }[] => {
+): NestedTypeSchemaBody[] => {
     if (!fhirSchema.elements) return [];
 
     const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
@@ -222,7 +224,12 @@ const collectNestedTypeBodies = (
 
         const { fields, slicing } = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
-        return { path, body: { ...(base ? { base } : {}), fields, slicing } };
+        return {
+            path,
+            ...(base ? { base } : {}),
+            fields,
+            slicing,
+        };
     });
 };
 
@@ -232,15 +239,23 @@ export const mkNestedTypes = (
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLog,
 ): NestedTypeSchema[] | undefined => {
-    const nestedTypes = collectNestedTypeBodies(register, fhirSchema, logger)
-        .map(
-            ({ path, body }): NestedTypeSchema => ({
-                identifier: mkNestedIdentifier(register, fhirSchema, path),
+    const bodies = collectNestedTypeBodies(register, fhirSchema, logger);
+    if (bodies.length === 0) return undefined;
+    const declaredIn = mkIdentifier(fhirSchema);
+    if (!isSpecializationIdentifier(declaredIn))
+        throw new Error(`Nested types of ${fhirSchema.url} need a resource, complex type or logical model`);
+    return bodies
+        .map((body): NestedTypeSchema => {
+            const identifier = mkNestedIdentifier(register, fhirSchema, body.path);
+            return {
+                identifier,
+                derivation: "specialization",
+                declaredIn,
                 ...body,
-            }),
-        )
+                dependencies: extractDependencies(identifier, body.base, body.fields),
+            };
+        })
         .sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
-    return nestedTypes.length > 0 ? nestedTypes : undefined;
 };
 
 /** A constraint profile's own copies of the nested types it constrains, under the profile's url. */
@@ -251,34 +266,16 @@ export const mkProfileNestedTypes = (
 ): ProfileNestedTypeSchema[] | undefined => {
     const profile = mkIdentifier(fhirSchema);
     const nestedTypes = collectNestedTypeBodies(register, fhirSchema, logger)
-        .map(
-            ({ path, body }): ProfileNestedTypeSchema => ({
-                identifier: profileNestedIdentifier(profile, path.join(".") as Name),
+        .map((body): ProfileNestedTypeSchema => {
+            const identifier = profileNestedIdentifier(profile, body.path.join(".") as Name);
+            return {
+                identifier,
+                derivation: "constraint",
+                declaredIn: profile,
                 ...body,
-            }),
-        )
+                dependencies: extractDependencies(identifier, body.base, body.fields),
+            };
+        })
         .sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
     return nestedTypes.length > 0 ? nestedTypes : undefined;
-};
-
-export const extractNestedDependencies = (
-    nestedTypes: (NestedTypeSchema | ProfileNestedTypeSchema)[],
-): Identifier[] => {
-    const deps: Identifier[] = [];
-
-    for (const nested of nestedTypes) {
-        if (nested.base) {
-            deps.push(nested.base);
-        }
-
-        for (const field of Object.values(nested.fields || {})) {
-            if ("type" in field && field.type) {
-                deps.push(field.type);
-            }
-            if ("binding" in field && field.binding) {
-                deps.push(field.binding);
-            }
-        }
-    }
-    return deps;
 };

@@ -99,6 +99,7 @@ interface EnumRegistry {
 }
 
 export class CSharp extends Writer<CSharpGeneratorOptions> {
+    private tsIndex!: TypeSchemaIndex;
     private readonly enums: EnumRegistry = {};
 
     constructor(options: PartialBy<CSharpGeneratorOptions, "tabSize" | "commentLinePrefix">) {
@@ -112,6 +113,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     override async generate(typeSchemaIndex: TypeSchemaIndex): Promise<void> {
+        this.tsIndex = typeSchemaIndex;
         const complexTypes = typeSchemaIndex.collectComplexTypes();
         const resources = typeSchemaIndex.collectResources();
         const packages = Array.from(new Set(resources.map((r) => formatName(r.identifier.package))));
@@ -157,10 +159,10 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     private generateNestedTypes(schema: SpecializationTypeSchema | NestedTypeSchema, packageName: string): void {
-        if (!("nested" in schema) || !schema.nested) return;
-
+        const nested = this.tsIndex.nestedTypesOf(schema.identifier);
+        if (!nested.length) return;
         this.line();
-        for (const subtype of schema.nested) {
+        for (const subtype of nested) {
             this.generateType(subtype, packageName);
         }
     }

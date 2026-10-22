@@ -212,25 +212,22 @@ describe("TypeSchema: Nested types", async () => {
     it("Check recursive nested types", async () => {
         const tss = await registerFsAndMkTs(r5, viewDefinitionSD, logger);
         expect(tss).toMatchObject([
+            {},
             {
-                nested: [
-                    {
-                        fields: {
-                            select: {
-                                type: {
-                                    kind: "nested",
-                                    package: "org.sql-on-fhir.ig",
-                                    version: "2.1.0-pre",
-                                    name: "select",
-                                    url: "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition#select",
-                                },
-                                required: false,
-                                excluded: false,
-                                array: true,
-                            },
+                fields: {
+                    select: {
+                        type: {
+                            kind: "nested",
+                            package: "org.sql-on-fhir.ig",
+                            version: "2.1.0-pre",
+                            name: "select",
+                            url: "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition#select",
                         },
+                        required: false,
+                        excluded: false,
+                        array: true,
                     },
-                ],
+                },
             },
         ]);
         // expect(tss).toMatchObject([

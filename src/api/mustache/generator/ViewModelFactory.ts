@@ -20,7 +20,6 @@ import {
     isComplexTypeTypeSchema,
     isNotChoiceDeclarationField,
     isResourceTypeSchema,
-    isSpecializationTypeSchema,
     type NestedTypeSchema,
     type RegularField,
     type ResourceIdentifier,
@@ -259,28 +258,28 @@ export class ViewModelFactory {
                     dependencies.resources.push(dependency);
                 });
         }
-        if (isSpecializationTypeSchema(schema) && schema.nested) {
-            schema.nested
-                .map((nested) => this._collectDependencies(nested))
-                .forEach((d) => {
-                    d.complexTypes
-                        .filter(
-                            (complexType) =>
-                                !dependencies.complexTypes.some((dependency) => dependency.name === complexType.name),
-                        )
-                        .forEach((complexType) => {
-                            dependencies.complexTypes.push(complexType);
-                        });
-                    d.resources
-                        .filter(
-                            (resource) =>
-                                !dependencies.resources.some((dependency) => dependency.name === resource.name),
-                        )
-                        .forEach((resource) => {
-                            dependencies.resources.push(resource);
-                        });
-                });
-        }
+        this.tsIndex
+            .nestedTypesOf(schema.identifier)
+            .map((nested) => this._collectDependencies(nested))
+            .forEach((d) => {
+                d.complexTypes
+                    .filter(
+                        (complexType) =>
+                            !dependencies.complexTypes.some((dependency) => dependency.name === complexType.name),
+                    )
+                    .forEach((complexType) => {
+                        dependencies.complexTypes.push(complexType);
+                    });
+                d.resources
+                    .filter(
+                        (resource) => !dependencies.resources.some((dependency) => dependency.name === resource.name),
+                    )
+                    .forEach((resource) => {
+                        dependencies.resources.push(resource);
+                    });
+            });
+        dependencies.complexTypes.sort((a, b) => a.name.localeCompare(b.name));
+        dependencies.resources.sort((a, b) => a.name.localeCompare(b.name));
         return dependencies;
     }
 
@@ -326,13 +325,12 @@ export class ViewModelFactory {
         cache: ViewModelCache,
     ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
-        if (isSpecializationTypeSchema(schema) && schema.nested) {
-            schema.nested
-                .map((nested) => this._createForNestedType(nested, cache, schema))
-                .forEach((n) => {
-                    nested.push(n);
-                });
-        }
+        this.tsIndex
+            .nestedTypesOf(schema.identifier)
+            .map((nested) => this._createForNestedType(nested, cache, schema))
+            .forEach((n) => {
+                nested.push(n);
+            });
         return nested;
     }
     private _collectNestedEnums(fields: [string, Field][]): EnumViewModel[] {

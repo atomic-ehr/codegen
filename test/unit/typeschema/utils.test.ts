@@ -3,7 +3,6 @@ import {
     type CanonicalUrl,
     type Identifier,
     type Name,
-    type NestedIdentifier,
     type NestedTypeSchema,
     type ProfileNestedTypeSchema,
     type ProfileTypeSchema,
@@ -648,70 +647,52 @@ describe("TypeSchema Index", () => {
     });
 
     describe("nested types", () => {
-        // A constraint profile's copy of a nested type lives under the profile's url.
-        const itemId: NestedIdentifier = {
-            name: "item" as Name,
+        const root = (kind: "resource" | "profile", name: string) => ({
+            kind,
+            name: name as Name,
             package: "test",
-            kind: "nested",
             version: "1.0.0",
-            url: "http://example.org/StructureDefinition/Base#item" as CanonicalUrl,
-        };
-        const profileItemId = profileNestedIdentifier(
-            {
-                name: "Constraint" as Name,
-                package: "test",
-                kind: "profile",
-                version: "1.0.0",
-                url: "http://example.org/StructureDefinition/Constraint" as CanonicalUrl,
-            },
-            "item" as Name,
-        );
+            url: `http://example.org/${name}` as CanonicalUrl,
+        });
+        const baseId = root("resource", "Base") as import("@typeschema/types").ResourceIdentifier;
+        const profileId = root("profile", "Constraint") as import("@typeschema/types").ProfileIdentifier;
         const baseItem: NestedTypeSchema = {
-            identifier: itemId,
-            fields: { value: { type: stringType, required: false, array: false } },
+            identifier: { ...baseId, kind: "nested", name: "item" as Name, url: `${baseId.url}#item` as CanonicalUrl },
+            declaredIn: baseId,
+            path: ["item"],
+            derivation: "specialization",
+            fields: { value: { type: stringType, required: false } },
         };
         const profileItem: ProfileNestedTypeSchema = {
-            identifier: profileItemId,
-            fields: { value: { type: stringType, required: true, array: false } },
+            ...baseItem,
+            identifier: profileNestedIdentifier(profileId, "item" as Name),
+            declaredIn: profileId,
+            derivation: "constraint",
+            base: baseItem.identifier,
+            fields: { value: { type: stringType, required: true } },
         };
         const baseSchema: SpecializationTypeSchema = {
-            identifier: {
-                name: "Base" as Name,
-                package: "test",
-                kind: "resource",
-                version: "1.0.0",
-                url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
-            },
-            fields: { item: { type: itemId, required: false, array: true } },
-            nested: [baseItem],
+            identifier: baseId,
+            fields: { item: { type: baseItem.identifier } },
         };
         const profileSchema: ProfileTypeSchema = {
-            identifier: {
-                name: "Constraint" as Name,
-                package: "test",
-                kind: "profile",
-                version: "1.0.0",
-                url: "http://example.org/StructureDefinition/Constraint" as CanonicalUrl,
-            },
-            base: baseSchema.identifier,
-            fields: { item: { type: itemId, required: true, array: true } },
-            nested: [profileItem],
+            identifier: profileId,
+            base: baseId,
+            fields: { item: { type: profileItem.identifier } },
         };
-
-        it("resolves the base's and the profile's nested types by their own identifiers, whatever the order", () => {
-            for (const index of [
-                mkTypeSchemaIndex([baseSchema, profileSchema], {}),
-                mkTypeSchemaIndex([profileSchema, baseSchema], {}),
-            ]) {
-                expect(index.resolveType(itemId)).toBe(baseItem);
-                expect(index.resolveType(profileItemId)).toBe(profileItem);
+        const schemas = [baseSchema, profileSchema, baseItem, profileItem];
+        it("resolves base and profile definitions independently in either order", () => {
+            for (const order of [schemas, [...schemas].reverse()]) {
+                const index = mkTypeSchemaIndex(order, {});
+                expect(index.resolve(baseItem.identifier)).toBe(baseItem);
+                expect(index.resolve(profileItem.identifier)).toBe(profileItem);
+                expect(index.resolveByUrl("test", profileItem.identifier.url)).toBe(profileItem);
+                expect(index.nestedTypesOf(baseId)).toEqual([baseItem]);
+                expect(index.profileNestedTypesOf(profileId)).toEqual([profileItem]);
             }
         });
-
-        it("resolves both nested types by url, as the slice helpers do", () => {
-            const index = mkTypeSchemaIndex([baseSchema, profileSchema], {});
-            expect(index.resolveByUrl("test", itemId.url)).toBe(baseItem);
-            expect(index.resolveByUrl("test", profileItemId.url)).toBe(profileItem);
+        it("resolves a standalone nested definition without the schema it is declared in", () => {
+            expect(mkTypeSchemaIndex([profileItem], {}).resolve(profileItem.identifier)).toBe(profileItem);
         });
     });
 

@@ -81,5 +81,9 @@
 
 // Export new high-level API (primary)
 export * from "./api/index";
+export { generateTypeSchemas } from "./typeschema";
+export { transformFhirSchema } from "./typeschema/core/transformer";
 // Export some typeschema APIs useful in CCDA generation
 export { registerFromManager, registerFromPackageMetas } from "./typeschema/register";
+export type { NestedTypeSchema, TypeSchema } from "./typeschema/types";
+export { mkTypeSchemaIndex } from "./typeschema/utils";

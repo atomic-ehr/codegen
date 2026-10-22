@@ -4,13 +4,14 @@ import {
     type Identifier,
     isChoiceDeclarationField,
     isLogicalTypeSchema,
+    isNestedTypeSchema,
     isPrimitiveTypeSchema,
+    isProfileNestedTypeSchema,
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedTypeSchema,
     type PkgName,
-    type ProfileNestedTypeSchema,
+    type SpecializationIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { LogicalPromotionConf } from "./types";
@@ -49,15 +50,18 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         const cloned = JSON.parse(JSON.stringify(schema));
         cloned.identifier = replace(cloned.identifier);
         cloned.dependencies = cloned.dependencies?.map(replace);
-        if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
+        if (
+            isSpecializationTypeSchema(cloned) ||
+            isProfileTypeSchema(cloned) ||
+            isNestedTypeSchema(cloned) ||
+            isProfileNestedTypeSchema(cloned)
+        ) {
             cloned.fields = replaceInFields(cloned.fields);
-            cloned.nested = cloned.nested?.map((n: NestedTypeSchema | ProfileNestedTypeSchema) => {
-                return {
-                    ...n,
-                    base: n.base ? replace(n.base) : undefined,
-                    fields: replaceInFields(n.fields),
-                };
-            });
+            // A promoted logical model becomes a resource, still a specialization; profiles aren't promoted.
+            if (isNestedTypeSchema(cloned)) cloned.declaredIn = replace(cloned.declaredIn) as SpecializationIdentifier;
+            if (isNestedTypeSchema(cloned) || isProfileNestedTypeSchema(cloned)) {
+                cloned.base = cloned.base ? replace(cloned.base) : undefined;
+            }
         }
         return cloned;
     });
