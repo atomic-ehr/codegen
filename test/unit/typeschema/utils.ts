@@ -1,4 +1,5 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import type { GenerationReport } from "@root/api/builder";
 import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import { generateTypeSchemas } from "@root/typeschema";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
@@ -7,6 +8,8 @@ import { mkCodegenLogger } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta } from "@typeschema/types";
+import Ajv from "ajv";
+import typeSchemaSpec from "../../../docs/type-schema.schema.json";
 
 export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
@@ -74,4 +77,34 @@ export const registerFsAndMkTs = async (register: Register, fs: PFS, logger: Cod
 
 export const transformVS = async (register: Register, pkg: PackageMeta, vs: PVS) => {
     return await transformValueSet(register, enrichValueSet(vs as ValueSet, pkg));
+};
+
+/** Validates the TypeSchemas of a report — introspection `typeSchemas` written to `type-schemas.ndjson`
+ *  — against docs/type-schema.schema.json. Returns the distinct violations per TypeSchema kind, with
+ *  array indices and field names normalized so one defect shared by many schemas reads as one line. */
+export const typeSchemaSpecViolations = (report: GenerationReport): Record<string, string[]> => {
+    if (!report.success) throw new Error(`generation failed: ${report.errors.join(", ")}`);
+    const files = Object.entries(report.filesGenerated.introspection ?? {});
+    const ndjson = files.find(([path]) => path.endsWith("type-schemas.ndjson"))?.[1];
+    if (!ndjson) throw new Error("no type schemas generated");
+
+    const validate = new Ajv({ allErrors: true }).compile(typeSchemaSpec);
+    const violations: Record<string, Set<string>> = {};
+    for (const line of ndjson.split("\n")) {
+        if (!line) continue;
+        const schema = JSON.parse(line);
+        if (validate(schema)) continue;
+        const kindViolations = (violations[schema.identifier.kind] ??= new Set());
+        for (const e of validate.errors ?? []) {
+            // `must match "then" schema` only wraps the specific errors reported next to it
+            if (e.keyword === "if") continue;
+            const path = e.instancePath.replace(/\/(fields|nested)\/[^/]+/g, "/$1/*").replace(/\/\d+/g, "/*");
+            kindViolations.add(`${path || "/"} ${e.message} ${JSON.stringify(e.params)}`);
+        }
+    }
+    return Object.fromEntries(
+        Object.entries(violations)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([kind, messages]) => [kind, [...messages].sort()]),
+    );
 };

@@ -1,0 +1,55 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`TypeSchema output conforms to docs/type-schema.schema.json hl7.fhir.us.core with its hl7.fhir.r4.core closure 1`] = `
+{
+  "binding": [
+    "/identifier/url must match pattern "^(https?://|urn:)[^\\s]+$" {"pattern":"^(https?://|urn:)[^\\\\s]+$"}",
+  ],
+  "nested": [
+    "/dependencies/*/url must match pattern "^(https?://|urn:)[^\\s]+$" {"pattern":"^(https?://|urn:)[^\\\\s]+$"}",
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/*/binding/url must match pattern "^(https?://|urn:)[^\\s]+$" {"pattern":"^(https?://|urn:)[^\\\\s]+$"}",
+  ],
+  "profile": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/* must NOT have additional properties {"additionalProperty":"type"}",
+    "/fields/* must NOT have additional properties {"additionalProperty":"valueConstraint"}",
+    "/fields/*/max must be number {"type":"number"}",
+  ],
+  "profile-nested": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/* must have required property 'type' {"missingProperty":"type"}",
+  ],
+  "profile-snapshot": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/* must NOT have additional properties {"additionalProperty":"type"}",
+    "/fields/* must NOT have additional properties {"additionalProperty":"valueConstraint"}",
+    "/fields/*/max must be number {"type":"number"}",
+  ],
+  "resource": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+  ],
+}
+`;
+
+exports[`TypeSchema output conforms to docs/type-schema.schema.json custom-packages example structure definitions with hl7.fhir.r5.core 1`] = `
+{
+  "nested": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+  ],
+  "profile": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/*/max must be number {"type":"number"}",
+  ],
+  "profile-nested": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+  ],
+  "profile-snapshot": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+    "/fields/*/max must be number {"type":"number"}",
+  ],
+  "resource": [
+    "/fields/* must NOT have additional properties {"additionalProperty":"mustSupport"}",
+  ],
+}
+`;

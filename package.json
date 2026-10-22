@@ -61,6 +61,7 @@
     "@types/mustache": "^4.2.6",
     "@types/node": "^25.9.5",
     "@types/yargs": "^17.0.35",
+    "ajv": "^8.20.0",
     "knip": "^6.29.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
