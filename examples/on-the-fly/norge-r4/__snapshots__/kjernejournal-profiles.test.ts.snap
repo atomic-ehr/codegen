@@ -65,7 +65,7 @@ export type KjAllergyIntoleranceProfileRaw = {
     verificationStatus: CodeableConcept<("unconfirmed" | "confirmed" | "refuted" | "entered-in-error")>;
     category: ("food" | "medication" | "environment" | "biologic")[];
     criticality: ("low" | "high");
-    code: CodeableConcept;
+    code: CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | string)>;
     patient: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>;
     recordedDate: string;
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
@@ -171,11 +171,11 @@ export class KjAllergyIntoleranceProfile {
         return this;
     }
 
-    getCode () : CodeableConcept | undefined {
-        return this.resource.code as CodeableConcept | undefined;
+    getCode () : CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept) : this {
+    setCode (value: CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | string)>) : this {
         this.resource.code = value;
         return this;
     }
@@ -442,6 +442,7 @@ export class KjAllergyIntoleranceProfile {
             ],
             warnings: [
                 ...validateMustSupport(res, profileName, "identifier"),
+                ...validateEnum(res, profileName, "code", ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]),
                 ...validateMustSupport(res, profileName, "note"),
             ],
         }
@@ -1227,7 +1228,7 @@ export type KjConditionInfectionProfileRaw = {
     clinicalStatus: CodeableConcept<("active" | "inactive")>;
     verificationStatus: CodeableConcept<("confirmed" | "refuted" | "entered-in-error")>;
     category: CodeableConcept<("3" | "4" | "5" | "7" | "10")>[];
-    code: CodeableConcept;
+    code: CodeableConcept<("1" | "2" | "3" | "4" | "5" | string)>;
     subject: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>;
     recordedDate: string;
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
@@ -1321,11 +1322,11 @@ export class KjConditionInfectionProfile {
         return this;
     }
 
-    getCode () : CodeableConcept | undefined {
-        return this.resource.code as CodeableConcept | undefined;
+    getCode () : CodeableConcept<("1" | "2" | "3" | "4" | "5" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("1" | "2" | "3" | "4" | "5" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept) : this {
+    setCode (value: CodeableConcept<("1" | "2" | "3" | "4" | "5" | string)>) : this {
         this.resource.code = value;
         return this;
     }
@@ -1558,7 +1559,9 @@ export class KjConditionInfectionProfile {
                 ...validateRequired(res, profileName, "recorder"),
                 ...validateReference(res, profileName, "recorder", ["PractitionerRole"]),
             ],
-            warnings: [],
+            warnings: [
+                ...validateEnum(res, profileName, "code", ["1","2","3","4","5"]),
+            ],
         }
     }
 
@@ -1980,7 +1983,7 @@ export type KjConsentProfileRaw = {
     patient: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>;
     dateTime: string;
     performer: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>[];
-    policyRule: CodeableConcept;
+    policyRule: CodeableConcept<("1" | "2")>;
 }
 
 const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConsent";
@@ -2098,11 +2101,11 @@ export class KjConsentProfile {
         return this;
     }
 
-    getPolicyRule () : CodeableConcept | undefined {
-        return this.resource.policyRule as CodeableConcept | undefined;
+    getPolicyRule () : CodeableConcept<("1" | "2")> | undefined {
+        return this.resource.policyRule as CodeableConcept<("1" | "2")> | undefined;
     }
 
-    setPolicyRule (value: CodeableConcept) : this {
+    setPolicyRule (value: CodeableConcept<("1" | "2")>) : this {
         this.resource.policyRule = value;
         return this;
     }
@@ -2293,6 +2296,7 @@ export class KjConsentProfile {
                 ...validateRequired(res, profileName, "performer"),
                 ...validateReference(res, profileName, "performer", ["PractitionerRole"]),
                 ...validateRequired(res, profileName, "policyRule"),
+                ...validateEnum(res, profileName, "policyRule", ["1","2"]),
             ],
             warnings: [
                 ...validateEnum(res, profileName, "scope", ["adr","research","patient-privacy","treatment"]),
@@ -4130,6 +4134,7 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 import {
     ensureProfile,
+    validateEnum,
     validateMustSupport,
     validatePatternValue,
     validateReference,
@@ -4139,7 +4144,7 @@ import {
 export type KjPractitionerRoleProfileRaw = {
     practitioner: Reference<"Practitioner" /* http://hl7.no/fhir/StructureDefinition/no-basis-Practitioner */>;
     organization: Reference<"Organization" /* http://hl7.no/fhir/StructureDefinition/no-basis-Organization */>;
-    code: CodeableConcept[];
+    code: CodeableConcept<("AA" | "AT" | "AU" | "BI" | "ET" | "FA1" | "FA2" | "FO" | "FT" | "HE" | "HF" | "HP" | "JO" | "KE" | "KI" | "LE" | "OA" | "OI" | "OP" | "OR" | "PE" | "PS" | "RA" | "SP" | "TH" | "TL" | "TP" | "TT" | "VP" | "XX" | string)>[];
 }
 
 const canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole";
@@ -4217,11 +4222,11 @@ export class KjPractitionerRoleProfile {
         return this;
     }
 
-    getCode () : CodeableConcept[] | undefined {
-        return this.resource.code as CodeableConcept[] | undefined;
+    getCode () : CodeableConcept<("AA" | "AT" | "AU" | "BI" | "ET" | "FA1" | "FA2" | "FO" | "FT" | "HE" | "HF" | "HP" | "JO" | "KE" | "KI" | "LE" | "OA" | "OI" | "OP" | "OR" | "PE" | "PS" | "RA" | "SP" | "TH" | "TL" | "TP" | "TT" | "VP" | "XX" | string)>[] | undefined {
+        return this.resource.code as CodeableConcept<("AA" | "AT" | "AU" | "BI" | "ET" | "FA1" | "FA2" | "FO" | "FT" | "HE" | "HF" | "HP" | "JO" | "KE" | "KI" | "LE" | "OA" | "OI" | "OP" | "OR" | "PE" | "PS" | "RA" | "SP" | "TH" | "TL" | "TP" | "TT" | "VP" | "XX" | string)>[] | undefined;
     }
 
-    setCode (value: CodeableConcept[]) : this {
+    setCode (value: CodeableConcept<("AA" | "AT" | "AU" | "BI" | "ET" | "FA1" | "FA2" | "FO" | "FT" | "HE" | "HF" | "HP" | "JO" | "KE" | "KI" | "LE" | "OA" | "OI" | "OP" | "OR" | "PE" | "PS" | "RA" | "SP" | "TH" | "TL" | "TP" | "TT" | "VP" | "XX" | string)>[]) : this {
         this.resource.code = value;
         return this;
     }
@@ -4245,6 +4250,7 @@ export class KjPractitionerRoleProfile {
             ],
             warnings: [
                 ...validateMustSupport(res, profileName, "active"),
+                ...validateEnum(res, profileName, "code", ["AA","AT","AU","BI","ET","FA1","FA2","FO","FT","HE","HF","HP","JO","KE","KI","LE","OA","OI","OP","OR","PE","PS","RA","SP","TH","TL","TP","TT","VP","XX"]),
             ],
         }
     }
@@ -4291,7 +4297,7 @@ import {
 export type KjProcedureProfileRaw = {
     status: ("in-progress" | "entered-in-error" | "completed");
     category: CodeableConcept;
-    code: CodeableConcept;
+    code: CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | string)>;
     subject: Reference<"Patient" /* http://hl7.no/fhir/StructureDefinition/no-basis-Patient */>;
     recorder: Reference<"PractitionerRole" /* http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole */>;
 }
@@ -4373,11 +4379,11 @@ export class KjProcedureProfile {
         return this;
     }
 
-    getCode () : CodeableConcept | undefined {
-        return this.resource.code as CodeableConcept | undefined;
+    getCode () : CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept) : this {
+    setCode (value: CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | string)>) : this {
         this.resource.code = value;
         return this;
     }
@@ -4637,6 +4643,7 @@ export class KjProcedureProfile {
                 ...validateReference(res, profileName, "recorder", ["PractitionerRole"]),
             ],
             warnings: [
+                ...validateEnum(res, profileName, "code", ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"]),
                 ...validateMustSupport(res, profileName, "note"),
             ],
         }
