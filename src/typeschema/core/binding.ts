@@ -63,7 +63,7 @@ function extractValueSetConcepts(
                 }
             } else if (include.system && !include.filter) {
                 try {
-                    const codeSystem: CodeSystem = register.resolveAny(include.system as CanonicalUrl);
+                    const codeSystem = register.resolveAny(include.system as CanonicalUrl) as CodeSystem | undefined;
                     if (codeSystem?.concept) {
                         const extractConcepts = (conceptList: CodeSystemConcept[], system: string) => {
                             for (const concept of conceptList) {

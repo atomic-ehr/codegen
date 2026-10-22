@@ -190,3 +190,23 @@ describe("cyclic package dependencies", () => {
         expect(reg.resolver["b#1.0.0"]).toBeDefined();
     });
 });
+
+describe("package-agnostic canonical resolution", async () => {
+    // R5 publishes StructureDefinition-Base; R4 does not and is registered first.
+    const reg = await registerFromPackageMetas(
+        [
+            { name: "hl7.fhir.r4.core", version: "4.0.1" },
+            { name: "hl7.fhir.r5.core", version: "5.0.0" },
+        ],
+        {},
+    );
+
+    it("finds a canonical held only by a later package", () => {
+        const base = reg.resolveAny("http://hl7.org/fhir/StructureDefinition/Base" as CanonicalUrl);
+        expect(base?.url).toBe("http://hl7.org/fhir/StructureDefinition/Base");
+    });
+
+    it("returns undefined when no package holds the canonical", () => {
+        expect(reg.resolveAny("http://example.org/nothing-here" as CanonicalUrl)).toBeUndefined();
+    });
+});
