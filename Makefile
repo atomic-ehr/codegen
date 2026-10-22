@@ -22,12 +22,13 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda \
 	test-on-the-fly-kbv-condition-diagnosis \
 	test-typescript-r4-us-core-example test-typescript-custom-packages-example \
+	test-r4-r5-r6-patient-converter-example \
 	test-mustache-java-r4-example \
 	test-csharp-sdk generate-python-r4-us-core-sdk \
 	python-r4-us-core-test-setup \
 	test-python-sdk test-python-r4-us-core-example
 
-all: test test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
+all: test test-typescript-r4-us-core-example test-typescript-custom-packages-example test-r4-r5-r6-patient-converter-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -97,6 +98,11 @@ test-typescript-custom-packages-example: typecheck
 	bun run examples/typescript-custom-packages/generate.ts
 	$(TYPECHECK) --project examples/typescript-custom-packages/tsconfig.json
 	bun test $(TEST_ARG) ./examples/typescript-custom-packages/
+
+test-r4-r5-r6-patient-converter-example: typecheck
+	bun run examples/r4-r5-r6-patient-converter/generate.ts
+	$(TYPECHECK) --project examples/r4-r5-r6-patient-converter/tsconfig.json
+	bun test ./examples/r4-r5-r6-patient-converter/
 
 test-mustache-java-r4-example: typecheck
 	bun run examples/mustache/mustache-java-r4-gen.ts

@@ -15,6 +15,11 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - `generate.ts` - Runs two input mechanisms: local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`) and a remote TGZ package by URL (`.fromPackageRef()`, SQL-on-FHIR ViewDefinition)
   - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
 
+- **[r4-r5-r6-patient-converter/](r4-r5-r6-patient-converter/)** - One `Patient` tree per FHIR release (R4 / R5 / R6) from a single builder
+  - `generate.ts` - Three releases loaded together, each tree-shaken to `Patient`, plus the terminology wiring that keeps their bindings apart
+  - `patient-conversion.test.ts` - R4 → R5 → R6 converters plus `@ts-expect-error` assertions pinning the cross-release type breaks
+  - Writes up what actually differs between the three generated `Patient` types
+
 ### Python Generation
 
 - **[python-r4-us-core/](python-r4-us-core/)** - Python/Pydantic models for FHIR R4 core + US Core profiles

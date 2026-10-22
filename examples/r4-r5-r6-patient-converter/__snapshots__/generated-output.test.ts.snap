@@ -1,0 +1,51 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`generated output every emitted module, by release 1`] = `
+[
+  "hl7-fhir-r4-core/Address.ts",
+  "hl7-fhir-r4-core/Age.ts",
+  "hl7-fhir-r4-core/Annotation.ts",
+  "hl7-fhir-r4-core/Attachment.ts",
+  "hl7-fhir-r4-core/BackboneElement.ts",
+  "hl7-fhir-r4-core/CodeableConcept.ts",
+  "hl7-fhir-r4-core/Coding.ts",
+  "hl7-fhir-r4-core/ContactDetail.ts",
+  "hl7-fhir-r4-core/ContactPoint.ts",
+  "hl7-fhir-r4-core/Contributor.ts",
+  "hl7-fhir-r4-core/Count.ts",
+  "hl7-fhir-r4-core/DataRequirement.ts",
+  "hl7-fhir-r4-core/Distance.ts",
+  "hl7-fhir-r4-core/DomainResource.ts",
+  "hl7-fhir-r4-core/Dosage.ts",
+  "hl7-fhir-r4-core/Duration.ts",
+  "hl7-fhir-r4-core/Element.ts",
+  "hl7-fhir-r4-core/Expression.ts",
+  "hl7-fhir-r4-core/Extension.ts",
+  "hl7-fhir-r4-core/HumanName.ts",
+  "hl7-fhir-r4-core/Identifier.ts",
+  "hl7-fhir-r4-core/Meta.ts",
+  "hl7-fhir-r4-core/Money.ts",
+  "hl7-fhir-r4-core/Narrative.ts",
+  "hl7-fhir-r4-core/ParameterDefinition.ts",
+  "hl7-fhir-r4-core/Patient.ts",
+  "hl7-fhir-r4-core/Period.ts",
+  "hl7-fhir-r4-core/Quantity.ts",
+  "hl7-fhir-r4-core/Range.ts",
+  "hl7-fhir-r4-core/Ratio.ts",
+  "hl7-fhir-r4-core/Reference.ts",
+  "hl7-fhir-r4-core/RelatedArtifact.ts",
+  "hl7-fhir-r4-core/Resource.ts",
+  "hl7-fhir-r4-core/SampledData.ts",
+  "hl7-fhir-r4-core/Signature.ts",
+  "hl7-fhir-r4-core/Timing.ts",
+  "hl7-fhir-r4-core/TriggerDefinition.ts",
+  "hl7-fhir-r4-core/UsageContext.ts",
+  "hl7-fhir-r4-core/index.ts",
+]
+`;
+
+exports[`generated output the maritalStatus binding, by release 1`] = `
+{
+  "hl7-fhir-r4-core": "maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;",
+}
+`;
