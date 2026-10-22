@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import type { SectionHandle } from "@root/api/writer-generator/section-writer";
 import { fieldTsType } from "@root/api/writer-generator/typescript/utils";
-import type { CanonicalUrl, Name, ProfileIdentifier, RegularField, TypeIdentifier } from "@root/typeschema/types";
+import type { CanonicalUrl, Identifier, Name, ProfileIdentifier, RegularField } from "@root/typeschema/types";
 
-const makeIdentifier = (kind: TypeIdentifier["kind"], name: string): TypeIdentifier => ({
+const makeIdentifier = (kind: Identifier["kind"], name: string): Identifier => ({
     kind,
     package: "test-package",
     version: "1.0.0",
@@ -16,12 +16,12 @@ const patient = makeIdentifier("resource", "Patient");
 const group = makeIdentifier("resource", "Group");
 const usCorePatient = makeIdentifier("profile", "USCorePatient") as ProfileIdentifier;
 const testPatient = makeIdentifier("profile", "TestPatient") as ProfileIdentifier;
-const tImport: SectionHandle<never, TypeIdentifier> = {
+const tImport: SectionHandle<never, Identifier> = {
     def: () => undefined,
     use: (id) => id.name,
 };
 
-const resolveRef = (ref: TypeIdentifier): TypeIdentifier => {
+const resolveRef = (ref: Identifier): Identifier => {
     if (ref.name === usCorePatient.name || ref.name === testPatient.name) return patient;
     return ref;
 };

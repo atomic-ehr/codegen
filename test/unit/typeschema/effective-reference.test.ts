@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { FieldReference, RegularField, ResourceTypeSchema, TypeIdentifier } from "@typeschema/types";
+import type { FieldReference, Identifier, RegularField, ResourceTypeSchema } from "@typeschema/types";
 import { mkErrorLogger, mkIndex, mkR4Register, r4Package } from "@typeschema-test/utils";
 
 /** `Provenance.target` is `Reference(Any)` — the only R4 core field whose target
@@ -10,7 +10,7 @@ describe("effectiveResource", async () => {
     const index = await mkIndex(r4, logger);
 
     /** Populated by the index for every schema it holds; absent would mean not computed. */
-    const effectiveOf = (reference: FieldReference): TypeIdentifier[] => {
+    const effectiveOf = (reference: FieldReference): Identifier[] => {
         if (!reference.effectiveResource) throw new Error("effectiveResource was not populated");
         return reference.effectiveResource;
     };

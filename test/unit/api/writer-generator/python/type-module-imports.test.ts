@@ -3,15 +3,15 @@ import { Python } from "@root/api/writer-generator/python/writer";
 import type {
     CanonicalUrl,
     ComplexTypeTypeSchema,
+    Identifier,
     Name,
     ResourceTypeSchema,
-    TypeIdentifier,
     TypeSchema,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { mkCodegenLogger } from "@root/utils/log";
 
-const identifier = <K extends TypeIdentifier["kind"]>(kind: K, name: string, pkg = "codegen.test") => ({
+const identifier = <K extends Identifier["kind"]>(kind: K, name: string, pkg = "codegen.test") => ({
     kind,
     name: name as Name,
     package: pkg,
