@@ -54,7 +54,6 @@ import {
     type SpecializationTypeSchema,
     snapshotIdentifier,
     type TypeFamily,
-    type TypeIdentifier,
     type TypeSchema,
     type ValueSetIdentifier,
     type ValueSetTypeSchema,
@@ -63,7 +62,7 @@ import {
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
 
-export const groupByPackages = <T extends { identifier: TypeIdentifier }>(typeSchemas: T[]): Record<PkgName, T[]> => {
+export const groupByPackages = <T extends { identifier: Identifier }>(typeSchemas: T[]): Record<PkgName, T[]> => {
     const grouped = {} as Record<PkgName, T[]>;
     for (const ts of typeSchemas) {
         const pkgName = ts.identifier.package;
@@ -143,7 +142,7 @@ export const sortAsDeclarationSequence = (schemas: SpecializationTypeSchema[]): 
 
 /** Populate `typeFamily` on specialization schemas with transitive children grouped by kind. */
 const populateTypeFamily = (schemas: TypeSchema[]): void => {
-    const directChildrenByParent: Record<string, TypeIdentifier[]> = {};
+    const directChildrenByParent: Record<string, Identifier[]> = {};
     for (const schema of schemas) {
         if (!isSpecializationTypeSchema(schema) || !schema.base) continue;
         const parentUrl = schema.base.url;
@@ -151,11 +150,11 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         directChildrenByParent[parentUrl].push(schema.identifier);
     }
 
-    const transitiveCache: Record<string, TypeIdentifier[]> = {};
-    const getTransitiveChildren = (parentUrl: string): TypeIdentifier[] => {
+    const transitiveCache: Record<string, Identifier[]> = {};
+    const getTransitiveChildren = (parentUrl: string): Identifier[] => {
         if (transitiveCache[parentUrl]) return transitiveCache[parentUrl];
         const direct = directChildrenByParent[parentUrl] ?? [];
-        const result: TypeIdentifier[] = [...direct];
+        const result: Identifier[] = [...direct];
         for (const child of direct) {
             result.push(...getTransitiveChildren(child.url));
         }
@@ -182,17 +181,17 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
 /** Replace each abstract target by the concrete resources of its family, deduped by url
  *  and sorted so generated code does not depend on the order schemas were loaded in. */
 const expandAbstractTargets = (
-    resource: TypeIdentifier[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
-): TypeIdentifier[] => {
-    const isAbstract = (id: TypeIdentifier): boolean => {
+    resource: Identifier[],
+    resolveType: (id: Identifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
+): Identifier[] => {
+    const isAbstract = (id: Identifier): boolean => {
         const schema = resolveType(id);
         return !!schema && "abstractResource" in schema && schema.abstractResource === true;
     };
 
-    const result: TypeIdentifier[] = [];
+    const result: Identifier[] = [];
     const seen = new Set<string>();
-    const push = (id: TypeIdentifier): void => {
+    const push = (id: Identifier): void => {
         if (seen.has(id.url)) return;
         seen.add(id.url);
         result.push(id);
@@ -214,7 +213,7 @@ const expandAbstractTargets = (
 /** Runs after `populateTypeFamily`, which supplies the descendants, and mutates in place as it does. */
 const populateEffectiveReferences = (
     schemas: TypeSchema[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
+    resolveType: (id: Identifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): void => {
     const populateFields = (fields: Record<string, Field> | undefined): void => {
         for (const field of Object.values(fields ?? {})) {
@@ -236,12 +235,12 @@ const populateEffectiveReferences = (
 // Generic Params
 
 type GenericContribution =
-    | { kind: "introduce"; fieldName: string; constraint: TypeIdentifier }
+    | { kind: "introduce"; fieldName: string; constraint: Identifier }
     | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
 
 const collectGenericContributions = (
     schema: SpecializationTypeSchema | NestedTypeSchema | ProfileNestedTypeSchema,
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
+    resolveType: (id: Identifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): GenericContribution[] => {
     const contributions: GenericContribution[] = [];
     for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
@@ -271,7 +270,7 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
     // (the field name); passthrough contributions prepend the carrier field to each inherited
     // param's path. Dedup by leaf (last segment) — multiple fields with the same deepest origin
     // share one generic param, so callers narrow once and many fields update at once.
-    type Raw = { path: string[]; constraint: TypeIdentifier };
+    type Raw = { path: string[]; constraint: Identifier };
     const raw: Raw[] = [];
     for (const c of contributions) {
         if (c.kind === "introduce") {
@@ -305,7 +304,7 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
  *  hops. Iterates to a fixpoint so order doesn't matter. */
 const populateGeneric = (
     schemas: TypeSchema[],
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
+    resolveType: (id: Identifier) => TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined,
 ): void => {
     type Carrier = SpecializationTypeSchema | NestedTypeSchema | ProfileNestedTypeSchema;
     const carriers: Carrier[] = [];
@@ -397,7 +396,7 @@ type ResolveTypeFn = {
     (id: BindingIdentifier): BindingTypeSchema | undefined;
     (id: ProfileIdentifier): ProfileTypeSchema | undefined;
     (id: SnapshotProfileIdentifier): SnapshotProfileTypeSchema | undefined;
-    (id: TypeIdentifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined;
+    (id: Identifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined;
 };
 
 export type TypeSchemaIndex = {
@@ -419,18 +418,18 @@ export type TypeSchemaIndex = {
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
-    findLastSpecializationByIdentifier: (id: TypeIdentifier) => TypeIdentifier;
-    isFamilyType: (id: TypeIdentifier) => boolean;
+    findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
+    isFamilyType: (id: Identifier) => boolean;
     referenceAllowedTypes: (reference: FieldReference) => Name[];
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     constrainedChoice: (
         pkgName: PkgName,
-        baseTypeId: TypeIdentifier,
+        baseTypeId: Identifier,
         sliceElements: string[],
     ) => ConstrainedChoiceInfo | undefined;
     sliceChoiceVariants: (
         pkgName: PkgName,
-        baseTypeId: TypeIdentifier,
+        baseTypeId: Identifier,
         sliceElements: string[],
         name: string,
     ) => string[] | undefined;
@@ -441,10 +440,7 @@ export type TypeSchemaIndex = {
     replaceSchemas: (schemas: TypeSchema[]) => TypeSchemaIndex;
 };
 
-type EntityTree = Record<
-    PkgName,
-    Record<Exclude<TypeIdentifier["kind"], "profile-nested">, Record<CanonicalUrl, object>>
->;
+type EntityTree = Record<PkgName, Record<Exclude<Identifier["kind"], "profile-nested">, Record<CanonicalUrl, object>>>;
 
 const choiceInstances = (fields: Record<string, Field>, declName: string): [string, ChoiceFieldInstance][] =>
     Object.entries(fields).filter(
@@ -577,7 +573,7 @@ export const mkTypeSchemaIndex = (
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     }) as ResolveFn;
-    const resolveType = ((id: TypeIdentifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined => {
+    const resolveType = ((id: Identifier): TypeSchema | NestedTypeSchema | ProfileNestedTypeSchema | undefined => {
         if (isNestedIdentifier(id) || isProfileNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
         if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
@@ -623,7 +619,7 @@ export const mkTypeSchemaIndex = (
         let cur: TypeSchema | undefined = schema;
         while (cur) {
             res.push(cur);
-            const base: TypeIdentifier | undefined = (cur as SpecializationTypeSchema).base;
+            const base: Identifier | undefined = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
             if (isNestedIdentifier(base) || isProfileNestedIdentifier(base)) break;
             const resolved: TypeSchema | undefined = resolve(base);
@@ -657,7 +653,7 @@ export const mkTypeSchemaIndex = (
         return nonConstraintSchema;
     };
 
-    const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
+    const findLastSpecializationByIdentifier = (id: Identifier): Identifier => {
         const resolved = resolveType(id);
         if (!resolved) return id;
         if (isNestedTypeSchema(resolved) || isProfileNestedTypeSchema(resolved))
@@ -668,7 +664,7 @@ export const mkTypeSchemaIndex = (
     /** True when `id` resolves to a family root — a specialization with concrete
      *  resource descendants (e.g. Resource, DomainResource), where a reference
      *  target admits any member of the family. */
-    const isFamilyType = (id: TypeIdentifier): boolean => {
+    const isFamilyType = (id: Identifier): boolean => {
         const schema = resolveType(id);
         if (!schema || !("typeFamily" in schema)) return false;
         return (schema.typeFamily?.resources?.length ?? 0) > 0;
@@ -859,7 +855,7 @@ export const mkTypeSchemaIndex = (
 
     const constrainedChoice = (
         pkgName: PkgName,
-        baseTypeId: TypeIdentifier,
+        baseTypeId: Identifier,
         sliceElements: string[],
     ): ConstrainedChoiceInfo | undefined => {
         const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);
@@ -887,7 +883,7 @@ export const mkTypeSchemaIndex = (
      *  Returns undefined when `name` is not a choice declaration — a plain field. */
     const sliceChoiceVariants = (
         pkgName: PkgName,
-        baseTypeId: TypeIdentifier,
+        baseTypeId: Identifier,
         sliceElements: string[],
         name: string,
     ): string[] | undefined => {

@@ -1,7 +1,7 @@
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { ChoiceFieldInstance, RegularField } from "@typeschema/types.ts";
-import { isNestedIdentifier, isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
+import { type Identifier, isNestedIdentifier, isPrimitiveIdentifier } from "@typeschema/types.ts";
 import type { LibraryImports } from "./imports";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
@@ -86,7 +86,7 @@ export const canonicalToName = (canonical: string | undefined, dropFragment = tr
     return snakeCase(localName);
 };
 
-export const deriveResourceName = (id: TypeIdentifier): string => {
+export const deriveResourceName = (id: Identifier): string => {
     if (isNestedIdentifier(id)) {
         const url = id.url;
         const path = canonicalToName(url, false);
@@ -106,10 +106,10 @@ const buildPyPackageName = (packageName: string): string => {
 export const pyFhirPackageByName = (rootPackageName: string, name: string): string =>
     [rootPackageName, buildPyPackageName(name)].join(".");
 
-export const pyFhirPackage = (rootPackageName: string, identifier: TypeIdentifier): string =>
+export const pyFhirPackage = (rootPackageName: string, identifier: Identifier): string =>
     pyFhirPackageByName(rootPackageName, identifier.package);
 
-export const pyPackage = (rootPackageName: string, identifier: TypeIdentifier): string => {
+export const pyPackage = (rootPackageName: string, identifier: Identifier): string => {
     if (identifier.kind === "complex-type") {
         return `${pyFhirPackage(rootPackageName, identifier)}.base`;
     }
@@ -139,8 +139,8 @@ export const pyLiteral = (value: unknown): string => {
     return JSON.stringify(value);
 };
 
-/** Map a TypeIdentifier to its Python type string. */
-export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
+/** Map a Identifier to its Python type string. */
+export const pyTypeFromIdentifier = (id: Identifier): string => {
     if (isPrimitiveIdentifier(id)) return PRIMITIVE_TYPE_MAP[id.name] ?? "str";
     const prim = PRIMITIVE_TYPE_MAP[id.name];
     if (prim !== undefined) return prim;

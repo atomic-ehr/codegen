@@ -13,6 +13,7 @@ import {
 import {
     type CanonicalUrl,
     type Field,
+    type Identifier,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
@@ -28,7 +29,6 @@ import {
     packageMetaToNpm,
     type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
     type TypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -190,13 +190,13 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
     /** The package's physical output directory: consults the collision-suffix
      *  map, so it can differ from the logical `tsPackageDir(name)` in name.ts
      *  (e.g. `hl7-fhir-r4-core--2`). Unprefixed = stateful writer method. */
-    packageDir(physical: PackageMeta | TypeIdentifier): string {
+    packageDir(physical: PackageMeta | Identifier): string {
         const pkg = "package" in physical ? { name: physical.package, version: physical.version } : physical;
         return this.packageDirectories[packageMetaToNpm(pkg)] ?? safePackageDir(pkg.name);
     }
 
     /** The module's physical position in the output tree: `packageDir/ModuleName`. */
-    modulePath(identifier: TypeIdentifier): string {
+    modulePath(identifier: Identifier): string {
         return `${this.packageDir(identifier)}/${tsModuleName(identifier)}`;
     }
 
@@ -315,8 +315,8 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
         });
     }
 
-    typeModuleImports(schema: SpecializationTypeSchema): SectionHandle<never, TypeIdentifier> {
-        return this.section<never, TypeIdentifier>({
+    typeModuleImports(schema: SpecializationTypeSchema): SectionHandle<never, Identifier> {
+        return this.section<never, Identifier>({
             name: tsResourceName,
             render: (_definitions, usages) => {
                 const sorted = usages
@@ -351,9 +351,9 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     generateType(
         tsIndex: TypeSchemaIndex,
-        tImport: SectionHandle<never, TypeIdentifier>,
+        tImport: SectionHandle<never, Identifier>,
         schema: SpecializationTypeSchema | NestedTypeSchema,
-        isFamilyType?: (ref: TypeIdentifier) => boolean,
+        isFamilyType?: (ref: Identifier) => boolean,
     ): void {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
@@ -486,9 +486,9 @@ export class TypeScript extends SectionWriter<TypeScriptOptions> {
 
     generateNestedTypes(
         tsIndex: TypeSchemaIndex,
-        tImport: SectionHandle<never, TypeIdentifier>,
+        tImport: SectionHandle<never, Identifier>,
         schema: SpecializationTypeSchema,
-        isFamilyType?: (ref: TypeIdentifier) => boolean,
+        isFamilyType?: (ref: Identifier) => boolean,
     ): void {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {

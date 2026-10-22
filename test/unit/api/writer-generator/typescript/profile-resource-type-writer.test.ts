@@ -4,16 +4,16 @@ import { TypeScript } from "@root/api/writer-generator/typescript/writer";
 import type {
     CanonicalUrl,
     ComplexTypeTypeSchema,
+    Identifier,
     Name,
     PrimitiveTypeSchema,
     ResourceTypeSchema,
     SnapshotProfileTypeSchema,
-    TypeIdentifier,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { mkCodegenLogger } from "@root/utils/log";
 
-const primitiveBase: TypeIdentifier = {
+const primitiveBase: Identifier = {
     kind: "primitive-type",
     name: "base64Binary" as Name,
     package: "hl7.fhir.r4.core",
@@ -21,7 +21,7 @@ const primitiveBase: TypeIdentifier = {
     url: "http://hl7.org/fhir/StructureDefinition/base64Binary" as CanonicalUrl,
 };
 
-const elementBase: TypeIdentifier = {
+const elementBase: Identifier = {
     kind: "complex-type",
     name: "Element" as Name,
     package: "hl7.fhir.r4.core",
@@ -34,7 +34,7 @@ const primitiveSchema: PrimitiveTypeSchema = {
     base: elementBase,
 };
 
-const makeBase = (kind: "resource" | "complex-type" | "profile", name: string): TypeIdentifier => ({
+const makeBase = (kind: "resource" | "complex-type" | "profile", name: string): Identifier => ({
     kind,
     name: name as Name,
     package: "hl7.fhir.r4.core",
@@ -42,7 +42,7 @@ const makeBase = (kind: "resource" | "complex-type" | "profile", name: string): 
     url: `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl,
 });
 
-const makeSnapshot = (name: string, base: TypeIdentifier): SnapshotProfileTypeSchema => ({
+const makeSnapshot = (name: string, base: Identifier): SnapshotProfileTypeSchema => ({
     identifier: {
         kind: "profile-snapshot",
         name: name as Name,
@@ -207,7 +207,7 @@ describe("TypeScript profile helper imports", () => {
 
 describe("TypeScript profile type imports", () => {
     test("uses distinct aliases for types with the same name from different packages", () => {
-        const otherAddress: TypeIdentifier = {
+        const otherAddress: Identifier = {
             ...datatypeBase,
             package: "other.types",
             url: "http://example.org/StructureDefinition/Address" as CanonicalUrl,
@@ -228,7 +228,7 @@ describe("TypeScript profile type imports", () => {
     });
 
     test("groups a nested field type with its parent module", () => {
-        const component: TypeIdentifier = {
+        const component: Identifier = {
             ...resourceBase,
             kind: "nested",
             name: "component" as Name,
@@ -253,7 +253,7 @@ describe("TypeScript profile type imports", () => {
     });
 
     test("uses the imported Extension alias in extension methods and nested targets", () => {
-        const otherExtension: TypeIdentifier = {
+        const otherExtension: Identifier = {
             ...extensionBase,
             package: "a.types",
             url: "http://example.org/StructureDefinition/Extension" as CanonicalUrl,

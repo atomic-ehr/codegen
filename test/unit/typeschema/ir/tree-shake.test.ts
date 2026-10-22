@@ -15,6 +15,7 @@ import {
 import { registerFromPackageMetas } from "@root/typeschema/register";
 import {
     type CanonicalUrl,
+    type Identifier,
     type Name,
     type NestedIdentifier,
     type ProfileIdentifier,
@@ -22,7 +23,6 @@ import {
     profileNestedIdentifier,
     type ResourceIdentifier,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -278,7 +278,7 @@ describe("treeShake inherited slice match targets", () => {
         package: "hl7.fhir.r5.core",
         version: "5.0.0",
     };
-    const referenceId: TypeIdentifier = {
+    const referenceId: Identifier = {
         kind: "complex-type",
         name: "Reference" as Name,
         url: "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl,
@@ -703,7 +703,7 @@ describe("treeShake specific TypeSchema", async () => {
 });
 
 describe("ignoreExtensions", () => {
-    const mkDep = (url: string): TypeIdentifier => ({
+    const mkDep = (url: string): Identifier => ({
         kind: "complex-type",
         name: url.split("/").pop()! as Name,
         url: url as CanonicalUrl,

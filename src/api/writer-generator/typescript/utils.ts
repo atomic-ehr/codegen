@@ -2,10 +2,10 @@ import type { FhirTypeImports } from "@root/api/writer-generator/section-writer"
 import {
     type ChoiceFieldInstance,
     type EnumDefinition,
+    type Identifier,
     isNestedIdentifier,
     isPrimitiveIdentifier,
     type RegularField,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import { tsResourceName } from "./name";
 
@@ -54,7 +54,7 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
 
 const rewriteFieldTypeDefs: Record<
     string,
-    Record<string, (field: RegularField | ChoiceFieldInstance, typeRef: (id: TypeIdentifier) => string) => string>
+    Record<string, (field: RegularField | ChoiceFieldInstance, typeRef: (id: Identifier) => string) => string>
 > = {
     Coding: { code: () => "T" },
     Reference: {
@@ -79,12 +79,12 @@ export const resolveFieldTsType = (
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
+    resolveRef?: (ref: Identifier) => Identifier,
     genericFieldMap?: Record<string, string>,
-    isFamilyType?: (ref: TypeIdentifier) => boolean,
+    isFamilyType?: (ref: Identifier) => boolean,
 ): string => {
     // Type modules import referenced types; other callers write them by name.
-    const typeRef = (id: TypeIdentifier) => tImport.use(id);
+    const typeRef = (id: Identifier) => tImport.use(id);
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
@@ -126,8 +126,8 @@ export const resolveFieldTsType = (
 export const fieldTsType = (
     tImport: FhirTypeImports,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
-    isFamilyType?: (ref: TypeIdentifier) => boolean,
+    resolveRef?: (ref: Identifier) => Identifier,
+    isFamilyType?: (ref: Identifier) => boolean,
 ): string => {
     // Profile fields use nested types exported by their parent module.
     const type =
@@ -137,7 +137,7 @@ export const fieldTsType = (
     return type + (field.array ? "[]" : "");
 };
 
-export const tsTypeFromIdentifier = (tImport: FhirTypeImports, id: TypeIdentifier): string => {
+export const tsTypeFromIdentifier = (tImport: FhirTypeImports, id: Identifier): string => {
     if (isNestedIdentifier(id)) return tImport.use(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set

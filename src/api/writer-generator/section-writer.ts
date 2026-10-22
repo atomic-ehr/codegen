@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { TypeIdentifier } from "@root/typeschema/types";
+import type { Identifier } from "@root/typeschema/types";
 
 // Buffers each file so sections emit only the symbols its code uses.
 // `def` records a value; `use` returns a marker resolved to its local name.
@@ -22,7 +22,7 @@ export type SectionHandle<Def, Sym> = {
     use: (key: Sym) => string;
 };
 
-export type FhirTypeImports = SectionHandle<never, TypeIdentifier>;
+export type FhirTypeImports = SectionHandle<never, Identifier>;
 
 type SectionSymbol = {
     section: DraftSection;

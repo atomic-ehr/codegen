@@ -19,7 +19,7 @@ import type { CanonicalUrl, PkgName } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
-export type { TypeIdentifier as Identifier, TypeSchema } from "./types";
+export type { Identifier, TypeSchema } from "./types";
 
 export interface GenerateTypeSchemasResult {
     schemas: TypeSchema[];

@@ -1,6 +1,7 @@
 import {
     type ConstrainedChoiceInfo,
     type FieldSlicing,
+    type Identifier,
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
@@ -8,7 +9,6 @@ import {
     type NameCandidates,
     type RegularField,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
@@ -61,7 +61,7 @@ export const collectRequiredSliceNames = (
 };
 
 /** Collect choice declaration field names from a base type schema */
-const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
+const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: Identifier): Set<string> => {
     const names = new Set<string>();
     const schema = tsIndex.resolveType(typeId);
     if (schema && "fields" in schema && schema.fields) {

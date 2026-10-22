@@ -26,7 +26,6 @@ import {
     type ProfileTypeSchema,
     profileNestedIdentifier,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
     type TypeSchema,
 } from "../types";
 import type { TypeSchemaIndex } from "../utils";
@@ -232,7 +231,7 @@ const treeShakeTypeSchemaWithResolver = (
         const nestedIdentity = (identifier: { package: PkgName; url: CanonicalUrl }) =>
             JSON.stringify([identifier.package, identifier.url]);
         // A profile's fields point at the base's nested types; its own copies live under its url.
-        const ownNested = (type: TypeIdentifier) =>
+        const ownNested = (type: Identifier) =>
             isProfileTypeSchema(schema) ? profileNestedIdentifier(schema.identifier, type.name) : type;
         const usedTypes = new Set<string>();
         const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
@@ -257,7 +256,7 @@ const treeShakeTypeSchemaWithResolver = (
                 });
         };
         collectUsedNestedTypes(schema);
-        const isUsed = (nested: { identifier: TypeIdentifier }) => usedTypes.has(nestedIdentity(nested.identifier));
+        const isUsed = (nested: { identifier: Identifier }) => usedTypes.has(nestedIdentity(nested.identifier));
         if (isProfileTypeSchema(schema)) schema.nested = schema.nested.filter(isUsed);
         else if (isSpecializationTypeSchema(schema)) schema.nested = schema.nested?.filter(isUsed);
     }
@@ -286,7 +285,7 @@ const collectReferenceTargets = (schema: TypeSchema): Identifier[] => {
         Object.values(fields ?? {})
             .filter(isNotChoiceDeclarationField)
             .flatMap((f) => [...(f.reference?.resource ?? []), ...(f.reference?.profiles ?? [])])
-            .filter((id): id is Identifier => !isNestedIdentifier(id)),
+            .filter((id) => !isNestedIdentifier(id)),
     );
 };
 

@@ -1,9 +1,9 @@
 import {
     type CanonicalUrl,
+    type Identifier,
     isProfileTypeSchema,
     type ProfileExtension,
     type SnapshotProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { type ProfileImports, profilePyType, resolveFhirType } from "./imports";
@@ -32,7 +32,7 @@ const resolveExtensionProfile = (
     tsIndex: TypeSchemaIndex,
     pkgName: string,
     ext: ProfileExtension,
-): TypeIdentifier | undefined => {
+): Identifier | undefined => {
     if (ext.profile) {
         const schema = tsIndex.resolve(ext.profile);
         if (schema) return schema.identifier;

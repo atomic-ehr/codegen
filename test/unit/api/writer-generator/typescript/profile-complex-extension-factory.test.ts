@@ -4,17 +4,17 @@ import { TypeScript } from "@root/api/writer-generator/typescript/writer";
 import type {
     CanonicalUrl,
     ComplexTypeTypeSchema,
+    Identifier,
     Name,
     PrimitiveTypeSchema,
     ResourceTypeSchema,
     SnapshotProfileTypeSchema,
-    TypeIdentifier,
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { mkCodegenLogger } from "@root/utils/log";
 import * as helpers from "../../../../../assets/api/writer-generator/typescript/profile-helpers";
 
-const makeBase = (kind: "resource" | "complex-type", name: string): TypeIdentifier => ({
+const makeBase = (kind: "resource" | "complex-type", name: string): Identifier => ({
     kind,
     name: name as Name,
     package: "hl7.fhir.r4.core",
@@ -22,7 +22,7 @@ const makeBase = (kind: "resource" | "complex-type", name: string): TypeIdentifi
     url: `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl,
 });
 
-const makeSnapshot = (name: string, base: TypeIdentifier): SnapshotProfileTypeSchema => ({
+const makeSnapshot = (name: string, base: Identifier): SnapshotProfileTypeSchema => ({
     identifier: {
         kind: "profile-snapshot",
         name: name as Name,
@@ -35,7 +35,7 @@ const makeSnapshot = (name: string, base: TypeIdentifier): SnapshotProfileTypeSc
 });
 
 const extensionBase = makeBase("complex-type", "Extension");
-const codeBase: TypeIdentifier = {
+const codeBase: Identifier = {
     kind: "primitive-type",
     name: "code" as Name,
     package: "hl7.fhir.r4.core",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
     type CanonicalUrl,
+    type Identifier,
     type Name,
     type NestedIdentifier,
     type NestedTypeSchema,
@@ -9,12 +10,11 @@ import {
     profileNestedIdentifier,
     type RegularField,
     type SpecializationTypeSchema,
-    type TypeIdentifier,
 } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 import { mkErrorLogger } from "@typeschema-test/utils";
 
-const stringType: TypeIdentifier = {
+const stringType: Identifier = {
     name: "string" as Name,
     package: "test",
     kind: "primitive-type",
@@ -22,7 +22,7 @@ const stringType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/string" as CanonicalUrl,
 };
 
-const numberType: TypeIdentifier = {
+const numberType: Identifier = {
     name: "number" as Name,
     package: "test",
     kind: "primitive-type",
@@ -30,7 +30,7 @@ const numberType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/number" as CanonicalUrl,
 };
 
-const booleanType: TypeIdentifier = {
+const booleanType: Identifier = {
     name: "boolean" as Name,
     package: "test",
     kind: "primitive-type",
@@ -38,7 +38,7 @@ const booleanType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/boolean" as CanonicalUrl,
 };
 
-const _dateTimeType: TypeIdentifier = {
+const _dateTimeType: Identifier = {
     name: "dateTime" as Name,
     package: "test",
     kind: "primitive-type",
@@ -46,7 +46,7 @@ const _dateTimeType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/dateTime" as CanonicalUrl,
 };
 
-const _periodType: TypeIdentifier = {
+const _periodType: Identifier = {
     name: "Period" as Name,
     package: "test",
     kind: "complex-type",
@@ -54,7 +54,7 @@ const _periodType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/Period" as CanonicalUrl,
 };
 
-const _rangeType: TypeIdentifier = {
+const _rangeType: Identifier = {
     name: "Range" as Name,
     package: "test",
     kind: "complex-type",
@@ -62,7 +62,7 @@ const _rangeType: TypeIdentifier = {
     url: "http://example.org/StructureDefinition/Range" as CanonicalUrl,
 };
 
-const ageType: TypeIdentifier = {
+const ageType: Identifier = {
     name: "Age" as Name,
     package: "test",
     kind: "complex-type",
